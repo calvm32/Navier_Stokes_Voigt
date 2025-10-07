@@ -4,7 +4,7 @@
 
 Start with *https://www.firedrakeproject.org/install.html*, then run `source /path-to/venv-firedrake/bin/activate`.
 
-Alternatively, copy the code into somehting like Google CoLabs and include
+Alternatively, copy the code into something like Google CoLab and include
 ```
 try:
     import firedrake
@@ -13,7 +13,7 @@ except ImportError:
     import firedrake
 ```
 
-To see solutions, run the output volder and corresponding .pvd file in Paraview.
+To see solutions, run the output folder and corresponding .pvd file in Paraview.
 
 ## For larger runs,
 
