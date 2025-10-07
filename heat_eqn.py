@@ -36,26 +36,37 @@ f.interpolate(-t*(x**2))
 
 u.assign(1.0)
 
+# set up vtk output
+outfile = VTKFile("solution.pvd")
+outfile.write(u, time=t)
+
+def weak_form_assemble(u,v, f):
+  return inner(u,v) * dx - (((-1)*(nu)*inner(grad(u), grad(v)) + inner(f,v)) * dx)
+
 # time stepping
 while float(t) < float(T):
-  f.interpolate(-t*(x**2))
+    f.interpolate(-t*(x**2))
 
-  # weak forms for rk4
-  F1 = inner(k1,v) * dx - (((-1)*(nu)*inner(grad(k1), grad(v)) + inner(f,v)) * dx)
-  solve(F1 == 0, k1, solver_parameters={'ksp_type': 'cg', 'pc_type': 'none'})
+    # weak forms for rk4
+    F1 = weak_form_assemble(k1, v, f)
+    solve(F1 == 0, k1, solver_parameters={'ksp_type': 'cg', 'pc_type': 'none'})
 
-  F2 = inner(k2,v) * dx - (((-1)*(nu)*inner(grad(k2 + (dt*k1)/2), grad(v)) + inner(f,v)) * dx)
-  solve(F2 == 0, k2, solver_parameters={'ksp_type': 'cg', 'pc_type': 'none'})
+    F2 = weak_form_assemble(k2 + (dt*k1)/2, v, f)
+    solve(F2 == 0, k2, solver_parameters={'ksp_type': 'cg', 'pc_type': 'none'})
 
-  F3 = inner(k3,v) * dx - (((-1)*(nu)*inner(grad(k3 + (dt*k2)/2), grad(v)) + inner(f,v)) * dx)
-  solve(F3 == 0, k3, solver_parameters={'ksp_type': 'cg', 'pc_type': 'none'})
+    F3 = weak_form_assemble(k3 + (dt*k2)/2, v, f)
+    solve(F3 == 0, k3, solver_parameters={'ksp_type': 'cg', 'pc_type': 'none'})
 
-  F4 = inner(k4,v) * dx - (((-1)*(nu)*inner(grad(k4 + (dt*k3)), grad(v)) + inner(f,v)) * dx)
-  solve(F4 == 0, k4, solver_parameters={'ksp_type': 'cg', 'pc_type': 'none'})
+    F4 = weak_form_assemble(k4 + (dt*k3), v, f)
+    solve(F4 == 0, k4, solver_parameters={'ksp_type': 'cg', 'pc_type': 'none'})
 
-  u_next = u + (dt/6)*(k1 + (2*k2) + (2*k3)+k4)
-  u.assign(u_next)
+    u_next = u + (dt/6)*(k1 + (2*k2) + (2*k3)+k4)
+    u.assign(u_next)
 
-  t += dt
+    # time increment
+    t += dt
+
+    # write
+    outfile.write(u, time=t)
 
 VTKFile("heat-eqn.pvd").write(u)
