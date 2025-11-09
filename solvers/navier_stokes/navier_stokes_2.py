@@ -4,11 +4,12 @@ from solvers.timestepper import timestepper
 from solvers.timestepper_adaptive import timestepper_adaptive
 
 # constants
-T = 2           # final time
-dt = 0.1        # timestepping length
-theta = 1/2     # theta constant
-tol = 0.001     # tolerance
-N = 10          # mesh size
+T = 2                   # final time
+dt = 0.1                # timestepping length
+theta = 1/2             # theta constant
+tol = 0.001             # tolerance
+N = 64                  # mesh size
+Re = Constant(100.0)    # Reynold's num
 
 # mesh
 mesh = UnitSquareMesh(N, N)

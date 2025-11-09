@@ -14,6 +14,7 @@ Re = Constant(100.0)    # Reynold's num
 # mesh
 mesh= UnitSquareMesh(N, N)
 
+# declare function space
 V = VectorFunctionSpace(mesh, "CG", 2)
 W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
