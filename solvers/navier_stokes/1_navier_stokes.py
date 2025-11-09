@@ -1,18 +1,26 @@
 from firedrake import *
 
-N = 64
+from timestepper import timestepper
+from timestepper_adaptive import timestepper_adaptive
 
-M = UnitSquareMesh(N, N)
+# constants
+T = 2                   # final time
+dt = 0.1                # timestepping length
+theta = 1/2             # theta constant
+tol = 0.001             # tolerance
+N = 64                  # mesh size
+Re = Constant(100.0)    # Reynold's num
 
-V = VectorFunctionSpace(M, "CG", 2)
-W = FunctionSpace(M, "CG", 1)
+# mesh
+mesh= UnitSquareMesh(N, N)
+
+V = VectorFunctionSpace(mesh, "CG", 2)
+W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
 up = Function(Z)
 u, p = split(up)
 v, q = TestFunctions(Z)
-
-Re = Constant(100.0)
 
 F = (
     1.0 / Re * inner(grad(u), grad(v)) * dx +

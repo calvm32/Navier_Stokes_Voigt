@@ -1,7 +1,7 @@
 from firedrake import *
 from create_timestep_solver import create_timestep_solver
 
-def timestepper(V, dsN, theta, T, dt, u0, get_data):
+def timestepper(V, dsN, theta, T, dt, u0, get_data, make_weak_form):
     """
     Perform timestepping using theta-scheme with
     final time T, timestep dt, initial datum u0 and
@@ -12,7 +12,7 @@ def timestepper(V, dsN, theta, T, dt, u0, get_data):
     u = Function(V)
 
     # Prepare solver for computing time step
-    solver = create_timestep_solver(get_data, dsN, theta, u, u)
+    solver = create_timestep_solver(get_data, dsN, theta, u, u, make_weak_form)
 
     # Set initial condition
     u.interpolate(u0)
@@ -30,4 +30,4 @@ def timestepper(V, dsN, theta, T, dt, u0, get_data):
         t += dt
 
         # Write to file
-        VTKFile("../../solutions/heat.pvd").write(u)
+        VTKFile("../solutions/soln.pvd").write(u)

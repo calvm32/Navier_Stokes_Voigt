@@ -1,15 +1,17 @@
 from firedrake import *
 
-from timestepper import timestepper
-from timestepper_adaptive import timestepper_adaptive
-
-# mesh
-mesh = UnitSquareMesh(10, 10)
+from solvers.timestepper import timestepper
+from solvers.timestepper_adaptive import timestepper_adaptive
 
 # constants
 T = 2           # final time
 dt = 0.1        # timestepping length
 theta = 1/2     # theta constant
+tol = 0.001     # tolerance
+N = 10          # mesh size
+
+# mesh
+mesh = UnitSquareMesh(N, N)
 
 # declare function space and interpolate functions
 V = FunctionSpace(mesh, "CG", 1)
@@ -26,6 +28,23 @@ u0 = Function(V)
 
 u0.interpolate(ufl_u0)
 
+def make_weak_form(idt, f_n, f_np1, g_n, g_np1, dsN):
+    """
+    Return a function F(u, u_old, v) that builds the weak form
+    using external coefficients (idt, f_n, f_np1, g_n, g_np1).
+    """
+
+    def F(u, u_old, v):
+        return (
+            idt * (u - u_old) * v * dx
+            + inner(grad(theta * u + (1 - theta) * u_old), grad(v)) * dx
+            - (theta * f_np1 + (1 - theta) * f_n) * v * dx
+            - (theta * g_np1 + (1 - theta) * g_n) * v * dsN
+        )
+
+    return F
+
+# make data for iterative time stepping
 def get_data(t, result=None):
     """Create or update data"""
     if result is None: # only allocate memory if hasn't been yet
@@ -38,6 +57,6 @@ def get_data(t, result=None):
     g.interpolate(ufl_g)
     return f, g
 
-
-timestepper(V, ds(1), theta, T, dt, u0, get_data)
-# timestepper_adaptive(V, ds_left, theta, T, tol, u0, get_data)
+# run
+timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form)
+timestepper_adaptive(V, ds(1), theta, T, tol, u0, get_data, make_weak_form)
