@@ -30,4 +30,4 @@ def timestepper(V, dsN, theta, T, dt, u0, get_data, make_weak_form):
         t += dt
 
         # Write to file
-        VTKFile("../solutions/soln.pvd").write(u)
+        VTKFile("solutions/soln.pvd").write(u)
