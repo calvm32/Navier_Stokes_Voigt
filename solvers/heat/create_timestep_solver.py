@@ -45,6 +45,6 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new):
         solve(a == L, u_new)
 
         # Pop log level
-        set_log_level(old_level)
+        # set_log_level(old_level)
 
     return solve_
