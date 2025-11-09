@@ -1,15 +1,17 @@
-We will set up a solver for the heat eqn:
-    - u_t - div(u) = f              in Omega x (0, T)
-    - partial u/ partial n = g      on bdy(Omega) x (0,T)
-    - u = u0                        on Omega x {0}
+Solver for the heat eqn:
+    -> u_t - div(u) = f              in Omega x (0, T)
+    -> partial u/ partial n = g      on bdy(Omega) x (0,T)
+    -> u = u0                        on Omega x {0}
 
 ----
 
 We perform theta-scheme discretization, i.e.
-    - theta = 0     =>      explicit/forward Euler
-    - theta = 1/2   =>      Crank - Nicolson
-    - theta = 0     =>      implicit/backward Euler
+    -> theta = 0     =>      explicit/forward Euler
+    -> theta = 1/2   =>      Crank - Nicolson
+    -> theta = 0     =>      implicit/backward Euler
 
 ----
 
 To run, plug values into "1_heat_eqn.py"
+
+This code was adapted from https://fenics-handson.readthedocs.io/en/latest/heat/doc.html

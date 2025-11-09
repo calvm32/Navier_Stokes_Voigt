@@ -3,9 +3,11 @@ import matplotlib.pyplot as plt
 
 from timestepper import timestepper
 from timestepper_adaptive import timestepper_adaptive
+from create_surface_measure import create_surface_measure_left
 
 # mesh
 mesh = UnitSquareMesh(10, 10)
+ds_left = create_surface_measure_left(mesh)
 
 # constants
 T = 2           # final time
