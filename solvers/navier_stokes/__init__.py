@@ -5,4 +5,5 @@ Solver for the incompressible Navier-Stokes eqn:
     -> u = u0                                               on Omega x {0}
 """
 
-from .navier_stokes import *
+from .navier_stokes import navier_stokes_demo
+# from .navier_stokes import *
