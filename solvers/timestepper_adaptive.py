@@ -55,4 +55,4 @@ def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form):
         dt = dt_new
 
         # Write to file
-        VTKFile("../solutions/soln_adaptive.pvd").write(u)
+        VTKFile("../solutions/soln_adaptive.pvd").write(u_n)
