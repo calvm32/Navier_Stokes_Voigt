@@ -9,20 +9,25 @@ dt = 0.1                # timestepping length
 theta = 1/2             # theta constant
 tol = 0.001             # tolerance
 N = 64                  # mesh size
-
-Re = Constant(100.0)    # Reynold's num
+Re = Constant(100.0)    # Reynold's num for viscosity
 
 # mesh
 mesh = UnitSquareMesh(N, N)
 
-# declare function space and interpolate functions
-V = FunctionSpace(mesh, "CG", 1)
+# declare function space
+V = VectorFunctionSpace(mesh, "CG", 2)
+W = FunctionSpace(mesh, "CG", 1)
+Z = V * W
+
+up = Function(Z)
+u, p = split(up)
+
 x, y = SpatialCoordinate(mesh)
 
 # functions
-ufl_f = cos(x*pi)*cos(y*pi)     # source term f
-ufl_g = 0                       # bdy condition g
-ufl_u0 = 0                      # initial condition u0
+ufl_f = 0           # source term f
+ufl_g = 0           # bdy condition g
+ufl_u0 = 0          # initial condition u0
 
 f = Function(V)
 g = Function(V)
@@ -32,16 +37,21 @@ u0.interpolate(ufl_u0)
 
 def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
     """
-    Returns func F(u, u_old, v), which builds weak form
+    Returns func F(u, u_old, p, q, v), 
+    which builds weak form
     using external coefficients
     """
 
-    def F(u, u_old, v):
+    def F(u, u_old, p, q, v):
+        u_mid = theta * u + (1 - theta) * u_old
+
         return (
             idt * (u - u_old) * v * dx
-            + inner(grad(theta * u + (1 - theta) * u_old), grad(v)) * dx
+            + (1.0 / Re) * inner(grad(u_mid), grad(v)) * dx
+            + inner(dot(grad(u_mid), u_mid), v) * dx
             - (theta * f_np1 + (1 - theta) * f_n) * v * dx
-            - (theta * g_np1 + (1 - theta) * g_n) * v * dsN
+            - p * div(v) * dx
+            + div(u_mid) * q * dx
         )
 
     return F
