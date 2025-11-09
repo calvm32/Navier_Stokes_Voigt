@@ -26,12 +26,18 @@ u0 = Function(V)
 
 u0.interpolate(ufl_u0)
 
-def get_data_4(t, result=None):
-    """Create or update data for Task 4"""
-    f, g = result or (Constant(0), Constant(0))
-    f.assign(ufl_f)
-    g.assign(ufl_g)
+def get_data(t, result=None):
+    """Create or update data"""
+    if result is None: # only allocate memory if hasn't been yet
+        f = Function(V)
+        g = Function(V)
+    else:
+        f, g = result
+
+    f.interpolate(ufl_f)
+    g.interpolate(ufl_g)
     return f, g
 
-timestepper(V, ds(1), theta, T, dt, u0, get_data_4)
-# timestepper_adaptive(V, ds_left, theta, T, tol, u0, get_data_4)
+
+timestepper(V, ds(1), theta, T, dt, u0, get_data)
+# timestepper_adaptive(V, ds_left, theta, T, tol, u0, get_data)
