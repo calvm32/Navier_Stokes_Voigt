@@ -28,7 +28,7 @@ u0 = Function(V)
 
 u0.interpolate(ufl_u0)
 
-def make_weak_form(idt, f_n, f_np1, g_n, g_np1, dsN):
+def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
     """
     Return a function F(u, u_old, v) that builds the weak form
     using external coefficients (idt, f_n, f_np1, g_n, g_np1).
