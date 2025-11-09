@@ -1,5 +1,5 @@
 from firedrake import *
-from create_timestep_solver import create_timestep_solver
+from .create_timestep_solver import create_timestep_solver
 
 def timestepper(V, dsN, theta, T, dt, u0, get_data, make_weak_form):
     """
