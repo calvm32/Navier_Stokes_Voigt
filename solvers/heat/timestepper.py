@@ -30,4 +30,4 @@ def timestepper(V, dsN, theta, T, dt, u0, get_data):
         t += dt
 
         # Write to file
-        VTKFile.write(u, t)
+        VTKFile("heat.pvd").write(u)

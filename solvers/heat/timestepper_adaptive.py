@@ -54,4 +54,4 @@ def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data):
         dt = dt_new
 
         # Write to file
-        VTKFile.write(u_n, t)
+        VTKFile("heat.pvd").write(u)
