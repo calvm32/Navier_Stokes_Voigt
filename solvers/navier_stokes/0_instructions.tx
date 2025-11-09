@@ -1,7 +1,0 @@
-Solver for the Navier-Stokes eqn:
-    -> (u * grad)u - 1/Re grad^2 u + grad p = 0     in Omega
-    -> partial u/ partial n = g                      on bdy(Omega)
-
-----
-
-To run, plug values into "navier_stokes.py"
