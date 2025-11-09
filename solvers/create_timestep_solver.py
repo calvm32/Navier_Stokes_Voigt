@@ -18,10 +18,21 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form):
 
     # callable weak form
     weak_form = make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN)
+    if V.num_sub_spaces() > 1:
+        # mixed case
+        trial_vars = TrialFunctions(V)
+        test_vars = TestFunctions(V)
 
-    # Prepare weak formulation
-    u, v = TrialFunction(V), TestFunction(V)
-    F = weak_form(u,u_old,v)
+        # Build F by calling weak_form with ordering:
+        # (trial components..., u_old components..., test components...)
+        # This matches the examples you provided.
+        F = weak_form(*trial_vars, *u_old.split(), *test_vars)
+
+    else:
+        # scalar/vector single-space case
+        u, v = TrialFunction(V), TestFunction(V)
+        F = weak_form(u, u_old, v)
+
     a, L = lhs(F), rhs(F)
 
     def solve_(t, dt):

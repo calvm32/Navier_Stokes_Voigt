@@ -14,13 +14,13 @@ N = 10          # mesh size
 mesh = UnitSquareMesh(N, N)
 
 # declare function space and interpolate functions
-V = FunctionSpace(mesh, "CG", 2)
+V = FunctionSpace(mesh, "CG", 1)
 x, y = SpatialCoordinate(mesh)
 
 # functions
-ufl_f = cos(x*pi)*cos(y*pi)         # source term f
-ufl_g = as_vector([0, 0])           # bdy condition g
-ufl_u0 = sin(x*pi/2)                # initial condition u0
+ufl_f = cos(x*pi)*cos(y*pi)     # source term f
+ufl_g = 0                       # bdy condition g
+ufl_u0 = 0                      # initial condition u0
 
 f = Function(V)
 g = Function(V)
