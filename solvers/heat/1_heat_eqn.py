@@ -2,7 +2,6 @@ from firedrake import *
 
 from timestepper import timestepper
 from timestepper_adaptive import timestepper_adaptive
-from create_surface_measure import create_surface_measure_left
 
 # mesh
 mesh = UnitSquareMesh(10, 10)
