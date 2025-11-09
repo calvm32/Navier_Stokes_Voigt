@@ -7,6 +7,7 @@ from create_surface_measure import create_surface_measure_left
 
 # mesh
 mesh = UnitSquareMesh(10, 10)
+print(mesh.cell_set.labels)
 ds_left = create_surface_measure_left(mesh)
 
 # constants
