@@ -42,7 +42,7 @@ def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form,
     while t < T:
 
         # Report some numbers
-        energy = assemble(u_n*dx)
+        energy = assemble(inner(u_n.sub(0), u_n.sub(0)) * dx)
         print("{:10.4f} | {:10.4f} | {:#10.4g}".format(t, dt, energy))
 
         # Compute tentative time steps

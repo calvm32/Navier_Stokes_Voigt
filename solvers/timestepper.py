@@ -15,14 +15,15 @@ def timestepper(V, dsN, theta, T, dt, u0, get_data, make_weak_form,
         Z = V
 
     # Initialize solution function
-    u = Function(Z)
+    u_old = Function(Z)
+    u_new = Function(Z)
 
     # Prepare solver for computing time step
-    solver = create_timestep_solver(get_data, dsN, theta, u, u, make_weak_form,
+    solver = create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
                                     bcs, nullspace, solver_parameters, appctx, W)
 
     # Set initial condition
-    u.interpolate(u0)
+    u_old.assign(u0)
 
     # Perform timestepping
     t = 0
@@ -30,7 +31,7 @@ def timestepper(V, dsN, theta, T, dt, u0, get_data, make_weak_form,
     while t < T:
 
         # Report some numbers
-        energy = assemble(u*dx)
+        energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
         print("{:10.4f} | {:10.4f} | {:#10.4g}".format(t, dt, energy))
 
         # Perform time step
