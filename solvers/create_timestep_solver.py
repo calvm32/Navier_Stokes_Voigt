@@ -33,6 +33,16 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
     # callable weak form
     weak_form = make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN)
 
+    # Build weak form
+    if W is not None:
+        u, p = TrialFunctions(Z)
+        v, q = TestFunctions(Z)
+        u_old_v, p_old = split(u_old)
+        F = weak_form(u, p, u_old_v, p_old, v, q)
+    else:
+        u, v = TrialFunction(Z), TestFunction(Z)
+        F = weak_form(u, u_old, v)
+
     def solve_(t, dt):
         """
         Update problem data to interval (t, t+dt) and run solver
@@ -43,17 +53,7 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
         get_data(t+dt, (f_np1, g_np1))
         idt.assign(1/dt)
 
-        # split unknowns and previous solutions (symbolic split for form construction)
-        u_sym, p_sym = split(u_new)    # symbolic unknowns (UFL)
-        u_old_sym, p_old_sym = split(u_old)  # symbolic previous step (UFL)
-
-        # build the residual using the weak form factory
-        weak_form = make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN)
-        F = weak_form(u_sym, p_sym, u_old_sym, p_old_sym, *TestFunctions(u_new.function_space()))
-
-        # Solve the nonlinear problem F==0 for u_new
-        # Note: solve() will compute the Jacobian automatically (derivative w.r.t. u_new),
-        # because the form only contains split(u_new) symbolic UFL objects, not subfunctions.
-        solve(F == 0, u_new, **solver_kwargs)
+        # Run the solver
+        solve(F == 0, u_new)
 
     return solve_
