@@ -23,7 +23,7 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
     # Initialize coefficients
     f_n, g_n = get_data(0)
     f_np1, g_np1 = get_data(0)
-    idt = Constant(1.0)
+    idt = Constant(0.0)
 
     # Extract function space
     Z = u_new.function_space()
