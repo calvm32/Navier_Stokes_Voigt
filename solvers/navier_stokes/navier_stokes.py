@@ -19,9 +19,6 @@ V = VectorFunctionSpace(mesh, "CG", 2)
 W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
-up = Function(Z)
-u, p = split(up)
-
 x, y = SpatialCoordinate(mesh)
 
 # functions
@@ -32,10 +29,12 @@ ufl_pressure = Constant(0.0)        # pressure ic
 
 f = Function(V)
 g = Function(V)
-u0 = Function(Z)
+up0 = Function(Z)
 
-u0.sub(0).interpolate(ufl_velocity)  # velocity 
-u0.sub(1).interpolate(ufl_pressure)  # pressure 
+# initial condition
+u0, p0 = up0.subfunctions
+u0.interpolate(ufl_velocity)  # velocity 
+u0.interpolate(ufl_pressure)  # pressure 
 
 def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
     """
