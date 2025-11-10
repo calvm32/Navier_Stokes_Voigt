@@ -65,4 +65,7 @@ def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form,
         dt = dt_new
 
         # Write to file
-        outfile.write(u_n)
+        if W is None:
+            outfile.write(u_n)
+        else:
+            outfile.write(u_n.sub(0), u_n.sub(1))

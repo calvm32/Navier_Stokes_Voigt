@@ -40,4 +40,7 @@ def timestepper(V, dsN, theta, T, dt, u0, get_data, make_weak_form,
         u_old.assign(u_new)
 
         # Write to file
-        outfile.write(u_new)
+        if W is None:
+            outfile.write(u_new)
+        else:
+            outfile.write(u_new.sub(0), u_new.sub(1))
