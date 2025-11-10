@@ -42,7 +42,7 @@ def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
     using external coefficients
     """
 
-    def F(u, u_old, v, p, q):
+    def F(u, p, u_old, p_old, v, q):
         u_mid = theta * u + (1 - theta) * u_old
 
         return (
@@ -69,6 +69,37 @@ def get_data(t, result=None):
     g.interpolate(ufl_g)
     return f, g
 
+# setup from demo
+bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
+       DirichletBC(Z.sub(0), Constant((0, 0)), (1, 2, 3))]
+
+nullspace = MixedVectorSpaceBasis(
+    Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
+
+appctx = {"Re": Re, "velocity_space": 0}
+
+solver_parameters = {
+    "mat_type": "matfree",
+    "snes_monitor": None,
+    "ksp_type": "fgmres",
+    "pc_type": "fieldsplit",
+    "pc_fieldsplit_type": "schur",
+    "pc_fieldsplit_schur_fact_type": "lower",
+    "fieldsplit_0_ksp_type": "preonly",
+    "fieldsplit_0_pc_type": "python",
+    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
+    "fieldsplit_0_assembled_pc_type": "lu",
+    "fieldsplit_1_ksp_type": "gmres",
+    "fieldsplit_1_pc_type": "python",
+    "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
+    "fieldsplit_1_pcd_Mp_pc_type": "lu",
+    "fieldsplit_1_pcd_Kp_pc_type": "lu",
+    "fieldsplit_1_pcd_Fp_mat_type": "matfree"
+}
+
 # run
-timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form)
-timestepper_adaptive(V, ds(1), theta, T, tol, u0, get_data, make_weak_form)
+timestepper(Z, ds(1), theta, T, dt, u0, get_data, make_weak_form,
+        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, appctx=appctx)
+
+timestepper_adaptive(Z, ds(1), theta, T, tol, u0, get_data, make_weak_form,
+        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, appctx=appctx)
