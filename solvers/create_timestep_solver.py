@@ -55,15 +55,7 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
         get_data(t+dt, (f_np1, g_np1))
         idt.assign(1/dt)
 
-        # Push log level - NEEDS DIFF IMPORT, BUT IS IT NECESSARY?
-        # old_level = get_log_level()
-        # warning = LogLevel.WARNING if cpp.__version__ > '2017.2.0' else WARNING
-        # set_log_level(warning)
-
         # Run the solver
         solve(a == L, u_new)
-
-        # Pop log level
-        # set_log_level(old_level)
 
     return solve_

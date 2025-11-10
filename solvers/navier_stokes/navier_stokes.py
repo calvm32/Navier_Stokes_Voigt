@@ -31,7 +31,7 @@ ufl_u0 = as_vector([0, 0])          # initial condition u0
 
 f = Function(V)
 g = Function(V)
-u0 = Function(V)
+u0 = Function(W)
 
 u0.interpolate(ufl_u0)
 
