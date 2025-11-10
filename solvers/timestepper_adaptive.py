@@ -4,7 +4,8 @@ from .compute_est import compute_est
 from .compute_new_dt import compute_new_dt
 from .create_timestep_solver import create_timestep_solver
 
-def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form):
+def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form,
+                           bcs=None, nullspace=None, solver_parameters=None, appctx=None):
     """
     Perform adaptive timestepping using theta-scheme with
     final time T, tolerance tol, initial datum u0 and
@@ -17,9 +18,12 @@ def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form):
     u_np1_high = Function(V)
 
     # Prepare solvers for computing tentative time steps
-    solver_low = create_timestep_solver(get_data, dsN, theta, u_n, u_np1_low, make_weak_form)
-    solver_high_1 = create_timestep_solver(get_data, dsN, theta, u_n, u_np1_high, make_weak_form)
-    solver_high_2 = create_timestep_solver(get_data, dsN, theta, u_np1_high, u_np1_high, make_weak_form)
+    solver_low = create_timestep_solver(get_data, dsN, theta, u_n, u_np1_low, make_weak_form,
+                                        bcs, nullspace, solver_parameters, appctx)
+    solver_high_1 = create_timestep_solver(get_data, dsN, theta, u_n, u_np1_high, make_weak_form,
+                                        bcs, nullspace, solver_parameters, appctx)
+    solver_high_2 = create_timestep_solver(get_data, dsN, theta, u_np1_high, u_np1_high, make_weak_form,
+                                        bcs, nullspace, solver_parameters, appctx)
 
     # Initial time step; the value does not really matter
     dt = T/2
