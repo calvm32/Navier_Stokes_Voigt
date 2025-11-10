@@ -1,7 +1,7 @@
 from firedrake import *
 
-def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
-                           bcs, nullspace, solver_parameters, appctx):
+def create_timestep_solver(V, get_data, dsN, theta, u_old, u_new, make_weak_form,
+                           bcs, nullspace, solver_parameters, appctx, W):
     """
     Prepare timestep solver by theta-scheme for given
     function get_data(t) returning data (f(t), g(t)), given
@@ -31,11 +31,8 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
     # callable weak form
     weak_form = make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN)
 
-    # Detect if space is mixed
-    is_mixed = hasattr(V, "num_sub_spaces") and V.num_sub_spaces() > 1
-
     # Build weak form
-    if is_mixed:
+    if W is not None:
         trial_vars = TrialFunctions(V)
         test_vars = TestFunctions(V)
         F = weak_form(*trial_vars, *u_old.split(), *test_vars)
