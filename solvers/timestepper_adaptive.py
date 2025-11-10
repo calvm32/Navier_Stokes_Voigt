@@ -5,7 +5,7 @@ from .compute_new_dt import compute_new_dt
 from .create_timestep_solver import create_timestep_solver
 
 def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form,
-                           bcs=None, nullspace=None, solver_parameters=None, appctx=None):
+                           bcs, nullspace, solver_parameters, appctx):
     """
     Perform adaptive timestepping using theta-scheme with
     final time T, tolerance tol, initial datum u0 and
