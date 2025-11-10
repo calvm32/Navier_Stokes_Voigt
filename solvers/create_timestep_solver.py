@@ -19,6 +19,8 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
         solver_kwargs["solver_parameters"] = solver_parameters
     if appctx is not None:
         solver_kwargs["appctx"] = appctx
+    if W is not None:
+        solver_kwargs["W"] = W
 
     # Initialize coefficients
     f_n, g_n = get_data(0)
