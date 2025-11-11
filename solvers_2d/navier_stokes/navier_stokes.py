@@ -7,7 +7,7 @@ from solvers_2d.timestepper_adaptive import timestepper_adaptive
 T = 2                   # final time
 dt = 0.1                # timestepping length
 theta = 1/2             # theta constant
-tol = 10**-6            # tolerance
+tol = 10**-10            # tolerance
 N = 64                  # mesh size
 Re = Constant(100.0)    # Reynold's num for viscosity
 
