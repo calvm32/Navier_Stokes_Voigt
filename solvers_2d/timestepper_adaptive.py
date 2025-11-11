@@ -76,7 +76,7 @@ def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form,
             continue
 
         # Move to next time step
-        u_n.vector()[:] = u_np1_high.vector()
+        u_n.vector()[:] = u_np1_high_end.vector()
         t += dt
         dt = dt_new
 
