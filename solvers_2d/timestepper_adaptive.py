@@ -67,7 +67,7 @@ def timestepper_adaptive(V, dsN, theta, T, tol, u0, get_data, make_weak_form,
         u_n.assign(u_np1_high_end)
 
         # Compute error estimate and new timestep
-        est = compute_est(theta, u_np1_low, u_np1_high)
+        est = compute_est(theta, u_np1_low, u_np1_high_end)
         dt_new = compute_new_dt(theta, est, tol, dt)
 
         if est > tol:
