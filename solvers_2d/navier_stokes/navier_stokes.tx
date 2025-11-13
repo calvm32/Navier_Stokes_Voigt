@@ -1,13 +1,11 @@
 from firedrake import *
 
 from solvers_2d.timestepper import timestepper
-from solvers_2d.timestepper_adaptive import timestepper_adaptive
 
 # constants
 T = 2                   # final time
 dt = 0.1                # timestepping length
 theta = 1/2             # theta constant
-tol = 10**-10            # tolerance
 N = 64                  # mesh size
 Re = Constant(100.0)    # Reynold's num for viscosity
 
@@ -102,9 +100,5 @@ solver_parameters = {
 
 # run
 timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form,
-        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
-        appctx=appctx, W=W)
-
-timestepper_adaptive(V, ds(1), theta, T, tol, u0, get_data, make_weak_form,
         bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
         appctx=appctx, W=W)

@@ -1,7 +1,6 @@
 from firedrake import *
 
 from solvers_2d.timestepper import timestepper
-from solvers_2d.timestepper_adaptive import timestepper_adaptive
 
 # constants
 T = 2           # final time

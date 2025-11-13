@@ -11,7 +11,7 @@ tol = 10**-3    # tolerance
 N = 10          # mesh size
 
 # mesh
-mesh = UnitSquareMesh(N, N)
+mesh = UnitCubeMesh(N, N, N)
 
 # declare function space and interpolate functions
 V = FunctionSpace(mesh, "CG", 1)
@@ -59,4 +59,4 @@ def get_data(t, result=None):
 
 # run
 timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form)
-timestepper_adaptive(V, ds(1), theta, T, tol, u0, get_data, make_weak_form)
+#timestepper_adaptive(V, ds(1), theta, T, tol, u0, get_data, make_weak_form)

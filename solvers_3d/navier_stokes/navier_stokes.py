@@ -12,7 +12,7 @@ N = 64                  # mesh size
 Re = Constant(100.0)    # Reynold's num for viscosity
 
 # mesh
-mesh = UnitSquareMesh(N, N)
+mesh = UnitCubeMesh(N, N, N)
 
 # declare function space
 V = VectorFunctionSpace(mesh, "CG", 2)
@@ -73,8 +73,8 @@ def get_data(t, result=None):
     return f, g
 
 # setup from demo
-bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
-       DirichletBC(Z.sub(0), Constant((0, 0)), (1, 2, 3))]
+bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (6)),
+       DirichletBC(Z.sub(0), Constant((0, 0)), (1, 2, 3, 4, 5))]
 
 nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
@@ -101,10 +101,10 @@ solver_parameters = {
 }
 
 # run
-#timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form,
-#        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
-#        appctx=appctx, W=W)
-
-timestepper_adaptive(V, ds(1), theta, T, tol, u0, get_data, make_weak_form,
+timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form,
         bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
         appctx=appctx, W=W)
+
+#timestepper_adaptive(V, ds(1), theta, T, tol, u0, get_data, make_weak_form,
+#        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
+#        appctx=appctx, W=W)
