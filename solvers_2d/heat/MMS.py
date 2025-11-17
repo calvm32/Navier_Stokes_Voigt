@@ -1,5 +1,5 @@
 from firedrake import *
-from solvers_2d.timestepper import timestepper
+from solvers_2d.timestepper_MMS import timestepper_MMS
 
 # constants
 T = 2           # final time
@@ -32,11 +32,8 @@ for exp in range(1, 10):
     V = FunctionSpace(mesh, "CG", 1)
     x, y = SpatialCoordinate(mesh)
 
-    t = Constant(0.0)            # Firedrake constant
-    pi = ufl.pi                   # UFL π
-    exp = ufl.exp                 # UFL exp
-    sin = ufl.sin                 # UFL sin
-    cos = ufl.cos                 # UFL cos
+    t = Constant(0.0) # symbolic constant for t
+    exp = ufl.exp # ufl e, so t gets calculated correctly
 
     # exact calculations for u=e^t*sin(pix)*cos(piy)
     ufl_u_exact = exp(t)*sin(pi*x)*cos(pi*y)
@@ -67,4 +64,4 @@ for exp in range(1, 10):
         return f, g
 
     # run
-    timestepper(V, ds(1), theta, T, dt, u_exact, get_data, make_weak_form, u_exact)
+    timestepper_MMS(V, ds(1), theta, T, dt, u_exact, get_data, make_weak_form, u_exact)
