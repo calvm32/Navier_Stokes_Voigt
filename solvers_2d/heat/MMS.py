@@ -1,10 +1,14 @@
 from firedrake import *
+import matplotlib.pyplot as plt
 from solvers_2d.timestepper_MMS import timestepper_MMS
 
 # constants
 T = 2           # final time
 dt = 0.1        # timestepping length
 theta = 1/2     # theta constant
+
+N_list = []
+error_list = []
 
 def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
     """
@@ -24,6 +28,7 @@ def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
 
 for exp in range(1, 10):
     N = 2**exp
+    N_list.append(N)
 
     # mesh
     mesh = UnitSquareMesh(N, N)
@@ -64,4 +69,12 @@ for exp in range(1, 10):
         return f, g
 
     # run
-    timestepper_MMS(V, ds(1), theta, T, dt, u_exact, get_data, make_weak_form, u_exact)
+    error = timestepper_MMS(V, ds(1), theta, T, dt, u_exact, get_data, make_weak_form, u_exact)
+    error_list.append(error)
+
+import matplotlib.pyplot as plt
+plt.loglog(N_list, error_list, "-o")
+plt.xlabel("mesh size h")
+plt.ylabel("error")
+plt.grid(True)
+plt.show()

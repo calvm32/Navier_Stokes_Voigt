@@ -33,7 +33,6 @@ def timestepper_MMS(V, dsN, theta, T, dt, u0, get_data, make_weak_form, u_exact,
 
     # Perform timestepping
     t = 0
-    outfile = VTKFile("soln.pvd")
     while t < T:
 
         # Report some numbers
@@ -48,7 +47,7 @@ def timestepper_MMS(V, dsN, theta, T, dt, u0, get_data, make_weak_form, u_exact,
     # Write FINAL error to file
     if W is None:
         u_error = errornorm(u_exact, u_new)
-        outfile.write(u_error)
+        return(u_error)
     else:
         u_error = errornorm(u_exact, u_new.sub(0))
-        outfile.write(u_error)
+        return(u_error)
