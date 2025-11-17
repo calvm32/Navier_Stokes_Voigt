@@ -31,7 +31,12 @@ for exp in range(1, 10):
     # declare function space and interpolate functions
     V = FunctionSpace(mesh, "CG", 1)
     x, y = SpatialCoordinate(mesh)
-    t = Constant(0.0) # symbolic constant for t
+
+    t = Constant(0.0)            # Firedrake constant
+    pi = ufl.pi                   # UFL π
+    exp = ufl.exp                 # UFL exp
+    sin = ufl.sin                 # UFL sin
+    cos = ufl.cos                 # UFL cos
 
     # exact calculations for u=e^t*sin(pix)*cos(piy)
     ufl_u_exact = exp(t)*sin(pi*x)*cos(pi*y)
