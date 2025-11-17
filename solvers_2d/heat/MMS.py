@@ -42,7 +42,7 @@ for exp in range(1, 10):
 
     # exact calculations for u=e^t*sin(pix)*cos(piy)
     ufl_u_exact = exp(t)*sin(pi*x)*cos(pi*y)
-    ufl_g_exact = -pi*exp(t)*cos(pi*y)*sin(pi*y)
+    ufl_g_exact = -pi*exp(t)*sin(pi*x)*sin(pi*y)
     ufl_f_exact = (1+2*pi**2)*exp(t)*sin(pi*x)*cos(pi*y)
 
     # functions
