@@ -10,5 +10,5 @@ This code was adapted from https://fenics-handson.readthedocs.io/en/latest/heat/
 
 """
 
-from .heat import *
+from .solver import *
 from .MMS import *

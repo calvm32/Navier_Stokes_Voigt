@@ -32,9 +32,6 @@ for exp in range(1, 10):
 
     # mesh
     mesh = UnitSquareMesh(N, N)
-
-    # declare function space and interpolate functions
-    V = FunctionSpace(mesh, "CG", 1)
     x, y = SpatialCoordinate(mesh)
 
     t = Constant(0.0) # symbolic constant for t
@@ -42,21 +39,23 @@ for exp in range(1, 10):
 
     # exact calculations for u=e^t*sin(pix)*cos(piy)
     ufl_u_exact = exp(t)*cos(pi*x)*cos(pi*y)
-    ufl_g_exact = 0
     ufl_f_exact = (1+2*pi**2)*exp(t)*cos(pi*x)*cos(pi*y)
-    ufl_u0 = cos(pi*x)*cos(pi*y)
+    ufl_g_exact = 0
 
     # functions
     ufl_f = ufl_f_exact     # source term f
     ufl_g = ufl_g_exact     # bdy condition g
 
+    # declare function space and interpolate functions
+    V = FunctionSpace(mesh, "CG", 1)
+
+    u_exact = Function(V)
     f = Function(V)
     g = Function(V)
-    u_exact = Function(V)
     u0 = Function(V)
 
     u_exact.interpolate(ufl_u_exact)
-    u0.interpolate(ufl_u0)
+    u0.interpolate(ufl_u_exact)
 
     # make data for iterative time stepping
     def get_data(t, result=None):
@@ -72,10 +71,9 @@ for exp in range(1, 10):
         return f, g
 
     # run
-    error = timestepper_MMS(V, ds(1), theta, T, dt, u_exact, get_data, make_weak_form, u_exact)
+    error = timestepper_MMS(V, ds(1), theta, T, dt, u0, get_data, make_weak_form, u_exact)
     error_list.append(error)
 
-import matplotlib.pyplot as plt
 plt.loglog(N_list, error_list, "-o")
 plt.xlabel("mesh size h")
 plt.ylabel("error")

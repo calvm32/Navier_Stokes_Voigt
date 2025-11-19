@@ -11,51 +11,25 @@ Re = Constant(100.0)    # Reynold's num for viscosity
 
 # mesh
 mesh = UnitSquareMesh(N, N)
-
-# declare function space
-V = VectorFunctionSpace(mesh, "CG", 2)
-W = FunctionSpace(mesh, "CG", 1)
-Z = V * W
-
-up = Function(Z)
-u, p = split(up)
-
 x, y = SpatialCoordinate(mesh)
 
 # functions
 ufl_f = as_vector([0, 0])           # source term f
 ufl_g = as_vector([0, 0])           # bdy condition g
-ufl_velocity = as_vector([1, 0])    # velocity ic
-ufl_pressure = Constant(0.0)        # pressure ic
+ufl_v = as_vector([1, 0])           # velocity ic
+ufl_p = Constant(0.0)               # pressure ic
+
+# declare function space and interpolate functions
+V = VectorFunctionSpace(mesh, "CG", 2)
+W = FunctionSpace(mesh, "CG", 1)
+Z = V * W
 
 f = Function(V)
 g = Function(V)
 u0 = Function(Z)
 
-u0.subfunctions[0].interpolate(ufl_velocity)
-u0.subfunctions[1].interpolate(ufl_pressure)
-up.assign(u0)    
-
-def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
-    """
-    Returns func F(u, u_old, p, q, v), 
-    which builds weak form
-    using external coefficients
-    """
-
-    def F(u, p, u_old, p_old, v, q):
-        u_mid = theta * u + (1 - theta) * u_old
-
-        return (
-            idt * inner(u - u_old, v) * dx
-            + 1.0 / Re * inner(grad(u_mid), grad(v)) * dx +
-            inner(dot(grad(u_mid), u_mid), v) * dx -
-            p * div(v) * dx +
-            div(u_mid) * q * dx
-            - inner((theta * f_np1 + (1 - theta) * f_n), v) * dx
-        )
-
-    return F
+u0.subfunctions[0].interpolate(ufl_v)
+u0.subfunctions[1].interpolate(ufl_p)
 
 # make data for iterative time stepping
 def get_data(t, result=None):
@@ -97,6 +71,27 @@ solver_parameters = {
     "fieldsplit_1_pcd_Kp_pc_type": "lu",
     "fieldsplit_1_pcd_Fp_mat_type": "matfree"
 }
+
+def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
+    """
+    Returns func F(u, u_old, p, q, v), 
+    which builds weak form
+    using external coefficients
+    """
+
+    def F(u, p, u_old, p_old, v, q):
+        u_mid = theta * u + (1 - theta) * u_old
+
+        return (
+            idt * inner(u - u_old, v) * dx
+            + 1.0 / Re * inner(grad(u_mid), grad(v)) * dx +
+            inner(dot(grad(u_mid), u_mid), v) * dx -
+            p * div(v) * dx +
+            div(u_mid) * q * dx
+            - inner((theta * f_np1 + (1 - theta) * f_n), v) * dx
+        )
+
+    return F
 
 # run
 timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form,
