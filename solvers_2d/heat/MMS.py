@@ -17,11 +17,11 @@ for exp in range(1, 10):
     x, y = SpatialCoordinate(mesh)
 
     t = Constant(0.0) # symbolic constant for t
-    exp = ufl.exp # ufl e, so t gets calculated correctly
+    ufl_exp = ufl.exp # ufl e, so t gets calculated correctly
 
     # exact calculations for u=e^t*sin(pix)*cos(piy)
-    ufl_u_exact = exp(t)*cos(pi*x)*cos(pi*y)
-    ufl_f_exact = (1+2*pi**2)*exp(t)*cos(pi*x)*cos(pi*y)
+    ufl_u_exact = ufl_exp(t)*cos(pi*x)*cos(pi*y)
+    ufl_f_exact = (1+2*pi**2)*ufl_exp(t)*cos(pi*x)*cos(pi*y)
     ufl_g_exact = 0
 
     # functions
