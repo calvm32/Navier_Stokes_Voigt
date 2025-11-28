@@ -11,26 +11,11 @@ error_list = []
 appctx = {"Re": Re, "velocity_space": 0}
 
 solver_parameters = {
-    "mat_type": "matfree",
+    "mat_type": "aij",
+    "snes_type": "newtonls",
     "snes_monitor": None,
-    "snes_rtol": 1e-8,
-    "snes_atol": 1e-12,
-    "ksp_type": "fgmres",
-    "ksp_monitor": None,
-    "ksp_rtol": 1e-8,
-    "pc_type": "fieldsplit",
-    "pc_fieldsplit_type": "schur",
-    "pc_fieldsplit_schur_fact_type": "lower",
-    "fieldsplit_0_ksp_type": "preonly",
-    "fieldsplit_0_pc_type": "python",
-    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
-    "fieldsplit_0_assembled_pc_type": "lu",
-    "fieldsplit_1_ksp_type": "gmres",
-    "fieldsplit_1_pc_type": "python",
-    "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
-    "fieldsplit_1_pcd_Mp_pc_type": "lu",
-    "fieldsplit_1_pcd_Kp_pc_type": "lu",
-    "fieldsplit_1_pcd_Fp_mat_type": "matfree"
+    "ksp_type": "preonly",
+    "pc_type": "lu"
 }
 
 # calculate error as mesh size increases
