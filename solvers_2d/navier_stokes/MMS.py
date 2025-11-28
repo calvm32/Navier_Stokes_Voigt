@@ -79,13 +79,15 @@ for exp in range(3, 10):
         return f, g
     
     # BCs
-    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), [1, 3])  # pass list not tuple
-    bc_pressure_ref = DirichletBC(Z.sub(1), Constant(0.0), 2)  # pin pressure at boundary id 2 (outflow)
+    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1, 3))
+    bc_pressure_ref = DirichletBC(Z.sub(1), Constant(0.0), (2,))  # pin pressure at boundary id 2
     bcs = [bc_noslip, bc_pressure_ref]
+
+    nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
     # run
     error = timestepper_MMS(V, ds(1), theta, T, dt, u0, get_data, make_weak_form, u_exact,
-            bcs=bcs, solver_parameters=solver_parameters, 
+            bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
             appctx=appctx, W=W)
     error_list.append(error)
 
