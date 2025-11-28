@@ -85,20 +85,10 @@ for exp in range(1, 10):
         g.interpolate(ufl_g)
         return f, g
     
-    # Boundary identifiers via callables (Firedrake accepts callables for sub_domain)
-    def walls(x):
-        return np.logical_or(np.isclose(x[1], 0.0), np.isclose(x[1], 1.0))
-
-    def inflow(x):
-        return np.isclose(x[0], 0.0)
-
-    def outflow(x):
-        return np.isclose(x[0], 1.0)
-    
     # Dirichlet BCs
-    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), walls)
-    bc_inflow = DirichletBC(Z.sub(1), P, inflow)
-    bc_outflow = DirichletBC(Z.sub(1), Constant(0.0), outflow)
+    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1,3))
+    bc_inflow = DirichletBC(Z.sub(1), P, 4)
+    bc_outflow = DirichletBC(Z.sub(1), Constant(0.0), 2)
     bcs = [bc_noslip, bc_inflow, bc_outflow]
 
     # run
