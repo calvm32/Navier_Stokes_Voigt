@@ -30,7 +30,7 @@ solver_parameters = {
 }
 
 # calculate error as mesh size increases
-for exp in range(2, 10):
+for exp in range(3, 10):
     N = 2**exp
     N_list.append(N)
 
