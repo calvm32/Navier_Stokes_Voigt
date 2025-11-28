@@ -6,7 +6,7 @@ dt = 0.1        # timestepping length
 theta = 1/2     # theta constant
 N = 10          # mesh size
 
-Re = Constant(100.0)    # Reynold's num for viscosity
+Re = Constant(1.0)    # Reynold's num for viscosity
 
 # functions
 ufl_v = as_vector([1, 0])           # velocity ic
