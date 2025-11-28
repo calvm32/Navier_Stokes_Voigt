@@ -1,6 +1,6 @@
 from firedrake import *
-
 from solvers_2d.timestepper import timestepper
+from make_weak_form import make_weak_form
 
 # constants
 T = 2                   # final time
@@ -9,15 +9,36 @@ theta = 1/2             # theta constant
 N = 256                 # mesh size
 Re = Constant(100.0)    # Reynold's num for viscosity
 
+appctx = {"Re": Re, "velocity_space": 0}
+
+solver_parameters = {
+    "mat_type": "matfree",
+    "snes_monitor": None,
+    "ksp_type": "fgmres",
+    "pc_type": "fieldsplit",
+    "pc_fieldsplit_type": "schur",
+    "pc_fieldsplit_schur_fact_type": "lower",
+    "fieldsplit_0_ksp_type": "preonly",
+    "fieldsplit_0_pc_type": "python",
+    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
+    "fieldsplit_0_assembled_pc_type": "lu",
+    "fieldsplit_1_ksp_type": "gmres",
+    "fieldsplit_1_pc_type": "python",
+    "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
+    "fieldsplit_1_pcd_Mp_pc_type": "lu",
+    "fieldsplit_1_pcd_Kp_pc_type": "lu",
+    "fieldsplit_1_pcd_Fp_mat_type": "matfree"
+}
+
 # mesh
 mesh = UnitSquareMesh(N, N)
 x, y = SpatialCoordinate(mesh)
 
 # functions
-ufl_f = as_vector([0, 0])           # source term f
-ufl_g = as_vector([0, 0])           # bdy condition g
 ufl_v = as_vector([1, 0])           # velocity ic
 ufl_p = Constant(0.0)               # pressure ic
+ufl_f = as_vector([0, 0])           # source term f
+ufl_g = as_vector([0, 0])           # bdy condition g
 
 # declare function space and interpolate functions
 V = VectorFunctionSpace(mesh, "CG", 2)
@@ -50,48 +71,6 @@ bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
 
 nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
-
-appctx = {"Re": Re, "velocity_space": 0}
-
-solver_parameters = {
-    "mat_type": "matfree",
-    "snes_monitor": None,
-    "ksp_type": "fgmres",
-    "pc_type": "fieldsplit",
-    "pc_fieldsplit_type": "schur",
-    "pc_fieldsplit_schur_fact_type": "lower",
-    "fieldsplit_0_ksp_type": "preonly",
-    "fieldsplit_0_pc_type": "python",
-    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
-    "fieldsplit_0_assembled_pc_type": "lu",
-    "fieldsplit_1_ksp_type": "gmres",
-    "fieldsplit_1_pc_type": "python",
-    "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
-    "fieldsplit_1_pcd_Mp_pc_type": "lu",
-    "fieldsplit_1_pcd_Kp_pc_type": "lu",
-    "fieldsplit_1_pcd_Fp_mat_type": "matfree"
-}
-
-def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
-    """
-    Returns func F(u, u_old, p, q, v), 
-    which builds weak form
-    using external coefficients
-    """
-
-    def F(u, p, u_old, p_old, v, q):
-        u_mid = theta * u + (1 - theta) * u_old
-
-        return (
-            idt * inner(u - u_old, v) * dx
-            + 1.0 / Re * inner(grad(u_mid), grad(v)) * dx +
-            inner(dot(grad(u_mid), u_mid), v) * dx -
-            p * div(v) * dx +
-            div(u_mid) * q * dx
-            - inner((theta * f_np1 + (1 - theta) * f_n), v) * dx
-        )
-
-    return F
 
 # run
 timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form,

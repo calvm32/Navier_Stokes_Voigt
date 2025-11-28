@@ -8,7 +8,7 @@ def timestepper_MMS(V, dsN, theta, T, dt, u0, get_data, make_weak_form, u_exact,
     final time T, timestep dt, initial datum u0 and
     function get_data(t) returning (f(t), g(t))
     
-    ONLY writes the difference between the 
+    ONLY writes the DIFFERENCE between the 
     final solved solution and the exact solution
     """
 
