@@ -104,7 +104,7 @@ for exp in range(1, 10):
 
     # run
     error = timestepper_MMS(V, ds(1), theta, T, dt, u0, get_data, make_weak_form, u_exact,
-            bcs=bcu+ bcp, nullspace=nullspace, solver_parameters=solver_parameters, 
+            bcs=bcu+ bcp, solver_parameters=solver_parameters, 
             appctx=appctx, W=W)
     error_list.append(error)
 
