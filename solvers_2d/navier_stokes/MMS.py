@@ -41,15 +41,14 @@ for exp in range(3, 10):
     t = Constant(0.0)
     ufl_exp = ufl.exp
 
-    # exact functions for Poiseuille flow 
-    ufl_v_exact = as_vector(            # velocity ic
-        [Re*( sin(pi*y/H)*
-            ufl_exp(((pi**2)*t)/(H**2)) + 
-            0.5*P*y**2 + 0.5*P*H*y ), 
-        Constant(0.0)])
-    ufl_p_exact = P                     # pressure ic
-    ufl_f_exact = as_vector([1, 0])     # source term f
-    ufl_g_exact = as_vector([1, 0])     # bdy condition g
+    # exact functions for Poiseuille flow  
+    ufl_v_exact = as_vector([                                   # velocity ic
+        Re*( sin(pi*y/H)*ufl_exp(((pi**2)*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y ), 
+        Constant(0.0)
+    ])
+    ufl_p_exact = P                                             # pressure ic
+    ufl_f_exact = as_vector([Constant(0.0), Constant(0.0)])     # source term f
+    ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])     # bdy condition g
 
     # declare function space and interpolate functions
     V = VectorFunctionSpace(mesh, "CG", 2)
