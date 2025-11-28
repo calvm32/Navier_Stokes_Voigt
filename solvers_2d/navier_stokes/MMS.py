@@ -97,8 +97,8 @@ for exp in range(1, 10):
     
     # Dirichlet BCs
     bc_noslip = DirichletBC(V, Constant((0.0, 0.0)), walls)
-    bc_inflow = DirichletBC(Q, Constant(8.0), inflow)
-    bc_outflow = DirichletBC(Q, Constant(0.0), outflow)
+    bc_inflow = DirichletBC(W, P, inflow)
+    bc_outflow = DirichletBC(W, Constant(0.0), outflow)
     bcu = [bc_noslip]
     bcp = [bc_inflow, bc_outflow]
 
