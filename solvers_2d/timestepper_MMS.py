@@ -48,6 +48,3 @@ def timestepper_MMS(V, dsN, theta, T, dt, u0, get_data, make_weak_form, u_exact,
     if W is None:
         u_error = errornorm(u_exact, u_new)
         return(u_error)
-    else:
-        u_error = errornorm(u_exact, u_new.sub(0))
-        return(u_error)
