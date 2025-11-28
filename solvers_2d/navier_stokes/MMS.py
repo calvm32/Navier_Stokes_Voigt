@@ -14,8 +14,19 @@ solver_parameters = {
     "mat_type": "aij",
     "snes_type": "newtonls",
     "snes_monitor": None,
-    "ksp_type": "preonly",
-    "pc_type": "lu"
+    "ksp_type": "fgmres",
+    "ksp_rtol": 1e-6,
+    "pc_type": "fieldsplit",
+    "pc_fieldsplit_type": "schur",
+    "pc_fieldsplit_schur_fact_type": "FULL",   # or 'lower' in some templates
+    "fieldsplit_0_ksp_type": "preonly",
+    "fieldsplit_0_pc_type": "lu",
+    "fieldsplit_1_ksp_type": "gmres",
+    "fieldsplit_1_pc_type": "python",
+    "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
+    "fieldsplit_1_pcd_Mp_pc_type": "lu",
+    "fieldsplit_1_pcd_Kp_pc_type": "lu",
+    "fieldsplit_1_pcd_Fp_mat_type": "aij",
 }
 
 # calculate error as mesh size increases
