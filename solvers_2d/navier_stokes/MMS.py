@@ -5,7 +5,6 @@ from .make_weak_form import make_weak_form
 import numpy as np
 from .config import T, dt, theta, Re
 
-Re = Constant(100.0)    # Reynold's num for viscosity
 P = Constant(10.0)      # pressure constant
 H = Constant(5.0)       # height of rectangle, just take length = 3H
 
@@ -47,7 +46,7 @@ for exp in range(1, 10):
 
     # exact calculations for Poiseuille flow 
     # \tfrac{1}{\nu}\big(\sin(\tfrac{\pi}{H} y)e^{\pi^2t/H^2} + \tfrac{1}{2}Py^2 + \tfrac{1}{2}PHy\big)
-    ufl_v_exact = [Re*( sin(pi*y/H)*exp^(((pi**2)*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y ), 0]
+    ufl_v_exact = [Re*( sin(pi*y/H)*exp**(((pi**2)*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y ), 0]
     ufl_p_exact = P
     ufl_f_exact = 0
     ufl_g_exact = 0
