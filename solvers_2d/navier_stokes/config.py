@@ -6,7 +6,7 @@ dt = 0.1        # timestepping length
 theta = 1/2     # theta constant
 N = 10          # mesh size
 
-Re = Constant(5000)    # Reynold's num for viscosity
+Re = Constant(0.00001)    # Reynold's num for viscosity
 
 # -------- 
 # For MMS 
