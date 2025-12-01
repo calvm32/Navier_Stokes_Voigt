@@ -1,8 +1,8 @@
 from firedrake import *
 
 # constants
-T = 2           # final time
-dt = 1        # timestepping length
+T = 20           # final time
+dt = 10        # timestepping length
 theta = 1/2     # theta constant
 N = 10          # mesh size
 
