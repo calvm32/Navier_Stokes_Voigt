@@ -4,10 +4,10 @@ from firedrake import *
 # Constants
 # ---------
 
-t = Constant(0.0)       # initial time
-T = Constant(0.0)       # final time
-dt = 0.1                # timestepping length
-theta = 1/2             # theta constant
+t = 0.0        # initial time
+T = 1.0        # final time
+dt = 0.1       # timestepping length
+theta = 1/2    # theta constant
 
 # ----------------
 # For single solve 

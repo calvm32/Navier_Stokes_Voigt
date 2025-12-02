@@ -4,9 +4,9 @@ from firedrake import *
 # Constants
 # ---------
 
-t = Constant(0.0)       # initial time
-T = Constant(0.0)       # final time
-dt = 0.0001              # timestepping length
+t = 0.0                 # initial time
+T = 1.0                 # final time
+dt = 0.0001             # timestepping length
 theta = 1/2             # theta constant
 Re = Constant(200)      # Reynold's num for viscosity
 

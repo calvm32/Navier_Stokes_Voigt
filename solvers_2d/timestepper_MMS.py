@@ -37,12 +37,12 @@ def timestepper_MMS(V, f, g,dsN, theta, t, T, dt, u0, make_weak_form, u_exact, N
     # Perform timestepping
     step = 0
     outfile = VTKFile(f"soln_N={N}.pvd")
-    while float(t) < T:
-        print(str(float(t)))
+    while t < T:
+        print(str(t))
 
         # Perform time step
-        solver(float(t), dt)
-        t.assign(float(t) + dt)
+        solver(t, dt)
+        t += dt
         u_old.assign(u_new)
 
         # Update exact solution
