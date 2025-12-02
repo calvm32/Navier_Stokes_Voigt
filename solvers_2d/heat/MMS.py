@@ -36,7 +36,7 @@ for exp in range(1, 10):
     u0.interpolate(ufl_u_exact)
 
     # run
-    error = timestepper_MMS(V, ds(1), theta, T, dt, u0, make_weak_form, u_exact)
+    error = timestepper_MMS(V, f, g, ds(1), theta, T, dt, u0, make_weak_form, u_exact)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")

@@ -77,7 +77,7 @@ for exp in range(5, 6):
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
     # run
-    error = timestepper_MMS(V, ds(1), theta, T, dt, u0, make_weak_form, u_exact,
+    error = timestepper_MMS(V, f, g, ds(1), theta, T, dt, u0, make_weak_form, u_exact,
             bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
             appctx=appctx, W=W)
     error_list.append(error)

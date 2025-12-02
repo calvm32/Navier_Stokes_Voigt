@@ -1,7 +1,7 @@
 from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 
-def timestepper_MMS(V, dsN, theta, T, dt, u0, make_weak_form, u_exact, 
+def timestepper_MMS(V, f, g, dsN, theta, T, dt, u0, make_weak_form, u_exact, 
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, W=None):
     """
     Perform timestepping using theta-scheme with
@@ -21,7 +21,7 @@ def timestepper_MMS(V, dsN, theta, T, dt, u0, make_weak_form, u_exact,
     u_new = Function(Z)
 
     # Prepare solver for computing time step
-    solver = create_timestep_solver(dsN, theta, u_old, u_new, make_weak_form,
+    solver = create_timestep_solver(f, g, dsN, theta, u_old, u_new, make_weak_form,
                                     bcs, nullspace, solver_parameters, appctx, W)
 
     # Set initial condition

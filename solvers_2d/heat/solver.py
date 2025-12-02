@@ -22,4 +22,4 @@ u0 = Function(V)
 u0.interpolate(ufl_u0)
 
 # run
-timestepper(V, ds(1), theta, T, dt, u0, make_weak_form)
+timestepper(V, f, g, ds(1), theta, T, dt, u0, make_weak_form)
