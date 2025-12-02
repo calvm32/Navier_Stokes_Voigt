@@ -1,6 +1,7 @@
 from firedrake import *
 from .create_timestep_solver import create_timestep_solver
-from .printoff import iter_info_verbose, text, green
+from .compute_energy import compute_energy
+from .printoff import *
 
 def timestepper(V, f, g, dsN, theta, T, dt, u0, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, W=None):
@@ -34,6 +35,7 @@ def timestepper(V, f, g, dsN, theta, T, dt, u0, make_weak_form,
     # Perform timestepping
     t = 0
     step = 1
+    outfile = VTKFile("soln.pvd")
     while t < T:
 
         # Report some numbers
@@ -54,4 +56,5 @@ def timestepper(V, f, g, dsN, theta, T, dt, u0, make_weak_form,
         else:
             outfile.write(u_new.sub(0), u_new.sub(1))
 
-        green(f"Completed", spaced=True)
+    # Done
+    green(f"Completed", spaced=True)
