@@ -1,6 +1,7 @@
 from firedrake import *
 import matplotlib.pyplot as plt
 from solvers_2d.timestepper_MMS import timestepper_MMS
+from solvers_2d.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from .config import T, dt, theta, Re, P, H
 from solvers_2d.printoff import blue
@@ -76,10 +77,10 @@ for exp in range(3, 7):
     bcs = [bc_noslip, bc_pressure_ref]
 
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
-
+    
     # run
     error = timestepper_MMS(V, f, g, ds(1), theta, T, dt, u0, make_weak_form, u_exact,
-            bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
+            N, bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
             appctx=appctx, W=W)
     error_list.append(error)
 
