@@ -1,7 +1,7 @@
 from firedrake import *
 
 def create_timestep_solver(theta, W, dsN, f, g, u_old, u_new, make_weak_form,
-                           bcs, nullspace, solver_parameters, appctx):
+                           function_appctx, bcs, nullspace, solver_parameters):
     """
     Prepare timestep solver by theta-scheme for given
     solution u_old at time t and unknown u_new at time t + dt.
@@ -16,8 +16,8 @@ def create_timestep_solver(theta, W, dsN, f, g, u_old, u_new, make_weak_form,
         solver_kwargs["nullspace"] = nullspace
     if solver_parameters is not None:
         solver_kwargs["solver_parameters"] = solver_parameters
-    if appctx is not None:
-        solver_kwargs["appctx"] = appctx
+    if function_appctx is not None:
+        solver_kwargs["function_appctx"] = function_appctx
 
     # Initialize coefficients
     idt = Constant(0.0)

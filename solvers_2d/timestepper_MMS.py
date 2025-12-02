@@ -3,7 +3,7 @@ from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
 def timestepper_MMS(theta, V, dsN, f, g, t, T, dt, u0, u_exact, N, make_weak_form,
-                W = None, bcs=None, nullspace=None, solver_parameters=None, appctx=None):
+                function_appctx, W = None, bcs=None, nullspace=None, solver_parameters=None):
     """
     Perform timestepping using theta-scheme with
     final time T, timestep dt, initial datum u0
@@ -23,7 +23,7 @@ def timestepper_MMS(theta, V, dsN, f, g, t, T, dt, u0, u_exact, N, make_weak_for
 
     # Prepare solver for computing time step
     solver = create_timestep_solver(theta, W, dsN, f, g, u_old, u_new, make_weak_form,
-                                    bcs, nullspace, solver_parameters, appctx)
+                                    function_appctx, bcs, nullspace, solver_parameters)
 
     # Set initial condition
     u_old.assign(u0)
@@ -45,13 +45,6 @@ def timestepper_MMS(theta, V, dsN, f, g, t, T, dt, u0, u_exact, N, make_weak_for
         t += dt
         u_old.assign(u_new)
 
-        # Update exact solution
-        if W is None:
-            u_exact.subfunctions[0].interpolate(ufl_v_exact)
-        else:
-            u_exact.subfunctions[0].interpolate(ufl_v_exact)
-            u_exact.subfunctions[1].interpolate(ufl_p_exact)
-
         # count steps to print
         step += 1
 
@@ -59,11 +52,22 @@ def timestepper_MMS(theta, V, dsN, f, g, t, T, dt, u0, u_exact, N, make_weak_for
         energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
 
-        # Write to file
+        # Update exact solution
         if W is None:
+            ufl_u_exact = function_appctx["ufl_u_exact"]
+            u_exact.subfunctions[0].interpolate(ufl_u_exact)
+
+            # write to file
             outfile.write(u_new)
         else:
+            ufl_v_exact = function_appctx["ufl_v_exact"]
+            ufl_p_exact = function_appctx["ufl_p_exact"]
+            u_exact.subfunctions[0].interpolate(ufl_v_exact)
+            u_exact.subfunctions[1].interpolate(ufl_p_exact)
+
+            # write to file
             outfile.write(u_new.sub(0), u_new.sub(1))
+            
 
     # Write FINAL error to file
     u_error = errornorm(u_exact.sub(0), u_new.sub(0))

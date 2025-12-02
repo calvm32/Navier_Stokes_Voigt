@@ -35,8 +35,15 @@ for N in N_list:
     u_exact.interpolate(ufl_u_exact)
     u0.interpolate(ufl_u_exact)
 
+    function_appctx = {
+          "ufl_u_exact": ufl_u_exact,
+          "ufl_f_exact": ufl_f_exact,
+          "ufl_g_exact": ufl_g_exact
+          }
+
     # run
-    error = timestepper_MMS(theta, V, ds(1), f, g, t0, T, dt, u0, u_exact, N, make_weak_form)
+    error = timestepper_MMS(theta, V, ds(1), t0, T, dt, N,
+                            make_weak_form, function_appctx)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")

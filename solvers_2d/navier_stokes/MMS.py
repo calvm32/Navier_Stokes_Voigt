@@ -42,23 +42,23 @@ for N in N_list:
     u_exact.subfunctions[1].interpolate(ufl_p_exact)
     u0.subfunctions[0].interpolate(ufl_v_exact)
     u0.subfunctions[1].interpolate(ufl_p_exact)
-
-    appctx = {"Re": Re,
-              "ufl_v_exact": ufl_v_exact,
-              "ufl_p_exact": ufl_p_exact,
-              "ufl_f_exact": ufl_f_exact,
-              "ufl_g_exact": ufl_g_exact
-              }
     
     # BCs
     bcs = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1, 3))
     nullspace = MixedVectorSpaceBasis(Z, [VectorSpaceBasis(constant=True), None])
     
     # run
-    error = timestepper_MMS(theta, V, ds(1), f, g, t0, T, dt, u0, u_exact,
-            N, make_weak_form, W=W, bcs=bcs, nullspace=nullspace, 
-            solver_parameters=solver_parameters, appctx=appctx)
+    error = timestepper_MMS(theta, V, ds(1), t0, T, dt, N, make_weak_form, 
+                            function_appctx, W=W, bcs=bcs, 
+                            nullspace=nullspace, solver_parameters=solver_parameters)
     error_list.append(error)
+
+    function_appctx = {
+              "ufl_v_exact": ufl_v_exact,
+              "ufl_p_exact": ufl_p_exact,
+              "ufl_f_exact": ufl_f_exact,
+              "ufl_g_exact": ufl_g_exact
+              }
 
 plt.loglog(N_list, error_list, "-o")
 plt.xlabel("mesh size h")

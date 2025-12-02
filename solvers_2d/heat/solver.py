@@ -1,7 +1,7 @@
 from firedrake import *
 from solvers_2d.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from .config import T, dt, theta, N
+from .config import t0, T, dt, theta, N
 
 # mesh
 mesh = UnitSquareMesh(N, N)
@@ -21,5 +21,11 @@ u0 = Function(V)
 
 u0.interpolate(ufl_u0)
 
+function_appctx = {
+    "ufl_f": ufl_f,
+    "ufl_g": ufl_g,
+    "ufl_u0": ufl_u0
+    }
+
 # run
-timestepper(theta, V, ds(1), f, g, T, dt, u0, make_weak_form)
+timestepper(theta, V, ds(1), t0, T, dt, make_weak_form, function_appctx)

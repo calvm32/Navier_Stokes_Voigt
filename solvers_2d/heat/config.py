@@ -8,6 +8,7 @@ t0 = 0.0        # initial time
 T = 1.0         # final time
 dt = 0.1        # timestepping length
 theta = 1/2     # theta constant
+Re = 1          # Reynold's number
 
 # -----------------
 # Solver parameters

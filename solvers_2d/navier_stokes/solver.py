@@ -1,7 +1,7 @@
 from firedrake import *
 from solvers_2d.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from .config import T, dt, theta, N, Re
+from .config import t0, T, dt, theta, N, Re
 
 solver_parameters = {
     "mat_type": "matfree",
@@ -30,8 +30,8 @@ mesh = UnitSquareMesh(N, N)
 x, y = SpatialCoordinate(mesh)
 
 # functions
-ufl_v = as_vector([1, 0])           # velocity ic
-ufl_p = Constant(0.0)               # pressure ic
+ufl_v0 = as_vector([1, 0])           # velocity ic
+ufl_p0 = Constant(0.0)               # pressure ic
 ufl_f = as_vector([0, 0])           # source term f
 ufl_g = as_vector([0, 0])           # bdy condition g
 
@@ -44,15 +44,8 @@ f = Function(V)
 g = Function(V)
 u0 = Function(Z)
 
-u0.subfunctions[0].interpolate(ufl_v)
-u0.subfunctions[1].interpolate(ufl_p)
-
-appctx = {"Re": Re,
-          "ufl_v_exact": ufl_v_exact,
-          "ufl_p_exact": ufl_p_exact,
-          "ufl_f_exact": ufl_f_exact,
-          "ufl_g_exact": ufl_g_exact
-          }
+u0.subfunctions[0].interpolate(ufl_v0)
+u0.subfunctions[1].interpolate(ufl_p0)
 
 # setup from demo
 bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
@@ -61,6 +54,13 @@ bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
 nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
+function_appctx = {
+    "ufl_v0": ufl_v0,
+    "ufl_p0": ufl_p0,
+    "ufl_f": ufl_f,
+    "ufl_g": ufl_g,
+    }
+
 # run
-timestepper(theta, V, ds(1), f, g, T, dt, u0, make_weak_form, W=W,
-        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, appctx=appctx)
+timestepper(theta, V, ds(1), t0, T, dt, make_weak_form, function_appctx, W=W,
+        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters)
