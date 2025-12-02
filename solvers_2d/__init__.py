@@ -19,7 +19,7 @@ Modules:
 
 from .timestepper import timestepper
 from .timestepper_MMS import timestepper_MMS
-from .printoff import printoff
+from .printoff import *
 
 __all__ = [
     "timestepper",
