@@ -26,7 +26,6 @@ for N in N_list:
 
     # declare function space and interpolate functions
     V = FunctionSpace(mesh, "CG", 1)
-    W = FunctionSpace(mesh, "CG", 0)
 
     u_exact = Function(V)
     f = Function(V)
@@ -37,7 +36,7 @@ for N in N_list:
     u0.interpolate(ufl_u_exact)
 
     # run
-    error = timestepper_MMS(theta, V, W, f, g, ds(1), t0, T, dt, u0, u_exact, N, make_weak_form)
+    error = timestepper_MMS(theta, V, f, g, ds(1), t0, T, dt, u0, u_exact, N, make_weak_form)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")

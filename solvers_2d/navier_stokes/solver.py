@@ -47,6 +47,13 @@ u0 = Function(Z)
 u0.subfunctions[0].interpolate(ufl_v)
 u0.subfunctions[1].interpolate(ufl_p)
 
+appctx = {"Re": Re,
+          "ufl_v_exact": ufl_v_exact,
+          "ufl_p_exact": ufl_p_exact,
+          "ufl_f_exact": ufl_f_exact,
+          "ufl_g_exact": ufl_g_exact
+          }
+
 # setup from demo
 bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
        DirichletBC(Z.sub(0), Constant((0, 0)), (1, 2, 3))]
@@ -55,5 +62,5 @@ nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
 # run
-timestepper(theta, V, W, f, g, ds(1), T, dt, u0, make_weak_form,
+timestepper(theta, V, f, g, ds(1), T, dt, u0, make_weak_form, W=W,
         bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, appctx=appctx)

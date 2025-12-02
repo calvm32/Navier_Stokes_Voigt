@@ -2,8 +2,8 @@ from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper_MMS(theta, V, W, dsN, f, g, t, T, dt, u0, u_exact, N, make_weak_form,
-                bcs=None, nullspace=None, solver_parameters=None, appctx=None):
+def timestepper_MMS(theta, V, dsN, f, g, t, T, dt, u0, u_exact, N, make_weak_form,
+                W = None, bcs=None, nullspace=None, solver_parameters=None, appctx=None):
     """
     Perform timestepping using theta-scheme with
     final time T, timestep dt, initial datum u0

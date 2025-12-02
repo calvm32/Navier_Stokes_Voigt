@@ -43,7 +43,7 @@ for N in N_list:
     u0.subfunctions[0].interpolate(ufl_v_exact)
     u0.subfunctions[1].interpolate(ufl_p_exact)
 
-    appctx = {
+    appctx = {"Re": Re,
               "ufl_v_exact": ufl_v_exact,
               "ufl_p_exact": ufl_p_exact,
               "ufl_f_exact": ufl_f_exact,
@@ -55,8 +55,8 @@ for N in N_list:
     nullspace = MixedVectorSpaceBasis(Z, [VectorSpaceBasis(constant=True), None])
     
     # run
-    error = timestepper_MMS(theta, V, W, f, g, ds(1), t0, T, dt, u0, u_exact,
-            N, make_weak_form, bcs=bcs, nullspace=nullspace, 
+    error = timestepper_MMS(theta, V, f, g, ds(1), t0, T, dt, u0, u_exact,
+            N, make_weak_form, W=W, bcs=bcs, nullspace=nullspace, 
             solver_parameters=solver_parameters, appctx=appctx)
     error_list.append(error)
 
