@@ -2,7 +2,7 @@ from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper_MMS(V, f, g,dsN, theta, T, dt, u0, make_weak_form, u_exact, N, 
+def timestepper_MMS(V, f, g,dsN, theta, t, T, dt, u0, make_weak_form, u_exact, N, 
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, W=None):
     """
     Perform timestepping using theta-scheme with
@@ -35,22 +35,28 @@ def timestepper_MMS(V, f, g,dsN, theta, T, dt, u0, make_weak_form, u_exact, N,
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
 
     # Perform timestepping
-    t = 0
-    step = 1
+    step = 0
     outfile = VTKFile(f"soln_N={N}.pvd")
-    while t < T:
+    while float(t) < T:
+
+        # Perform time step
+        solver(float(t), dt)
+        t.assign(float(t) + dt)
+        u_old.assign(u_new)
+
+        # Update exact solution
+        if W is None:
+            u_exact.subfunctions[0].interpolate(ufl_v_exact)
+        else:
+            u_exact.subfunctions[0].interpolate(ufl_v_exact)
+            u_exact.subfunctions[1].interpolate(ufl_p_exact)
+
+        # count steps to print
+        step += 1
 
         # Report some numbers
         energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
-
-        # Perform time step
-        solver(t, dt)
-        t += dt
-        u_old.assign(u_new)
-
-        # count steps to print
-        step += 1
 
         # Write to file
         if W is None:
