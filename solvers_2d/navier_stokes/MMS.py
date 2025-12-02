@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from solvers_2d.timestepper_MMS import timestepper_MMS
 from .make_weak_form import make_weak_form
 from .config import T, dt, theta, Re, P, H
-from printoff import blue
+from solvers_2d.printoff import blue
 
 N_list = []
 error_list = []
