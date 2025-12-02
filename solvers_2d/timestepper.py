@@ -1,12 +1,11 @@
 from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 
-def timestepper(V, dsN, theta, T, dt, u0, get_data, make_weak_form,
+def timestepper(V, dsN, theta, T, dt, u0, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, W=None):
     """
     Perform timestepping using theta-scheme with
-    final time T, timestep dt, initial datum u0 and
-    function get_data(t) returning (f(t), g(t))
+    final time T, timestep dt, initial datum u0
     """
 
     if W is not None:
@@ -19,7 +18,7 @@ def timestepper(V, dsN, theta, T, dt, u0, get_data, make_weak_form,
     u_new = Function(Z)
 
     # Prepare solver for computing time step
-    solver = create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
+    solver = create_timestep_solver(dsN, theta, u_old, u_new, make_weak_form,
                                     bcs, nullspace, solver_parameters, appctx, W)
 
     # Set initial condition

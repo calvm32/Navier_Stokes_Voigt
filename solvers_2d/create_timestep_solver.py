@@ -1,10 +1,9 @@
 from firedrake import *
 
-def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
+def create_timestep_solver(dsN, theta, u_old, u_new, make_weak_form,
                            bcs, nullspace, solver_parameters, appctx, W):
     """
     Prepare timestep solver by theta-scheme for given
-    function get_data(t) returning data (f(t), g(t)), given
     solution u_old at time t and unknown u_new at time t + dt.
     Return a solve function taking (t, dt).
     """
@@ -21,8 +20,6 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
         solver_kwargs["appctx"] = appctx
 
     # Initialize coefficients
-    f_n, g_n = get_data(0)
-    f_np1, g_np1 = get_data(0)
     idt = Constant(0.0)
 
     # Extract function space
@@ -49,9 +46,6 @@ def create_timestep_solver(get_data, dsN, theta, u_old, u_new, make_weak_form,
         Update problem data to interval (t, t+dt) and run solver
         """
 
-        # Update coefficients to current t, dt
-        get_data(t, (f_n, g_n))
-        get_data(t+dt, (f_np1, g_np1))
         idt.assign(1/dt)
 
         # Run the solver

@@ -46,19 +46,6 @@ u0 = Function(Z)
 u0.subfunctions[0].interpolate(ufl_v)
 u0.subfunctions[1].interpolate(ufl_p)
 
-# make data for iterative time stepping
-def get_data(t, result=None):
-    """Create or update data"""
-    if result is None: # only allocate memory if hasn't been yet
-        f = Function(V)
-        g = Function(V)
-    else:
-        f, g = result
-
-    f.interpolate(ufl_f)
-    g.interpolate(ufl_g)
-    return f, g
-
 # setup from demo
 bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
        DirichletBC(Z.sub(0), Constant((0, 0)), (1, 2, 3))]
@@ -67,6 +54,6 @@ nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
 # run
-timestepper(V, ds(1), theta, T, dt, u0, get_data, make_weak_form,
+timestepper(V, ds(1), theta, T, dt, u0, make_weak_form,
         bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
         appctx=appctx, W=W)

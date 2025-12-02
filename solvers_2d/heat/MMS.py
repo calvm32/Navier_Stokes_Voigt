@@ -34,19 +34,6 @@ for exp in range(1, 10):
 
     u_exact.interpolate(ufl_u_exact)
     u0.interpolate(ufl_u_exact)
-
-    # make data for iterative time stepping
-    def get_data(t, result=None):
-        """Create or update data"""
-        if result is None: # only allocate memory if hasn't been yet
-            f = Function(V)
-            g = Function(V)
-        else:
-            f, g = result
-
-        f.interpolate(ufl_f_exact)
-        g.interpolate(ufl_g_exact)
-        return f, g
     
     def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
         """
@@ -65,7 +52,7 @@ for exp in range(1, 10):
         return F
 
     # run
-    error = timestepper_MMS(V, ds(1), theta, T, dt, u0, get_data, make_weak_form, u_exact)
+    error = timestepper_MMS(V, ds(1), theta, T, dt, u0, make_weak_form, u_exact)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")
