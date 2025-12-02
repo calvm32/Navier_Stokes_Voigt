@@ -1,6 +1,6 @@
 from firedrake import *
 from .create_timestep_solver import create_timestep_solver
-from printoff import iter_info_verbose, text, green
+from .printoff import iter_info_verbose, text, green
 
 def timestepper_MMS(V, f, g,dsN, theta, T, dt, u0, make_weak_form, u_exact, 
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, W=None):
