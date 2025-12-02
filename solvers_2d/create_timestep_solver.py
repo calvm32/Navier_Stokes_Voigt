@@ -26,7 +26,7 @@ def create_timestep_solver(dsN, theta, u_old, u_new, make_weak_form,
     Z = u_new.function_space()
 
     # callable weak form
-    weak_form = make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN)
+    weak_form = make_weak_form(theta, idt, f, g, dsN)
 
     # Build weak form
     if W is not None:

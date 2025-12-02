@@ -1,7 +1,7 @@
 from firedrake import *
 from .config import Re
 
-def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
+def make_weak_form(theta, idt, f, g, dsN):
     """
     Returns func F(u, u_old, p, q, v), 
     which builds weak form
@@ -18,8 +18,8 @@ def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
                    - inner(dot(u_mid, nabla_grad(v)), u_mid) ) * dx
             + p * div(v) * dx
             + div(u_mid) * q * dx
-            - inner(theta*g_np1 + (1-theta)*g_n, v) * dsN
-            - inner((theta * f_np1 + (1 - theta) * f_n), v) * dx
+            - inner(theta*gp1 + (1-theta)*g, v) * dsN
+            - inner((theta * fp1 + (1 - theta) * f), v) * dx
         )
 
     return F

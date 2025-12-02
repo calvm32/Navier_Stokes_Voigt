@@ -34,22 +34,6 @@ for exp in range(1, 10):
 
     u_exact.interpolate(ufl_u_exact)
     u0.interpolate(ufl_u_exact)
-    
-    def make_weak_form(theta, idt, f_n, f_np1, g_n, g_np1, dsN):
-        """
-        Returns func F(u, u_old, v), which builds weak form
-        using external coefficients
-        """
-
-        def F(u, u_old, v, *args):
-            return (
-                idt * (u - u_old) * v * dx
-                + inner(grad(theta * u + (1 - theta) * u_old), grad(v)) * dx
-                - (theta * f_np1 + (1 - theta) * f_n) * v * dx
-                - (theta * g_np1 + (1 - theta) * g_n) * v * dsN
-            )
-
-        return F
 
     # run
     error = timestepper_MMS(V, ds(1), theta, T, dt, u0, make_weak_form, u_exact)
