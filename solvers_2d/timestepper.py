@@ -2,7 +2,7 @@ from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper(theta, V, dsN, f, g, T, dt, u0, make_weak_form, function_appctx, 
+def timestepper(theta, V, dsN, T, dt, make_weak_form, function_appctx, 
                 W = None, bcs=None, nullspace=None, solver_parameters=None):
     """
     Perform timestepping using theta-scheme with
