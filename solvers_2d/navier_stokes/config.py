@@ -2,7 +2,7 @@ from firedrake import *
 
 # constants
 T = 200           # final time
-dt = 0.01        # timestepping length
+dt = 0.001        # timestepping length
 theta = 1/2     # theta constant
 N = 10          # mesh size
 
