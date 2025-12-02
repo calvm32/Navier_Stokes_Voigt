@@ -31,10 +31,10 @@ solver_parameters = {
 
 # calculate error as mesh size increases
 for exp in range(5, 6):
-    print("starting now, N = {:0s}".format("N"))
-
     N = 2**exp
     N_list.append(N)
+
+    print("starting N = {:0s}".format("N"))
 
     # mesh
     mesh = RectangleMesh(3*N, N, 3*H, H) # rectangle btwn (0,0) and (3H, H)
