@@ -56,8 +56,8 @@ for N in N_list:
     function_appctx = {
               "ufl_v_exact": ufl_v_exact,
               "ufl_p_exact": ufl_p_exact,
-              "ufl_f_exact": ufl_f_exact,
-              "ufl_g_exact": ufl_g_exact
+              "ufl_f": ufl_f_exact,
+              "ufl_g": ufl_g_exact
               }
 
 plt.loglog(N_list, error_list, "-o")
