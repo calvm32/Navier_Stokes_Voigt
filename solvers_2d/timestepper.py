@@ -21,6 +21,7 @@ def timestepper(theta, Z, dsN, t, T, dt, make_weak_form, function_appctx,
 
     # initial condition
     if isinstance(Z, MixedFunctionSpace):
+        print("yes")
         ufl_v0 = function_appctx["ufl_v0"]
         ufl_p0 = function_appctx["ufl_p0"]
         u_old.sub(0).interpolate(ufl_v0)
