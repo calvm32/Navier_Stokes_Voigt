@@ -62,5 +62,5 @@ function_appctx = {
     }
 
 # run
-timestepper(theta, V, ds(1), t0, T, dt, make_weak_form, function_appctx, W=W,
+timestepper(theta, Z, ds(1), t0, T, dt, make_weak_form, function_appctx,
         bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters)

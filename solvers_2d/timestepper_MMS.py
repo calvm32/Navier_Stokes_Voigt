@@ -3,7 +3,7 @@ from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
 def timestepper_MMS(theta, V, dsN, t, T, dt, N, make_weak_form,
-                function_appctx, W = None, bcs=None, nullspace=None, solver_parameters=None):
+                function_appctx, bcs=None, nullspace=None, solver_parameters=None):
     """
     Perform timestepping using theta-scheme with
     final time T, timestep dt, initial datum u0
@@ -22,7 +22,7 @@ def timestepper_MMS(theta, V, dsN, t, T, dt, N, make_weak_form,
     u_new = Function(Z)
 
     # Prepare solver for computing time step
-    solver = create_timestep_solver(theta, W, dsN, f, g, u_old, u_new, make_weak_form,
+    solver = create_timestep_solver(theta, W, dsN, u_old, u_new, make_weak_form,
                                     function_appctx, bcs, nullspace, solver_parameters)
 
     # Set initial condition
@@ -38,8 +38,6 @@ def timestepper_MMS(theta, V, dsN, t, T, dt, N, make_weak_form,
     step = 0
     outfile = VTKFile(f"soln_N={N}.pvd")
     while t < T:
-        print(str(t))
-
         # Perform time step
         solver(t, dt)
         t += dt

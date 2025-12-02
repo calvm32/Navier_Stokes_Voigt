@@ -1,6 +1,6 @@
 from firedrake import *
 
-def create_timestep_solver(theta, W, dsN, f, g, u_old, u_new, make_weak_form,
+def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
                            function_appctx, bcs, nullspace, solver_parameters):
     """
     Prepare timestep solver by theta-scheme for given
@@ -22,22 +22,21 @@ def create_timestep_solver(theta, W, dsN, f, g, u_old, u_new, make_weak_form,
     # Initialize coefficients
     idt = Constant(0.0)
 
-    # Extract function space
-    Z = u_new.function_space()
+    num_subspaces = Z.num_sub_spaces()
 
-    # callable weak form
-    weak_form = make_weak_form(theta, idt, f, g, dsN)
-
-    # Build weak form
-    if W is not None:
-        u, p = split(u_new)
-        v, q = TestFunctions(Z)
-        u_old, p_old = split(u_old)
-        F = weak_form(u, p, u_old, p_old, v, q)
-    else:
+    if num_subspaces == 1:
         u = u_new
         v = TestFunction(Z)
         F = weak_form(u, u_old, v)
+
+    elif num_subspaces == 2:
+        (u, p) = split(u_new)
+        (u_old_, p_old_) = split(u_old)
+        (v, q) = TestFunctions(Z)
+        F = weak_form(u, p, u_old_, p_old_, v, q)
+
+    else:
+        raise NotImplementedError("Only 1 or 2-component function spaces supported")
 
     J = derivative(F, u_new)
 
