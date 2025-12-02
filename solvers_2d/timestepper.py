@@ -1,5 +1,5 @@
 from firedrake import *
-from firedrake.functionspaceimpl import MixedFunctionSpace
+from firedrake import MixedFunctionSpace
 
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
