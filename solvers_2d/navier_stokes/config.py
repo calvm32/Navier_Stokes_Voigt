@@ -25,6 +25,6 @@ H = 1.0                 # height of rectangle, with length = 3H
 
 # MMS loops over mesh resolutions in this list
 N_list = []
-for exp in range(4, 7):
+for exp in range(3, 7):
     N = 2**exp
     N_list.append(N)
