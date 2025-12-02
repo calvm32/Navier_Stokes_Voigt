@@ -14,15 +14,10 @@ t = Constant(0.0) # symbolic constant for t
 ufl_exp = ufl.exp # ufl e, so t gets calculated correctly 
 
 # functions
-ufl_v0 = as_vector([1, 0])           # velocity ic
-ufl_p0 = Constant(0.0)               # pressure ic
+ufl_v0 = as_vector([1, ufl_exp(t)*cos(pi*x)])       # velocity ic
+ufl_p0 = Constant(5.0)                              # pressure ic
 ufl_f = as_vector([0, 0])           # source term f
 ufl_g = as_vector([0, 0])           # bdy condition g
-
-# declare function space and interpolate functions
-V = VectorFunctionSpace(mesh, "CG", 2)
-W = FunctionSpace(mesh, "CG", 1)
-Z = V * W
 
 function_appctx = {
     "ufl_v0": ufl_v0,
@@ -30,6 +25,11 @@ function_appctx = {
     "ufl_f": ufl_f,
     "ufl_g": ufl_g,
     }
+
+# declare function space and interpolate functions
+V = VectorFunctionSpace(mesh, "CG", 2)
+W = FunctionSpace(mesh, "CG", 1)
+Z = V * W
 
 # setup from demo
 bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
