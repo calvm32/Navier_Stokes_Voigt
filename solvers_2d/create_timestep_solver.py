@@ -22,21 +22,16 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
     # Initialize coefficients
     idt = Constant(0.0)
 
-    num_subspaces = Z.num_sub_spaces()
-
-    if num_subspaces == 1:
-        u = u_new
-        v = TestFunction(Z)
-        F = weak_form(u, u_old, v)
-
-    elif num_subspaces == 2:
+    if isinstance(Z, MixedFunctionSpace):
         (u, p) = split(u_new)
         (u_old_, p_old_) = split(u_old)
         (v, q) = TestFunctions(Z)
         F = weak_form(u, p, u_old_, p_old_, v, q)
-
+        
     else:
-        raise NotImplementedError("Only 1 or 2-component function spaces supported")
+        u = u_new
+        v = TestFunction(Z)
+        F = weak_form(u, u_old, v)
 
     def solve_(t, dt):
         """

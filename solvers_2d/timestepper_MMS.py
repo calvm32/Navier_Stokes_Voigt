@@ -12,9 +12,6 @@ def timestepper_MMS(theta, Z, dsN, t, T, dt, N, make_weak_form,
     final solved solution and the exact solution
     """
 
-    # Extract number of subfields (1 for scalar, 2 for mixed)
-    num_subspaces = Z.num_sub_spaces()
-
     # Initialize solution function
     u_old = Function(Z)
     u_new = Function(Z)
@@ -33,7 +30,9 @@ def timestepper_MMS(theta, Z, dsN, t, T, dt, N, make_weak_form,
 
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
 
+    # -------------
     # Perform timestepping
+    # -------------
     step = 0
     outfile = VTKFile(f"soln_N={N}.pvd")
     while t < T:
@@ -49,15 +48,10 @@ def timestepper_MMS(theta, Z, dsN, t, T, dt, N, make_weak_form,
         energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
 
+        # -------------
         # Write to file
-        if num_subspaces == 1:
-            ufl_u_exact = function_appctx["ufl_u_exact"]
-            u_exact.subfunctions[0].interpolate(ufl_u_exact)
-
-            # write to file
-            outfile.write(u_new)
-
-        elif num_subspaces == 2:
+        # -------------
+        if isinstance(Z, MixedFunctionSpace):
             ufl_v_exact = function_appctx["ufl_v_exact"]
             ufl_p_exact = function_appctx["ufl_p_exact"]
             u_exact.subfunctions[0].interpolate(ufl_v_exact)
@@ -65,6 +59,13 @@ def timestepper_MMS(theta, Z, dsN, t, T, dt, N, make_weak_form,
 
             # write to file
             outfile.write(u_new.sub(0), u_new.sub(1))
+        
+        else:
+            ufl_u_exact = function_appctx["ufl_u_exact"]
+            u_exact.subfunctions[0].interpolate(ufl_u_exact)
+
+            # write to file
+            outfile.write(u_new)
             
 
     # Write FINAL error to file

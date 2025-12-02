@@ -9,9 +9,6 @@ def timestepper(theta, Z, dsN, T, dt, make_weak_form, function_appctx,
     final time T, timestep dt, initial datum u0
     """
 
-    # Extract number of subfields (1 for scalar, 2 for mixed)
-    num_subspaces = Z.num_sub_spaces()
-
     # Initialize solution function
     u_old = Function(Z)
     u_new = Function(Z)
@@ -30,7 +27,9 @@ def timestepper(theta, Z, dsN, T, dt, make_weak_form, function_appctx,
 
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
 
+    # --------------------
     # Perform timestepping
+    # --------------------
     t = 0
     step = 1
     outfile = VTKFile("soln.pvd")
@@ -47,11 +46,13 @@ def timestepper(theta, Z, dsN, T, dt, make_weak_form, function_appctx,
         energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
 
+        # -------------
         # Write to file
-        if num_subspaces == 1:
-            outfile.write(u_new)
-        elif num_subspaces == 2:
+        # -------------
+        if isinstance(Z, MixedFunctionSpace):
             outfile.write(u_new.sub(0), u_new.sub(1))
+        else:
+            outfile.write(u_new)
 
     # Done
     green(f"Completed", spaced=True)
