@@ -4,7 +4,7 @@ from firedrake import *
 # Constants
 # ---------
 
-t = 0.0                 # initial time
+t0 = 0.0        # initial time
 T = 1.0                 # final time
 dt = 0.0001             # timestepping length
 theta = 1/2             # theta constant

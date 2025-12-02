@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from solvers_2d.timestepper_MMS import timestepper_MMS
 from .make_weak_form import make_weak_form
 from solvers_2d.printoff import blue
-from .config import t, T, dt, theta, N_list
+from .config import t0, T, dt, theta, N_list
 
 error_list = []
 
@@ -36,7 +36,7 @@ for N in N_list:
     u0.interpolate(ufl_u_exact)
 
     # run
-    error = timestepper_MMS(V, f, g, ds(1), theta, t, T, dt, u0, make_weak_form, u_exact, N)
+    error = timestepper_MMS(V, f, g, ds(1), theta, t0, T, dt, u0, make_weak_form, u_exact, N)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from solvers_2d.timestepper_MMS import timestepper_MMS
 from .make_weak_form import make_weak_form
 from solvers_2d.printoff import blue
-from .config import t, T, dt, theta, Re, P, H, N_list
+from .config import t0, T, dt, theta, Re, P, H, N_list
 
 error_list = []
 
@@ -75,7 +75,7 @@ for N in N_list:
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
     
     # run
-    error = timestepper_MMS(V, f, g, ds(1), theta, t, T, dt, u0, make_weak_form, u_exact,
+    error = timestepper_MMS(V, f, g, ds(1), theta, t0, T, dt, u0, make_weak_form, u_exact,
             N, bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
             appctx=appctx, W=W)
     error_list.append(error)
