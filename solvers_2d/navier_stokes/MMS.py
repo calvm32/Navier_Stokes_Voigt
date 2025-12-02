@@ -28,20 +28,17 @@ for N in N_list:
     ufl_f_exact = as_vector([Constant(0.0), Constant(0.0)])     # source term f
     ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])     # bdy condition g
 
+    function_appctx = {
+              "ufl_v_exact": ufl_v_exact,
+              "ufl_p_exact": ufl_p_exact,
+              "ufl_f": ufl_f_exact,
+              "ufl_g": ufl_g_exact
+              }
+
     # declare function space and interpolate functions
     V = VectorFunctionSpace(mesh, "CG", 2)
     W = FunctionSpace(mesh, "CG", 1)
     Z = V * W
-
-    u_exact = Function(Z)
-    f = Function(V)
-    g = Function(V)
-    u0 = Function(Z)
-
-    u_exact.subfunctions[0].interpolate(ufl_v_exact)
-    u_exact.subfunctions[1].interpolate(ufl_p_exact)
-    u0.subfunctions[0].interpolate(ufl_v_exact)
-    u0.subfunctions[1].interpolate(ufl_p_exact)
     
     # BCs
     bcs = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1, 3))
@@ -52,13 +49,6 @@ for N in N_list:
                             function_appctx, W=W, bcs=bcs, 
                             nullspace=nullspace, solver_parameters=solver_parameters)
     error_list.append(error)
-
-    function_appctx = {
-              "ufl_v_exact": ufl_v_exact,
-              "ufl_p_exact": ufl_p_exact,
-              "ufl_f": ufl_f_exact,
-              "ufl_g": ufl_g_exact
-              }
 
 plt.loglog(N_list, error_list, "-o")
 plt.xlabel("mesh size h")

@@ -24,14 +24,14 @@ for N in N_list:
     ufl_f_exact = (1+2*pi**2)*ufl_exp(t)*cos(pi*x)*cos(pi*y)    # source term f 
     ufl_g_exact = Constant(0)                                   # bdy condition g
 
-    # declare function space and interpolate functions
-    V = FunctionSpace(mesh, "CG", 1)
-
     function_appctx = {
           "ufl_u_exact": ufl_u_exact,
           "ufl_f": ufl_f_exact,
           "ufl_g": ufl_g_exact
           }
+
+    # declare function space and interpolate functions
+    V = FunctionSpace(mesh, "CG", 1)
 
     # run
     error = timestepper_MMS(theta, V, ds(1), t0, T, dt, N,

@@ -19,14 +19,14 @@ ufl_u0 = ufl_exp(t)*cos(pi*x)   # initial condition u0
 ufl_f = cos(x*pi)*cos(y*pi)     # source term f
 ufl_g = Constant(0)             # bdy condition g
 
-# declare function space and interpolate functions
-V = FunctionSpace(mesh, "CG", 1)
-
 function_appctx = {
     "ufl_u0": ufl_u0,
     "ufl_f": ufl_f,
     "ufl_g": ufl_g
     }
+
+# declare function space and interpolate functions
+V = FunctionSpace(mesh, "CG", 1)
 
 # run
 timestepper(theta, V, ds(1), t0, T, dt, make_weak_form, function_appctx)
