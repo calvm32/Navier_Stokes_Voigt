@@ -24,6 +24,9 @@ for N in N_list:
     W = FunctionSpace(mesh, "CG", 1)
     Z = V * W
 
+    # pass velocity space
+    solver_parameters["appctx"]["velocity_space"] = Z.sub(0).collapse()
+
     # time dependant
     def get_data(t):
         
