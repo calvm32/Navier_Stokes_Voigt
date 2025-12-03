@@ -1,8 +1,10 @@
 from firedrake import *
+
 from solvers_2d.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers_2d.printoff import blue
-from .constant_config import t0, T, dt, theta, N, solver_parameters
+
+from .config_constants import t0, T, dt, theta, N, solver_parameters
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
