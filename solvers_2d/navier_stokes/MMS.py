@@ -45,6 +45,12 @@ for N in N_list:
     # BCs
     bcs = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1, 3))
     nullspace = MixedVectorSpaceBasis(Z, [VectorSpaceBasis(constant=True), None])
+
+    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1, 3))
+    bc_pressure_ref = DirichletBC(Z.sub(1), Constant(0.0), (2,))  # pin pressure at boundary id 2
+    bcs = [bc_noslip, bc_pressure_ref]
+
+    nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
     
     # run
     error = timestepper_MMS(theta, V, ds(1), t0, T, dt, N, make_weak_form, 
