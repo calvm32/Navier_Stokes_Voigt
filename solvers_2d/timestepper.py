@@ -44,35 +44,6 @@ def timestepper(theta, Z, dsN, t, T, dt, make_weak_form, function_space_appctx,
     # Perform timestepping
     # --------------------
 
-
-
-    # 1) What is Z and subspaces?
-    print("Z:", Z)
-    print("Z.ufl_element():", Z.ufl_element())
-    print("Velocity subspace:", Z.sub(0))
-    print("Pressure subspace:", Z.sub(1))
-
-    # 2) u_new space and u_old
-    print("u_new.function_space():", u_new.function_space())
-    print("u_old.function_space():", u_old.function_space())
-
-    # 3) Boundary conditions list and their function spaces
-    print("bcs:", bcs)
-    if bcs:
-        for bc in bcs:
-            try:
-                print(" - bc.apply to space:", bc.function_space())
-            except Exception as e:
-                print(" - bc inspect error:", e)
-
-    # 4) Print the (nonlinear) residual form and its shape info
-    print("Residual form F:")
-    print(F)   # only if F is in scope; if not, print what create_timestep_solver constructs
-
-    # 5) Check solver parameters being used
-    print("solver_parameters passed to solve (solver_kwargs in create_timestep_solver):")
-    print(solver_parameters)
-
     step = 0
     outfile = VTKFile("soln_N.pvd")
     while t < T:
