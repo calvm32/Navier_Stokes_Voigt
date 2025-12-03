@@ -20,6 +20,7 @@ ufl_f = as_vector([0, 0])           # source term f
 ufl_g = as_vector([0, 0])           # bdy condition g
 
 function_appctx = {
+    "velocity_space": 0,
     "ufl_v0": ufl_v0,
     "ufl_p0": ufl_p0,
     "ufl_f": ufl_f,

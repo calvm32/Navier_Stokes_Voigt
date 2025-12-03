@@ -29,11 +29,12 @@ for N in N_list:
     ufl_g_exact = as_uector([Constant(0.0), Constant(0.0)])     # bdy condition g
 
     function_appctx = {
-              "ufl_u_exact": ufl_u_exact,
-              "ufl_p_exact": ufl_p_exact,
-              "ufl_f": ufl_f_exact,
-              "ufl_g": ufl_g_exact
-              }
+        "velocity_space": 0,
+        "ufl_v0": ufl_v0,
+        "ufl_p0": ufl_p0,
+        "ufl_f": ufl_f,
+        "ufl_g": ufl_g,
+        }
 
     # declare function space and interpolate functions
     V = VectorFunctionSpace(mesh, "CG", 2)
