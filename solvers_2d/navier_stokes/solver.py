@@ -33,9 +33,16 @@ function_space_appctx = {
     "ufl_g": ufl_g,
     }
 
-# setup from demo
-bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
-       DirichletBC(Z.sub(0), Constant((0, 0)), (1, 2, 3))]
+# initial condition
+z0 = Function(Z)
+z0.sub(0).interpolate(as_vector([1 + sin(pi*x), cos(pi*y)]))
+z0.sub(1).interpolate(Constant(5.0))
+
+# BCs
+bcs = [
+    DirichletBC(Z.sub(0), Constant((1, 0)), lambda x, on_b: on_b and near(x[1], 1.0)),  # top lid
+    DirichletBC(Z.sub(0), Constant((0, 0)), lambda x, on_b: on_b and x[1] < 1.0),      # walls
+]
 
 nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
