@@ -35,10 +35,10 @@ for N in N_list:
                 "ufl_f": ufl_f_exact,
                 "ufl_g": ufl_g_exact}
     
-    vtkfile_name = f"{vtkfile_name}_N{N}"
+    new_vtkfile_name = f"{vtkfile_name}_N{N}"
 
     # run
-    error = timestepper(get_data, theta, V, ds, t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name)
+    error = timestepper(get_data, theta, V, ds, t0, T, dt, make_weak_form, vtkfile_name=new_vtkfile_name)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")
