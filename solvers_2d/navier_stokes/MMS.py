@@ -17,11 +17,11 @@ for N in N_list:
     x, y = SpatialCoordinate(mesh)
 
     t = Constant(0.0)
-    ufl_exp = ufl.exp
+    ufl.exp = ufl.exp
 
     # exact functions for Poiseuille flow  
     ufl_u_exact = as_uector([                                   # velocity ic
-        Re*( sin(pi*y/H)*ufl_exp(((pi**2)*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y ), 
+        Re*( sin(pi*y/H)*ufl.exp(((pi**2)*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y ), 
         Constant(0.0)
     ])
     ufl_p_exact = P                                             # pressure ic

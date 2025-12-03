@@ -24,8 +24,8 @@ for N in N_list:
     def get_data(t):
 
         # exact functions for u=e^t*sin(pix)*cos(piy)
-        ufl_u_exact = ufl_exp(t)*cos(pi*x)*cos(pi*y)                # initial condition u0 
-        ufl_f_exact = (1+2*pi**2)*ufl_exp(t)*cos(pi*x)*cos(pi*y)    # source term f 
+        ufl_u_exact = ufl.exp(t)*cos(pi*x)*cos(pi*y)                # initial condition u0 
+        ufl_f_exact = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)    # source term f 
         ufl_g_exact = Constant(0)                                   # bdy condition g
 
         # returns
