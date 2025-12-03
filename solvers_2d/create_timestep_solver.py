@@ -27,7 +27,7 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
     g.interpolate(function_appctx["ufl_g"])
 
     # Make weak form
-    weak_form = make_weak_form(theta, idt, f.sub(0), g.sub(0), dsN)
+    weak_form = make_weak_form(theta, idt, f, g, dsN)
 
     if isinstance(Z.ufl_element(), MixedElement):
         u, p = split(u_new)
@@ -38,7 +38,6 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
     else:
         u = u_new
         v = TestFunction(Z)
-
         F = weak_form(u, u_old, v)
 
     # Build Jacobian (trial function on same mixed space)
