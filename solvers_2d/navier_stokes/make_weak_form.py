@@ -10,8 +10,7 @@ def make_weak_form(theta, idt, f, g, dsN):
 
     def F(u, p, u_old, p_old, v, q):
         u_mid = theta * u + (1 - theta) * u_old
-        u_adv = u_old                 # explicit advecting field
-
+    
         return (
             idt * inner(u - u_old, v) * dx
             + 1.0 / Re * inner(grad(u_mid), grad(v)) * dx
@@ -19,6 +18,8 @@ def make_weak_form(theta, idt, f, g, dsN):
             - p * div(v) * dx
             + div(u_mid) * q * dx
             - inner(theta * f + (1 - theta) * f, v) * dx
-        )
+            - inner(theta*g + (1-theta)*g, v) * dsN
 
+        )
+    
     return F
