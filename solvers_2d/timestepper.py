@@ -3,7 +3,7 @@ from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper(theta, Z_fun, dsN, t0, T, dt, make_weak_form, get_data,
+def timestepper(get_data, theta, Z_fun, dsN, t0, T, dt, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None,
                 problem="heat", Re=1.0, vtk_filename=None):
     """
