@@ -23,9 +23,9 @@ def get_data(t):
     ufl_g = Constant(0)             # bdy condition g
 
     # returns
-    return {"u0": ufl_u0,
-            "f": ufl_f,
-            "g": ufl_g}
+    return {"ufl_u0": ufl_u0,
+            "ufl_f": ufl_f,
+            "ufl_g": ufl_g}
 
 # run
 timestepper(get_data, theta, V, ds, t0, T, dt, make_weak_form)
