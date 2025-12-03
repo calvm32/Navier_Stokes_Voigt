@@ -20,10 +20,9 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
 
     # Initialize coefficients
     idt = Constant(1.0)
-    V = Z.sub(0)  # velocity space
 
-    f = Function(V)
-    g = Function(V)
+    f = Function(Z.sub(0))
+    g = Function(Z.sub(0))
     f.interpolate(function_appctx["ufl_f"])
     g.interpolate(function_appctx["ufl_g"])
 
@@ -32,8 +31,8 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
 
     if isinstance(Z.ufl_element(), MixedElement):
         (u, p) = split(u_new)
-        (v, q) = TestFunctions(Z)
-
+        v = TestFunction(Z.sub(0))
+        q = TestFunction(Z.sub(1))
         (u_old_, p_old_) = split(u_old)
 
         F = weak_form(u, p, u_old_, p_old_, v, q)
