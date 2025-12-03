@@ -14,9 +14,11 @@ for N in N_list:
 
     blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True)
 
-    # mesh
+    # mesh and measures
     mesh = UnitSquareMesh(N, N)
     x, y = SpatialCoordinate(mesh)
+
+    dx = Measure("dx", domain=mesh)
     ds = Measure("ds", domain=mesh)
 
     # declare function space and interpolate functions
@@ -38,7 +40,7 @@ for N in N_list:
     new_vtkfile_name = f"{vtkfile_name}_N{N}"
 
     # run
-    error = timestepper(get_data, theta, V, ds(1), t0, T, dt, make_weak_form, vtkfile_name=new_vtkfile_name)
+    error = timestepper(get_data, theta, V, dx, ds(1), t0, T, dt, make_weak_form, vtkfile_name=new_vtkfile_name)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")

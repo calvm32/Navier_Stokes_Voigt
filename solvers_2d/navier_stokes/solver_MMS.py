@@ -14,9 +14,11 @@ for N in N_list:
 
     blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True)
 
-    # mesh
+    # mesh and measures
     mesh = RectangleMesh(3*N, N, 3*H, H) # rectangle btwn (0,0) and (3H, H)
     x, y = SpatialCoordinate(mesh)
+
+    dx = Measure("dx", domain=mesh)
     ds = Measure("ds", domain=mesh)
 
     # declare function space and interpolate functions
@@ -56,7 +58,7 @@ for N in N_list:
     # run and get error
     new_vtkfile_name = f"{vtkfile_name}_N{N}"
 
-    error = timestepper(get_data, theta, Z, ds(1), t0, T, dt, make_weak_form,
+    error = timestepper(get_data, theta, Z, dx, ds(1), t0, T, dt, make_weak_form,
         bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
         vtkfile_name=new_vtkfile_name)
     error_list.append(error)

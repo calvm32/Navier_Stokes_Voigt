@@ -8,9 +8,11 @@ from .config_constants import t0, T, dt, theta, N, solver_parameters, vtkfile_na
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
-# mesh
+# mesh and measures
 mesh = UnitSquareMesh(N, N)
 x, y = SpatialCoordinate(mesh)
+
+dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)
 
 # declare function space and interpolate functions
@@ -42,5 +44,5 @@ nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
 # run
-timestepper(get_data, theta, Z, ds, t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name,
+timestepper(get_data, theta, Z, dx, ds(1), t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name,
         bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters)

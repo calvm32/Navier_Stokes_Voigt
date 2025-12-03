@@ -1,7 +1,7 @@
 from firedrake import *
 from firedrake.functionspaceimpl import MixedFunctionSpace
 
-def create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new, make_weak_form,
+def create_timestep_solver(get_data, theta, Z, dx , dSN, u_old, u_new, make_weak_form,
                            bcs = None, nullspace = None, solver_parameters = None):
     """
     Prepare timestep solver by theta-scheme for given
@@ -30,7 +30,7 @@ def create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new, make_weak_form
             u, p = split(u_new)
             v, q = TestFunctions(Z)
 
-            F = make_weak_form(theta, idt, f, f_old, g, g_old, dsN)(u, p, u_old.sub(0), u_old.sub(1), v, q)
+            F = make_weak_form(theta, idt, f, f_old, g, g_old, dx , dSN)(u, p, u_old.sub(0), u_old.sub(1), v, q)
 
             problem_var = NonlinearVariationalProblem(F, u_new, bcs=bcs, J=None)
             solver = NonlinearVariationalSolver(problem_var, solver_parameters=solver_parameters, nullspace=nullspace)
@@ -38,7 +38,7 @@ def create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new, make_weak_form
         else:
             v = TestFunction(Z)
 
-            F = make_weak_form(theta, idt, f, f_old, g, g_old, dsN)(u_new, u_old, v)
+            F = make_weak_form(theta, idt, f, f_old, g, g_old, dx , dSN)(u_new, u_old, v)
 
             problem_var = NonlinearVariationalProblem(F, u_new, bcs=bcs)
             solver = NonlinearVariationalSolver(problem_var, solver_parameters=solver_parameters)

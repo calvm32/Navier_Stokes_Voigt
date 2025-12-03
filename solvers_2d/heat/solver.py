@@ -8,9 +8,11 @@ from .config_constants import t0, T, dt, theta, N, vtkfile_name
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
-# mesh
+# mesh and measures
 mesh = UnitSquareMesh(N, N)
 x, y = SpatialCoordinate(mesh)
+
+dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)
 
 # declare function space and interpolate functions
@@ -30,4 +32,4 @@ def get_data(t):
             "ufl_g": ufl_g}
 
 # run
-timestepper(get_data, theta, V, ds(1), t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name)
+timestepper(get_data, theta, V, dx, ds(1), t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name)

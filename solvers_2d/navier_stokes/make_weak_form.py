@@ -2,7 +2,7 @@ from firedrake import *
 
 from .config_constants import Re
 
-def make_weak_form(theta, idt, f, f_old, g, g_old, dsN):
+def make_weak_form(theta, idt, f, f_old, g, g_old, dx , dSN):
     """
     Returns func F(u, u_old, p, q, v), 
     which builds weak form

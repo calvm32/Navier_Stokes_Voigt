@@ -6,4 +6,4 @@ Solver for the incompressible Navier-Stokes eqn:
 """
 
 from .solver import *
-from .MMS import *
+from .solver_MMS import *

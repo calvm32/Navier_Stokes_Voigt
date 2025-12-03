@@ -3,7 +3,7 @@ from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper(get_data, theta, Z, dsN, t0, T, dt, make_weak_form,
+def timestepper(get_data, theta, Z, dx , dSN, t0, T, dt, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None, vtkfile_name="Soln"):
     """
     Generic theta-scheme timestepper for heat or Navier-Stokes using get_data(t).
@@ -27,7 +27,7 @@ def timestepper(get_data, theta, Z, dsN, t0, T, dt, make_weak_form,
         u_old.interpolate(data_t0["ufl_u0"])  # just velocity
 
     # create timestep solver
-    solver = create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new,
+    solver = create_timestep_solver(get_data, theta, Z, dx , dSN, u_old, u_new,
                                     make_weak_form, bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters)
     
