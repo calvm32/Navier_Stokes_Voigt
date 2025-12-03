@@ -70,7 +70,8 @@ def timestepper(get_data, theta, Z, dsN, t0, T, dt, make_weak_form,
             outfile.write(u_new)
 
     # Done
-    green(f"\nCompleted", spaced=True)
+    print(f"\n")
+    green(f"Completed", spaced=True)
 
     # Write FINAL error to file
     u_error = errornorm(u_exact.sub(0), u_new.sub(0))
