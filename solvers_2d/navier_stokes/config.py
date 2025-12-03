@@ -29,10 +29,10 @@ solver_parameters = {
     "fieldsplit_1_pcd_Mp_pc_type": "lu",
     "fieldsplit_1_pcd_Kp_pc_type": "lu",
     "fieldsplit_1_pcd_Fp_mat_type": "matfree",
-    #"snes_monitor": None,
-    #"snes_converged_reason": None,
-    #"ksp_monitor_true_residual": None,
-    #"ksp_converged_reason": None,
+    "snes_monitor": None,
+    "snes_converged_reason": None,
+    "ksp_monitor_true_residual": None,
+    "ksp_converged_reason": None,
 }
 
 # ----------------
