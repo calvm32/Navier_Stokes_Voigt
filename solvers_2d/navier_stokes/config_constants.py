@@ -7,7 +7,7 @@ from firedrake import *
 t0 = 0.0                # initial time
 T = 1.0                 # final time
 dt = 0.01              # timestepping length
-theta = 1             # theta constant
+theta = 0.5             # theta constant
 Re = Constant(100)      # Reynold's num for viscosity
 
 H = 1.0                 # height of box; length = 3*H
@@ -18,7 +18,7 @@ vtkfile_name = "Soln"
 # For single solve 
 # ----------------
 
-N = 4 # mesh resolution
+N = 64 # mesh resolution
 
 # -------------
 # For MMS solve
@@ -26,7 +26,7 @@ N = 4 # mesh resolution
 
 # MMS loops over mesh resolutions in this list
 N_list = []
-for exp in range(1, 10):
+for exp in range(4, 10):
     N = 2**exp
     N_list.append(N)
 
@@ -37,20 +37,24 @@ P = 5.0                 # initial pressure strength
 # -----------------
 
 solver_parameters = {
-    "snes_type": "newtonls",
-    "snes_max_it": 50,
-    "snes_rtol": 1e-8,
-    "mat_type": "aij",
+    "mat_type": "matfree",
     "ksp_type": "fgmres",
     "pc_type": "fieldsplit",
     "pc_fieldsplit_type": "schur",
-    "pc_fieldsplit_schur_fact_type": "FULL",
+    "pc_fieldsplit_schur_fact_type": "lower",
     "fieldsplit_0_ksp_type": "preonly",
-    "fieldsplit_0_pc_type": "ilu",
-    "fieldsplit_1_ksp_type": "preonly",
-    "fieldsplit_1_pc_type": "jacobi",
-    "pc_fieldsplit_schur_precondition": "selfp",
+    "fieldsplit_0_pc_type": "python",
+    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
+    "fieldsplit_0_assembled_pc_type": "lu",
+    "fieldsplit_1_ksp_type": "gmres",
+    "fieldsplit_1_pc_type": "python",
+    "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
+    "fieldsplit_1_pcd_Mp_pc_type": "lu",
+    "fieldsplit_1_pcd_Kp_pc_type": "lu",
+    "fieldsplit_1_pcd_Fp_mat_type": "matfree",
+
     "appctx": {}
+    
     #"snes_monitor": None,
     #"snes_converged_reason": None,
     #"ksp_monitor_true_residual": None,
