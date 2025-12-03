@@ -19,7 +19,7 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
         solver_kwargs["solver_parameters"] = solver_parameters
 
     # Initialize coefficients
-    idt = Constant(0.0)
+    idt = Constant(1.0)
 
     f = Function(Z)
     g = Function(Z)
