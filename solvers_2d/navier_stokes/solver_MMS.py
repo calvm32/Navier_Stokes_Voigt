@@ -26,6 +26,9 @@ for N in N_list:
 
     # pass velocity space
     solver_parameters["appctx"]["velocity_space"] = Z.sub(0).collapse()
+    solver_parameters["appctx"]["pressure_space"] = Z.sub(1).collapse()
+
+    print("Z block sizes:", Z.dof_dset().sizes)   # or inspect Firedrake block sizes
 
     # time dependant
     def get_data(t):
