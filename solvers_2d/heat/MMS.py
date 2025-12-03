@@ -38,7 +38,7 @@ for N in N_list:
     new_vtkfile_name = f"{vtkfile_name}_N{N}"
 
     # run
-    error = timestepper(get_data, theta, V, ds, t0, T, dt, make_weak_form, vtkfile_name=new_vtkfile_name)
+    error = timestepper(get_data, theta, V, ds(1), t0, T, dt, make_weak_form, vtkfile_name=new_vtkfile_name)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")

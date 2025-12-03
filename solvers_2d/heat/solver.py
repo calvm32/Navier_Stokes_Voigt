@@ -30,4 +30,4 @@ def get_data(t):
             "ufl_g": ufl_g}
 
 # run
-timestepper(get_data, theta, V, ds, t0, T, dt, make_weak_form, vtkfile_name)
+timestepper(get_data, theta, V, ds(1), t0, T, dt, make_weak_form, vtkfile_name)
