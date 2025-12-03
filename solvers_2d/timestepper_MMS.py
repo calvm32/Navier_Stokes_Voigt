@@ -3,7 +3,7 @@ from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper(get_data, theta, Z, dsN, t0, T, dt, make_weak_form,
+def timestepper_MMS(get_data, theta, Z, dsN, t0, T, dt, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None):
     """
     Generic theta-scheme timestepper for heat or Navier-Stokes using get_data(t).
