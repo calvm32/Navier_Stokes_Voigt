@@ -1,60 +1,50 @@
 from firedrake import *
 from firedrake.functionspaceimpl import MixedFunctionSpace
 
-def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
-                           function_space_appctx, bcs, nullspace, solver_parameters):
+def create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new, make_weak_form,
+                           bcs = None, 
+                           nullspace = None, solver_parameters = None):
     """
     Prepare timestep solver by theta-scheme for given
     solution u_old at time t and unknown u_new at time t + dt.
     Return a solve function taking (t, dt).
     """
 
-    # Default solver settings
-    solver_kwargs = {}
-    if bcs is not None:
-        solver_kwargs["bcs"] = bcs
-    if nullspace is not None:
-        solver_kwargs["nullspace"] = nullspace
-    if solver_parameters is not None:
-        solver_kwargs["solver_parameters"] = solver_parameters
-
     # Initialize coefficients
     idt = Constant(1.0)
 
-    f = Function(Z.sub(0))
-    g = Function(Z.sub(0))
-    f.interpolate(function_space_appctx["ufl_f"])
-    g.interpolate(function_space_appctx["ufl_g"])
-
-    # Make weak form
-    weak_form = make_weak_form(theta, idt, f, g, dsN)
-
-    if isinstance(Z.ufl_element(), MixedElement):
-        u, p = split(u_new)
-        v, q = TestFunctions(Z)
-        u_old_, p_old_ = split(u_old)
-        F = weak_form(u, p, u_old_, p_old_, v, q)
-        
-    else:
-        u = u_new
-        v = TestFunction(Z)
-        F = weak_form(u, u_old, v)
-
-    # Build Jacobian (trial function on same mixed space)
-    W_trial = TrialFunction(Z)
-    J = derivative(F, u_new, W_trial)
-
-    # Create a NonlinearVariationalProblem and solver (applies solver kwargs including SNES/KSP)
-    problem = NonlinearVariationalProblem(F, u_new, bcs=bcs, J=J)
-    solver = NonlinearVariationalSolver(problem, solver_parameters=solver_parameters)
-
-    def solve_(t, dt):
+    def solve_one_step(t, dt):
         """
         Update problem data to interval (t, t+dt) and run solver
         """
-        idt.assign(1/dt)
+        idt.assign(1.0/dt)
+        data = get_data(t)
+
+        if isinstance(Z.ufl_element(), MixedElement):
+            f = data.get("f", Constant((0.0,0.0)))
+            g = data.get("g", Constant((0.0,0.0)))
+
+            u, p = split(u_new)
+            v, q = TestFunctions(Z_fun.function_space())
+
+            F = make_weak_form(theta, idt, f=f, g=g, dsN=dsN)(u, p, u_old.sub(0), u_old.sub(1), v, q)
+
+            problem_var = NonlinearVariationalProblem(F, u_new, bcs=bcs, J=None)
+            solver = NonlinearVariationalSolver(problem_var,
+                                                solver_parameters=solver_parameters,
+                                                nullspace=nullspace)
+            
+        else:
+            f = data.get("f", Constant(0.0))
+
+            v = TestFunction(Z_fun.function_space())
+
+            F = make_weak_form(theta, idt, f=f)(u_new, u_old, v)
+
+            problem_var = NonlinearVariationalProblem(F, u_new, bcs=bcs)
+            solver = NonlinearVariationalSolver(problem_var, solver_parameters=solver_parameters)
 
         # Run the solver
         solver.solve()
 
-    return solve_
+    return solve_one_step

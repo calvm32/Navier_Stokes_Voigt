@@ -53,8 +53,8 @@ for N in N_list:
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
     
     # run
-    error = timestepper_MMS(theta, V, ds(1), t0, T, dt, N, make_weak_form, 
-                            function_space_appctx, W=W, bcs=bcs, 
+    error = timestepper_MMS(get_data, theta, V, ds(1), t0, T, dt, N, make_weak_form, 
+                            W=W, bcs=bcs, 
                             nullspace=nullspace, solver_parameters=solver_parameters)
     error_list.append(error)
 

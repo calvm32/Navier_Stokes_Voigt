@@ -34,7 +34,7 @@ for N in N_list:
     V = FunctionSpace(mesh, "CG", 1)
 
     # run
-    error = timestepper_MMS(theta, V, ds(1), t0, T, dt, N,
+    error = timestepper_MMS(get_data, theta, V, ds(1), t0, T, dt, N,
                             make_weak_form, function_space_appctx)
     error_list.append(error)
 

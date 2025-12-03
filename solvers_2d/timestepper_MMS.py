@@ -3,8 +3,8 @@ from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper_MMS(theta, Z, dsN, t, T, dt, N, make_weak_form,
-                function_space_appctx, bcs=None, nullspace=None, solver_parameters=None):
+def timestepper_MMS(get_data, theta, Z, dsN, t, T, dt, N, make_weak_form,
+                bcs=None, nullspace=None, solver_parameters=None):
     """
     Perform timestepping using theta-scheme with
     final time T, timestep dt, initial datum u0
@@ -35,8 +35,8 @@ def timestepper_MMS(theta, Z, dsN, t, T, dt, N, make_weak_form,
         u_old.interpolate(ufl_u0)
 
     # Prepare solver for computing time step
-    solver = create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
-                                    function_space_appctx, bcs, nullspace, solver_parameters)
+    solver = create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new, make_weak_form,
+                                    bcs, nullspace, solver_parameters)
 
     # Print table header
     energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
@@ -66,6 +66,7 @@ def timestepper_MMS(theta, Z, dsN, t, T, dt, N, make_weak_form,
         # ------------------------------
         # Update exact and write to file
         # ------------------------------
+        
         if isinstance(Z.ufl_element(), MixedElement):
             u_exact = Function(Z)
 
