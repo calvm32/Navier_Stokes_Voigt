@@ -6,7 +6,7 @@ from firedrake import *
 
 t0 = 0.0                # initial time
 T = 1.0                 # final time
-dt = 0.0001             # timestepping length
+dt = 0.01             # timestepping length
 theta = 1/2             # theta constant
 Re = Constant(100)      # Reynold's num for viscosity
 
@@ -15,12 +15,14 @@ Re = Constant(100)      # Reynold's num for viscosity
 # -----------------
 
 solver_parameters = {
-    "mat_type": "aij", 
-    "ksp_type": "preonly", 
-    "pc_type": "lu",  # direct LU on assembled matrix
+    "mat_type": "aij",
+    "ksp_type": "preonly",
+    "pc_type": "lu",
     "snes_type": "newtonls",
     "snes_monitor": None,
     "snes_converged_reason": None,
+    "ksp_monitor_true_residual": None,
+    "ksp_converged_reason": None
 }
 
 # ----------------
