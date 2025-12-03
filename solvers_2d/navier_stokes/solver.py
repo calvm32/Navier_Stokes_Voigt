@@ -14,10 +14,10 @@ t = Constant(0.0) # symbolic constant for t
 ufl_exp = ufl.exp # ufl e, so t gets calculated correctly 
 
 # functions
-ufl_v0 = as_vector([1+sin(pi*x), cos(pi*y)])  # velocity ic
-ufl_p0 = Constant(5.0)                      # pressure ic
-ufl_f = as_vector([2, 2])                   # source term f
-ufl_g = as_vector([2, 2])                   # bdy condition g
+ufl_v0 = as_vector([1+sin(pi*x), cos(pi*y)])    # velocity ic
+ufl_p0 = Constant(5.0)                          # pressure ic
+ufl_f = as_vector([2, 2])                       # source term f
+ufl_g = as_vector([2, 2])                       # bdy condition g
 
 # declare function space and interpolate functions
 V = VectorFunctionSpace(mesh, "CG", 2)
@@ -39,9 +39,29 @@ z0.sub(0).interpolate(as_vector([1 + sin(pi*x), cos(pi*y)]))
 z0.sub(1).interpolate(Constant(5.0))
 
 # BCs
+tol = 1e-14
+
+# top lid
+def top(x, on_b):
+    return on_b and near(x[1], 1.0, tol)
+
+# bottom wall
+def bottom(x, on_b):
+    return on_b and near(x[1], 0.0, tol)
+
+# left wall
+def left(x, on_b):
+    return on_b and near(x[0], 0.0, tol)
+
+# right wall
+def right(x, on_b):
+    return on_b and near(x[0], 1.0, tol)
+
 bcs = [
-    DirichletBC(Z.sub(0), Constant((1, 0)), lambda x, on_b: on_b and near(x[1], 1.0)),  # top lid
-    DirichletBC(Z.sub(0), Constant((0, 0)), lambda x, on_b: on_b and x[1] < 1.0),      # walls
+    DirichletBC(Z.sub(0), Constant((1,0)), top),
+    DirichletBC(Z.sub(0), Constant((0,0)), bottom),
+    DirichletBC(Z.sub(0), Constant((0,0)), left),
+    DirichletBC(Z.sub(0), Constant((0,0)), right)
 ]
 
 nullspace = MixedVectorSpaceBasis(
