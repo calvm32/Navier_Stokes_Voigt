@@ -23,8 +23,8 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
 
     f = Function(Z)
     g = Function(Z)
-    f.interpolate(function_appctx["ufl_f"])
-    g.interpolate(function_appctx["ufl_g"])
+    f.sub(0).interpolate(function_appctx["ufl_f"])
+    g.sub(0).interpolate(function_appctx["ufl_g"])
 
     # Make weak form
     weak_form = make_weak_form(theta, idt, f, g, dsN)

@@ -20,16 +20,16 @@ for N in N_list:
     ufl_exp = ufl.exp
 
     # exact functions for Poiseuille flow  
-    ufl_v_exact = as_vector([                                   # velocity ic
+    ufl_u_exact = as_uector([                                   # velocity ic
         Re*( sin(pi*y/H)*ufl_exp(((pi**2)*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y ), 
         Constant(0.0)
     ])
     ufl_p_exact = P                                             # pressure ic
-    ufl_f_exact = as_vector([Constant(0.0), Constant(0.0)])     # source term f
-    ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])     # bdy condition g
+    ufl_f_exact = as_uector([Constant(0.0), Constant(0.0)])     # source term f
+    ufl_g_exact = as_uector([Constant(0.0), Constant(0.0)])     # bdy condition g
 
     function_appctx = {
-              "ufl_v_exact": ufl_v_exact,
+              "ufl_u_exact": ufl_u_exact,
               "ufl_p_exact": ufl_p_exact,
               "ufl_f": ufl_f_exact,
               "ufl_g": ufl_g_exact
