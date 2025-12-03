@@ -17,13 +17,9 @@ def timestepper(get_data, theta, Z, dsN, t0, T, dt, make_weak_form,
     u_old = Function(Z)
     u_new = Function(Z)
 
-    # initialize u_old from get_data(t0)
-    data0 = get_data(t0)
-    u_ic_list = data0["ufl_u0"]  # this is [ufl_v0, ufl_p0]
-
-    # assign to u_old
     u_old = Function(Z)
-    for i, comp in enumerate(u_ic_list):
+    data0 = get_data(t0)
+    for i, comp in enumerate(data0["ufl_u0"]):
         u_old.sub(i).interpolate(comp)
 
     # create timestep solver
