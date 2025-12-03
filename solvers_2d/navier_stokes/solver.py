@@ -40,7 +40,7 @@ bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
 nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
-print(function_appctx.keys())
+print(function_space_appctx.keys())
 
 # run
 timestepper(theta, Z, ds(1), t0, T, dt, make_weak_form, function_space_appctx,
