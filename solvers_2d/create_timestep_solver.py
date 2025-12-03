@@ -33,6 +33,7 @@ def create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new, make_weak_form
             
         else:
             f = data.get("f", Constant(0.0))
+            g = data.get("g", Constant((0.0,0.0)))
 
             v = TestFunction(Z)
 
