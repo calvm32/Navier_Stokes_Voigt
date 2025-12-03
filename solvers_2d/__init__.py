@@ -18,11 +18,9 @@ Modules:
 """
 
 from .timestepper import timestepper
-from .timestepper_MMS import timestepper_MMS
 from .printoff import *
 
 __all__ = [
     "timestepper",
-    "timestepper_MMS",
     "printoff"
 ]

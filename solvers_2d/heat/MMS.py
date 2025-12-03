@@ -1,9 +1,9 @@
 from firedrake import *
 import matplotlib.pyplot as plt
-from solvers_2d.timestepper_MMS import timestepper_MMS
+from solvers_2d.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers_2d.printoff import blue
-from .constant_config import t0, T, dt, theta, N_list
+from .config_constants import t0, T, dt, theta, N_list, vtkfile_name
 
 error_list = []
 
@@ -32,9 +32,11 @@ for N in N_list:
         return {"ufl_u0": ufl_u_exact,
                 "ufl_f": ufl_f_exact,
                 "ufl_g": ufl_g_exact}
+    
+    vtkfile_name = f"{vtkfile_name}_N{N}.pvd"
 
     # run
-    error = timestepper_MMS(get_data, theta, V, ds, t0, T, dt, N, make_weak_form)
+    error = timestepper(get_data, theta, V, ds, t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name)
     error_list.append(error)
 
 plt.loglog(N_list, error_list, "-o")

@@ -4,11 +4,29 @@ from firedrake import *
 # Constants
 # ---------
 
-t0 = 0.0        # initial time
-T = 1.0         # final time
-dt = 0.1        # timestepping length
-theta = 1/2     # theta constant
-Re = 1          # Reynold's number
+t0 = 0.0                # initial time
+T = 1.0                 # final time
+dt = 0.01             # timestepping length
+theta = 1/2             # theta constant
+Re = Constant(100)      # Reynold's num for viscosity
+
+vtkfile_name = "Soln"
+
+# ----------------
+# For single solve 
+# ----------------
+
+N = 10 # mesh resolution
+
+# -------------
+# For MMS solve
+# -------------
+
+# MMS loops over mesh resolutions in this list
+N_list = []
+for exp in range(1, 10):
+    N = 2**exp
+    N_list.append(N)
 
 # -----------------
 # Solver parameters
@@ -35,19 +53,3 @@ solver_parameters = {
     #"ksp_monitor_true_residual": None,
     #"ksp_converged_reason": None,
 }
-
-# ----------------
-# For single solve 
-# ----------------
-
-N = 10          # mesh resolution
-
-# -------------
-# For MMS solve
-# -------------
-
-# MMS loops over mesh resolutions in this list
-N_list = []
-for exp in range(1, 10):
-    N = 2**exp
-    N_list.append(N)
