@@ -56,8 +56,8 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
         idt.assign(1/dt)
 
         # re-interpolate forcing
-        f.sub(0).interpolate(function_appctx["ufl_f"])
-        g.sub(0).interpolate(function_appctx["ufl_g"])
+        f.interpolate(function_appctx["ufl_f"])
+        g.interpolate(function_appctx["ufl_g"])
 
         # Run the solver
         solver.solve()
