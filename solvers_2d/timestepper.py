@@ -48,7 +48,7 @@ def timestepper(get_data, theta, Z, dsN, t0, T, dt, make_weak_form,
 
     t = t0
     step = 0
-    outfile = VTKFile(vtkfile_name)
+    outfile = VTKFile([vtkfile_name + ".pvd"])
     while t < T:
 
         # Perform time step
