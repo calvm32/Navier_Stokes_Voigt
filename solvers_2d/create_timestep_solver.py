@@ -52,9 +52,6 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
         """
         Update problem data to interval (t, t+dt) and run solver
         """
-        print(type(u_old), type(u_new))
-        print(u_old.function_space())
-        print(u_new.function_space())
         u_new.assign(u_old)
         idt.assign(1/dt)
 
