@@ -23,8 +23,10 @@ def timestepper(theta, Z, dsN, t, T, dt, make_weak_form, function_space_appctx,
     if isinstance(Z.ufl_element(), MixedElement):
         ufl_v0 = function_space_appctx["ufl_v0"]
         ufl_p0 = function_space_appctx["ufl_p0"]
-        u_old.sub(0).interpolate(ufl_v0)
-        u_old.sub(1).interpolate(ufl_p0)
+        u_init = Function(Z)
+        u_init.sub(0).interpolate(ufl_v0)
+        u_init.sub(1).interpolate(ufl_p0)
+        u_old.assign(u_init)
     
     else:
         ufl_u0 = function_space_appctx["ufl_u0"]
