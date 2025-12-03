@@ -29,7 +29,7 @@ for N in N_list:
         ufl_g_exact = Constant(0)                                   # bdy condition g
 
         # returns
-        return {"ufl_u_exact": ufl_u_exact,
+        return {"ufl_u0": ufl_u_exact,
                 "ufl_f": ufl_f_exact,
                 "ufl_g": ufl_g_exact}
 
