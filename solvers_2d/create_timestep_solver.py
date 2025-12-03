@@ -43,6 +43,11 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
 
         F = weak_form(u, u_old, v)
 
+    J = derivative(F, u_new, TrialFunction(Z))
+
+    problem = NonlinearVariationalProblem(F, u_new, bcs=bcs, J=J)
+    solver = NonlinearVariationalSolver(problem, solver_parameters=solver_parameters)
+
     def solve_(t, dt):
         """
         Update problem data to interval (t, t+dt) and run solver
@@ -51,6 +56,6 @@ def create_timestep_solver(theta, Z, dsN, u_old, u_new, make_weak_form,
         idt.assign(1/dt)
 
         # Run the solver
-        solve(F == 0, u_new, **solver_kwargs)
+        solver.solve(F == 0, u_new, **solver_kwargs)
 
     return solve_
