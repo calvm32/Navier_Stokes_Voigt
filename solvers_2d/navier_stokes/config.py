@@ -4,11 +4,11 @@ from firedrake import *
 # Constants
 # ---------
 
-t0 = 0.0        # initial time
+t0 = 0.0                # initial time
 T = 1.0                 # final time
 dt = 0.0001             # timestepping length
 theta = 1/2             # theta constant
-Re = Constant(200)      # Reynold's num for viscosity
+Re = Constant(5000)      # Reynold's num for viscosity
 
 # -----------------
 # Solver parameters
