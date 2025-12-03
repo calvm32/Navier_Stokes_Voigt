@@ -24,10 +24,6 @@ V = VectorFunctionSpace(mesh, "CG", 2)
 W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
-z0 = Function(Z)
-z0.sub(0).interpolate(ufl_v0)
-z0.sub(1).interpolate(ufl_p0)
-
 function_space_appctx = {
     "velocity_space": V,
     "pressure_space": W,
@@ -45,5 +41,5 @@ nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
 # run
-timestepper(theta, Z, ds(1), t0, T, dt, make_weak_form, function_space_appctx,
+timestepper(theta, Z, ds, t0, T, dt, make_weak_form, function_space_appctx,
         bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters)
