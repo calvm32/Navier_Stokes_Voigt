@@ -20,8 +20,8 @@ def create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new, make_weak_form
         data = get_data(t)
 
         if isinstance(Z.ufl_element(), MixedElement):
-            f = data.get("f", Constant((0.0,0.0)))
-            g = data.get("g", Constant((0.0,0.0)))
+            f = data.get("ufl_f", Constant((0.0,0.0)))
+            g = data.get("ufl_g", Constant((0.0,0.0)))
 
             u, p = split(u_new)
             v, q = TestFunctions(Z)
@@ -32,8 +32,8 @@ def create_timestep_solver(get_data, theta, Z, dsN, u_old, u_new, make_weak_form
             solver = NonlinearVariationalSolver(problem_var, solver_parameters=solver_parameters, nullspace=nullspace)
             
         else:
-            f = data.get("f", Constant(0.0))
-            g = data.get("g", Constant(0.0))
+            f = data.get("ufl_f", Constant(0.0))
+            g = data.get("ufl_g", Constant(0.0))
 
             v = TestFunction(Z)
 
