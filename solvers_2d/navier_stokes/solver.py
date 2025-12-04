@@ -50,7 +50,7 @@ solver_parameters["fieldsplit_1_pcd_Kp_pc_type"] = "lu"
 
 solver_parameters["mat_type"] = "aij"
 
-solver_parameters["appctx"]["velocity_space"] = Z.sub(0)
+solver_parameters["appctx"]["velocity_space"] = Z.sub(0).function_space()
 
 print("velocity_space type:", type(solver_parameters["appctx"]["velocity_space"]))
 
