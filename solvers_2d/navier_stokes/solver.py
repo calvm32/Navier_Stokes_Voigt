@@ -42,10 +42,9 @@ def get_data(t):
     ufl_f = as_vector([0, 0])                       # source term f
     ufl_g = as_vector([0, 0])                       # bdy condition g
 
-    ufl_u0 = [ufl_v0, ufl_p0]
-
     # returns
-    return {"ufl_u0": ufl_u0,
+    return {"ufl_v0": ufl_v0,
+            "ufl_p0": ufl_p0,
             "ufl_f": ufl_f,
             "ufl_g": ufl_g,}
 
