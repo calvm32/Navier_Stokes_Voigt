@@ -5,6 +5,7 @@ from solvers_2d.timestepper import timestepper
 N = 64
 
 M = UnitSquareMesh(N, N)
+x, y = SpatialCoordinate(mesh)
 
 V = VectorFunctionSpace(M, "CG", 2)
 W = FunctionSpace(M, "CG", 1)
