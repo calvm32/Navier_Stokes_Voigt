@@ -31,8 +31,7 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
         problem_var = NonlinearVariationalProblem(F, u_new, bcs=bcs)
         solver = NonlinearVariationalSolver(problem_var,
                                         solver_parameters=solver_parameters,
-                                        nullspace=nullspace,
-                                        appctx=appctx)
+                                        nullspace=nullspace, appctx=appctx)
 
         # Run the solver
         solver.solve()

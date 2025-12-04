@@ -163,6 +163,7 @@ u_error = timestepper(get_data, theta=0.5, Z=Z, dx=dx, dSN=ds,
                       make_weak_form=make_weak_form,
                       bcs=bcs, nullspace=nullspace,
                       solver_parameters=parameters,
+                    appctx=appctx,
                       vtkfile_name="cavity_ns")
 
 # And finally we write the results to a file for visualisation. ::

@@ -65,7 +65,7 @@ for N in N_list:
     new_vtkfile_name = f"{vtkfile_name}_N{N}"
 
     error = timestepper(get_data, theta, Z, dx, ds(1), t0, T, dt, make_weak_form,
-        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, 
+        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, appctx=appctx,
         vtkfile_name=new_vtkfile_name)
     error_list.append(error)
 

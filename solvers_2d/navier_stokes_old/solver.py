@@ -54,4 +54,4 @@ nullspace = MixedVectorSpaceBasis(
 
 # run
 timestepper(get_data, theta, Z, dx, ds(1), t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name,
-        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters)
+        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters, appctx=appctx)

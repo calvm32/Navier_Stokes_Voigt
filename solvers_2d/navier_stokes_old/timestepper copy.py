@@ -29,7 +29,7 @@ def timestepper(get_data, theta, Z, dx , dSN, t0, T, dt, make_weak_form,
     # create timestep solver
     solver = create_timestep_solver(get_data, theta, Z, dx , dSN, u_old, u_new,
                                     make_weak_form, bcs=bcs, nullspace=nullspace,
-                                    solver_parameters=solver_parameters)
+                                    solver_parameters=solver_parameters, appctx=appctx)
     
     # Print table header
     energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
