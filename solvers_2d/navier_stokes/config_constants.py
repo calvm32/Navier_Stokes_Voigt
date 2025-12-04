@@ -7,7 +7,7 @@ from firedrake import *
 t0 = 0.0                # initial time
 T = 1.0                 # final time
 dt = 0.001               # timestepping length
-theta = 0.5             # theta constant
+theta = 1             # theta constant
 Re = Constant(100)      # Reynold's num = 1 / viscosity
 
 H = 1.0                 # height of box; length = 3*H
