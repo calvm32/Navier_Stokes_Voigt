@@ -34,6 +34,52 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
 
             problem_var = NonlinearVariationalProblem(F, u_new, bcs=bcs, J=None)
             solver = NonlinearVariationalSolver(problem_var, solver_parameters=solver_parameters, nullspace=nullspace)
+
+            # === Attach Python-level appctx to any PCs that PCD will inspect ===
+            # This ensures keys like "velocity_space" and "Re" are visible to PCDPC.
+            try:
+                # SNES -> KSP -> PC
+                snes = solver.snes
+                ksp = snes.getKSP()
+                pc = ksp.getPC()
+
+                # helper to copy appctx into a PC's python context (if present)
+                def copy_appctx_to_pc(pc_obj, appctx):
+                    pyctx = None
+                    try:
+                        pyctx = pc_obj.getPythonContext()
+                    except Exception:
+                        pyctx = None
+                    if pyctx is not None:
+                        # ensure appctx exists and then update it
+                        if not hasattr(pyctx, "appctx") or pyctx.appctx is None:
+                            pyctx.appctx = {}
+                        pyctx.appctx.update(appctx)
+                        # debug print to show keys visible to this PC
+                        print("Attached appctx to PC (type={}): {}".format(pc_obj.getType(), pyctx.appctx.keys()))
+
+                appctx = solver_parameters.get("appctx", {}) if solver_parameters else {}
+
+                # Attach to top-level PC python context if present
+                copy_appctx_to_pc(pc, appctx)
+
+                # If this is a fieldsplit PC, attach to each sub-KSP's PC too
+                if pc.getType() and pc.getType().lower().startswith("fieldsplit"):
+                    # getFieldSplitSubKSP returns a list of sub-KSP objects in PETSc 3.14+;
+                    try:
+                        subksp_list = pc.getFieldSplitSubKSP()
+                    except Exception:
+                        # older PETSc API: try to fetch with getFieldSplitSubKSPS or similar
+                        subksp_list = []
+                    for subksp in subksp_list:
+                        try:
+                            subpc = subksp.getPC()
+                            copy_appctx_to_pc(subpc, appctx)
+                        except Exception:
+                            pass
+            except Exception as e:
+                print("Warning: failed to attach appctx to PC(s):", e)
+            # === end attach block ===
             
         else:
             v = TestFunction(Z)
