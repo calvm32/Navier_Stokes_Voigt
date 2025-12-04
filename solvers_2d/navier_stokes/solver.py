@@ -20,6 +20,8 @@ V = VectorFunctionSpace(mesh, "CG", 2)
 W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
+solver_parameters["appctx"]["velocity_space"] = Z.sub(0)._function_space
+
 # time dependant
 def get_data(t):
     
@@ -50,7 +52,6 @@ solver_parameters["fieldsplit_1_pcd_Kp_pc_type"] = "lu"
 
 solver_parameters["mat_type"] = "aij"
 
-solver_parameters["appctx"]["velocity_space"] = Z.sub(0).ufl_element().family()  # check
 
 print("velocity_space type:", type(solver_parameters["appctx"]["velocity_space"]))
 
