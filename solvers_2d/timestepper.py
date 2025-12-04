@@ -58,14 +58,15 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
 
-        # write to VTK
-        if isinstance(Z.ufl_element(), MixedElement):
-            u_new.sub(0).rename("Velocity")
-            u_new.sub(1).rename("Pressure")
-            outfile.write(u_new.sub(0), u_new.sub(1))
-        else:
-            u_new.rename("Velocity")
-            outfile.write(u_new)
+        # write to VTK every 50 steps
+        if step % 50 == 0:
+            if isinstance(Z.ufl_element(), MixedElement):
+                u_new.sub(0).rename("Velocity")
+                u_new.sub(1).rename("Pressure")
+                outfile.write(u_new.sub(0), u_new.sub(1))
+            else:
+                u_new.rename("Velocity")
+                outfile.write(u_new)
 
     # ----------------------------------
     # Report done; find and return error
