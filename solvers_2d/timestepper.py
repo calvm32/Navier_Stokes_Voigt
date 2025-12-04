@@ -54,6 +54,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         # count steps to print
         step += 1
 
+        # Assign initial guess
+        u_new.assign(u_old) 
+
         # Report each time step
         energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
