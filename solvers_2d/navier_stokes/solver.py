@@ -43,8 +43,10 @@ bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
 nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
-import pprint
-pprint.pprint(solver_parameters)
+solver_parameters["fieldsplit_1_pc_type"] = "python"
+solver_parameters["fieldsplit_1_pc_python_type"] = "firedrake.AssembledPC"
+solver_parameters["fieldsplit_1_pcd_Mp_pc_type"] = "lu"
+solver_parameters["fieldsplit_1_pcd_Kp_pc_type"] = "lu"
 
 # run
 timestepper(get_data, theta, Z, dx, ds(1), t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name,
