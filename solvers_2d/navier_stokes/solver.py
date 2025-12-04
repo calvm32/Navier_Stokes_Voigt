@@ -64,4 +64,4 @@ solver_parameters_test.pop("fieldsplit_1_pcd_Kp_pc_type", None)
 
 # run
 timestepper(get_data, theta, Z, dx, ds(1), t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name,
-        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters_test)
+        bcs=bcs, nullspace=nullspace, solver_parameters=solver_parameters)
