@@ -7,7 +7,7 @@ from firedrake import *
 t0 = 0.0                # initial time
 T = 1.0                 # final time
 dt = 0.001               # timestepping length
-theta = 0.5             # theta constant
+theta = 1             # theta constant
 Re = Constant(100)      # Reynold's num = 1 / viscosity
 
 H = 1.0                 # height of box; length = 3*H
@@ -59,14 +59,10 @@ solver_parameters = {
 
     # invert the velocity block with LU::
 
-    #"fieldsplit_0_ksp_type": "preonly",
-    #"fieldsplit_0_pc_type": "python",
-    #"fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
-    #"fieldsplit_0_assembled_pc_type": "lu",
-
-    "fieldsplit_0_mat_type": "aij",  # assemble just the velocity block
     "fieldsplit_0_ksp_type": "preonly",
-    "fieldsplit_0_pc_type": "lu",
+    "fieldsplit_0_pc_type": "python",
+    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
+    "fieldsplit_0_assembled_pc_type": "lu",
 
     # invert the schur complement inexactly using GMRES, preconditioned w PCD
 
