@@ -14,8 +14,8 @@ x, y = SpatialCoordinate(mesh)
 dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)
 
-V = VectorFunctionSpace(M, "CG", 2)
-W = FunctionSpace(M, "CG", 1)
+V = VectorFunctionSpace(mesh, "CG", 2)
+W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
 up = Function(Z)
