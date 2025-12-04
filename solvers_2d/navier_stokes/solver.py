@@ -21,8 +21,8 @@ W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
 # pass velocity space
-solver_parameters["appctx"]["velocity_space"] = Z.sub(0).collapse()
-solver_parameters["appctx"]["pressure_space"] = Z.sub(1).collapse()
+solver_parameters["appctx"]["velocity_space"] = 0
+solver_parameters["appctx"]["Re"] = 100.0
 
 # time dependant
 def get_data(t):
