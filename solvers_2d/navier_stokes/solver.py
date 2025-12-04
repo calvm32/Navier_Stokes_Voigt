@@ -20,10 +20,17 @@ V = VectorFunctionSpace(mesh, "CG", 2)
 W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
-solver_parameters["appctx"]["velocity_space"] = Z.sub(0).topological.ufl_function_space()
-print("velocity_space type:", type(solver_parameters["appctx"]["velocity_space"]))
+solver_parameters["appctx"]["velocity_space"] = Z.sub(0).topological.ufl_function_space() # necessary so it's a function space
 
-# time dependant
+# allocate Functions for timestepping
+u_old = Function(Z, name="u_old")
+u_new = Function(Z, name="u_new")
+
+# Initialize velocity and pressure as real Functions
+u_old.sub(0).interpolate(as_vector([sin(pi*x), cos(pi*y)]))  # velocity
+u_old.sub(1).interpolate(Constant(5.0))                       # pressure
+
+# Make "get_data" return Functions instead of symbolic UFL expressions
 def get_data(t):
     
     # functions
@@ -32,12 +39,22 @@ def get_data(t):
     ufl_f = as_vector([0, 0])                       # source term f
     ufl_g = as_vector([0, 0])                       # bdy condition g
 
-    # returns
-    return {"ufl_v0": ufl_v0,
-            "ufl_p0": ufl_p0,
-            "ufl_f": ufl_f,
-            "ufl_g": ufl_g,
-            }
+    # Allocate functions
+    u = Function(V)
+    p = Function(W)
+    f = Function(V)
+    g = Function(V)
+    
+    # Interpolate ufl symbolic expressions
+    u.interpolate(ufl_v0)
+    p.interpolate(ufl_p0)
+    f.interpolate(ufl_f)
+    g.interpolate(ufl_g)
+    
+    return {"ufl_v0": v,
+            "ufl_p0": p,
+            "ufl_f": f,
+            "ufl_g": g}
 
 # BCs from demo
 bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
