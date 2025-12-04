@@ -39,7 +39,7 @@ P = 5.0                 # initial pressure strength
 appctx = {"Re": Re, "velocity_space": 0}
 
 solver_parameters = {
-    "mat_type": "matfree",
+    "mat_type": "aij",
     "snes_monitor": None,
     "fieldsplit_0_ksp_monitor": None,
     "fieldsplit_1_ksp_monitor": None,
