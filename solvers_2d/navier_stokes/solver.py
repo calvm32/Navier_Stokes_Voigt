@@ -40,13 +40,13 @@ def get_data(t):
     ufl_g = as_vector([0, 0])             # bdy condition g
 
     # Allocate functions
-    u = Function(V)
+    v = Function(V)
     p = Function(W)
     f = Function(V)
     g = Function(V)
     
     # Interpolate ufl symbolic expressions
-    u.interpolate(ufl_v0)
+    v.interpolate(ufl_v0)
     p.interpolate(ufl_p0)
     f.interpolate(ufl_f)
     g.interpolate(ufl_g)
