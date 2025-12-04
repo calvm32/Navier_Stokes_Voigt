@@ -43,8 +43,8 @@ bcs = [DirichletBC(Z.sub(0), Constant((1, 0)), (4,)),
        DirichletBC(Z.sub(0), Constant((0, 0)), (1, 2, 3))]
 
 # Nullspace for pressure
-velocity_subspace = Z.sub(0)
-pressure_subspace = Z.sub(1)
+velocity_subspace = Z.sub(0).collapse()
+pressure_subspace = Z.sub(1).collapse()
 
 nullspace = MixedVectorSpaceBasis(
     Z, [velocity_subspace, VectorSpaceBasis(pressure_subspace, constant=True)]
