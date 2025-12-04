@@ -55,7 +55,8 @@ solver_parameters = {
 
     "appctx": {
         "velocity_space": 0, 
-        "Re": Re}
+        "Re": float(Re)
+        },
 
     #"snes_monitor": None,
     #"snes_converged_reason": None,
