@@ -54,14 +54,23 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
 
-        outfile.write(u_new)
+        # write to VTK
+        if isinstance(Z.ufl_element(), MixedElement):
+            outfile.write(u_new.sub(0), u_new.sub(1))
+        else:
+            outfile.write(u_new)
 
     # Done
     print(f"\n")
     green(f"Completed", spaced=True)
 
     data_T = get_data(T) # get the error at final time
-    u_exact.interpolate(data_T["ufl_u0"])  # just velocity
+
+    if isinstance(Z.ufl_element(), MixedElement):
+        u_exact.sub(0).interpolate(data_T["ufl_v0"])  # velocity
+        u_exact.sub(1).interpolate(data_T["ufl_p0"])  # pressure
+    else:
+        u_exact.interpolate(data_T["ufl_u0"])  # just velocity
 
     # Write FINAL error to file
     u_error = errornorm(u_exact.sub(0), u_new.sub(0))
