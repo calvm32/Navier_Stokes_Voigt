@@ -47,7 +47,7 @@ def get_data(t):
             "ufl_g": ufl_g,
             }
 
-u_error = timestepper(get_data, theta, Z, dx, dsN,
+u_error = timestepper(get_data, theta, Z, dx, ds(1),
                         t0, T, dt,
                         make_weak_form=make_weak_form,
                         bcs=bcs, nullspace=nullspace,
