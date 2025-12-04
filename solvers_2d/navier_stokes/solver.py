@@ -20,8 +20,7 @@ V = VectorFunctionSpace(mesh, "CG", 2)
 W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
-V_space = Z.sub(0).function_space()  # plain FunctionSpace
-solver_parameters["appctx"]["velocity_space"] = V_space
+solver_parameters["appctx"]["velocity_space"] = Z.sub(0).function_space()
 
 # time dependant
 def get_data(t):
@@ -62,8 +61,6 @@ solver_parameters_test.pop("fieldsplit_1_pc_type", None)
 solver_parameters_test.pop("fieldsplit_1_pc_python_type", None)
 solver_parameters_test.pop("fieldsplit_1_pcd_Mp_pc_type", None)
 solver_parameters_test.pop("fieldsplit_1_pcd_Kp_pc_type", None)
-
-print(solver_parameters_test)
 
 # run
 timestepper(get_data, theta, Z, dx, ds(1), t0, T, dt, make_weak_form, vtkfile_name=vtkfile_name,
