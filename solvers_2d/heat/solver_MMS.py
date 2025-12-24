@@ -1,10 +1,9 @@
 from firedrake import *
 
 import matplotlib.pyplot as plt
-from solvers_2d.timestepper_CN import timestepper_CN
+from solvers_2d.timestepper import timestepper
 from solvers_2d.timestepper_RK4 import timestepper_RK4
 from .make_weak_form import make_weak_form
-from .make_residual import make_residual
 from solvers_2d.printoff import blue
 
 from .config_constants import t0, T, dt, theta, N_list, vtkfile_name, solve_type
@@ -51,7 +50,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    error = timestepper_CN(
+    error = timestepper(
         get_data, 
         theta, 
         V, dx, ds, 

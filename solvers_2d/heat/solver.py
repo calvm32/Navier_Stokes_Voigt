@@ -1,6 +1,6 @@
 from firedrake import *
 
-from solvers_2d.timestepper_CN import timestepper_CN
+from solvers_2d.timestepper import timestepper
 from solvers_2d.timestepper_RK4 import timestepper_RK4
 from .make_weak_form import make_weak_form
 from solvers_2d.printoff import blue
@@ -43,7 +43,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-error = timestepper_CN(
+error = timestepper(
     get_data, 
     theta, 
     V, dx, ds, 

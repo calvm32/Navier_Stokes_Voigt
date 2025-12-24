@@ -3,7 +3,7 @@ from firedrake import *
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper_CN(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
+def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces

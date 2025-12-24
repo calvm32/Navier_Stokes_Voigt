@@ -16,7 +16,7 @@ Modules:
 
 """
 
-from .timestepper_CN import timestepper_CN
+from .timestepper import timestepper
 from .timestepper_RK4 import timestepper_RK4
 from .printoff import *
 
