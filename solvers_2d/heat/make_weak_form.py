@@ -1,7 +1,5 @@
 from firedrake import *
 
-from .config_constants import Re
-
 def make_weak_form(theta, idt, f, f_old, g, g_old, dx , dsN):
     """
     Returns func F(u, u_old, v), which builds weak form

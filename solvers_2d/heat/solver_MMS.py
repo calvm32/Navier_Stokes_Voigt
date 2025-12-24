@@ -1,11 +1,13 @@
 from firedrake import *
 
 import matplotlib.pyplot as plt
-from solvers_2d.timestepper import timestepper
+from solvers_2d.timestepper_CN import timestepper_CN
+from solvers_2d.timestepper_RK4 import timestepper_RK4
 from .make_weak_form import make_weak_form
+from .make_residual import make_residual
 from solvers_2d.printoff import blue
 
-from .config_constants import t0, T, dt, theta, N_list, vtkfile_name
+from .config_constants import t0, T, dt, theta, N_list, vtkfile_name, solve_type
 
 # calculate error as mesh size increases
 error_list = [] 
@@ -48,11 +50,24 @@ for N in N_list:
     # ----------
     # Run solver
     # ----------
-    error = timestepper(get_data, theta, 
-                        V, dx, ds, 
-                        t0, T, dt, 
-                        make_weak_form, 
-                        vtkfile_name=new_vtkfile_name)
+
+    if solve_type == 0:
+        error = timestepper_CN(
+            get_data, 
+            theta, 
+            V, dx, ds, 
+            t0, T, dt, 
+            make_weak_form, 
+            vtkfile_name=new_vtkfile_name)
+    elif solve_type == 1:
+        error = timestepper_RK4(
+            get_data, 
+            V, dx, ds, 
+            t0, T, dt, 
+            make_residual, 
+            vtkfile_name=new_vtkfile_name)
+    else:
+        print("Solve type not recognized. Enter 0 for Crank-Nicolson or 1 for Runge-Kutta 4.")
     
     error_list.append(error)
 

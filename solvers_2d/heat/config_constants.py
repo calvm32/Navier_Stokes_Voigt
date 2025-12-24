@@ -1,14 +1,20 @@
 from firedrake import *
 
+# ----------
+# Solve type
+# ----------
+
+# 0 for CN, 1 for RK4
+solve_type = 1
+
 # ---------
 # Constants
 # ---------
 
 t0 = 0.0        # initial time
 T = 1.0         # final time
-dt = 0.01       # (initial)timestepping length
+dt = 0.01       # timestepping length
 theta = 1/2     # theta constant
-Re = 1          # Reynold's number
 
 vtkfile_name = "Soln"
 
@@ -33,5 +39,6 @@ for exp in range(1, 6):
 # -----------------
 
 solver_parameters = {
-
+    "ksp_type": "cg",
+    "pc_type": "hypre"
 }

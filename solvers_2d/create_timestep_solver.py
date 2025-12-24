@@ -10,22 +10,17 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
     Return a solve function taking (t, dt)
     """
 
-    # ---------------
-    # Make new solver
-    # ---------------
-
     # Initialize coefficients
     idt = Constant(0.0)
     v = TestFunction(Z)
 
-    # Initial weak form with placeholders
-    data_init = get_data(0.0)
-    f_old = data_init.get("ufl_f")
-    g_old = data_init.get("ufl_g")
-    f_new = data_init.get("ufl_f")
-    g_new = data_init.get("ufl_g")
+    # Initial weak form placeholders
+    f_old = Function(Z)
+    f_new = Function(Z)
+    g_old = Function(Z)
+    g_new = Function(Z)
 
-    # Create the solver + compute Jacobian once
+    # Create the problem + solver + compute Jacobian once
     F_expr = make_weak_form(theta, idt, f_new, f_old, g_new, g_old, dx, dsN)(u_new, u_old, v)
     J = derivative(F_expr, u_new)
     
@@ -34,9 +29,9 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
                                         solver_parameters=solver_parameters,
                                         nullspace=nullspace, appctx=appctx)
 
-    # -------------
-    # Update solver
-    # -------------
+    # ------
+    # Update
+    # ------
 
     def solve_one_step(t, dt):
         """
@@ -46,10 +41,10 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
         data_old = get_data(t)
         data_new = get_data(t+dt)
 
-        f_old = data_old.get("ufl_f")
-        g_old = data_old.get("ufl_g")
-        f_new = data_new.get("ufl_f")
-        g_new = data_new.get("ufl_g")
+        f_old.interpolate(data_old["ufl_f"])
+        g_old.interpolate(data_old["ufl_g"])
+        f_new.interpolate(data_new["ufl_f"])
+        g_new.interpolate(data_new["ufl_g"])
 
         # Run the solver
         solver.solve()
