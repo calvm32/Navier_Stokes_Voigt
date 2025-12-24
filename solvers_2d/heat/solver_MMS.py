@@ -51,23 +51,13 @@ for N in N_list:
     # Run solver
     # ----------
 
-    if solve_type == 0:
-        error = timestepper_CN(
-            get_data, 
-            theta, 
-            V, dx, ds, 
-            t0, T, dt, 
-            make_weak_form, 
-            vtkfile_name=new_vtkfile_name)
-    elif solve_type == 1:
-        error = timestepper_RK4(
-            get_data, 
-            V, dx, ds, 
-            t0, T, dt, 
-            make_residual, 
-            vtkfile_name=new_vtkfile_name)
-    else:
-        print("Solve type not recognized. Enter 0 for Crank-Nicolson or 1 for Runge-Kutta 4.")
+    error = timestepper_CN(
+        get_data, 
+        theta, 
+        V, dx, ds, 
+        t0, T, dt, 
+        make_weak_form, 
+        vtkfile_name=new_vtkfile_name)
     
     error_list.append(error)
 

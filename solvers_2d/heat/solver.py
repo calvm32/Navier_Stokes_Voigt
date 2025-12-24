@@ -5,7 +5,7 @@ from solvers_2d.timestepper_RK4 import timestepper_RK4
 from .make_weak_form import make_weak_form
 from solvers_2d.printoff import blue
 
-from .config_constants import t0, T, dt, theta, N, vtkfile_name
+from .config_constants import t0, T, dt, theta, N, vtkfile_name, solve_type
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
@@ -43,8 +43,10 @@ def get_data(t):
 # Run solver
 # ----------
 
-timestepper_CN(get_data, theta, 
-            V, dx, ds, 
-            t0, T, dt, 
-            make_weak_form, 
-            vtkfile_name=vtkfile_name)
+error = timestepper_CN(
+    get_data, 
+    theta, 
+    V, dx, ds, 
+    t0, T, dt, 
+    make_weak_form, 
+    vtkfile_name=vtkfile_name)

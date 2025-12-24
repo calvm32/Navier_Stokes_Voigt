@@ -1,6 +1,12 @@
 # Fluid Mechanics DEs
 
-## Firedrake
+## Capabilities
+- runs CN heat
+- runs RK4 heat
+- runs CN NS
+- TRYING to run CN NSV, RK4 NS, RK4 NSV (and maybe even get RK4 heat to work if that's wrong; not sure)
+
+## How to run
 This repository uses Firedrake, which currently requires a lot of luck to install. 
 
 ### For local runs,

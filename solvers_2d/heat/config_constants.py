@@ -1,19 +1,12 @@
 from firedrake import *
 
-# ----------
-# Solve type
-# ----------
-
-# 0 for CN, 1 for RK4
-solve_type = 1
-
 # ---------
 # Constants
 # ---------
 
 t0 = 0.0        # initial time
 T = 1.0         # final time
-dt = 0.01       # timestepping length
+dt = 1e-2       # timestepping length
 theta = 1/2     # theta constant
 
 vtkfile_name = "Soln"

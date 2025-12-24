@@ -2,8 +2,7 @@ from firedrake import *
 
 def make_weak_form(theta, idt, f, f_old, g, g_old, dx , dsN):
     """
-    Returns func F(u, u_old, v), which builds weak form
-    using external coefficients
+    weak form for heat equation using CN
     """
     f_mid = theta * f + (1-theta) * f_old
     g_mid = theta * g + (1-theta) * g_old
