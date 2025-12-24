@@ -2,7 +2,6 @@ from firedrake import *
 
 import matplotlib.pyplot as plt
 from solvers_2d.timestepper import timestepper
-from solvers_2d.timestepper_RK4 import timestepper_RK4
 from .make_weak_form import make_weak_form
 from solvers_2d.printoff import blue
 

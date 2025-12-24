@@ -41,10 +41,10 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
         data_old = get_data(t)
         data_new = get_data(t+dt)
 
-        f_old.interpolate(data_old["ufl_f"])
-        g_old.interpolate(data_old["ufl_g"])
-        f_new.interpolate(data_new["ufl_f"])
-        g_new.interpolate(data_new["ufl_g"])
+        f_old.sub(0).interpolate(data_old["ufl_f"])
+        f_new.sub(0).interpolate(data_new["ufl_f"])
+        g_old.sub(0).interpolate(data_old["ufl_g"])
+        g_new.sub(0).interpolate(data_new["ufl_g"])
 
         # Run the solver
         solver.solve()

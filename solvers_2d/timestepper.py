@@ -83,11 +83,18 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     if isinstance(Z.ufl_element(), MixedElement):
         u_exact.sub(0).interpolate(data_T["ufl_v0"])  # velocity
         u_exact.sub(1).interpolate(data_T["ufl_p0"])  # pressure
+
+        # Write FINAL error to file
+        vel_error = errornorm(u_exact.sub(0), u_new.sub(0))
+        pres_error = errornorm(u_exact.sub(1), u_new.sub(1))
+
+        return(vel_error) 
+
     else:
         u_exact.interpolate(data_T["ufl_u0"])  # just velocity
 
-    # Write FINAL error to file
-    u_error = errornorm(u_exact.sub(0), u_new.sub(0))
-    green(f"Final L2 Error = {u_error:0.8e}", spaced=True)
+        # Write FINAL error to file
+        u_error = errornorm(u_exact.sub(0), u_new.sub(0))
+        green(f"Final L2 Error = {u_error:0.8e}", spaced=True)
 
-    return(u_error)
+        return(u_error) 

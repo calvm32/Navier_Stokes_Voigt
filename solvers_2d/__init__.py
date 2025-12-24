@@ -17,7 +17,6 @@ Modules:
 """
 
 from .timestepper import timestepper
-from .timestepper_RK4 import timestepper_RK4
 from .printoff import *
 
 __all__ = [

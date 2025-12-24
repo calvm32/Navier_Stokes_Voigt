@@ -1,7 +1,6 @@
 from firedrake import *
 
 from solvers_2d.timestepper import timestepper
-from solvers_2d.timestepper_RK4 import timestepper_RK4
 from .make_weak_form import make_weak_form
 from solvers_2d.printoff import blue
 import matplotlib as plt
@@ -45,21 +44,24 @@ for N in N_list:
 
     def get_data(t):
 
-        # exact functions for Poiseuille flow  
-        ufl_v_exact = as_vector([                                   # velocity ic
-            Re*( sin(pi*y/H)*ufl.exp(((pi**2)*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y ), 
+        # velocity exact
+        ufl_v_exact = as_vector([
+            Re*(sin(pi*y/H)*exp((pi**2*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y),
             Constant(0.0)
         ])
-        ufl_p_exact = Constant(P)                                   # pressure ic
-        ufl_f_exact = as_vector([Constant(0.0), Constant(0.0)])     # source term f
-        ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])     # bdy condition g
+        # pressure exact
+        ufl_p_exact = Constant(P)
+        # source term for velocity (forcing)
+        ufl_f_exact = as_vector([Constant(0.0), Constant(0.0)])
+        # boundary term (velocity)
+        ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
 
-        # returns
-        return {"ufl_v0": ufl_v_exact,
-                "ufl_p0": ufl_p_exact,
-                "ufl_f": ufl_f_exact,
-                "ufl_g": ufl_g_exact,
-                }
+        return {
+            "ufl_v0": ufl_v_exact,
+            "ufl_p0": ufl_p_exact,
+            "ufl_f": ufl_f_exact,
+            "ufl_g": ufl_g_exact
+        }
 
     # ----------
     # Run solver
