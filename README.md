@@ -1,10 +1,10 @@
-# Fluid Mechanics DEs
+# Fluid Mechanics Solvers
 
-## Capabilities
-- runs CN heat
-- runs RK4 heat
-- runs CN NS
-- TRYING to run CN NSV, RK4 NS, RK4 NSV (and maybe even get RK4 heat to work if that's wrong; not sure)
+## Description
+
+Crank-Nicolson solver for:
+- 2D Heat equation
+- 2D Navier-Stokes equation
 
 ## How to run
 This repository uses Firedrake, which currently requires a lot of luck to install. 
