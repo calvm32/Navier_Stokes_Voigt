@@ -1,8 +1,8 @@
 from firedrake import *
 
-from solvers_2d.timestepper import timestepper
+from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from solvers_2d.printoff import blue
+from solvers.printoff import blue
 import matplotlib as plt
 
 from .config_constants import t0, T, dt, theta, Re, P, H, N_list, solver_parameters, appctx, vtkfile_name

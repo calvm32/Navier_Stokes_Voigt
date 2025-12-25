@@ -1,9 +1,9 @@
 from firedrake import *
 
 import matplotlib.pyplot as plt
-from solvers_2d.timestepper import timestepper
+from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from solvers_2d.printoff import blue
+from solvers.printoff import blue
 
 from .config_constants import t0, T, dt, theta, N_list, vtkfile_name
 
@@ -19,8 +19,8 @@ for N in N_list:
     # ------------
 
     # mesh and measures
-    mesh = UnitSquareMesh(N, N)
-    x, y = SpatialCoordinate(mesh)
+    mesh = UnitCubeMesh(N, N, N)
+    x, y, z = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
     ds = Measure("ds", domain=mesh)
@@ -36,9 +36,9 @@ for N in N_list:
     def get_data(t):
 
         # exact functions for u=e^t*sin(pix)*cos(piy)
-        ufl_u_exact = ufl.exp(t)*cos(pi*x)*cos(pi*y)                # initial condition u0 
-        ufl_f_exact = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)    # source term f 
-        ufl_g_exact = Constant(0)                                   # bdy condition g
+        ufl_u_exact = ufl.exp(t)*cos(pi*x)*cos(pi*y)*cos(pi*z)              # initial condition u0 
+        ufl_f_exact = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)*cos(pi*z)  # source term f 
+        ufl_g_exact = Constant(0)                                           # bdy condition g
 
         # returns
         return {"ufl_u0": ufl_u_exact,
