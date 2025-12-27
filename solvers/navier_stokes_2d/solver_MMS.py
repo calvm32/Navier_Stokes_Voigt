@@ -18,7 +18,7 @@ for N in N_list:
     # Setup spaces
     # ------------
 
-    mesh = RectangleMesh(H, L, int(N*H), int(N*L))
+    mesh = RectangleMesh(int(N*L), int(N*H), L, H)
     x, y = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
