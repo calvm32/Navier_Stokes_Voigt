@@ -1,11 +1,11 @@
 from firedrake import *
 
-from solvers.timestepper import timestepper
+from solvers_2d.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from solvers.printoff import blue
+from solvers_2d.printoff import blue
 import matplotlib as plt
 
-from .config_constants import t0, T, dt, theta, Re, P, H, N_list, solver_parameters, appctx, vtkfile_name
+from .config_constants import t0, T, dt, theta, Re, P, G, H, L, N_list, solver_parameters, appctx, vtkfile_name
 
 # calculate error as mesh size increases
 error_list = []
@@ -18,7 +18,7 @@ for N in N_list:
     # Setup spaces
     # ------------
 
-    mesh = UnitSquareMesh(N, N)
+    mesh = RectangleeMesh(H, L)
     x, y = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
@@ -32,8 +32,8 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1, 3))
-    bc_pressure_ref = DirichletBC(Z.sub(1), Constant(0.0), (2,))  # pin pressure at boundary id 2
+    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
+    bc_pressure_ref = DirichletBC(Z.sub(1), Constant(G), (1,))  # pin pressure at left side
     bcs = [bc_noslip, bc_pressure_ref]
 
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
@@ -46,13 +46,16 @@ for N in N_list:
 
         # velocity exact
         ufl_v_exact = as_vector([
-            Re*(sin(pi*y/H)*exp((pi**2*t)/(H**2)) + 0.5*P*y**2 + 0.5*P*H*y),
+            Re*(sin(pi*y/H)*exp((-1*pi**2*t)/(H**2)) + 0.5*P*y**2 - 0.5*P*H*y),
             Constant(0.0)
         ])
+
         # pressure exact
-        ufl_p_exact = Constant(P)
+        ufl_p_exact = Constant(P)*x + Constant(G)
+
         # source term for velocity (forcing)
         ufl_f_exact = as_vector([Constant(0.0), Constant(0.0)])
+
         # boundary term (velocity)
         ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
 

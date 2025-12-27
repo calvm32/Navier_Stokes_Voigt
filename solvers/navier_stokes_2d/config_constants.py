@@ -7,10 +7,11 @@ from firedrake import *
 t0 = 0.0                # initial time
 T = 1.0                 # final time
 dt = 0.01               # timestepping length
-theta = 1             # theta constant
+theta = 1               # theta constant
 Re = Constant(100)      # Reynold's num = 1 / viscosity
 
-H = 1.0                 # height of box; length = 3*H
+H = 1.0                 # height of box (if changed, need to adjust mesh)
+L = 3.0                 # length of box (can be changed always)
 
 vtkfile_name = "Soln"
 
@@ -30,7 +31,8 @@ for exp in range(4, 10):
     N = 2**exp
     N_list.append(N)
 
-P = 5.0                 # initial pressure strength
+G = 5.0                 # initial pressure gradient
+P = 1.0                 # pressure strength (P*x + G)
 
 # ------------
 # Dictionaries
