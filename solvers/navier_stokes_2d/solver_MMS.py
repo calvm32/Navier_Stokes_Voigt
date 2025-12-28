@@ -57,17 +57,20 @@ for N in N_list:
         # pressure exact
         ufl_p_exact = Constant(P)*x + Constant(G)
 
-        # v_t
-        diff = as_vector([
-            Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*e**(-1*pi**2*t/(H**2))), 
+        # v time derivative
+        v_t = as_vector([
+            Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2))), 
             Constant(0.0)
         ])
 
+        # v Laplacian
+        lap_v = div(grad(ufl_v_exact))
+
+        # pressure gradient
+        grad_p = as_vector([P, 0.0])
+
         # source term exact
-        ufl_f_exact = as_vector([
-            diff - (1.0/Re)*div(grad(ufl_v_exact)) + P,
-            Constant(0.0)
-        ])
+        ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
 
         # boundary term
         ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
