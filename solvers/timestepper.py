@@ -90,7 +90,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
         green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
 
-        return(v_error) 
+        return(v_error, p_error) 
 
     else:
         u_exact.interpolate(data_T["ufl_u0"])  # just velocity

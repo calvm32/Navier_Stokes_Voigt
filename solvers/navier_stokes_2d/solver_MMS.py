@@ -8,8 +8,12 @@ import matplotlib as plt
 from .config_constants import t0, T, dt, theta, Re, P, G, H, L, N_list, solver_parameters, appctx, vtkfile_name
 
 # calculate error as mesh size increases
-error_list = []
+v_error_list = []
+p_error_list = []
+
 for N in N_list:
+
+    dt /= N**2 # CFL
 
     blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
     new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
@@ -18,7 +22,7 @@ for N in N_list:
     # Setup spaces
     # ------------
 
-    mesh = RectangleMesh(int(N*L), int(N*H), L, H)
+    mesh = RectangleMesh(N, N, L, H)
     x, y = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
@@ -53,10 +57,14 @@ for N in N_list:
         # pressure exact
         ufl_p_exact = Constant(P)*x + Constant(G)
 
-        # source term for velocity (forcing)
-        ufl_f_exact = as_vector([Constant(0.0), Constant(0.0)])
+        # source term
+        f_exact = (
+            diff(u_exact, t)
+            - nu*div(grad(u_exact))
+            + grad(p_exact)
+        )
 
-        # boundary term (velocity)
+        # boundary term
         ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
 
         return {
@@ -70,7 +78,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    error = timestepper(get_data, theta, 
+    v_error, p_error = timestepper(get_data, theta, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,
@@ -79,11 +87,19 @@ for N in N_list:
             appctx=appctx, vtkfile_name=new_vtkfile_name)
 
 
-    error_list.append(error)
+    v_error_list.append(v_error)
+    p_error_list.append(p_error)
 
-plt.loglog(N_list, error_list, "-o")
+plt.loglog(N_list, v_error_list, "-o")
 plt.xlabel("mesh size h")
-plt.ylabel("error")
+plt.ylabel("velocity error")
 plt.grid(True)
 
-plt.savefig("convergence_plot.png", dpi=200)
+plt.savefig("velocity_convergence_plot.png", dpi=200)
+
+plt.loglog(N_list, p_error_list, "-o")
+plt.xlabel("mesh size h")
+plt.ylabel("pressure error")
+plt.grid(True)
+
+plt.savefig("pressure_convergence_plot.png", dpi=200)
