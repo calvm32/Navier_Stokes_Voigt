@@ -48,25 +48,28 @@ for N in N_list:
 
     def get_data(t):
 
-        # velocity exact
-        ufl_v_exact = as_vector([
-            Re*(sin(pi*y/H)*exp((-1*pi**2*t)/(H**2)) + 0.5*P*y**2 - 0.5*P*H*y),
+        # update symbolic time
+        t_sym.assign(t)
+
+        # exact velocity
+        v_exact = as_vector([
+            (sin(pi*y/H)*exp(-pi**2*t_sym/H**2)
+            + 0.5*P*y*(y - H)) / nu,
             Constant(0.0)
         ])
 
-        # pressure exact
-        ufl_p_exact = Constant(P)*x + Constant(G)
+        # exact pressure
+        p_exact = P*x + G
 
-        # source term
-        ufl_f_exact = ([
-            diff(ufl_v_exact, t)
-            - (1.0/Re)*div(grad(ufl_v_exact))
-            + P,
-            Constant(0.0)
-        ])
+        # exact source
+        f_exact = (
+            diff(v_exact, t_sym)
+            - nu*div(grad(v_exact))
+            + grad(p_exact)
+        )
 
-        # boundary term
-        ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
+        # boundary velocity (no-slip)
+        g_exact = as_vector([Constant(0.0), Constant(0.0)])
 
         return {
             "ufl_v0": ufl_v_exact,
