@@ -58,11 +58,12 @@ for N in N_list:
         ufl_p_exact = Constant(P)*x + Constant(G)
 
         # source term
-        f_exact = (
-            diff(u_exact, t)
-            - nu*div(grad(u_exact))
-            + grad(p_exact)
-        )
+        ufl_f_exact = ([
+            diff(ufl_v_exact, t)
+            - (1.0/Re)*div(grad(ufl_v_exact))
+            + P,
+            Constant(0.0)
+        ])
 
         # boundary term
         ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
