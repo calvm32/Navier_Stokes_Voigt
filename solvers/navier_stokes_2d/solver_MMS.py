@@ -14,6 +14,7 @@ p_error_list = []
 for N in N_list:
 
     dt /= N**2 # CFL
+    t_sym = Constant(0.0) # symbolic time
 
     blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
     new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
@@ -53,8 +54,8 @@ for N in N_list:
 
         # exact velocity
         v_exact = as_vector([
-            (sin(pi*y/H)*exp(-pi**2*t_sym/H**2)
-            + 0.5*P*y*(y - H)) / nu,
+            Re*(sin(pi*y/H)*exp(-pi**2*t_sym/H**2)
+            + 0.5*P*y*(y - H)),
             Constant(0.0)
         ])
 
@@ -64,7 +65,7 @@ for N in N_list:
         # exact source
         f_exact = (
             diff(v_exact, t_sym)
-            - nu*div(grad(v_exact))
+            - (1.0/Re)*div(grad(v_exact))
             + grad(p_exact)
         )
 
