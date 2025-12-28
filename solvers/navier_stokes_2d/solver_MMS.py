@@ -14,7 +14,6 @@ p_error_list = []
 for N in N_list:
 
     dt /= N**2 # CFL
-    t_sym = Constant(0.0) # symbolic time
 
     blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
     new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
@@ -49,28 +48,26 @@ for N in N_list:
 
     def get_data(t):
 
-        # update symbolic time
-        t_sym.assign(t)
-
-        # exact velocity
-        v_exact = as_vector([
-            Re*(sin(pi*y/H)*exp(-pi**2*t_sym/H**2)
-            + 0.5*P*y*(y - H)),
+        # velocity exact
+        ufl_v_exact = as_vector([
+            Re*(sin(pi*y/H)*exp((-1*pi**2*t)/(H**2)) + 0.5*P*y**2 - 0.5*P*H*y),
             Constant(0.0)
         ])
 
-        # exact pressure
-        p_exact = P*x + G
+        # pressure exact
+        ufl_p_exact = Constant(P)*x + Constant(G)
 
-        # exact source
-        f_exact = (
-            diff(v_exact, t_sym)
-            - (1.0/Re)*div(grad(v_exact))
-            + grad(p_exact)
-        )
+        # v_t
+        diff = Re*(-1*pi**2*t/(H**2))*(sin(y*pi/H)*e**(-1*pi**2*t/(H**2)))
 
-        # boundary velocity (no-slip)
-        g_exact = as_vector([Constant(0.0), Constant(0.0)])
+        # source term exact
+        ufl_f_exact = ([
+            diff - (1.0/Re)*div(grad(ufl_v_exact)) + P,
+            Constant(0.0)
+        ])
+
+        # boundary term
+        ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
 
         return {
             "ufl_v0": ufl_v_exact,
