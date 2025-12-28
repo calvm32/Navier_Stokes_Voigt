@@ -58,13 +58,13 @@ for N in N_list:
         ufl_p_exact = Constant(P)*x + Constant(G)
 
         # v_t
-        diff = ([
+        diff = as_vector([
             Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*e**(-1*pi**2*t/(H**2))), 
             Constant(0.0)
         ])
 
         # source term exact
-        ufl_f_exact = ([
+        ufl_f_exact = as_vector([
             diff - (1.0/Re)*div(grad(ufl_v_exact)) + P,
             Constant(0.0)
         ])
