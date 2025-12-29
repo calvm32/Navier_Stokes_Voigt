@@ -13,7 +13,7 @@ p_error_list = []
 
 for N in N_list:
 
-    dt /= N**2 # CFL
+    dt = 1/N**2 # CFL
 
     blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
     new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
@@ -69,8 +69,15 @@ for N in N_list:
         # pressure gradient
         grad_p = as_vector([P, 0.0])
 
+        # source termexact
+        #ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
+        ufl_f_exact = as_vector([Constant(0.0),Constant(0.0)])
+
         # source term exact
-        ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
+        ufl_f_exact = as_vector([
+            diff - (1.0/Re)*div(grad(ufl_v_exact)) + P,
+            Constant(0.0)
+        ])
 
         # boundary term
         ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
