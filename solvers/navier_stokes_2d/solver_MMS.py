@@ -73,12 +73,6 @@ for N in N_list:
         #ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
         ufl_f_exact = as_vector([Constant(0.0),Constant(0.0)])
 
-        # source term exact
-        ufl_f_exact = as_vector([
-            diff - (1.0/Re)*div(grad(ufl_v_exact)) + P,
-            Constant(0.0)
-        ])
-
         # boundary term
         ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
 
