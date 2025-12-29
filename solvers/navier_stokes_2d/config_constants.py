@@ -42,7 +42,7 @@ appctx = {"Re": Re, "velocity_space": 0}
 
 solver_parameters = {
     "mat_type": "matfree",
-    "snes_monitor": None,
+    #"snes_monitor": None,
 
     # We'll use a non-stationary Krylov solve for the Schur complement, so
     # we need to use a flexible Krylov method on the outside.
