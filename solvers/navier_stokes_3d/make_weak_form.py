@@ -1,6 +1,6 @@
 from firedrake import *
 
-def make_weak_form(theta, idt, f_new, f_old, g_new, g_old, dx, dsN, Re=1.0):
+def make_weak_form(theta, idt, f, f_old, g, g_old, dx, dsN, Re=1.0):
     """
     Weak form for Navier-Stokes equations using CN
     """
@@ -11,7 +11,7 @@ def make_weak_form(theta, idt, f_new, f_old, g_new, g_old, dx, dsN, Re=1.0):
 
         u_old_v = u_old.sub(0)
         u_mid = theta*u_new + (1-theta)*u_old_v
-        f_mid = theta*f_new.sub(0) + (1-theta)*f_old.sub(0)
+        f_mid = theta*f.sub(0) + (1-theta)*f_old.sub(0)
 
         # Momentum equation
         F_mom = (

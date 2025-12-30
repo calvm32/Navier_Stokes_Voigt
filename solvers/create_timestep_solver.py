@@ -15,16 +15,17 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
     v = TestFunction(Z)
 
     # Initial weak form placeholders
+    f = Function(Z)
+    g = Function(Z)
+
     f_old = Function(Z)
-    f_new = Function(Z)
     g_old = Function(Z)
-    g_new = Function(Z)
 
     # Create the problem + solver once
     a, L = make_weak_form(
         theta, idt, 
-        f_new, f_old, 
-        g_new, g_old, 
+        f, f_old, 
+        g, g_old, 
         u_old,
         dx, dsN
     )(u_new, v)
@@ -48,10 +49,10 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
         data_old = get_data(t)
         data_new = get_data(t+dt)
 
+        f.sub(0).interpolate(data_new["ufl_f"])
+        g.sub(0).interpolate(data_new["ufl_g"])
         f_old.sub(0).interpolate(data_old["ufl_f"])
-        f_new.sub(0).interpolate(data_new["ufl_f"])
         g_old.sub(0).interpolate(data_old["ufl_g"])
-        g_new.sub(0).interpolate(data_new["ufl_g"])
 
         # Run the solver
         solver.solve()

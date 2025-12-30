@@ -1,22 +1,18 @@
 from firedrake import *
 
-def make_bilinear_and_linear_forms(theta, idt,
-                                   f, f_old,
-                                   g, g_old,
-                                   u_old,
-                                   dx, dsN):
+def make_weak_form(theta, idt, f, f_old, g, g_old, u_old, dx, dsN):
     """
     Bilinear and linear forms for heat equation
-      - Crank–Nicolson
-      - Linear
-      - Neumann boundary terms
+      -> Crank-Nicolson
+      -> bilinear, linear
     """
 
-    # Time-centered data
-    f_mid = theta*f + (1.0 - theta)*f_old
-    g_mid = theta*g + (1.0 - theta)*g_old
-
     def forms(u, v):
+        # Midpoints
+        u_mid = theta*u+ (1.0 - theta)*u_old
+        f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
+        g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
+        
         # Bilinear form a(u,v)
         a = (
             idt * u * v * dx

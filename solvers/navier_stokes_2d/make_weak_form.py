@@ -1,13 +1,13 @@
 from firedrake import *
 from .config_constants import Re, gamma_gd
 
-def make_bilinear_and_linear_forms(theta, idt, f_new, f_old, g_new, g_old, U_old, dx, dsN):
+def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
     """
-    Bilinear and linear forms for incompressible Navier–Stokes
-      -? Crank-Nicolson
+    Bilinear and linear forms for incompressible Navier-Stokes
+      -> Crank-Nicolson
       -> Oseen linearization
       -> grad-div stabilization
-      -> bilinear + linear
+      -> bilinear, linear
     """
 
     def forms(U, V):
@@ -18,8 +18,8 @@ def make_bilinear_and_linear_forms(theta, idt, f_new, f_old, g_new, g_old, U_old
 
         # Midpoints
         u_mid = theta*u + (1.0 - theta)*u_old
-        f_mid = theta*f_new.sub(0) + (1.0 - theta)*f_old.sub(0)
-        g_mid = theta*g_new.sub(0) + (1.0 - theta)*g_old.sub(0)
+        f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
+        g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
 
         # Bilinear form a(U,V)
         a = (
