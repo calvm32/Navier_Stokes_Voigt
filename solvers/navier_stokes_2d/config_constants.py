@@ -53,8 +53,8 @@ solver_parameters = {
     # we need to use a flexible Krylov method on the outside.
 
     "ksp_type": "fgmres",
-    "ksp_gmres_modifiedgramschmidt": None,
-    "ksp_monitor_true_residual": None,
+    #"ksp_gmres_modifiedgramschmidt": None,
+    #"ksp_monitor_true_residual": None,
 
     # Now to configure the preconditioner::
 
