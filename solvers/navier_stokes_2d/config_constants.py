@@ -42,15 +42,22 @@ P = 1.0                 # pressure strength (P*x + G)
 appctx = {"Re": Re, "velocity_space": 0}
 
 solver_parameters = {
-    "mat_type": "matfree",
+    #"mat_type": "matfree",
     "snes_monitor": None,
+    "mat_type": "nest",
+
+    # Velocity block assembled
+    "fieldsplit_0_mat_type": "aij",
+
+    # Keep convection matrix-free
+    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
 
     # We'll use a non-stationary Krylov solve for the Schur complement, so
     # we need to use a flexible Krylov method on the outside.
 
     "ksp_type": "fgmres",
-    #"ksp_gmres_modifiedgramschmidt": None,
-    #"ksp_monitor_true_residual": None,
+    "ksp_gmres_modifiedgramschmidt": None,
+    "ksp_monitor_true_residual": None,
 
     # Now to configure the preconditioner::
 
