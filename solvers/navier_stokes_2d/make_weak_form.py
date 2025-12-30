@@ -10,6 +10,10 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
       -> bilinear, linear
     """
 
+    # Midpoints
+    f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
+    g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
+
     def forms(U, V):
         u, p = split(U)
         v, q = split(V)
@@ -18,8 +22,6 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
 
         # Midpoints
         u_mid = theta*u + (1.0 - theta)*u_old
-        f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
-        g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
 
         # Bilinear form a(U,V)
         a = (
