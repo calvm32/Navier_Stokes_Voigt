@@ -9,7 +9,6 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, u_old, dx, dsN):
 
     def forms(u, v):
         # Midpoints
-        u_mid = theta*u+ (1.0 - theta)*u_old
         f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
         g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
         

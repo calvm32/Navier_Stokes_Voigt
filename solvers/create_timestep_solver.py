@@ -1,17 +1,18 @@
 from firedrake import *
 
-def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak_form,
+def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_form,
                            bcs=None, nullspace=None, solver_parameters=None, appctx=None):
     """
     Prepare timestep solver by theta-scheme for 
         - given solution u_old at time t 
-        - unknown u_new at time t+dt
+        - unknown u at time t+dt
 
     Return a solve function taking (t, dt)
     """
 
     # Initialize coefficients
     idt = Constant(0.0)
+    u_trial = TrialFunction(Z)
     v = TestFunction(Z)
 
     # Initial weak form placeholders
@@ -28,9 +29,9 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
         g, g_old, 
         u_old,
         dx, dsN
-    )(u_new, v)
+    )(u_trial, v)
     
-    problem_var = LinearVariationalProblem(a, L, u_new, bcs=bcs)
+    problem_var = LinearVariationalProblem(a, L, u, bcs=bcs)
     solver = LinearVariationalSolver(
         problem_var,
         solver_parameters=solver_parameters,

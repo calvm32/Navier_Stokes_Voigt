@@ -15,7 +15,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # old and new solutions
     u_old = Function(Z)
-    u_new = Function(Z)
+    u = Function(Z)
     u_exact = Function(Z)
 
     data_t0 = get_data(t0) # get the functions at initial time
@@ -27,7 +27,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         u_old.interpolate(data_t0["ufl_u0"])  # just velocity
 
     # create timestep solver
-    solver = create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new,
+    solver = create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u,
                                     make_weak_form, bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx)
     
@@ -48,27 +48,27 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         # Perform time step
         solver(t, dt)
         t += dt
-        u_old.assign(u_new)
+        u_old.assign(u)
 
         # count steps to print
         step += 1
 
         # update solution
-        u_new.assign(u_old) 
+        u.assign(u_old) 
 
         # Report each time step
-        energy = assemble(inner(u_new.sub(0), u_new.sub(0)) * dx)
+        energy = assemble(inner(u.sub(0), u.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
 
         # write to VTK every 50 steps
         if step % 50 == 0:
             if isinstance(Z.ufl_element(), MixedElement):
-                u_new.sub(0).rename("Velocity")
-                u_new.sub(1).rename("Pressure")
-                outfile.write(u_new.sub(0), u_new.sub(1))
+                u.sub(0).rename("Velocity")
+                u.sub(1).rename("Pressure")
+                outfile.write(u.sub(0), u.sub(1))
             else:
-                u_new.rename("Velocity")
-                outfile.write(u_new)
+                u.rename("Velocity")
+                outfile.write(u)
 
     # ----------------------------------
     # Report done; find and return error
@@ -85,8 +85,8 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         u_exact.sub(1).interpolate(data_T["ufl_p0"])  # pressure
 
         # Write FINAL error to file
-        v_error = errornorm(u_exact.sub(0), u_new.sub(0))
-        p_error = errornorm(u_exact.sub(1), u_new.sub(1))
+        v_error = errornorm(u_exact.sub(0), u.sub(0))
+        p_error = errornorm(u_exact.sub(1), u.sub(1))
         green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
         green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
 
@@ -96,7 +96,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         u_exact.interpolate(data_T["ufl_u0"])  # just velocity
 
         # Write FINAL error to file
-        u_error = errornorm(u_exact.sub(0), u_new.sub(0)) # make time integral
+        u_error = errornorm(u_exact.sub(0), u.sub(0)) # make time integral
         green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
 
         return(u_error) 
