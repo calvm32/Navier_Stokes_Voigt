@@ -28,18 +28,11 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
         dx, dsN
     )(u_new, u_old, v)
     
-    a = lhs(F_expr)
-    L = rhs(F_expr)
-
-    problem_var = LinearVariationalProblem(
-        a, L, u_new, bcs=bcs
-    )
-
+    problem_var = LinearVariationalProblem(F_expr, u_new, bcs=bcs, J=J)
     solver = LinearVariationalSolver(
         problem_var,
         solver_parameters=solver_parameters,
-        nullspace=nullspace,
-        appctx=appctx
+        nullspace=nullspace, appctx=appctx
     )
 
     # ------
