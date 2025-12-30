@@ -6,9 +6,9 @@ from firedrake import *
 
 t0 = 0.0                    # initial time
 T = 1.0                     # final time
-dt = 0.01                   # timestepping length
-theta = 1                   # theta constant
-Re = Constant(100)          # Reynold's num = 1 / viscosity
+dt = 1e-3                   # timestepping length
+theta = 0.5                 # theta constant
+Re = Constant(1.0)          # Reynold's num = 1 / viscosity
 gamma_gd = Constant(0.0)    # grad-div stabilization constant
 
 H = 1.0                     # height of box (if changed, need to adjust mesh)
