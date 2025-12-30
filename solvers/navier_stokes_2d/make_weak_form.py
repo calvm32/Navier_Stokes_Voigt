@@ -1,30 +1,48 @@
 from firedrake import *
+from .config_constants import Re, gamma_gd
 
-def make_weak_form(theta, idt, f_new, f_old, g_new, g_old, dx, dsN, Re=1.0):
+def make_weak_form(theta, idt, f_new, f_old, g_new, g_old, dx, dsN):
     """
-    Weak form for Navier-Stokes equations using CN
+    Weak form for Navier-Stokes equations
+        -> Crank Nicolson
+        -> Oseen linearization
+        -> grad-div stabilization
     """
 
-    def F(u, u_old, v):
-        u_new, p_new = split(u) 
-        v_u, v_p = split(v)
+    def F(U, U_old, V):
+        u, p = split(U)
+        v, q = split(V)
 
-        u_old_v = u_old.sub(0)
-        u_mid = theta*u_new + (1-theta)*u_old_v
-        f_mid = theta*f_new.sub(0) + (1-theta)*f_old.sub(0)
+        u_old = U_old.sub(0)
+
+        # midpoints
+        u_mid = theta*u + (1.0 - theta)*u_old
+        f_mid = theta*f_new.sub(0) + (1.0 - theta)*f_old.sub(0)
 
         # Momentum equation
         F_mom = (
-            idt*inner(u_new - u_old_v, v_u)*dx
-            + inner(grad(u_mid)*u_mid, v_u)*dx
-            + (1.0/Re)*inner(grad(u_mid), grad(v_u))*dx
-            - div(v_u)*p_new*dx
-            - inner(f_mid, v_u)*dx
+            # Time derivative
+            idt * inner(u - u_old, v) * dx
+
+            # Oseen convection: (w * grad)u
+            + inner(dot(grad(u), u_mid), v) * dx
+
+            # Viscosity
+            + (1.0 / Re) * inner(grad(u_mid), grad(v)) * dx
+
+            # Pressure
+            - p * div(v) * dx
+
+            # Forcing
+            - inner(f_mid, v) * dx
         )
 
         # Continuity equation
-        F_cont = -v_p*div(u_mid)*dx
+        F_cont = - q * div(u_mid) * dx
 
-        return F_mom + F_cont
+        # Grad–div stabilization
+        F_gd = gamma_gd * inner(div(u_mid), div(v)) * dx
+
+        return F_mom + F_cont + F_gd
 
     return F

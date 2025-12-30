@@ -4,14 +4,15 @@ from firedrake import *
 # Constants
 # ---------
 
-t0 = 0.0                # initial time
-T = 1.0                 # final time
-dt = 0.01               # timestepping length
-theta = 1               # theta constant
-Re = Constant(100)      # Reynold's num = 1 / viscosity
+t0 = 0.0                    # initial time
+T = 1.0                     # final time
+dt = 0.01                   # timestepping length
+theta = 1                   # theta constant
+Re = Constant(100)          # Reynold's num = 1 / viscosity
+gamma_gd = Constant(0.0)    # grad-div stabilization constant
 
-H = 1.0                 # height of box (if changed, need to adjust mesh)
-L = 3.0                 # length of box (can be changed always)
+H = 1.0                     # height of box (if changed, need to adjust mesh)
+L = 3.0                     # length of box (can be changed always)
 
 vtkfile_name = "Soln"
 
@@ -88,5 +89,7 @@ solver_parameters = {
     # pressure-space convection-diffusion operator with an assembled matrix
     # or matrix free.  Here we will use matrix-free::
 
-    "fieldsplit_1_pcd_Fp_mat_type": "matfree"
+    "fieldsplit_1_pcd_Fp_mat_type": "matfree",
+
+    "gamma_gd": gamma_gd,
     }

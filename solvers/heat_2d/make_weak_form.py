@@ -2,7 +2,9 @@ from firedrake import *
 
 def make_weak_form(theta, idt, f, f_old, g, g_old, dx , dsN):
     """
-    Weak form for heat equation using CN
+    Weak form for heat equation
+        -> Crank Nicolson
+        -> Linear
     """
     
     f_mid = theta * f + (1-theta) * f_old

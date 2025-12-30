@@ -96,7 +96,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         u_exact.interpolate(data_T["ufl_u0"])  # just velocity
 
         # Write FINAL error to file
-        u_error = errornorm(u_exact.sub(0), u_new.sub(0))
+        u_error = errornorm(u_exact.sub(0), u_new.sub(0)) # make time integral
         green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
 
         return(u_error) 
