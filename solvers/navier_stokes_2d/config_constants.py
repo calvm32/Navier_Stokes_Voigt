@@ -46,48 +46,54 @@ appctx = {
 }
 
 solver_parameters = {
-    # --- Monolithic matrix-free operator for the whole system ---
-    "mat_type": "matfree",  # don't assemble the global matrix; use matrix-free kernels
+    "mat_type": "matfree",
+    "snes_monitor": None,
 
-    # --- Outer Krylov solver ---
-    "ksp_type": "pipefgmres",  # pipelined flexible GMRES: reduces global reductions, good for clusters
-    "ksp_rtol": 1e-5,          # relative tolerance for the outer KSP solver
-    "ksp_max_it": 100,         # max iterations to prevent runaway solves
+    # We'll use a non-stationary Krylov solve for the Schur complement, so
+    # we need to use a flexible Krylov method on the outside.
 
-    # --- FieldSplit: Schur complement setup ---
-    "pc_type": "fieldsplit",           # treat (velocity, pressure) separately
-    "pc_fieldsplit_type": "schur",     # Schur complement factorization
-    "pc_fieldsplit_schur_fact_type": "upper",  # apply velocity solve first, then Schur (better for PCD)
+    "ksp_type": "fgmres",
+    #"ksp_gmres_modifiedgramschmidt": None,
+    #"ksp_monitor_true_residual": None,
 
-    # --- Velocity block ---
-    "fieldsplit_0_ksp_type": "preonly",               # apply the preconditioner directly (LU), no Krylov iterations
-    "fieldsplit_0_pc_type": "python",                # use a Python-defined PC
-    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",  # assemble velocity block and invert with LU
-    "fieldsplit_0_assembled_pc_type": "lu",          # LU for the velocity block
-    # --- Reuse factorization across timesteps ---
-    "fieldsplit_0_pc_factor_reuse_ordering": True,   # reuse symbolic ordering
-    "fieldsplit_0_pc_factor_reuse_fill": True,       # reuse sparsity pattern for faster refactorization
-    "fieldsplit_0_pc_factor_shift_type": "NONZERO",  # ensures robustness for near-singular matrices
+    # Now to configure the preconditioner::
 
-    # --- Pressure block (PCD) ---
-    "fieldsplit_1_ksp_type": "fgmres",  # flexible GMRES for Schur complement solve
-    "fieldsplit_1_ksp_rtol": 1e-2,      # loose tolerance, since PCD is approximate
-    "fieldsplit_1_ksp_max_it": 10,      # only a few iterations needed per timestep
+    "pc_type": "fieldsplit",
+    "pc_fieldsplit_type": "schur",
+    "pc_fieldsplit_schur_fact_type": "lower",
 
-    "fieldsplit_1_pc_type": "python",                 # Python PC (PCD)
-    "fieldsplit_1_pc_python_type": "firedrake.PCDPC",# PCD preconditioner for pressure
+    # invert the velocity block with LU::
 
-    # PCD mass matrix solve
-    "fieldsplit_1_pcd_Mp_ksp_type": "preonly",  
+    "fieldsplit_0_ksp_type": "preonly",
+    "fieldsplit_0_pc_type": "python",
+    "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
+    "fieldsplit_0_assembled_pc_type": "lu",
+
+    # invert the schur complement inexactly using GMRES, preconditioned w PCD
+
+    "fieldsplit_1_ksp_type": "gmres",
+    "fieldsplit_1_ksp_rtol": 1e-4,
+    "fieldsplit_1_pc_type": "python",
+    "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
+
+    # We now need to configure the mass and stiffness solvers in the PCD
+    # preconditioner.  For this example, we will just invert them with LU,
+    # although of course we can use a scalable method if we wish. First the
+    # mass solve
+
+    "fieldsplit_1_pcd_Mp_ksp_type": "preonly",
     "fieldsplit_1_pcd_Mp_pc_type": "lu",
 
-    # PCD stiffness matrix solve
-    "fieldsplit_1_pcd_Kp_ksp_type": "preonly",  
+    # and the stiffness solve
+
+    "fieldsplit_1_pcd_Kp_ksp_type": "preonly",
     "fieldsplit_1_pcd_Kp_pc_type": "lu",
 
-    # Convection-diffusion operator for pressure, matrix-free
+    # Finally, we just need to decide whether to apply the action of the
+    # pressure-space convection-diffusion operator with an assembled matrix
+    # or matrix free.  Here we will use matrix-free::
+
     "fieldsplit_1_pcd_Fp_mat_type": "matfree",
 
-    # --- Physics parameters for Python PCs ---
-    "gamma_gd": gamma_gd,  # grad-div stabilization (used inside PCD and velocity block)
-}
+    "gamma_gd": gamma_gd,
+    }
