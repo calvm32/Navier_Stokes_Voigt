@@ -20,15 +20,16 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u_new, make_weak
     g_old = Function(Z)
     g_new = Function(Z)
 
-    # Create the problem + solver + compute Jacobian once
-    F_expr = make_weak_form(
+    # Create the problem + solver once
+    a, L = make_weak_form(
         theta, idt, 
         f_new, f_old, 
         g_new, g_old, 
+        u_old,
         dx, dsN
-    )(u_new, u_old, v)
+    )(u_new, v)
     
-    problem_var = LinearVariationalProblem(F_expr, u_new, bcs=bcs)
+    problem_var = LinearVariationalProblem(a, L, u_new, bcs=bcs)
     solver = LinearVariationalSolver(
         problem_var,
         solver_parameters=solver_parameters,

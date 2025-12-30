@@ -1,48 +1,63 @@
 from firedrake import *
 from .config_constants import Re, gamma_gd
 
-def make_weak_form(theta, idt, f_new, f_old, g_new, g_old, dx, dsN):
+def make_bilinear_and_linear_forms(theta, idt, f_new, f_old, g_new, g_old, U_old, dx, dsN):
     """
-    Weak form for Navier-Stokes equations
-        -> Crank Nicolson
-        -> Oseen linearization
-        -> grad-div stabilization
+    Bilinear and linear forms for incompressible Navier–Stokes
+      -? Crank-Nicolson
+      -> Oseen linearization
+      -> grad-div stabilization
+      -> bilinear + linear
     """
 
-    def F(U, U_old, V):
+    def forms(U, V):
         u, p = split(U)
         v, q = split(V)
 
         u_old = U_old.sub(0)
 
-        # midpoints
+        # Midpoints
         u_mid = theta*u + (1.0 - theta)*u_old
         f_mid = theta*f_new.sub(0) + (1.0 - theta)*f_old.sub(0)
+        g_mid = theta*g_new.sub(0) + (1.0 - theta)*g_old.sub(0)
 
-        # Momentum equation
-        F_mom = (
+        # Bilinear form a(U,V)
+        a = (
             # Time derivative
-            idt * inner(u - u_old, v) * dx
+            idt * inner(u, v) * dx
 
-            # Oseen convection: (w * grad)u
-            + inner(dot(grad(u), u_mid), v) * dx
+            # Oseen convection: (u_old · ∇)u
+            + inner(dot(grad(u), u_old), v) * dx
 
             # Viscosity
-            + (1.0 / Re) * inner(grad(u_mid), grad(v)) * dx
+            + (theta / Re) * inner(grad(u), grad(v)) * dx
 
-            # Pressure
+            # Pressure / continuity
             - p * div(v) * dx
+            - q * div(u) * dx
 
-            # Forcing
-            - inner(f_mid, v) * dx
+            # Grad–div stabilization
+            + theta * gamma_gd * inner(div(u), div(v)) * dx
         )
 
-        # Continuity equation
-        F_cont = - q * div(u_mid) * dx
+        # Linear form L(V)
+        L = (
+            # Time derivative
+            idt * inner(u_old, v) * dx
 
-        # Grad–div stabilization
-        F_gd = gamma_gd * inner(div(u_mid), div(v)) * dx
+            # Explicit viscosity part
+            - ((1.0 - theta) / Re) * inner(grad(u_old), grad(v)) * dx
 
-        return F_mom + F_cont + F_gd
+            # Explicit grad–div
+            - (1.0 - theta) * gamma_gd * inner(div(u_old), div(v)) * dx
 
-    return F
+            # Forcing
+            + inner(f_mid, v) * dx
+
+            # Neumann boundary traction
+            + inner(g_mid, v) * dsN
+        )
+
+        return a, L
+
+    return forms
