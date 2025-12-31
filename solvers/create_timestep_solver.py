@@ -22,7 +22,7 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
     f_old = Function(Z)
     g_old = Function(Z)
 
-    u_pcd = Function(Z.sub(0))  # pure velocity space
+    #u_pcd = Function(Z.sub(0))  # pure velocity space
 
     # Create the problem + solver once
     a, L = make_weak_form(
