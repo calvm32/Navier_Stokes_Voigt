@@ -76,8 +76,8 @@ for N in N_list:
         grad_p = as_vector([P, 0.0])
 
         # source termexact
-        ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
-        #ufl_f_exact = as_vector([0.0,0.0])
+        #ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
+        ufl_f_exact = as_vector([0.0,0.0])
 
         # boundary term
         ufl_g_exact = as_vector([0.0, 0.0])
