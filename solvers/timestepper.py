@@ -67,15 +67,17 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         energy = assemble(inner(u.sub(0), u.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
 
+        data_t = get_data(t) # get the functions at current time
+
         # record L2 error at current time
         if isinstance(Z.ufl_element(), MixedElement):
-            u_exact.sub(0).interpolate(data_T["ufl_v0"])  # velocity
-            u_exact.sub(1).interpolate(data_T["ufl_p0"])  # pressure
+            u_exact.sub(0).interpolate(data_t["ufl_v0"])  # velocity
+            u_exact.sub(1).interpolate(data_t["ufl_p0"])  # pressure
 
             v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dt)
             p_error += assemble(inner(u_exact.sub(1) - u.sub(1), u_exact.sub(1) - u.sub(1))*dt)
         else:
-            u_exact.interpolate(data_T["ufl_u0"])  # just velocity
+            u_exact.interpolate(data_t["ufl_u0"])  # just velocity
 
             error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dt)
 
