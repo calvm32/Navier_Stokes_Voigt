@@ -97,7 +97,7 @@ solver_parameters = {
 
     # finally make the pcd look at the velocity function for more refined meshes
 
-    "fieldsplit_1_pcd_velocity": "velocity",
+    "fieldsplit_1_pcd_u": "velocity",
 
     "gamma_gd": gamma_gd,
     }
