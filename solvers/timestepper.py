@@ -23,8 +23,15 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     if isinstance(Z.ufl_element(), MixedElement):
         u_old.sub(0).interpolate(data_t0["ufl_v0"])  # velocity
         u_old.sub(1).interpolate(data_t0["ufl_p0"])  # pressure
+
+        # for L2 error
+        v_error = 0
+        p_error = 0
     else:
         u_old.interpolate(data_t0["ufl_u0"])  # just velocity
+
+        # for L2 error
+        v_error = 0
 
     # create timestep solver
     solver = create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u,
@@ -60,6 +67,18 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         energy = assemble(inner(u.sub(0), u.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step)
 
+        # record L2 error at current time
+        if isinstance(Z.ufl_element(), MixedElement):
+            u_exact.sub(0).interpolate(data_T["ufl_v0"])  # velocity
+            u_exact.sub(1).interpolate(data_T["ufl_p0"])  # pressure
+
+            v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dt)
+            p_error += assemble(inner(u_exact.sub(1) - u.sub(1), u_exact.sub(1) - u.sub(1))*dt)
+        else:
+            u_exact.interpolate(data_T["ufl_u0"])  # just velocity
+
+            error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dt)
+
         # write to VTK every 50 steps
         if step % 50 == 0:
             if isinstance(Z.ufl_element(), MixedElement):
@@ -78,24 +97,14 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     print(f"\n")
     green(f"Completed", spaced=True)
 
-    data_T = get_data(T) # get the error at final time
-
+    # Write error to file
     if isinstance(Z.ufl_element(), MixedElement):
-        u_exact.sub(0).interpolate(data_T["ufl_v0"])  # velocity
-        u_exact.sub(1).interpolate(data_T["ufl_p0"])  # pressure
-
-        # Write FINAL error to file
-        v_error = errornorm(u_exact.sub(0), u.sub(0))
-        p_error = errornorm(u_exact.sub(1), u.sub(1))
         green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
         green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
 
         return(v_error, p_error) 
 
     else:
-        u_exact.interpolate(data_T["ufl_u0"])  # just velocity
-
-        # Write FINAL error to file
         u_error = errornorm(u_exact.sub(0), u.sub(0)) # make time integral
         green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
 
