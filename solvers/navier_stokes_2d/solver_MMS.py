@@ -51,16 +51,16 @@ for N in N_list:
         # velocity exact
         ufl_v_exact = as_vector([
             Re*(sin(pi*y/H)*exp((-1*pi**2*t)/(H**2)) + 0.5*P*y**2 - 0.5*P*H*y),
-            Constant(0.0)
+            0.0
         ])
 
         # pressure exact
-        ufl_p_exact = Constant(P)*x + Constant(G)
+        ufl_p_exact = P*x + G
 
         # v time derivative
         v_t = as_vector([
             Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2))), 
-            Constant(0.0)
+            0.0
         ])
 
         # v Laplacian
@@ -71,10 +71,10 @@ for N in N_list:
 
         # source termexact
         ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
-        #ufl_f_exact = as_vector([Constant(0.0),Constant(0.0)])
+        #ufl_f_exact = as_vector([0.0,0.0])
 
         # boundary term
-        ufl_g_exact = as_vector([Constant(0.0), Constant(0.0)])
+        ufl_g_exact = as_vector([0.0, 0.0])
 
         return {
             "ufl_v0": ufl_v_exact,
