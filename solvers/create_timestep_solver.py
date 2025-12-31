@@ -58,8 +58,8 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
         g_old.sub(0).interpolate(data_old["ufl_g"])
 
         # update pcd velocity space
-        u_pcd.assign(u_old.sub(0))
-        appctx['velocity'] = u_pcd
+        #u_pcd.assign(u_old.sub(0))
+        #appctx['velocity'] = u_pcd
 
         # Run the solver
         solver.solve()

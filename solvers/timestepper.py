@@ -67,7 +67,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
         # Report each time step
         energy = assemble(inner(u.sub(0), u.sub(0)) * dx)
-        #iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
+        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
         data_t = get_data(t) # get the functions at current time
 
