@@ -5,7 +5,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib as plt
 
-from .config_constants import t0, T, dt, theta, Re, P, G, H, L, N_list, solver_parameters, appctx, vtkfile_name
+from .config_constants import t0, T, dt, theta, Re, P, G, H, L, N_list, solver_parameters, vtkfile_name
 
 # calculate error as mesh size increases
 v_error_list = []
@@ -17,6 +17,12 @@ for N in N_list:
 
     blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
     new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
+
+    appctx = {
+        "Re": Re, 
+        "gamma_gd": gamma_gd,
+        "velocity_space": 0
+    }
 
     # ------------
     # Setup spaces
@@ -31,8 +37,6 @@ for N in N_list:
     V = VectorFunctionSpace(mesh, "CG", 2)
     W = FunctionSpace(mesh, "CG", 1)
     Z = V * W
-
-    appctx['velocity_space'] = 0
 
     # -------------------
     # Boundary conditions
