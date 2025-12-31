@@ -42,7 +42,6 @@ P = 1.0                 # pressure strength (P*x + G)
 appctx = {
     "Re": Re, 
     "gamma_gd": gamma_gd,
-    "velocity": 0
 }
 
 solver_parameters = {
@@ -98,6 +97,4 @@ solver_parameters = {
     # finally make the pcd look at the velocity function for more refined meshes
 
     "fieldsplit_1_pcd_u": "velocity",
-
-    "gamma_gd": gamma_gd,
     }
