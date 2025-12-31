@@ -120,10 +120,11 @@ def iter_info_verbose(*strings: str, i: int, j: int=None, n: int=None, b: str='(
         j = f'-{j}'
     
     now_str = f'[{now}]'
-    it_str = f'{b[0]}{i}{j}{b[1]}'
     
     if n != None:
-        it_str = f'{b[0]}{i}{j}{b[1]} / {n}'
+        i = f'{i} / {n}'
+        
+    it_str = f'{b[0]}{i}{j}{b[1]}'
 
     spacing = rstr(' ', len(now_str + it_str) + 2)
     plog(f'{now_str} {it_str} {strings[0]}')

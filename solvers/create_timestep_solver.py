@@ -22,6 +22,8 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
     f_old = Function(Z)
     g_old = Function(Z)
 
+    u_pcd = Function(Z.sub(0))  # pure velocity space
+
     # Create the problem + solver once
     a, L = make_weak_form(
         theta, idt, 
@@ -54,6 +56,10 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
         g.sub(0).interpolate(data_new["ufl_g"])
         f_old.sub(0).interpolate(data_old["ufl_f"])
         g_old.sub(0).interpolate(data_old["ufl_g"])
+
+        # update pcd velocity space
+        u_pcd.assign(u_old.sub(0))
+        appctx['velocity_space'] = u_pcd
 
         # Run the solver
         solver.solve()
