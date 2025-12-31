@@ -9,7 +9,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
     """
 
-    num_steps = ceil(T-t0 / dt)
+    num_steps = int(T-t0 / dt)
 
     # -------------
     # Setup problem
