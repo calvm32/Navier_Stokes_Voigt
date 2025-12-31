@@ -5,7 +5,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib as plt
 
-from .config_constants import t0, T, dt, theta, Re, P, G, H, L, N_list, solver_parameters, vtkfile_name
+from .config_constants import t0, T, dt, theta, Re, gamma_gd, P, G, H, L, N_list, solver_parameters, vtkfile_name
 
 # calculate error as mesh size increases
 v_error_list = []
