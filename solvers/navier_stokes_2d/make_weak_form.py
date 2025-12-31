@@ -29,7 +29,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             idt * inner(u, v) * dx
 
             # Oseen convection: (u_old · ∇)u
-            + inner(dot(grad(u), u_old), v) * dx
+            #+ inner(dot(grad(u), u_old), v) * dx
 
             # Viscosity
             + (theta / Re) * inner(grad(u), grad(v)) * dx
