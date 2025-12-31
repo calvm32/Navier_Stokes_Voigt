@@ -74,12 +74,12 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             u_exact.sub(0).interpolate(data_t["ufl_v0"])  # velocity
             u_exact.sub(1).interpolate(data_t["ufl_p0"])  # pressure
 
-            v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dt)
-            p_error += assemble(inner(u_exact.sub(1) - u.sub(1), u_exact.sub(1) - u.sub(1))*dt)
+            v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
+            p_error += assemble(inner(u_exact.sub(1) - u.sub(1), u_exact.sub(1) - u.sub(1))*dx)*dt
         else:
             u_exact.interpolate(data_t["ufl_u0"])  # just velocity
 
-            error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dt)
+            error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
 
         # write to VTK every 50 steps
         if step % 50 == 0:
