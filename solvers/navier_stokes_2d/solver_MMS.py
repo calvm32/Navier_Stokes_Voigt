@@ -32,6 +32,8 @@ for N in N_list:
     W = FunctionSpace(mesh, "CG", 1)
     Z = V * W
 
+    appctx['velocity_sapce'] = 0
+
     # -------------------
     # Boundary conditions
     # -------------------
