@@ -11,7 +11,7 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
     """
 
     # Initialize coefficients
-    idt = 0.0
+    idt = Constant(0.0)
     u_trial = TrialFunction(Z)
     v = TestFunction(Z)
 
