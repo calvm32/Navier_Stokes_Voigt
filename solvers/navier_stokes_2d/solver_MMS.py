@@ -3,7 +3,7 @@ from firedrake import *
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 from .config_constants import t0, T, dt, theta, Re, gamma_gd, P, G, H, L, N_list, solver_parameters, vtkfile_name
 
@@ -76,8 +76,8 @@ for N in N_list:
         grad_p = as_vector([P, 0.0])
 
         # source termexact
-        ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
-        #ufl_f_exact = as_vector([0.0,0.0])
+        #ufl_f_exact = v_t - (1.0/Re) * lap_v + grad_p
+        ufl_f_exact = as_vector([0.0,0.0])
 
         # boundary term
         ufl_g_exact = as_vector([0.0, 0.0])
