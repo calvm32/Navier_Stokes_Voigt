@@ -33,7 +33,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         u_old.interpolate(data_t0["ufl_u0"])  # just velocity
 
         # for L2 error
-        v_error = 0
+        error = 0
 
     # create timestep solver
     solver = create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u,

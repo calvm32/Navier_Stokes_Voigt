@@ -13,8 +13,8 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 # ------------
 
 # mesh and measures
-mesh = UnitCubeMesh(N, N, N)
-x, y, z = SpatialCoordinate(mesh)
+mesh = UnitSquareMesh(N, N)
+x, y = SpatialCoordinate(mesh)
 
 dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)
@@ -29,9 +29,9 @@ V = FunctionSpace(mesh, "CG", 1)
 def get_data(t):
 
     # functions
-    ufl_u0 = ufl.exp(t)*cos(pi*x)           # initial condition u0
-    ufl_f = cos(x*pi)*cos(y*pi)*cos(pi*z)   # source term f
-    ufl_g = Constant(0.0)                   # bdy condition g
+    ufl_u0 = ufl.exp(t)*cos(pi*x)   # initial condition u0
+    ufl_f = cos(x*pi)*cos(y*pi)     # source term f
+    ufl_g = Constant(0.0)           # bdy condition g
 
     # returns
     return {"ufl_u0": ufl_u0,
