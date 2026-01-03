@@ -83,8 +83,8 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
             error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
 
-        # write to VTK every 50 steps
-        if step % 50 == 0:
+        # write to VTK every 2 steps
+        if step % 2 == 0:
             if isinstance(Z.ufl_element(), MixedElement):
                 u.sub(0).rename("Velocity")
                 u.sub(1).rename("Pressure")
