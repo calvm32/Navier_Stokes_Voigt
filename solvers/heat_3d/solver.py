@@ -13,8 +13,8 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 # ------------
 
 # mesh and measures
-mesh = UnitSquareMesh(N, N)
-x, y = SpatialCoordinate(mesh)
+mesh = UnitCubeMesh(N, N, N)
+x, y, z = SpatialCoordinate(mesh)
 
 dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)

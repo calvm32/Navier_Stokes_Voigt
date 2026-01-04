@@ -1,4 +1,5 @@
 from firedrake import *
+from mpi4py import MPI
 
 from .create_timestep_solver import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
@@ -33,15 +34,19 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         u_old.interpolate(data_t0["ufl_u0"])  # just velocity
 
         # for L2 error
-        error = 0
+        u_error = 0
 
     # create timestep solver
     solver = create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u,
                                     make_weak_form, bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx)
 
-    # report run starting
-    energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
+    # get energy + report run starting
+    if isinstance(Z.ufl_element(), MixedElement):
+        energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
+    else:
+        energy = assemble(inner(u_old, u_old) * dx)
+    
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
 
@@ -49,9 +54,26 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     # Perform timestepping
     # --------------------
 
+    # initialize
     t = t0
     step = 0
-    outfile = VTKFile(f"{vtkfile_name}.pvd")
+
+    # initialize VTK
+    outfile = VTKFile(f"{vtkfile_name}.pvd", comm=Z.mesh().comm)
+
+    # rename
+    if isinstance(Z.ufl_element(), MixedElement):
+        u.sub(0).rename("Velocity")
+        u.sub(1).rename("Pressure")
+
+        u.sub(0).assign(u_old.sub(0))
+        u.sub(1).assign(u_old.sub(1))
+    else:
+        u.rename("Temperature")
+
+    u.assign(u_old)
+    outfile.write(u, time=t0)
+
     while t < T:
 
         # Perform time step
@@ -62,11 +84,12 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         # count steps to print
         step += 1
 
-        # update solution
-        u.assign(u_old) 
+        # get energy + report each time step
+        if isinstance(Z.ufl_element(), MixedElement):
+            energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
+        else:
+            energy = assemble(inner(u_old, u_old) * dx)
 
-        # Report each time step
-        energy = assemble(inner(u.sub(0), u.sub(0)) * dx)
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
         data_t = get_data(t) # get the functions at current time
@@ -81,17 +104,11 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         else:
             u_exact.interpolate(data_t["ufl_u0"])  # just velocity
 
-            error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
+            u_error += assemble(inner(u_exact - u, u_exact - u)*dx)*dt
 
         # write to VTK every 2 steps
         if step % 2 == 0:
-            if isinstance(Z.ufl_element(), MixedElement):
-                u.sub(0).rename("Velocity")
-                u.sub(1).rename("Pressure")
-                outfile.write(u.sub(0), u.sub(1))
-            else:
-                u.rename("Velocity")
-                outfile.write(u)
+            outfile.write(u, time=t)
 
     # ----------------------------------
     # Report done; find and return error
@@ -109,7 +126,6 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         return(v_error, p_error) 
 
     else:
-        u_error = errornorm(u_exact.sub(0), u.sub(0)) # make time integral
         green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
 
         return(u_error) 
