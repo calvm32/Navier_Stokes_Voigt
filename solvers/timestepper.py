@@ -73,9 +73,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     u.assign(u_old)
     if isinstance(Z.ufl_element(), MixedElement):
-        outfile.write(u_old.sub(0), u_old.sub(1), time=t)
+        outfile.write(u.sub(0), u.sub(1), time=t)
     else:
-        outfile.write(u_old, time=t)
+        outfile.write(u, time=t)
 
     while t < T:
 
