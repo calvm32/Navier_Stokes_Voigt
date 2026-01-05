@@ -42,11 +42,14 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
-    #bc_pressure_ref = DirichletBC(Z.sub(1), Constant(G), (1))  # pin pressure at left side
+    # Replace the IDs with your top/bottom wall markers
+    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), [3, 4])
     bcs = [bc_noslip]
 
-    nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
+    # Pressure nullspace
+    nullspace = MixedVectorSpaceBasis(
+        Z, [Z.sub(0), VectorSpaceBasis(constant=True)]
+)
 
     # ------------------
     # Allocate functions
@@ -56,7 +59,7 @@ for N in N_list:
 
         # velocity exact
         ufl_v_exact = as_vector([
-            Re*(sin(pi*y/H)*exp((-1*pi**2*t)/(H**2)) + 0.5*P*y**2 - 0.5*P*H*y),
+            Re*(sin(pi*y/H)*exp((-(1/Re)*pi**2*t)/(H**2)) + 0.5*P*y**2 - 0.5*P*H*y),
             0.0
         ])
 
@@ -65,19 +68,15 @@ for N in N_list:
 
         # v time derivative
         v_t = as_vector([
-            Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2))), 
+            Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-(1/Re)*pi**2*t/(H**2))), 
             0.0
         ])
 
         # v Laplacian
         lap_v = div(grad(ufl_v_exact))
 
-        # pressure gradient
-        grad_p = as_vector([P, 0.0])
-
         # source termexact
-        ufl_f_exact = v_t - (1.0/Re) * lap_v
-        #ufl_f_exact = as_vector([0.0,0.0])
+        ufl_f_exact = as_vector([0.0, 0.0])
 
         # boundary term
         ufl_g_exact = as_vector([0.0, 0.0])
