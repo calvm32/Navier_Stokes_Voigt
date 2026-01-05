@@ -68,7 +68,7 @@ for N in N_list:
 
         # v time derivative
         v_t = as_vector([
-            Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-(1/Re)*pi**2*t/(H**2))), 
+            (-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-(1/Re)*pi**2*t/(H**2))), 
             0.0
         ])
 
