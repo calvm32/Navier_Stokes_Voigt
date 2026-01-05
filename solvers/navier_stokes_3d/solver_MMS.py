@@ -42,12 +42,11 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
+    """    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
     bc_pressure_ref = DirichletBC(Z.sub(1), Constant(G), (1))  # pin pressure at left side
     bcs = [bc_noslip, bc_pressure_ref]
 
-    nullspace = None
-    #nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
+    nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])"""
 
     # ------------------
     # Allocate functions
@@ -77,8 +76,8 @@ for N in N_list:
         grad_p = as_vector([P, 0.0])
 
         # source termexact
-        ufl_f_exact = v_t - (1.0/Re) * lap_v
-        #ufl_f_exact = as_vector([0.0,0.0])
+        #ufl_f_exact = v_t - (1.0/Re) * lap_v
+        ufl_f_exact = as_vector([0.0,0.0])
 
         # boundary term
         ufl_g_exact = as_vector([0.0, 0.0])
