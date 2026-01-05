@@ -105,17 +105,26 @@ for N in N_list:
     v_error_list.append(v_error)
     p_error_list.append(p_error)
 
+# -------------
+# Velocity plot
+# -------------
+
+plt.figure()
 plt.loglog(N_list, v_error_list, "-o")
 plt.xlabel("mesh size h")
 plt.ylabel("velocity error")
 plt.grid(True)
-
 plt.savefig("velocity_convergence_plot.png", dpi=200)
-plt.close(fig)
+plt.close()
 
+# --------------
+# Presssure plot
+# --------------
+
+plt.figure()
 plt.loglog(N_list, p_error_list, "-o")
 plt.xlabel("mesh size h")
 plt.ylabel("pressure error")
 plt.grid(True)
-
 plt.savefig("pressure_convergence_plot.png", dpi=200)
+plt.close()
