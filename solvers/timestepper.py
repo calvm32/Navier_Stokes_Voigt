@@ -109,7 +109,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         # write to VTK every 2 steps
         if step % 2 == 0:
             if isinstance(Z.ufl_element(), MixedElement):
-                outfile.write(u.sub(0), u.sub(1), time=t)
+                u_v = u.sub(0)
+                u_p = u.sub(1)
+                outfile.write(u_v, u_p, time=t)
             else:
                 outfile.write(u, time=t)
 
