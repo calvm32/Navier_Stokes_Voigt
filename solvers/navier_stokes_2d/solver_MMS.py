@@ -43,8 +43,8 @@ for N in N_list:
     # -------------------
 
     bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
-    bc_pressure_ref = DirichletBC(Z.sub(1), Constant(G), (1))  # pin pressure at left side
-    bcs = [bc_noslip, bc_pressure_ref]
+    #bc_pressure_ref = DirichletBC(Z.sub(1), Constant(G), (1))  # pin pressure at left side
+    bcs = [bc_noslip] #, bc_pressure_ref]
 
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
@@ -114,7 +114,9 @@ plt.loglog(N_list, v_error_list, "-o")
 plt.xlabel("mesh size h")
 plt.ylabel("velocity error")
 plt.grid(True)
-plt.savefig("velocity_convergence_plot.png", dpi=200)
+
+plt.tight_layout()
+plt.savefig("velocity_convergence_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------
@@ -126,5 +128,7 @@ plt.loglog(N_list, p_error_list, "-o")
 plt.xlabel("mesh size h")
 plt.ylabel("pressure error")
 plt.grid(True)
-plt.savefig("pressure_convergence_plot.png", dpi=200)
+
+plt.tight_layout()
+plt.savefig("pressure_convergence_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
