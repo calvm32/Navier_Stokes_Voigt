@@ -43,10 +43,10 @@ for N in N_list:
     # -------------------
 
     bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
-    #bc_pressure_ref = DirichletBC(Z.sub(1), Constant(G), (1))  # pin pressure at left side
+    bc_pressure_ref = DirichletBC(Z.sub(1), Constant(G), (1))  # pin pressure at left side
     bcs = [bc_noslip] #, bc_pressure_ref]
 
-    nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
+    #nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
     # ------------------
     # Allocate functions
