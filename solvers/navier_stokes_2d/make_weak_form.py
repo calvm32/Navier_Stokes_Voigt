@@ -1,7 +1,7 @@
 from firedrake import *
 from .config_constants import Re, gamma_gd
 
-def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
+def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN, mesh):
     """
     Bilinear and linear forms for incompressible Navier-Stokes
       -> Crank-Nicolson
@@ -16,6 +16,8 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
 
     u_old = U_old.sub(0)
     p_old = U_old.sub(1)
+    
+    mesh = p_old.function_space().mesh()
 
     def forms(U, V):
         u, p = split(U)
@@ -23,6 +25,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
 
         # Midpoints
         u_mid = theta*u + (1.0 - theta)*u_old
+        p_mid = theta*p + (1.0 - theta)*p_old
 
         # Bilinear form a(U,V)
         a = (
@@ -60,8 +63,8 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Neumann boundary traction
             + inner(g_mid, v) * dsN
 
-            # Pressure traction term
-            + p_old * dot(v, FacetNormal(mesh)) * dsN
+            # Pressure bdy term
+            + p_mid * dot(v, FacetNormal(mesh)) * dsN
         )
 
         return a, L
