@@ -32,7 +32,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Time derivative
             idt * inner(u, v) * dx
 
-            # Oseen convection: (u_old · ∇)u
+            # Oseen convection: (u_old * grad)u
             + inner(dot(grad(u), u_old), v) * dx
 
             # Viscosity
@@ -45,8 +45,9 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Grad–div stabilization
             + theta * gamma_gd * inner(div(u), div(v)) * dx
 
-            # Neumann boundary traction
-            + p_mid * dot(v, FacetNormal(mesh)) * dsN
+            # Pressure boundary
+            #+ p_mid * dot(v, FacetNormal(mesh)) * dsN
+            + inner(p_mid, q) * dsN
         )
 
         # Linear form L(V)
@@ -54,7 +55,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Time derivative
             idt * inner(u_old, v) * dx
 
-            # Explicit viscosity part
+            # Explicit viscosity
             - ((1.0 - theta) / Re) * inner(grad(u_old), grad(v)) * dx
 
             # Explicit grad–div
@@ -63,7 +64,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Forcing
             + inner(f_mid, v) * dx
 
-            # Neumann boundary traction
+            # Neumann boundary
             + inner(g_mid, v) * dsN
             #+ p_mid * dot(v, FacetNormal(mesh)) * dsN
         )
