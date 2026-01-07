@@ -46,6 +46,7 @@ for N in N_list:
     bc_pressure_ref = DirichletBC(Z.sub(1), Constant(G), (1))  # pin pressure at left side
     bcs = [bc_noslip] #, bc_pressure_ref]
 
+    nullspace = None
     #nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
     # ------------------
