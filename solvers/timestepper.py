@@ -103,8 +103,23 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             u_exact.sub(0).interpolate(data_t["ufl_v0"])  # velocity
             u_exact.sub(1).interpolate(data_t["ufl_p0"])  # pressure
 
+            # ---- velocity error -----
             v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
-            p_error += assemble(inner(u_exact.sub(1) - u.sub(1), u_exact.sub(1) - u.sub(1))*dx)*dt
+
+            # ---- pressure error -----
+            # (different bc of nullspace constraint)
+            p_h = u.sub(1)
+            p_e = u_exact.sub(1)
+
+            # get constant coressp. with subspace
+            one = Function(p_h.function_space())
+            one.assign(1.0)
+
+            # remove constants to get actual pressure funcs
+            p_h0 = p_h - assemble(p_h * dx) / assemble(one * dx)
+            p_e0 = p_e - assemble(p_e * dx) / assemble(one * dx)
+
+            p_error += assemble(inner(p_e0 - p_h0, p_e0 - p_h0) * dx) * dt
         else:
             u_exact.interpolate(data_t["ufl_u0"])  # just velocity
 
@@ -130,9 +145,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
         green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
 
-        return(v_error, p_error) 
+        return(sqrt(v_error), sqrt(p_error))
 
     else:
         green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
 
-        return(u_error) 
+        return(sqrt(u_error))
