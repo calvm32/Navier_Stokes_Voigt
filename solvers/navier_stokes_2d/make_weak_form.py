@@ -15,6 +15,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
     g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
 
     u_old = U_old.sub(0)
+    p_old = U_old.sub(1)
 
     def forms(U, V):
         u, p = split(U)
@@ -58,6 +59,9 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
 
             # Neumann boundary traction
             + inner(g_mid, v) * dsN
+
+            # Pressure traction term
+            + p_old * dot(v, FacetNormal(mesh)) * dsN
         )
 
         return a, L
