@@ -1,7 +1,7 @@
 from firedrake import *
 from .config_constants import Re, gamma_gd
 
-def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN, mesh):
+def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
     """
     Bilinear and linear forms for incompressible Navier-Stokes
       -> Crank-Nicolson
