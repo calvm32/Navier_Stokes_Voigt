@@ -107,8 +107,19 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
 
             # ---- pressure error -----
-            v_error += assemble(inner(u_exact.sub(1) - u.sub(1), u_exact.sub(1) - u.sub(1))*dx)*dt
+            # (different bc of nullspace constraint)
+            p_h = u.sub(1)
+            p_e = u_exact.sub(1)
 
+            # get constant coressp. with subspace
+            one = Function(p_h.function_space())
+            one.assign(1.0)
+
+            # remove constants to get actual pressure funcs
+            p_h0 = p_h - assemble(p_h * dx) / assemble(one * dx)
+            p_e0 = p_e - assemble(p_e * dx) / assemble(one * dx)
+
+            p_error += assemble(inner(p_e0 - p_h0, p_e0 - p_h0) * dx) * dt
         else:
             u_exact.interpolate(data_t["ufl_u0"])  # just velocity
 
