@@ -64,7 +64,8 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             + inner(g_mid, v) * dsN
 
             # Pressure bdy term
-            + p_mid * dot(v, FacetNormal(mesh)) * dsN
+            #+ p_mid * dot(v, FacetNormal(mesh)) * dsN
+            + inner(p_mid, v) * dsN
         )
 
         return a, L
