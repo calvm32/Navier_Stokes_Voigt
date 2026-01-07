@@ -44,6 +44,9 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
 
             # Grad–div stabilization
             + theta * gamma_gd * inner(div(u), div(v)) * dx
+
+            # Neumann boundary traction
+            + p_mid * dot(v, FacetNormal(mesh)) * dsN
         )
 
         # Linear form L(V)
@@ -62,10 +65,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
 
             # Neumann boundary traction
             + inner(g_mid, v) * dsN
-
-            # Pressure bdy term
             #+ p_mid * dot(v, FacetNormal(mesh)) * dsN
-            + inner(p_mid, v) * dsN
         )
 
         return a, L
