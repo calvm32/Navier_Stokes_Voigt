@@ -31,9 +31,6 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         v_error = 0
         p_error = 0
 
-        # get constant coressp. with subspace
-        one = Function(p_h.function_space())
-        one.assign(1.0)
     else:
         u_old.interpolate(data_t0["ufl_u0"])  # just velocity
 
@@ -114,6 +111,10 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             # (different bc of nullspace constraint)
             p_h = u.sub(1)
             p_e = u_exact.sub(1)
+
+            # get constant coressp. with subspace
+            one = Function(p_h.function_space())
+            one.assign(1.0)
 
             p_e_proj = Function(p_h.function_space())
             p_e_proj.interpolate(p_e)
