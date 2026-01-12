@@ -117,7 +117,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             p_e_proj.interpolate(p_e)
 
             # Apply the SAME nullspace orthogonalization
-            nullspace.sub(1).orthogonalize(p_e_proj)
+            nullspace.bases[1].orthogonalize(p_e_proj)
 
             p_error += assemble(inner(p_e_proj - p_h,
                                     p_e_proj - p_h) * dx) * dt
