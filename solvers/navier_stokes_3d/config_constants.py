@@ -9,7 +9,7 @@ T = 1.0                     # final time
 dt = 1e-2                   # timestepping length
 theta = 0.5                 # theta constant
 Re = 1.0                    # Reynold's num = 1 / viscosity
-gamma_gd = 0.0              # grad-div stabilization constant
+gamma_gd = 0.1              # grad-div stabilization constant
 
 H = 1.0                     # height of box (if changed, need to adjust mesh)
 L = 3.0                     # length of box (can be changed always)
@@ -27,10 +27,10 @@ N = 16 # mesh resolution
 # -------------
 
 # MMS loops over mesh resolutions in this list
-N_list = []
-for exp in range(2, 8):
+N_list = [64]
+"""for exp in range(3, 9):
     N = 2**exp
-    N_list.append(N)
+    N_list.append(N)"""
 
 G = 5.0     # initial pressure gradient
 P = 1.0     # pressure strength (P*x + G)

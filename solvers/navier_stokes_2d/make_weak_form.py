@@ -23,10 +23,6 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
         u, p = split(U)
         v, q = split(V)
 
-        # Midpoints
-        u_mid = theta*u + (1.0 - theta)*u_old
-        p_mid = theta*p + (1.0 - theta)*p_old
-
         # Bilinear form a(U,V)
         a = (
             # Time derivative
