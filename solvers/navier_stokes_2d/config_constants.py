@@ -28,9 +28,9 @@ N = 16 # mesh resolution
 
 # MMS loops over mesh resolutions in this list
 N_list = [64]
-"""for exp in range(3, 9):
+for exp in range(3, 9):
     N = 2**exp
-    N_list.append(N)"""
+    N_list.append(N)
 
 G = 5.0     # initial pressure gradient
 P = 1.0     # pressure strength (P*x + G)
