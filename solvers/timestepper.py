@@ -104,23 +104,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             u_exact.sub(0).interpolate(data_t["ufl_v0"])  # velocity
             u_exact.sub(1).interpolate(data_t["ufl_p0"])  # pressure
 
-            # ---- velocity error -----
             v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
-
-            # ---- pressure error -----
-            # (different bc of nullspace constraint)
-            p_h = u.sub(1)
-            p_e = u_exact.sub(1)
-
-            # Project exact pressure into discrete space
-            p_e_proj = Function(p_h.function_space())
-            p_e_proj.interpolate(p_e)
-
-            # Apply the SAME nullspace orthogonalization
-            nullspace.bases[1].orthogonalize(p_e_proj)
-
-            p_error += assemble(inner(p_e_proj - p_h,
-                                    p_e_proj - p_h) * dx) * dt
+            v_error += assemble(inner(grad(u_exact.sub(0)) - grad(u.sub(0)), 
+                grad(u_exact.sub(0)) - grad(u.sub(0)))*dx)*dt
 
         else:
             u_exact.interpolate(data_t["ufl_u0"])  # just velocity

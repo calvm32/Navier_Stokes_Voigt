@@ -32,7 +32,7 @@ for exp in range(3, 7):
     N = 2**exp
     N_list.append(N)
 
-G = 5.0     # initial pressure gradient
+G = 5.0     # initial pressure gauge
 P = 1.0     # pressure strength (P*x + G)
 
 # ------------
