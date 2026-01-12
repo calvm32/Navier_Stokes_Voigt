@@ -27,8 +27,8 @@ N = 16 # mesh resolution
 # -------------
 
 # MMS loops over mesh resolutions in this list
-N_list = [64]
-for exp in range(3, 9):
+N_list = []
+for exp in range(3, 7):
     N = 2**exp
     N_list.append(N)
 
