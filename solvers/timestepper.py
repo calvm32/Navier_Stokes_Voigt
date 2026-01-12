@@ -120,7 +120,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             p_e0 = p_e - assemble(p_e * dx) / assemble(one * dx)
 
             p_error += assemble(inner(p_e0 - p_h0, p_e0 - p_h0) * dx) * dt"""
-            o_error += assemble(inner(u_exact.sub(1) - u.sub(1), u_exact.sub(1) - u.sub(1))*dx)*dt
+            p_error += assemble(inner(u_exact.sub(1) - u.sub(1), u_exact.sub(1) - u.sub(1))*dx)*dt
             
         else:
             u_exact.interpolate(data_t["ufl_u0"])  # just velocity
