@@ -31,8 +31,6 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         v_error = 0
         p_error = 0
 
-        p_e_proj = Function(p_h.function_space())
-
         # get constant coressp. with subspace
         one = Function(p_h.function_space())
         one.assign(1.0)
@@ -116,11 +114,13 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             # (different bc of nullspace constraint)
             p_h = u.sub(1)
             p_e = u_exact.sub(1)
+
+            p_e_proj = Function(p_h.function_space())
             p_e_proj.interpolate(p_e)
 
             # remove constants to get actual pressure funcs
             p_h0 = p_h - assemble(p_h * dx) / assemble(one * dx)
-            p_e0 = p_e_proj - assemble(p_e_proj * dx) / assemble(one * dx)
+            p_e0 = p_e_proj - assemble(p_e * dx) / assemble(one * dx)
 
             p_error += assemble(inner(p_e0 - p_h0, p_e0 - p_h0) * dx) * dt
 
