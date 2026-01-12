@@ -121,7 +121,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
             # remove constants to get actual pressure funcs
             p_h0 = p_h - assemble(p_h * dx) / assemble(one * dx)
-            p_e0 = p_e_proj - assemble(p_e * dx) / assemble(one * dx)
+            p_e0 = p_e_proj - assemble(p_e_proj * dx) / assemble(one * dx)
 
             p_error += assemble(inner(p_e0 - p_h0, p_e0 - p_h0) * dx) * dt
 
