@@ -44,11 +44,11 @@ for N in N_list:
 
     eps = 1e-10
 
-    bcs = [DirichletBC(
-        Z.sub(0),
-        Constant((0.0, 0.0, 0.0)),
-        sqrt(x*x + y*y) > R - eps
-    )]
+    def lateral_wall(x, on_boundary):
+        r = sqrt(x[0]**2 + x[1]**2)
+        return on_boundary and abs(r - R) < eps
+
+    bcs = [DirichletBC(Z.sub(0), Constant((0.0, 0.0, 0.0)), lateral_wall)]
 
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
