@@ -9,10 +9,11 @@ T = 1.0                     # final time
 dt = 1e-2                   # timestepping length
 theta = 0.5                 # theta constant
 Re = 1.0                    # Reynold's num = 1 / viscosity
+rho = 1                     # where nu = mu/rho, and rho = density
 gamma_gd = 0.0              # grad-div stabilization constant
 
-H = 1.0                     # height of box
-L = 3.0                     # length of box
+R = 1.0                     # radius of cylinder
+L = 3.0                     # length of box cylinder
 
 vtkfile_name = "Soln"
 

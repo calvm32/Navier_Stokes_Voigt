@@ -4,8 +4,9 @@ from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
+from math import sqrt
 
-from .config_constants import t0, T, dt, theta, Re, gamma_gd, P, G, H, L, N_list, solver_parameters, vtkfile_name
+from .config_constants import t0, T, dt, theta, Re, rho, gamma_gd, P, G, R, L, N_list, solver_parameters, vtkfile_name
 
 # calculate error as mesh size increases
 v_error_list = []
@@ -28,8 +29,8 @@ for N in N_list:
     # Setup spaces
     # ------------
 
-    mesh = RectangleMesh(N, N, L, H)
-    x, y = SpatialCoordinate(mesh)
+    mesh = CylinderMesh(N, N, radius=R, depth=L)
+    x, y, z = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
     ds = Measure("ds", domain=mesh)
@@ -42,7 +43,7 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
+    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0, 0.0)), (1, 2))
     bcs = [bc_noslip]
 
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
@@ -55,8 +56,8 @@ for N in N_list:
 
         # velocity exact
         ufl_v_exact = as_vector([
-            Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
-            0.0
+            Re*(sin(sqrt(x**2+y**2)*pi/R)*exp((-1*pi**2*t)/(R**2*Re)) + 0.5*P*sqrt(x**2+y**2)*(sqrt(x**2+y**2) - R)/rho),
+            0.0, 0.0
         ])
 
         # pressure exact
@@ -64,21 +65,21 @@ for N in N_list:
 
         # v time derivative
         v_t = as_vector([
-            (-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2*Re))), 
-            0.0
+            (-1*pi**2/(R**2))*(sin(sqrt(x**2+y**2)*pi/R)*exp(-1*pi**2*t/(R**2*Re))), 
+            0.0, 0.0
         ])
 
         # v Laplacian
         lap_v = div(grad(ufl_v_exact))
 
         # pressure gradient
-        grad_p = as_vector([P, 0.0])
+        grad_p = as_vector([P, 0.0, 0.0])
 
         # source termexact
-        ufl_f_exact = as_vector([0.0,0.0])
+        ufl_f_exact = as_vector([0.0, 0.0, 0.0])
 
         # boundary term
-        ufl_g_exact = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
+        ufl_g_exact = as_vector([0.0, 0.0, (P*z+G)*cos(z*pi/L)])
 
         return {
             "ufl_v0": ufl_v_exact,

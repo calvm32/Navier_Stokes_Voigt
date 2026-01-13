@@ -26,17 +26,18 @@ V = FunctionSpace(mesh, "CG", 1)
 # Allocate functions
 # ------------------
 
+# time dependant
 def get_data(t):
 
-    # functions
-    ufl_u0 = ufl.exp(t)*cos(pi*x)   # initial condition u0
-    ufl_f = cos(x*pi)*cos(y*pi)     # source term f
-    ufl_g = Constant(0.0)           # bdy condition g
+    # exact functions for u=e^t*sin(pix)*cos(piy)
+    ufl_u_exact = ufl.exp(t)*cos(pi*x)*cos(pi*y)                # initial condition u0 
+    ufl_f_exact = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)    # source term f 
+    ufl_g_exact = Constant(0)                                   # bdy condition g
 
     # returns
-    return {"ufl_u0": ufl_u0,
-            "ufl_f": ufl_f,
-            "ufl_g": ufl_g}
+    return {"ufl_u0": ufl_u_exact,
+            "ufl_f": ufl_f_exact,
+            "ufl_g": ufl_g_exact}
 
 # ----------
 # Run solver
