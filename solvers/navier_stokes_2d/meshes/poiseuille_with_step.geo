@@ -5,9 +5,9 @@
 L = 3.0;
 H = 1.0;
 
-step_width = 0.2;	// step width
-step_height = 0.1;	// step distance from y=0
-step_distance = 0.3;	// step distance from x=0
+step_width = 0.5;	// step width
+step_height = 0.3;	// step distance from y=0
+step_distance = 0.8;	// step distance from x=0
 
 lc = 0.05;		// mesh size
 
@@ -55,7 +55,7 @@ Plane Surface(1) = {1};
 
 Physical Line("Left") = {8};		// left wall
 Physical Line("Right") = {6};		// right wall
-Physical Line("Bottom") = {1,5};	// bottom NOT including step
+Physical Line("Bottom") = {1,2,3,4,5};	// bottom including step
 Physical Line("Top") = {7};		// top wall
 Physical Surface("Domain") = {1};
  

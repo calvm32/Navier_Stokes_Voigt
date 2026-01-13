@@ -1,10 +1,22 @@
-from firedrake import * 
+import os
+
+from firedrake import *
 
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue
+import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, theta, N, solver_parameters, appctx, vtkfile_name
+from .config_constants import t0, T, dt, theta, Re, gamma_gd, P, G, H, L, solver_parameters, vtkfile_name, appctx
+
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+MESH_PATH = os.path.join(HERE, "meshes", "poiseuille_with_step.msh")
+
+if not os.path.exists(MESH_PATH):
+    raise FileNotFoundError(f"Mesh not found at {MESH_PATH}")
+
+print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
@@ -12,7 +24,12 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 # Setup spaces
 # ------------
 
-mesh = Mesh("meshes/poiseuille_with_step.msh")
+"""# Get directory
+script_dir = os.path.dirname(os.path.realpath(__file__))
+mesh_path = os.path.join(script_dir, "meshes", "poiseuille_with_step.msh")"""
+
+# Load the mesh
+mesh = Mesh(MESH_PATH)
 x, y = SpatialCoordinate(mesh)
 
 dx = Measure("dx", domain=mesh)

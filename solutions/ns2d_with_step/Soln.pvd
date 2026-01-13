@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<VTKFile type="Collection" version="0.1" byte_order="LittleEndian">
+<Collection>
+<DataSet timestep="0.0" file="Soln/Soln_0.vtu" />
+<DataSet timestep="0.002" file="Soln/Soln_1.vtu" />
+<DataSet timestep="0.004" file="Soln/Soln_2.vtu" />
+<DataSet timestep="0.006" file="Soln/Soln_3.vtu" />
+<DataSet timestep="0.008" file="Soln/Soln_4.vtu" />
+<DataSet timestep="0.010000000000000002" file="Soln/Soln_5.vtu" />
+</Collection>
+</VTKFile>

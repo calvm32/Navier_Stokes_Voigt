@@ -5,8 +5,8 @@ from firedrake import *
 # ---------
 
 t0 = 0.0                    # initial time
-T = 1.0                     # final time
-dt = 1e-2                   # timestepping length
+T = 0.1                     # final time
+dt = 1e-3                   # timestepping length
 theta = 0.5                 # theta constant
 Re = 1.0                    # Reynold's num = 1 / viscosity
 gamma_gd = 0.0              # grad-div stabilization constant
