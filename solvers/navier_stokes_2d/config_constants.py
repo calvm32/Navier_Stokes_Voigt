@@ -12,7 +12,7 @@ Re = 600.0                  # Reynold's num = 1 / viscosity
 gamma_gd = 0.0              # grad-div stabilization constant
 
 H = 1.0                     # height of box
-L = 3.0                     # length of box
+L = 4.0                     # length of box
 
 vtkfile_name = "Soln"
 
