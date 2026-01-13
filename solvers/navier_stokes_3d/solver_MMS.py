@@ -42,10 +42,12 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
+    eps = 1e-10
+
     bcs = [DirichletBC(
         Z.sub(0),
         Constant((0.0, 0.0, 0.0)),
-        sqrt(x*x + y*y) > R - DOLFIN_EPS
+        sqrt(x*x + y*y) > R - eps
     )]
 
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
