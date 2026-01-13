@@ -34,19 +34,12 @@ for N in N_list:
     Z = V * FunctionSpace(mesh, "CG", 1)
     x, y, z = SpatialCoordinate(mesh)
 
-    # Horizontal exterior facets
-    ds_h = Measure("ds", domain=mesh, horizontal=True)
-    ds_bottom = ds_h(1)
-    ds_top    = ds_h(2)
-
-    # Vertical exterior facets
-    ds_v = Measure("ds", domain=mesh, vertical=True)
-    ds_side = ds_v
-
-    ds = [ds_bottom, ds_top, ds_side]
-
-    # regular bulk measure
     dx = Measure("dx", domain=mesh)
+    ds_v = Measure("ds_v", domain=mesh)
+    ds_b = Measure("ds_b", domain=mesh)
+    ds_t = Measure("ds_t", domain=mesh)
+
+    ds = [ds_v, ds_b, ds_t]
 
     V = VectorFunctionSpace(mesh, "CG", 2)
     W = FunctionSpace(mesh, "CG", 1)
