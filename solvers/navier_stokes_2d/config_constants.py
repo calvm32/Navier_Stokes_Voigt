@@ -73,7 +73,7 @@ solver_parameters = {
 
     "fieldsplit_1_ksp_type": "gmres",
     "fieldsplit_1_ksp_rtol": 1e-4,
-    "fieldsplit_1_pc_type": "python",
+    "fieldsplit_1_pc_type": "lu",
     "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
 
     # We now need to configure the mass and stiffness solvers in the PCD
