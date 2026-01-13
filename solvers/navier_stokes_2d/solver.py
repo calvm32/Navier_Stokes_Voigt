@@ -56,7 +56,7 @@ def get_data(t):
 
     # velocity exact
     ufl_v_exact = as_vector([
-        Re*(sin(pi*y/H)*exp((-1*pi**2*t)/(H**2)) + 0.5*P*y**2 - 0.5*P*H*y),
+        Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
         0.0
     ])
 
@@ -65,7 +65,7 @@ def get_data(t):
 
     # v time derivative
     v_t = as_vector([
-        Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2))), 
+        (-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2*Re))), 
         0.0
     ])
 
