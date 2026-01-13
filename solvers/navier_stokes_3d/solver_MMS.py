@@ -28,7 +28,10 @@ for N in N_list:
     # Setup spaces
     # ------------
 
-    mesh = CylinderMesh(N, N, radius=R, depth=L)
+    circle = UnitCircleMesh(N)
+    mesh = ExtrudedMesh(circle, layers=N, layer_height=L/N)
+    V = VectorFunctionSpace(mesh, "CG", 2)
+    Z = V * FunctionSpace(mesh, "CG", 1)
     x, y, z = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
@@ -48,8 +51,8 @@ for N in N_list:
         r = sqrt(x[0]**2 + x[1]**2)
         return on_boundary and abs(r - R) < eps
 
-    bcs = [DirichletBC(Z.sub(0), Constant((0.0, 0.0, 0.0)), lateral_wall)]
-
+    # Lateral walls are automatically marker 1 in ExtrudedMesh
+    bcs = [DirichletBC(Z.sub(0), Constant((0,0,0)), 1)]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
     # ------------------
