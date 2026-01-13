@@ -49,12 +49,9 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-
-    mesh = ExtrudedMesh(UnitDiskMesh(4), layers=2, layer_height=1.0)
-
     for f in mesh.exterior_facets:
-        coords = f.midpoint().array()
-        print(f"facet {f.index}: coords = {coords}")
+        if mesh.extruded_facets[f].is_vertical:
+            print(f.index(), f.midpoint().x(), f.midpoint().y(), f.midpoint().z())
 
     # Lateral walls are supposedly marker 1 in ExtrudedMesh
     bcs = [DirichletBC(Z.sub(0), Constant((0,0,0)), 1)]
