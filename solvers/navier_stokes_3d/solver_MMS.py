@@ -50,23 +50,23 @@ for N in N_list:
     # -------------------
 
     # Access exterior facets
-    exterior_facets = mesh.exterior_facets
+    exterior_facets = mesh.exterior_facets.get_facets()
 
-    # Loop over all exterior facets
     vertical_ids = []
     top_ids = []
     bottom_ids = []
 
-    for i in range(len(exterior_facets)):
-        f = exterior_facets[i]
-        if f.is_vertical:
+    for f in exterior_facets:
+        if f.extruded_facet.is_vertical:
             vertical_ids.append(f.index())
-        elif f.is_top:
+        elif f.extruded_facet.is_top:
             top_ids.append(f.index())
-        elif f.is_bottom:
+        elif f.extruded_facet.is_bottom:
             bottom_ids.append(f.index())
 
     print("Vertical facets:", vertical_ids)
+    print("Top facets:", top_ids)
+    print("Bottom facets:", bottom_ids)
 
     # Lateral walls are supposedly marker 1 in ExtrudedMesh
     bcs = [DirichletBC(Z.sub(0), Constant((0,0,0)), 1)]
