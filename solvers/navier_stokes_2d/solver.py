@@ -12,7 +12,7 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 # Setup spaces
 # ------------
 
-mesh = RectangleMesh(N, N, L, H)
+mesh = Mesh("meshes/poiseuille_with_step.msh")
 x, y = SpatialCoordinate(mesh)
 
 dx = Measure("dx", domain=mesh)
