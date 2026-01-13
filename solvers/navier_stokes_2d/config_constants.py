@@ -5,10 +5,10 @@ from firedrake import *
 # ---------
 
 t0 = 0.1                    # initial time
-T = 1                     # final time
-dt = 1e-3                   # timestepping length
+T = 1                       # final time
+dt = 0.01                   # timestepping length
 theta = 0.5                 # theta constant
-Re = 200.0                    # Reynold's num = 1 / viscosity
+Re = 600.0                  # Reynold's num = 1 / viscosity
 gamma_gd = 0.0              # grad-div stabilization constant
 
 H = 1.0                     # height of box
@@ -20,7 +20,7 @@ vtkfile_name = "Soln"
 # For single solve 
 # ----------------
 
-N = 64 # mesh resolution
+N = 100 # mesh resolution
 
 # -------------
 # For MMS solve

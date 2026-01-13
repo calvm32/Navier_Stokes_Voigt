@@ -5,11 +5,11 @@
 L = 3.0;
 H = 1.0;
 
-step_width = 0.5;	// step width
+step_width = 0.1;	// step width
 step_height = 0.3;	// step distance from y=0
 step_distance = 0.8;	// step distance from x=0
 
-lc = 0.05;		// mesh size
+lc = 0.01;		// mesh size
 
 // ------------------
 // Points (CCW order)
