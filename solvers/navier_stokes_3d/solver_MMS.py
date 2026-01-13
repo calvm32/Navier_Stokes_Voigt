@@ -34,18 +34,24 @@ for N in N_list:
     Z = V * FunctionSpace(mesh, "CG", 1)
     x, y, z = SpatialCoordinate(mesh)
 
-    # Create a facet function over exterior facets
-    from firedrake import FacetNormal, CellVolume, sqrt
+    from firedrake import Function, FunctionSpace, FacetNormal, MeshFunction, MeshValueCollection, File, ds_h, ds_v
 
-    n = FacetNormal(mesh)
+    # Create a DG0 function over facets
+    mvc = MeshValueCollection("size_t", mesh, mesh.topological_dimension()-1)
+    fmesh = MeshFunction(mvc, mesh)
 
-    # Check the ids of exterior facets
-    f = Function(FunctionSpace(mesh, "DG", 0))
-    f.interpolate(1.0)  # just a dummy function
+    # Mark vertical facets
+    for f in mesh.exterior_facets:
+        coords = f.midpoint().array()
+        # check if vertical (x-y distance ~ R) or horizontal (z = 0 or z = L)
+        if abs(coords[2]) < 1e-10:
+            fmesh[f] = 1  # bottom
+        elif abs(coords[2]-L) < 1e-10:
+            fmesh[f] = 2  # top
+        else:
+            fmesh[f] = 3  # side
 
-    print("Vertical sides facets: ", ds_side)
-    print("Bottom facets: ", ds_bottom)
-    print("Top facets: ", ds_top)
+    File("facet_ids.pvd").write(fmesh)
 
     dx = Measure("dx", domain=mesh)
     ds1 = Measure("ds", domain=mesh, subdomain_id=1)
