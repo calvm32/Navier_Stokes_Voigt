@@ -4,9 +4,8 @@ from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
-from math import sqrt
 
-from .config_constants import t0, T, dt, theta, Re, rho, gamma_gd, P, G, R, L, N_list, solver_parameters, vtkfile_name
+from .config_constants import t0, T, dt, theta, Re, gamma_gd, P, G, R, L, N_list, solver_parameters, vtkfile_name
 
 # calculate error as mesh size increases
 v_error_list = []
@@ -43,8 +42,11 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0, 0.0)), (1, 2))
-    bcs = [bc_noslip]
+    bcs = [DirichletBC(
+        Z.sub(0),
+        Constant((0.0, 0.0, 0.0)),
+        sqrt(x*x + y*y) > R - DOLFIN_EPS
+    )]
 
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
@@ -56,8 +58,8 @@ for N in N_list:
 
         # velocity exact
         ufl_v_exact = as_vector([
-            Re*(sin(sqrt(x**2+y**2)*pi/R)*exp((-1*pi**2*t)/(R**2*Re)) + 0.5*P*sqrt(x**2+y**2)*(sqrt(x**2+y**2) - R)/rho),
-            0.0, 0.0
+            0.0, 0.0,
+            Re*(sin(sqrt(x**2+y**2)*pi/R)*exp((-1*pi**2*t)/(R**2*Re)) + 0.5*P*sqrt(x**2+y**2)*(sqrt(x**2+y**2) - R))
         ])
 
         # pressure exact
@@ -65,8 +67,8 @@ for N in N_list:
 
         # v time derivative
         v_t = as_vector([
-            (-1*pi**2/(R**2))*(sin(sqrt(x**2+y**2)*pi/R)*exp(-1*pi**2*t/(R**2*Re))), 
-            0.0, 0.0
+            0.0, 0.0,
+            (-1*pi**2/(R**2))*(sin(sqrt(x**2+y**2)*pi/R)*exp(-1*pi**2*t/(R**2*Re)))
         ])
 
         # v Laplacian

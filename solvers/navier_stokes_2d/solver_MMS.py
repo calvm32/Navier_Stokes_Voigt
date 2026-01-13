@@ -42,9 +42,7 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
-    bcs = [bc_noslip]
-
+    bcs = [DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
     # ------------------
