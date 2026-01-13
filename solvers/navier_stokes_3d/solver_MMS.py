@@ -49,6 +49,7 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
+    print(mesh.exterior_facets)
     for f in mesh.exterior_facets:
         if mesh.extruded_facets[f].is_vertical:
             print(f.index(), f.midpoint().x(), f.midpoint().y(), f.midpoint().z())
