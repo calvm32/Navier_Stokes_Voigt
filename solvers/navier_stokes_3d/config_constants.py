@@ -12,7 +12,7 @@ Re = 1.0                    # Reynold's num = 1 / viscosity
 rho = 1                     # where nu = mu/rho, and rho = density, NOT imported to keep non-dimensionality
 gamma_gd = 0.0              # grad-div stabilization constant
 
-R = 1.0                     # radius of cylinder
+R = 1.0                     # radius of cylinder, if you change it then MUST change mesh
 L = 3.0                     # length of box cylinder
 
 vtkfile_name = "Soln"

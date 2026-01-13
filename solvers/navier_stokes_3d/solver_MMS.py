@@ -34,30 +34,19 @@ for N in N_list:
     Z = V * FunctionSpace(mesh, "CG", 1)
     x, y, z = SpatialCoordinate(mesh)
 
-    from firedrake import Function, FunctionSpace, FacetNormal, MeshFunction, MeshValueCollection, File, ds_h, ds_v
+    # Horizontal exterior facets
+    ds_h = Measure("ds", domain=mesh, horizontal=True)
+    ds_bottom = ds_h(1)
+    ds_top    = ds_h(2)
 
-    # Create a DG0 function over facets
-    mvc = MeshValueCollection("size_t", mesh, mesh.topological_dimension()-1)
-    fmesh = MeshFunction(mvc, mesh)
+    # Vertical exterior facets
+    ds_v = Measure("ds", domain=mesh, vertical=True)
+    ds_side = ds_v
 
-    # Mark vertical facets
-    for f in mesh.exterior_facets:
-        coords = f.midpoint().array()
-        # check if vertical (x-y distance ~ R) or horizontal (z = 0 or z = L)
-        if abs(coords[2]) < 1e-10:
-            fmesh[f] = 1  # bottom
-        elif abs(coords[2]-L) < 1e-10:
-            fmesh[f] = 2  # top
-        else:
-            fmesh[f] = 3  # side
+    ds = [ds_bottom, ds_top, ds_side]
 
-    File("facet_ids.pvd").write(fmesh)
-
+    # regular bulk measure
     dx = Measure("dx", domain=mesh)
-    ds1 = Measure("ds", domain=mesh, subdomain_id=1)
-    ds2 = Measure("ds", domain=mesh, subdomain_id=2)
-    ds3 = Measure("ds", domain=mesh, subdomain_id=3)
-    ds = ds1 + ds2 + ds3
 
     V = VectorFunctionSpace(mesh, "CG", 2)
     W = FunctionSpace(mesh, "CG", 1)
@@ -67,13 +56,14 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    eps = 1e-10
 
-    def lateral_wall(x, on_boundary):
-        r = sqrt(x[0]**2 + x[1]**2)
-        return on_boundary and abs(r - R) < eps
+    mesh = ExtrudedMesh(UnitDiskMesh(4), layers=2, layer_height=1.0)
 
-    # Lateral walls are automatically marker 1 in ExtrudedMesh
+    for f in mesh.exterior_facets:
+        coords = f.midpoint().array()
+        print(f"facet {f.index}: coords = {coords}")
+
+    # Lateral walls are supposedly marker 1 in ExtrudedMesh
     bcs = [DirichletBC(Z.sub(0), Constant((0,0,0)), 1)]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 

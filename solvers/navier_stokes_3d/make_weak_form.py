@@ -58,7 +58,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             + inner(f_mid, v) * dx
 
             # Neumann boundary
-            + inner(g_mid, v) * dsN
+            + sum(inner(g_mid, v) * ds for ds in dsN)
 
         )
 
