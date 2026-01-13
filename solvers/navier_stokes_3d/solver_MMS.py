@@ -35,7 +35,10 @@ for N in N_list:
     x, y, z = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
-    ds = Measure("ds", domain=mesh)
+    ds1 = Measure("ds", domain=mesh, subdomain_id=1)
+    ds2 = Measure("ds", domain=mesh, subdomain_id=2)
+    ds3 = Measure("ds", domain=mesh, subdomain_id=3)
+    ds = ds1 + ds2 + ds3
 
     V = VectorFunctionSpace(mesh, "CG", 2)
     W = FunctionSpace(mesh, "CG", 1)
