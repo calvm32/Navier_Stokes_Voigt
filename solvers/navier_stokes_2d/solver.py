@@ -32,6 +32,8 @@ mesh_path = os.path.join(script_dir, "meshes", "poiseuille_with_step.msh")"""
 mesh = Mesh(MESH_PATH)
 x, y = SpatialCoordinate(mesh)
 
+print(mesh.cell_sizes.dat.data.min())
+
 dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)
 

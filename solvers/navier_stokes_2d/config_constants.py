@@ -82,15 +82,12 @@ solver_parameters = {
     # mass solve
 
     "fieldsplit_1_pcd_Mp_ksp_type": "preonly",
-    #"fieldsplit_1_pcd_Mp_pc_type": "lu",
-
-    "fieldsplit_1_pcd_Mp_pc_type": "hypre",
-"   fieldsplit_1_pcd_Kp_pc_type": "hypre",
+    "fieldsplit_1_pcd_Mp_pc_type": "lu",
 
     # and the stiffness solve
 
     "fieldsplit_1_pcd_Kp_ksp_type": "preonly",
-    #"fieldsplit_1_pcd_Kp_pc_type": "lu",
+    "fieldsplit_1_pcd_Kp_pc_type": "lu",
 
     # Finally, we just need to decide whether to apply the action of the
     # pressure-space convection-diffusion operator with an assembled matrix
