@@ -49,9 +49,6 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    # Access exterior facets
-    exterior_facets = mesh.exterior_facets.get_facets()
-
     # Lateral walls are SUPPOSEDLY marker 1 in ExtrudedMesh
     bcs = [DirichletBC(Z.sub(0), Constant((0,0,0)), 1)]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
