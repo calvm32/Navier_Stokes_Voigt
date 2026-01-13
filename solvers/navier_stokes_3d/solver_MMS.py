@@ -28,8 +28,8 @@ for N in N_list:
     # Setup spaces
     # ------------
 
-    circle = UnitCircleMesh(N)
-    mesh = ExtrudedMesh(circle, layers=N, layer_height=L/N)
+    disk = UnitDiskMesh(N)
+    mesh = ExtrudedMesh(disk, layers=N, layer_height=L/N)
     V = VectorFunctionSpace(mesh, "CG", 2)
     Z = V * FunctionSpace(mesh, "CG", 1)
     x, y, z = SpatialCoordinate(mesh)
