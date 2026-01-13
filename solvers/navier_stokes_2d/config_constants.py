@@ -5,7 +5,7 @@ from firedrake import *
 # ---------
 
 t0 = 0.0                    # initial time
-T = 0.1                     # final time
+T = 1                     # final time
 dt = 1e-3                   # timestepping length
 theta = 0.5                 # theta constant
 Re = 2.0                    # Reynold's num = 1 / viscosity

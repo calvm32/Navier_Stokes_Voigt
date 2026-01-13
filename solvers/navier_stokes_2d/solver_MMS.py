@@ -12,7 +12,6 @@ v_error_list = []
 p_error_list = []
 
 for N in N_list:
-    print(N_list)
 
     dt = 1/N # CFL
 
