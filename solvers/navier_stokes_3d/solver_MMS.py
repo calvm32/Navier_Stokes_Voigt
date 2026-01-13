@@ -52,23 +52,7 @@ for N in N_list:
     # Access exterior facets
     exterior_facets = mesh.exterior_facets.get_facets()
 
-    vertical_ids = []
-    top_ids = []
-    bottom_ids = []
-
-    for f in exterior_facets:
-        if f.extruded_facet.is_vertical:
-            vertical_ids.append(f.index())
-        elif f.extruded_facet.is_top:
-            top_ids.append(f.index())
-        elif f.extruded_facet.is_bottom:
-            bottom_ids.append(f.index())
-
-    print("Vertical facets:", vertical_ids)
-    print("Top facets:", top_ids)
-    print("Bottom facets:", bottom_ids)
-
-    # Lateral walls are supposedly marker 1 in ExtrudedMesh
+    # Lateral walls are SUPPOSEDLY marker 1 in ExtrudedMesh
     bcs = [DirichletBC(Z.sub(0), Constant((0,0,0)), 1)]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
