@@ -4,11 +4,11 @@ from firedrake import *
 # Constants
 # ---------
 
-t0 = 0.0                    # initial time
+t0 = 0.1                    # initial time
 T = 1                     # final time
 dt = 1e-3                   # timestepping length
 theta = 0.5                 # theta constant
-Re = 2.0                    # Reynold's num = 1 / viscosity
+Re = 200.0                    # Reynold's num = 1 / viscosity
 gamma_gd = 0.0              # grad-div stabilization constant
 
 H = 1.0                     # height of box
