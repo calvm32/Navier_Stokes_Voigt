@@ -7,7 +7,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, theta, gamma_gd, P, G, solver_parameters, vtkfile_name, appctx
+from .config_constants import t0, T, theta, gamma, P, G, Re, solver_parameters, vtkfile_name, appctx
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MESH_PATH = os.path.join(HERE, "meshes", "poiseuille_with_step.msh")
@@ -18,12 +18,6 @@ if not os.path.exists(MESH_PATH):
 print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
-
-# ---------
-# Constants
-# ---------
-
-Re = 1.0    # Reynold's num = 1/viscostiy
 
 # ------------
 # Setup spaces

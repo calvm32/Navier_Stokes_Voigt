@@ -1,5 +1,5 @@
 from firedrake import *
-from .config_constants import Re, gamma_gd
+from .config_constants import Re, gamma
 
 def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
     """
@@ -39,7 +39,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             - q * div(u) * dx
 
             # Grad–div stabilization
-            + theta * gamma_gd * inner(div(u), div(v)) * dx
+            + theta * gamma * inner(div(u), div(v)) * dx
 
         )
 
@@ -52,7 +52,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
             - ((1.0 - theta) / Re) * inner(grad(u_old), grad(v)) * dx
 
             # Explicit grad–div
-            - (1.0 - theta) * gamma_gd * inner(div(u_old), div(v)) * dx
+            - (1.0 - theta) * gamma * inner(div(u_old), div(v)) * dx
 
             # Forcing
             + inner(f_mid, v) * dx

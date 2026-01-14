@@ -5,19 +5,36 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, theta, gamma_gd, P, G, N_list, solver_parameters, vtkfile_name
+from .config_constants import solver_parameters, vtkfile_name
 
-# ---------
-# Constants
-# ---------
+# ---------------------------
+# MMS Constants Configuration
+# ---------------------------
 
-H = 1.0     # height of box
-L = 4.0     # length of box
-Re = 3.0    # Reynold's num = 1/viscostiy
+t0 = 0.1        # initial time
+T = 1           # final time
+theta = 0.5     # theta constant
+gamma = 0.0     # grad-div stabilization constant
+H = 1.0         # height of box
+L = 4.0         # length of box
+Re = 3.0        # Reynold's num = 1/viscostiy
+
+# Loop over mesh resolutions
+N_list = []
+for exp in range(3, 7):
+    N = 2**exp
+    N_list.append(N)
+
+G = 5.0     # initial pressure gauge
+P = 1.0     # pressure strength (P*x + G)
 
 # calculate error as mesh size increases
 v_error_list = []
 p_error_list = []
+
+# -------------
+# Start solving
+# -------------
 
 for N in N_list:
 
@@ -28,7 +45,7 @@ for N in N_list:
 
     appctx = {
         "Re": Re, 
-        "gamma_gd": gamma_gd,
+        "gamma": gamma,
         "velocity_space": 0
     }
 

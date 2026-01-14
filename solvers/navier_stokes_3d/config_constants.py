@@ -10,7 +10,7 @@ dt = 1e-2                   # timestepping length
 theta = 0.5                 # theta constant
 Re = 1.0                    # Reynold's num = 1 / viscosity
 rho = 1                     # where nu = mu/rho, and rho = density, NOT imported to keep non-dimensionality
-gamma_gd = 0.0              # grad-div stabilization constant
+gamma = 0.0              # grad-div stabilization constant
 
 R = 1.0                     # radius of cylinder, if you change it then MUST change mesh
 L = 3.0                     # length of box cylinder
@@ -42,7 +42,7 @@ P = 1.0     # pressure strength (P*x + G)
 
 appctx = {
     "Re": Re, 
-    "gamma_gd": gamma_gd,
+    "gamma": gamma,
     "velocity_space": 0
 }
 

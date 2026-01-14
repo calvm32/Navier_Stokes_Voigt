@@ -5,7 +5,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, theta, Re, gamma_gd, P, G, R, L, N_list, solver_parameters, vtkfile_name
+from .config_constants import t0, T, dt, theta, Re, gamma, P, G, R, L, N_list, solver_parameters, vtkfile_name
 
 # calculate error as mesh size increases
 v_error_list = []
@@ -20,7 +20,7 @@ for N in N_list:
 
     appctx = {
         "Re": Re, 
-        "gamma_gd": gamma_gd,
+        "gamma": gamma,
         "velocity_space": 0
     }
 

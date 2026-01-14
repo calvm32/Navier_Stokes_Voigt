@@ -4,32 +4,16 @@ from firedrake import *
 # Constants
 # ---------
 
-t0 = 0.1                    # initial time
-T = 1                       # final time
-theta = 0.5                 # theta constant
-gamma_gd = 0.0              # grad-div stabilization constant
-Re = 600.0                  # Reynold's num = 1 / viscosity
-
-vtkfile_name = "Soln"
-
-# ----------------
-# For single solve 
-# ----------------
-
-N = 100 # mesh resolution
-
-# -------------
-# For MMS solve
-# -------------
-
-# MMS loops over mesh resolutions in this list
-N_list = []
-for exp in range(3, 7):
-    N = 2**exp
-    N_list.append(N)
+t0 = 0.1        # initial time
+T = 1           # final time
+theta = 0.5     # theta constant
+gamma = 0.0     # grad-div stabilization constant
+Re = 3.0        # Reynold's num = 1/viscostiy
 
 G = 5.0     # initial pressure gauge
 P = 1.0     # pressure strength (P*x + G)
+
+vtkfile_name = "Soln"
 
 # ------------
 # Dictionaries
@@ -37,7 +21,7 @@ P = 1.0     # pressure strength (P*x + G)
 
 appctx = {
     "Re": Re, 
-    "gamma_gd": gamma_gd,
+    "gamma": gamma,
     "velocity_space": 0
 }
 
