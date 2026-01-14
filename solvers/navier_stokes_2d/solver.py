@@ -31,6 +31,10 @@ x, y = SpatialCoordinate(mesh)
 y_coords = mesh.coordinates.dat.data[:, 1]
 H = y_coords.max() - y_coords.min()
 
+# get length
+x_coords = mesh.coordinates.dat.data[:, 0]
+L = x_coords.max() - x_coords.min()
+
 hmin = mesh.cell_sizes.dat.data.min()
 
 dx = Measure("dx", domain=mesh)
