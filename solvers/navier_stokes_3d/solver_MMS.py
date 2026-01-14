@@ -105,6 +105,8 @@ for N in N_list:
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=new_vtkfile_name)
 
+    green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
+    green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
 
     v_error_list.append(v_error)
     p_error_list.append(p_error)

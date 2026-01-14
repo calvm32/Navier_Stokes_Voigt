@@ -130,12 +130,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # Write error to file
     if isinstance(Z.ufl_element(), MixedElement):
-        green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
-        green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
-
         return(sqrt(v_error), sqrt(p_error))
 
     else:
-        green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
-
         return(sqrt(u_error))

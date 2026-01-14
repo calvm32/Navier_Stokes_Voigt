@@ -3,7 +3,7 @@ from firedrake import *
 import matplotlib.pyplot as plt
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from solvers.printoff import blue
+from solvers.printoff import blue, green
 
 from .config_constants import vtkfile_name
 
@@ -77,8 +77,8 @@ for N in N_list:
         make_weak_form, 
         vtkfile_name=new_vtkfile_name)
     
+    green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
     error_list.append(error)
-
 
 # ------------------------
 # Plot error vs. mesh size

@@ -2,7 +2,7 @@ from firedrake import *
 
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from solvers.printoff import blue
+from solvers.printoff import blue, green
 import matplotlib.pyplot as plt
 
 from .config_constants import solver_parameters, vtkfile_name
@@ -11,7 +11,7 @@ from .config_constants import solver_parameters, vtkfile_name
 # MMS Constants Configuration
 # ---------------------------
 
-t0 = 0.1        # initial time
+t0 = 0.5        # initial time
 T = 1           # final time
 theta = 0.5     # theta constant
 gamma = 0.0     # grad-div stabilization constant
@@ -21,7 +21,7 @@ Re = 3.0        # Reynold's num = 1/viscostiy
 
 # Loop over mesh resolutions
 N_list = []
-for n in range(3, 7):
+for n in range(4, 9):
     N = 2**n
     N_list.append(N)
 
@@ -110,6 +110,8 @@ for N in N_list:
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=new_vtkfile_name)
 
+    green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
+    green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
 
     v_error_list.append(v_error)
     p_error_list.append(p_error)
