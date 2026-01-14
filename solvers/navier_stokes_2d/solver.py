@@ -7,8 +7,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, theta, Re, gamma_gd, P, G, H, L, solver_parameters, vtkfile_name, appctx
-
+from .config_constants import t0, T, theta, gamma_gd, P, G, Re, solver_parameters, vtkfile_name, appctx
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MESH_PATH = os.path.join(HERE, "meshes", "poiseuille_with_step.msh")
@@ -24,15 +23,15 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 # Setup spaces
 # ------------
 
-"""# Get directory
-script_dir = os.path.dirname(os.path.realpath(__file__))
-mesh_path = os.path.join(script_dir, "meshes", "poiseuille_with_step.msh")"""
-
 # Load the mesh
 mesh = Mesh(MESH_PATH)
 x, y = SpatialCoordinate(mesh)
 
-print(mesh.cell_sizes.dat.data.min())
+# get height
+y_coords = mesh.coordinates.dat.data[:, 1]
+H = y_coords.max() - y_coords.min()
+
+hmin = mesh.cell_sizes.dat.data.min()
 
 dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)
@@ -45,10 +44,35 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
-bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
-bcs = [bc_noslip]
+"""bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), ["Bottom", "Top"])
+
+u_inflow_expr = as_vector([
+    0.5*P*y*(y - H), 
+    0.0
+])
+
+bc_inflow = DirichletBC(Z.sub(0), u_inflow_expr, "Left")
+
+bcs = [bc_noslip, bc_inflow]"""
+
+bcs = [
+    DirichletBC(Z.sub(0), Constant((0.0, 0.0)), ["Bottom", "Top"])
+]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
+
+# -------------
+# CFL Condition
+# -------------
+
+tol = 1e-12
+x_coords = mesh.coordinates.dat.data[:, 0]
+y_inflow = y_coords[np.abs(x_coords) < tol]
+
+Umax = Re*(0.5*P*y_inflow*(H - y_inflow)).max()
+
+CFL = 0.3
+dt = CFL * hmin / Umax
 
 # ------------------
 # Allocate functions

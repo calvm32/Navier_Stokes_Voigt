@@ -5,7 +5,14 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, theta, Re, gamma_gd, P, G, H, L, N_list, solver_parameters, vtkfile_name
+from .config_constants import t0, T, theta, gamma_gd, P, G, Re, N_list, solver_parameters, vtkfile_name
+
+# ---------
+# Constants
+# ---------
+
+H = 1.0     # height of box
+L = 4.0     # length of box
 
 # calculate error as mesh size increases
 v_error_list = []
@@ -59,18 +66,6 @@ for N in N_list:
 
         # pressure exact
         ufl_p_exact = P*x + G
-
-        # v time derivative
-        v_t = as_vector([
-            (-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2*Re))), 
-            0.0
-        ])
-
-        # v Laplacian
-        lap_v = div(grad(ufl_v_exact))
-
-        # pressure gradient
-        grad_p = as_vector([P, 0.0])
 
         # source termexact
         ufl_f_exact = as_vector([0.0,0.0])
