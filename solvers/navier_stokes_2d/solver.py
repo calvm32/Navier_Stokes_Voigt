@@ -26,6 +26,7 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 # Load the mesh
 mesh = Mesh(MESH_PATH)
 x, y = SpatialCoordinate(mesh)
+dt = 0.01
 
 # get height
 y_coords = mesh.coordinates.dat.data[:, 1]
@@ -34,8 +35,6 @@ H = y_coords.max() - y_coords.min()
 # get length
 x_coords = mesh.coordinates.dat.data[:, 0]
 L = x_coords.max() - x_coords.min()
-
-hmin = mesh.cell_sizes.dat.data.min()
 
 dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)
@@ -63,6 +62,8 @@ nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)]
 """# -------------
 # CFL Condition
 # -------------
+
+hmin = mesh.cell_sizes.dat.data.min()
 
 tol = 1e-12
 x_coords = mesh.coordinates.dat.data[:, 0]
