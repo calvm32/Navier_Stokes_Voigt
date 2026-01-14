@@ -48,19 +48,8 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
-"""bc_noslip = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), ["Bottom", "Top"])
-
-u_inflow_expr = as_vector([
-    0.5*P*y*(y - H), 
-    0.0
-])
-
-bc_inflow = DirichletBC(Z.sub(0), u_inflow_expr, "Left")
-
-bcs = [bc_noslip, bc_inflow]"""
-
 bcs = [
-    DirichletBC(Z.sub(0), Constant((0.0, 0.0)), ["Bottom", "Top"])
+    DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 ]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])

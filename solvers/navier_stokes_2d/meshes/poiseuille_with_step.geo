@@ -53,9 +53,7 @@ Plane Surface(1) = {1};
 
 // (tag only y==0, y==H)
 
-Physical Line("Left") = {8};		// left wall
-Physical Line("Right") = {6};		// right wall
+Physical Line("Left") = {8};		    // left wall
+Physical Line("Right") = {6};		    // right wall
 Physical Line("Bottom") = {1,2,3,4,5};	// bottom including step
-Physical Line("Top") = {7};		// top wall
-Physical Surface("Domain") = {1};
- 
+Physical Line("Top") = {7};		        // top wall 
