@@ -7,7 +7,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, theta, gamma, P, G, Re, solver_parameters, vtkfile_name, appctx
+from .config_constants import t0, T, dt, theta, gamma, P, G, Re, solver_parameters, vtkfile_name, appctx
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MESH_PATH = os.path.join(HERE, "meshes", "poiseuille_with_step.msh")
@@ -26,7 +26,6 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 # Load the mesh
 mesh = Mesh(MESH_PATH)
 x, y = SpatialCoordinate(mesh)
-dt = 0.01
 
 # get height
 y_coords = mesh.coordinates.dat.data[:, 1]
