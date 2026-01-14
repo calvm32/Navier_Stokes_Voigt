@@ -21,8 +21,8 @@ Re = 3.0        # Reynold's num = 1/viscostiy
 
 # Loop over mesh resolutions
 N_list = []
-for exp in range(3, 7):
-    N = 2**exp
+for n in range(3, 7):
+    N = 2**n
     N_list.append(N)
 
 G = 5.0     # initial pressure gauge

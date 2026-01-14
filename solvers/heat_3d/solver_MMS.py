@@ -18,8 +18,8 @@ theta = 1/2     # theta constant
 
 # MMS loops over mesh resolutions in this list
 N_list = []
-for exp in range(1, 6):
-    N = 2**exp
+for n in range(1, 6):
+    N = 2**n
     N_list.append(N)
 
 # calculate error as mesh size increases
