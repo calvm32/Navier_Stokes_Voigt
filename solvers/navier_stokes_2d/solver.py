@@ -48,13 +48,19 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
-bcs = [
-    DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-]
+u_inflow = as_vector((
+    4*P*y*(y - H)/(H**2), # normalize at center line
+    0.0
+))
+
+bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1))
+bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
+
+bcs = [bc_walls, bc_inflow]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
-# -------------
+"""# -------------
 # CFL Condition
 # -------------
 
@@ -65,7 +71,7 @@ y_inflow = y_coords[np.abs(x_coords) < tol]
 Umax = Re*(0.5*P*y_inflow*(H - y_inflow)).max()
 
 CFL = 0.3
-dt = CFL * hmin / Umax
+dt = CFL * hmin / Umax"""
 
 # ------------------
 # Allocate functions
@@ -75,7 +81,7 @@ def get_data(t):
 
     # velocity exact
     ufl_v0 = as_vector([
-        Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
+        P*y*(y - H),
         0.0
     ])
 
