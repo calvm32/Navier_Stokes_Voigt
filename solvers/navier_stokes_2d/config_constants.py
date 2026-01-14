@@ -36,17 +36,20 @@ solver_parameters = {
     "ksp_type": "fgmres",
     "ksp_gmres_modifiedgramschmidt": None,
     "ksp_monitor_true_residual": None,
+    "ksp_view": None,
 
     # Now to configure the preconditioner::
 
     "pc_type": "fieldsplit",
     "pc_fieldsplit_type": "schur",
     "pc_fieldsplit_schur_fact_type": "lower",
+    "pc_view": None,
+    "log_view": None,
 
     # invert the velocity block with LU::
 
     "fieldsplit_0_ksp_type": "preonly",
-    "fieldsplit_0_pc_type": "python",
+    "fieldsplit_0_pc_type": "gamg",
     "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
     "fieldsplit_0_assembled_pc_type": "lu",
 
@@ -54,7 +57,7 @@ solver_parameters = {
 
     "fieldsplit_1_ksp_type": "gmres",
     "fieldsplit_1_ksp_rtol": 1e-4,
-    "fieldsplit_1_pc_type": "python",
+    "fieldsplit_1_pc_type": "gamg",
     "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
 
     # We now need to configure the mass and stiffness solvers in the PCD
