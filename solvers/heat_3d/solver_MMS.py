@@ -85,7 +85,7 @@ for N in N_list:
 # ------------------------
 
 plt.loglog(N_list, error_list, "-o")
-plt.xlabel("mesh size h")
+plt.xlabel("mesh size")
 plt.ylabel("error")
 plt.grid(True)
 
