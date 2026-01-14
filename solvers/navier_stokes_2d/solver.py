@@ -81,37 +81,25 @@ dt = CFL * hmin / Umax
 def get_data(t):
 
     # velocity exact
-    ufl_v_exact = as_vector([
+    ufl_v0 = as_vector([
         Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
         0.0
     ])
 
     # pressure exact
-    ufl_p_exact = P*x + G
-
-    # v time derivative
-    v_t = as_vector([
-        (-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2*Re))), 
-        0.0
-    ])
-
-    # v Laplacian
-    lap_v = div(grad(ufl_v_exact))
-
-    # pressure gradient
-    grad_p = as_vector([P, 0.0])
+    ufl_p0 = P*x + G
 
     # source termexact
-    ufl_f_exact = as_vector([0.0,0.0])
+    ufl_f0 = as_vector([0.0,0.0])
 
     # boundary term
-    ufl_g_exact = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
+    ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
 
     return {
-        "ufl_v0": ufl_v_exact,
-        "ufl_p0": ufl_p_exact,
-        "ufl_f": ufl_f_exact,
-        "ufl_g": ufl_g_exact
+        "ufl_v0": ufl_v0,
+        "ufl_p0": ufl_p0,
+        "ufl_f": ufl_f0,
+        "ufl_g": ufl_g0
     }
 
 # ----------

@@ -30,14 +30,14 @@ V = FunctionSpace(mesh, "CG", 1)
 def get_data(t):
 
     # exact functions for u=e^t*sin(pix)*cos(piy)*cos(pi*z)  
-    ufl_u_exact = ufl.exp(t)*cos(pi*x)*cos(pi*y)*cos(pi*z)                  # initial condition u0 
-    ufl_f_exact = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)*cos(pi*z)      # source term f 
-    ufl_g_exact = Constant(0)                                               # bdy condition g
+    ufl_u0 = ufl.exp(t)*cos(pi*x)*cos(pi*y)*cos(pi*z)                  # initial condition u0 
+    ufl_f0 = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)*cos(pi*z)      # source term f 
+    ufl_g0 = Constant(0)                                               # bdy condition g
 
     # returns
-    return {"ufl_u0": ufl_u_exact,
-            "ufl_f": ufl_f_exact,
-            "ufl_g": ufl_g_exact}
+    return {"ufl_u0": ufl_u0,
+            "ufl_f": ufl_f0,
+            "ufl_g": ufl_g0}
 
 # ----------
 # Run solver

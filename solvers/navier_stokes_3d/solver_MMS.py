@@ -60,13 +60,13 @@ for N in N_list:
     def get_data(t):
 
         # velocity exact
-        ufl_v_exact = as_vector([
+        ufl_v0 = as_vector([
             0.0, 0.0,
             Re*(sin(sqrt(x**2+y**2)*pi/R)*exp((-1*pi**2*t)/(R**2*Re)) + 0.5*P*sqrt(x**2+y**2)*(sqrt(x**2+y**2) - R))
         ])
 
         # pressure exact
-        ufl_p_exact = P*x + G
+        ufl_p0 = P*x + G
 
         # v time derivative
         v_t = as_vector([
@@ -75,22 +75,22 @@ for N in N_list:
         ])
 
         # v Laplacian
-        lap_v = div(grad(ufl_v_exact))
+        lap_v = div(grad(ufl_v0))
 
         # pressure gradient
         grad_p = as_vector([P, 0.0, 0.0])
 
         # source termexact
-        ufl_f_exact = as_vector([0.0, 0.0, 0.0])
+        ufl_f0 = as_vector([0.0, 0.0, 0.0])
 
         # boundary term
-        ufl_g_exact = as_vector([0.0, 0.0, (P*z+G)*cos(z*pi/L)])
+        ufl_g0 = as_vector([0.0, 0.0, (P*z+G)*cos(z*pi/L)])
 
         return {
-            "ufl_v0": ufl_v_exact,
-            "ufl_p0": ufl_p_exact,
-            "ufl_f": ufl_f_exact,
-            "ufl_g": ufl_g_exact
+            "ufl_v0": ufl_v0,
+            "ufl_p0": ufl_p0,
+            "ufl_f": ufl_f0,
+            "ufl_g": ufl_g0
         }
 
     # ----------
