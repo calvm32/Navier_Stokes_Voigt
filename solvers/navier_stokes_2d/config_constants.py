@@ -49,15 +49,15 @@ solver_parameters = {
     # invert the velocity block with LU::
 
     "fieldsplit_0_ksp_type": "preonly",
-    "fieldsplit_0_pc_type": "gamg",
+    "fieldsplit_0_pc_type": "python",
     "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
-    "fieldsplit_0_assembled_pc_type": "lu",
+    "fieldsplit_0_assembled_pc_type": "gamg",
 
     # invert the schur complement inexactly using GMRES, preconditioned w PCD
 
     "fieldsplit_1_ksp_type": "gmres",
     "fieldsplit_1_ksp_rtol": 1e-4,
-    "fieldsplit_1_pc_type": "gamg",
+    "fieldsplit_1_pc_type": "python",
     "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
 
     # We now need to configure the mass and stiffness solvers in the PCD
