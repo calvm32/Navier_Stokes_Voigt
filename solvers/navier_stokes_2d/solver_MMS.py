@@ -5,7 +5,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, theta, gamma_gd, P, G, Re, N_list, solver_parameters, vtkfile_name
+from .config_constants import t0, T, theta, gamma_gd, P, G, N_list, solver_parameters, vtkfile_name
 
 # ---------
 # Constants
@@ -13,6 +13,7 @@ from .config_constants import t0, T, theta, gamma_gd, P, G, Re, N_list, solver_p
 
 H = 1.0     # height of box
 L = 4.0     # length of box
+Re = 3.0    # Reynold's num = 1/viscostiy
 
 # calculate error as mesh size increases
 v_error_list = []
