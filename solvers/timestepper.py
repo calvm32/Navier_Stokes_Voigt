@@ -18,7 +18,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     # --------
 
     energy_list = []
-    palenstrophy_list = []
+    palinstrophy_list = []
     stream_func_list = []
     vorticity_list = []
     enstrophy_list = []
