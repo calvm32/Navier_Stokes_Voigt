@@ -88,7 +88,7 @@ for N in N_list:
 # Plot error vs. mesh size
 # ------------------------
 
-plt.loglog(N_list, error_list, "-o")
+plt.loglog(N_list, final_error_list, "-o")
 plt.xlabel("mesh size")
 plt.ylabel("error")
 plt.grid(True)
