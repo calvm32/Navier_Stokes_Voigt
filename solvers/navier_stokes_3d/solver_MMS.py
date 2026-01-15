@@ -97,9 +97,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    v_error_list, p_error_list, 
-    palenstrophy_list, stream_func_list, 
-    vorticity_list, enstrophy_list = timestepper(get_data, theta, 
+    v_error_list, p_error_list, palenstrophy_list, stream_func_list, vorticity_list, enstrophy_list = timestepper(get_data, theta, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,
