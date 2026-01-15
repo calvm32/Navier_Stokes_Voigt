@@ -34,14 +34,16 @@ solver_parameters = {
     # we need to use a flexible Krylov method on the outside.
 
     "ksp_type": "fgmres",
-    "ksp_rtol": 1e-6,
-    "ksp_max_it": 50,
+    "ksp_gmres_modifiedgramschmidt": None,
+    "ksp_monitor_true_residual": None,
+    "ksp_view": None,
 
     # Now to configure the preconditioner::
 
     "pc_type": "fieldsplit",
     "pc_fieldsplit_type": "schur",
     "pc_fieldsplit_schur_fact_type": "lower",
+    "pc_view": None,
     "log_view": None,
 
     # invert the velocity block with LU::
