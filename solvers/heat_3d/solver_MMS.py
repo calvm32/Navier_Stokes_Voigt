@@ -69,7 +69,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    error_list, palenstrophy_list, stream_func_list, 
+    u_error_list, palenstrophy_list, stream_func_list, 
     vorticity_list, enstrophy_list = timestepper(get_data, theta, 
             Z, dx, ds, 
             t0, T, dt,
@@ -81,7 +81,7 @@ for N in N_list:
     green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
 
     final_error = 0
-    for err in error_list:
+    for err in u_error_list:
         final_error += err
     
     final_error_list.append(sqrt(final_error))
