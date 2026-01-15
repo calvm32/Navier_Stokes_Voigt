@@ -4,7 +4,7 @@ from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 
-from .config_constants import t0, T, dt, theta, N, vtkfile_name
+from .config_constants import t0, T, dt, theta, N, vtkfile_name, solver_parameters
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
@@ -43,10 +43,57 @@ def get_data(t):
 # Run solver
 # ----------
 
-error = timestepper(
-    get_data, 
-    theta, 
-    V, dx, ds, 
-    t0, T, dt, 
-    make_weak_form, 
-    vtkfile_name=vtkfile_name)
+u_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list = timestepper(get_data, theta, 
+        V, dx, ds, 
+        t0, T, dt,
+        make_weak_form=make_weak_form,
+        solver_parameters=solver_parameters,
+        vtkfile_name=new_vtkfile_name)
+
+# -----------------
+# Plot palinstrophy
+# -----------------
+
+plt.loglog(time_list, palinstrophy_list, "-o")
+plt.xlabel("time")
+plt.ylabel("palinstrophy L2")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("palinstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# --------------------
+# Plot stream function
+# --------------------
+
+plt.loglog(time_list, stream_func_list, "-o")
+plt.xlabel("time")
+plt.ylabel("stream function L2")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("stream_func_plot.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# --------------
+# Plot vorticity
+# --------------
+
+plt.loglog(time_list, vorticity_list, "-o")
+plt.xlabel("time")
+plt.ylabel("vorticity L2")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("vorticity_plot.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# --------------
+# Plot Enstrophy
+# --------------
+
+plt.loglog(time_list, enstrophy_list, "-o")
+plt.xlabel("time")
+plt.ylabel("enstrophy L2")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("enstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.close()

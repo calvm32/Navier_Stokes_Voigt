@@ -112,3 +112,51 @@ timestepper(get_data, theta,
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=vtkfile_name)
+
+# -----------------
+# Plot palinstrophy
+# -----------------
+
+plt.loglog(time_list, palinstrophy_list, "-o")
+plt.xlabel("time")
+plt.ylabel("palinstrophy L2")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("palinstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# --------------------
+# Plot stream function
+# --------------------
+
+plt.loglog(time_list, stream_func_list, "-o")
+plt.xlabel("time")
+plt.ylabel("stream function L2")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("stream_func_plot.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# --------------
+# Plot vorticity
+# --------------
+
+plt.loglog(time_list, vorticity_list, "-o")
+plt.xlabel("time")
+plt.ylabel("vorticity L2")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("vorticity_plot.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# --------------
+# Plot Enstrophy
+# --------------
+
+plt.loglog(time_list, enstrophy_list, "-o")
+plt.xlabel("time")
+plt.ylabel("enstrophy L2")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("enstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.close()

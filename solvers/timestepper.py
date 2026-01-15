@@ -22,6 +22,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     stream_func_list = []
     vorticity_list = []
     enstrophy_list = []
+    time_list = []
 
     if is_mixed:
         v_error_list = []
@@ -67,6 +68,19 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
+    
+    # ---------------------
+    # setup stream function
+    # ---------------------
+
+    Vpsi = FunctionSpace(Z.mesh(), "CG", 1)
+    psi = Function(Vpsi)
+    phi = TestFunction(Vpsi)
+    psi_trial = TrialFunction(Vpsi)
+
+    a_psi = inner(grad(psi_trial), grad(phi)) * dx
+    A_psi = assemble(a_psi)
+    bcs_psi = DirichletBC(Vpsi, 0.0, "on_boundary")
 
     # ------------------
     # Setup timestepping
@@ -104,23 +118,32 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         solver(t, dt)
         t += dt
         u_old.assign(u)
+        time_list.append(t)
 
         # count steps to print
         step += 1
 
         # --------- energy ---------
-        energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
+        energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
         energy_list.append(energy)
-
-        # --------- stream ---------
-        stream_func_list.append("")
 
         # --------- vorticity = curl(v) ---------
         omega = curl(u_old.sub(0))
-        vorticity_list.append(omega)
+        omega_L2 = assemble(inner(omega, omega) * dx)
+        vorticity_list.append(omega_L2)
+
+        # --------- stream ---------
+        L_psi = omega * phi * dx
+        b_psi = assemble(L_psi)
+        bcs_psi.apply(A_psi, b_psi)
+
+        solve(A_psi, psi, b_psi, solver_parameters={"ksp_type": "preonly", "pc_type": "lu"})
+        psi_L2 = assemble(inner(psi, psi) * dx)
+        stream_func_list.append(psi_L2)
 
         # --------- palinstrophy ---------
-        palinstrophy_list.append(assemble(0.5 * (div(grad(omega)))**2 * dx))
+        palinstrophy_L2 = assemble(0.5 * inner(grad(omega), grad(omega)) * dx)
+        palinstrophy_list.append(palinstrophy_L2)
 
         # --------- enstrophy ---------
         enstrophy_list.append(assemble(0.5 * omega**2 * dx))
@@ -162,7 +185,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # Write error to file
     if is_mixed:
-        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list)
+        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list)
 
     else:
-        return(u_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list)
+        return(u_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list)
