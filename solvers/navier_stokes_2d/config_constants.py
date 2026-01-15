@@ -6,7 +6,7 @@ from firedrake import *
 
 t0 = 0.0        # initial time
 T = 1           # final time
-dt = 0.01       # time step
+dt = 0.002       # time step
 theta = 0.5     # theta constant
 gamma = 0.0     # grad-div stabilization constant
 Re = 100.0      # Reynold's num = 1/viscostiy
