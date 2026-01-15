@@ -75,14 +75,14 @@ for N in N_list:
             make_weak_form=make_weak_form,
             solver_parameters=solver_parameters,
             vtkfile_name=new_vtkfile_name)
-    
-    green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
 
     final_error = 0
     for err in u_error_list:
         final_error += err
     
     final_error_list.append(sqrt(final_error))
+
+    green(f"Final L2 Error (temperature) = {final_error:0.8e}", spaced=True)
 
 # ------------------------
 # Plot error vs. mesh size

@@ -105,9 +105,6 @@ for N in N_list:
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=new_vtkfile_name)
 
-    green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
-    green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
-
     v_final_error = 0
     for err in v_error_list:
         v_final_error += err
@@ -118,7 +115,10 @@ for N in N_list:
     for err in p_error_list:
         p_final_error += err
 
-    p_final_error_list.append(sqrt(p_final_error))
+    p_final_error_list.append(sqrt(p_final_error))    
+    
+    green(f"Final L2 Error (velocity) = {v_final_error:0.8e}", spaced=True)
+    green(f"Final L2 Error (pressure) = {p_final_error:0.8e}", spaced=True)
 
 # -------------
 # Velocity plot
