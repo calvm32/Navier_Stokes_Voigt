@@ -12,6 +12,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     num_steps = int((T-t0) / dt)
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
+    compute_every = 5
 
     """    # only compute stats for 2d navier stokes
     mesh = Z.mesh()
@@ -96,7 +97,12 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
         solver_psi = LinearVariationalSolver(
             problem_psi,
-            solver_parameters={"ksp_type": "preonly", "pc_type": "lu"},
+            solver_parameters={
+                "ksp_type": "cg",
+                "pc_type": "hypre",
+                "ksp_rtol": 1e-8,
+                "ksp_max_it": 50,
+            },
         )
 
 
@@ -141,51 +147,52 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         # count steps to print
         step += 1
 
-        # --------- energy ---------
-        energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
-        energy_list.append(energy)
+        # logging
+        if step % compute_every == 0:
 
-        if is_mixed:
+            # --------- energy ---------
+            energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
+            energy_list.append(energy)
 
-            # --------- vorticity = curl(v) ---------
-            omega = curl(u_old.sub(0))
-            omega_L2 = assemble(inner(omega, omega) * dx)
-            vorticity_list.append(omega_L2)
+            if is_mixed:
 
-            # --------- stream ---------
-            omega_expr = curl(u_old.sub(0))
-            omega_f.interpolate(omega_expr)
+                # --------- vorticity = curl(v) ---------
+                omega = curl(u_old.sub(0))
+                omega_f.interpolate(omega)
 
-            solver_psi.solve()
+                omega_L2 = assemble(omega_f * omega_f * dx)
+                vorticity_list.append(omega_L2)
 
-            stream_func_list.append(assemble(inner(psi, psi) * dx))
+                # --------- stream ---------
+                solver_psi.solve()
 
-            # --------- palinstrophy ---------
-            palinstrophy_L2 = assemble(0.5 * inner(grad(omega), grad(omega)) * dx)
-            palinstrophy_list.append(palinstrophy_L2)
+                stream_func_list.append(assemble(inner(psi, psi) * dx))
 
-            # --------- enstrophy ---------
-            enstrophy_list.append(assemble(0.5 * omega**2 * dx))
+                # --------- palinstrophy ---------
+                palinstrophy_L2 = assemble(0.5 * inner(grad(omega_f), grad(omega_f)) * dx)
+                palinstrophy_list.append(palinstrophy_L2)
 
-        # --------- error ---------
-        # get data at current time
-        data_new = get_data(t)
-        
-        if is_mixed:
-            u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
-            u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
+                # --------- enstrophy ---------
+                enstrophy_list.append(assemble(0.5 * omega_f**2 * dx))
 
-            v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt) 
-            p_error_list.append(assemble(inner(grad(u_exact.sub(0)) - grad(u.sub(0)), 
-                                grad(u_exact.sub(0)) - grad(u.sub(0)))*dx)*dt)
+            # --------- error ---------
+            # get data at current time
+            data_new = get_data(t)
+            
+            if is_mixed:
+                u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
+                u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
 
-        else:
-            u_exact.interpolate(data_new["ufl_u0"])  # just velocity
+                v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt) 
+                p_error_list.append(assemble(inner(grad(u_exact.sub(0)) - grad(u.sub(0)), 
+                                    grad(u_exact.sub(0)) - grad(u.sub(0)))*dx)*dt)
 
-            u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx)*dt)
+            else:
+                u_exact.interpolate(data_new["ufl_u0"])  # just velocity
 
-        # --------- solution ---------
-        if step % 2 == 0:
+                u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx)*dt)
+
+            # --------- solution ---------
             if is_mixed:
                 outfile.write(u.sub(0), u.sub(1), time=t)
             else:
