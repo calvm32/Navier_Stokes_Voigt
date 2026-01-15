@@ -13,6 +13,11 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     num_steps = int((T-t0) / dt)
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
 
+    """    # only compute stats for 2d navier stokes
+    mesh = Z.mesh()
+    dim = mesh.geometric_dimension()
+    compute_flow_diagnostics = is_mixed and (dim == 2)"""
+
     # --------
     # Tracking
     # --------
@@ -127,29 +132,30 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
         energy_list.append(energy)
 
-        # --------- vorticity = curl(v) ---------
-        omega = curl(u_old.sub(0))
-        omega_L2 = assemble(inner(omega, omega) * dx)
-        vorticity_list.append(omega_L2)
+        if is_mixed:
 
-        # --------- stream ---------
-        L_psi = omega * phi * dx
-        b_psi = assemble(L_psi)
-        bcs_psi.apply(A_psi, b_psi)
+            # --------- vorticity = curl(v) ---------
+            omega = curl(u_old.sub(0))
+            omega_L2 = assemble(inner(omega, omega) * dx)
+            vorticity_list.append(omega_L2)
 
-        solve(A_psi, psi, b_psi, solver_parameters={"ksp_type": "preonly", "pc_type": "lu"})
-        psi_L2 = assemble(inner(psi, psi) * dx)
-        stream_func_list.append(psi_L2)
+            # --------- stream ---------
+            L_psi = omega * phi * dx
+            b_psi = assemble(L_psi)
+            bcs_psi.apply(A_psi, b_psi)
 
-        # --------- palinstrophy ---------
-        palinstrophy_L2 = assemble(0.5 * inner(grad(omega), grad(omega)) * dx)
-        palinstrophy_list.append(palinstrophy_L2)
+            solve(A_psi, psi, b_psi, solver_parameters={"ksp_type": "preonly", "pc_type": "lu"})
+            psi_L2 = assemble(inner(psi, psi) * dx)
+            stream_func_list.append(psi_L2)
 
-        # --------- enstrophy ---------
-        enstrophy_list.append(assemble(0.5 * omega**2 * dx))
+            # --------- palinstrophy ---------
+            palinstrophy_L2 = assemble(0.5 * inner(grad(omega), grad(omega)) * dx)
+            palinstrophy_list.append(palinstrophy_L2)
+
+            # --------- enstrophy ---------
+            enstrophy_list.append(assemble(0.5 * omega**2 * dx))
 
         # --------- error ---------
-
         # get data at current time
         data_new = get_data(t)
         
