@@ -147,13 +147,17 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         # count steps to print
         step += 1
 
+        # -------
         # logging
+        # -------
+
+        # --------- energy ---------
+        energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
+        energy_list.append(energy)
+        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
+
+
         if step % compute_every == 0:
-
-            # --------- energy ---------
-            energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
-            energy_list.append(energy)
-
             if is_mixed:
 
                 # --------- vorticity = curl(v) ---------
@@ -198,7 +202,6 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             else:
                 outfile.write(u, time=t)
 
-        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
     # ----------------------------------
     # Report done; find and return error
