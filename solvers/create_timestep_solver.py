@@ -51,7 +51,7 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
         data_new = get_data(t+dt)
 
         if isinstance(Z.ufl_element(), MixedElement):
-            f.sub(0).assign(project(data_new["ufl_f"], f.sub(0).function_space()))
+            f.sub(0).interpolate(data_new["ufl_f"])
             g.sub(0).interpolate(data_new["ufl_g"])
             f_old.sub(0).interpolate(data_old["ufl_f"])
             g_old.sub(0).interpolate(data_old["ufl_g"])
