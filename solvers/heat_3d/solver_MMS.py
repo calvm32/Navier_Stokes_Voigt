@@ -23,7 +23,7 @@ for n in range(1, 6):
     N_list.append(N)
 
 # calculate error as mesh size increases
-error_list = [] 
+final_error_list = [] 
 
 # -------------
 # Start solving
@@ -69,16 +69,22 @@ for N in N_list:
     # Run solver
     # ----------
 
-    error = timestepper(
-        get_data, 
-        theta, 
-        V, dx, ds, 
-        t0, T, dt, 
-        make_weak_form, 
-        vtkfile_name=new_vtkfile_name)
+    error_list, palenstrophy_list, stream_func_list, 
+    vorticity_list, enstrophy_list = timestepper(get_data, theta, 
+            Z, dx, ds, 
+            t0, T, dt,
+            make_weak_form=make_weak_form,
+            bcs=bcs, nullspace=nullspace,
+            solver_parameters=solver_parameters,
+            appctx=appctx, vtkfile_name=new_vtkfile_name)
     
     green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
-    error_list.append(error)
+
+    final_error = 0
+    for err in error_list:
+        final_error += err
+    
+    final_error_list.append(sqrt(final_error))
 
 # ------------------------
 # Plot error vs. mesh size

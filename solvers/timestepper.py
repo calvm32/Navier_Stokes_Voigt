@@ -13,6 +13,21 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     num_steps = int((T-t0) / dt)
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
 
+    # --------
+    # Tracking
+    # --------
+
+    palenstrophy_list = []
+    stream_func_list = []
+    vorticity_list = []
+    enstrophy_list = []
+
+    if is_mixed:
+        v_error_list = []
+        p_error_list = []
+    else:
+        u_error_list = []
+
     # -------------
     # Setup problem
     # -------------
@@ -52,9 +67,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
 
-    # --------------------
-    # Perform timestepping
-    # --------------------
+    # ------------------
+    # Setup timestepping
+    # ------------------
 
     # initialize
     t = t0
@@ -70,15 +85,17 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
         u.sub(0).assign(u_old.sub(0))
         u.sub(1).assign(u_old.sub(1))
+
+        outfile.write(u.sub(0), u.sub(1), time=t)
     else:
         u.rename("temperature")
         u.assign(u_old)
 
-    u.assign(u_old)
-    if is_mixed:
-        outfile.write(u.sub(0), u.sub(1), time=t)
-    else:
         outfile.write(u, time=t)
+
+    # --------------------
+    # Perform timestepping
+    # --------------------
 
     while t < T:
 
@@ -90,37 +107,47 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         # count steps to print
         step += 1
 
-        # get energy + report each time step
-        if is_mixed:
-            energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
-        else:
-            energy = assemble(inner(u_old, u_old) * dx)
+        # --------- energy ---------
+        energy_list.append(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
 
-        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
+        # --------- stream ---------
+        stream_func_list.append("")
 
-        # get data at current time
-        data_new = get_data(t)
+        # --------- vorticity = curl(v) ---------
+        omega = curl(u_old.sub(0))
+        vorticity_list.append(omega)
 
-        # record L2 error at current time
+        # --------- palenstrophy ---------
+        palinstrophy_list.append(assemble(0.5 * (div(grad(omega)))**2 * dx))
+
+        # --------- enstrophy ---------
+        enstrophy_list.append(assemble(0.5 * omega**2 * dx))
+
+        # --------- error ---------
         if is_mixed:
             u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
             u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
 
-            v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
-            v_error += assemble(inner(grad(u_exact.sub(0)) - grad(u.sub(0)), 
-            grad(u_exact.sub(0)) - grad(u.sub(0)))*dx)*dt
+            v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt) 
+            p_error_list.append(assemble(inner(grad(u_exact.sub(0)) - grad(u.sub(0)), 
+                                grad(u_exact.sub(0)) - grad(u.sub(0)))*dx)*dt)
 
         else:
             u_exact.interpolate(data_new["ufl_u0"])  # just velocity
 
-            u_error += assemble(inner(u_exact - u, u_exact - u)*dx)*dt
+            u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx)*dt)
 
-        # write to VTK every 2 steps
+        # --------- solution ---------
         if step % 2 == 0:
             if is_mixed:
                 outfile.write(u.sub(0), u.sub(1), time=t)
             else:
                 outfile.write(u, time=t)
+
+        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
+
+        # get data at current time
+        data_new = get_data(t)
 
     # ----------------------------------
     # Report done; find and return error
@@ -132,7 +159,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # Write error to file
     if is_mixed:
-        return(sqrt(v_error), sqrt(p_error))
+        return(v_error_list, p_error_list, palenstrophy_list, stream_func_list, vorticity_list, enstrophy_list)
 
     else:
-        return(sqrt(u_error))
+        return(u_error_list, palenstrophy_list, stream_func_list, vorticity_list, enstrophy_list)

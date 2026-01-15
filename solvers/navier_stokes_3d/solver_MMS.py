@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 from .config_constants import t0, T, dt, theta, Re, gamma, P, G, R, L, N_list, solver_parameters, vtkfile_name
 
 # calculate error as mesh size increases
-v_error_list = []
-p_error_list = []
+v_final_error_list = []
+p_final_error_list = []
 
 for N in N_list:
 
@@ -97,7 +97,9 @@ for N in N_list:
     # Run solver
     # ----------
 
-    v_error, p_error = timestepper(get_data, theta, 
+    v_error_list, p_error_list, 
+    palenstrophy_list, stream_func_list, 
+    vorticity_list, enstrophy_list = timestepper(get_data, theta, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,
@@ -108,15 +110,24 @@ for N in N_list:
     green(f"Final L2 Error (velocity) = {v_error:0.8e}", spaced=True)
     green(f"Final L2 Error (pressure) = {p_error:0.8e}", spaced=True)
 
-    v_error_list.append(v_error)
-    p_error_list.append(p_error)
+    v_final_error = 0
+    for err in v_error_list:
+        v_final_error += err
+    
+    v_final_error_list.append(sqrt(v_final_error))
+
+    p_final_error = 0
+    for err in p_error_list:
+        p_final_error += err
+
+    p_final_error_list.append(sqrt(p_final_error))
 
 # -------------
 # Velocity plot
 # -------------
 
 plt.figure()
-plt.loglog(N_list, v_error_list, "-o")
+plt.loglog(N_list, v_final_error_list, "-o")
 plt.xlabel("mesh size")
 plt.ylabel("velocity error")
 plt.grid(True)
@@ -130,7 +141,7 @@ plt.close()
 # --------------
 
 plt.figure()
-plt.loglog(N_list, p_error_list, "-o")
+plt.loglog(N_list, p_final_error_list, "-o")
 plt.xlabel("mesh size")
 plt.ylabel("pressure error")
 plt.grid(True)
