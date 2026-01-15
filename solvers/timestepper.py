@@ -125,6 +125,10 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         enstrophy_list.append(assemble(0.5 * omega**2 * dx))
 
         # --------- error ---------
+
+        # get data at current time
+        data_new = get_data(t)
+        
         if is_mixed:
             u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
             u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
@@ -146,9 +150,6 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
                 outfile.write(u, time=t)
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
-
-        # get data at current time
-        data_new = get_data(t)
 
     # ----------------------------------
     # Report done; find and return error
