@@ -51,12 +51,14 @@ solver_parameters = {
     "fieldsplit_0_ksp_type": "preonly",
     "fieldsplit_0_pc_type": "python",
     "fieldsplit_0_pc_python_type": "firedrake.AssembledPC",
-    "fieldsplit_0_assembled_pc_type": "gamg",
+    "fieldsplit_0_assembled_pc_type": "hypre",
+    "fieldsplit_0_assembled_pc_hypre_type": "boomeramg",
 
     # invert the schur complement inexactly using GMRES, preconditioned w PCD
 
-    "fieldsplit_1_ksp_type": "gmres",
-    "fieldsplit_1_ksp_rtol": 1e-4,
+    "fieldsplit_1_ksp_type": "fgmres",
+    "fieldsplit_1_ksp_rtol": 1e-3,
+    "fieldsplit_1_ksp_max_it": 20,
     "fieldsplit_1_pc_type": "python",
     "fieldsplit_1_pc_python_type": "firedrake.PCDPC",
 
@@ -66,12 +68,12 @@ solver_parameters = {
     # mass solve
 
     "fieldsplit_1_pcd_Mp_ksp_type": "preonly",
-    "fieldsplit_1_pcd_Mp_pc_type": "lu",
+    "fieldsplit_1_pcd_Mp_pc_type": "jacobi",
 
     # and the stiffness solve
 
     "fieldsplit_1_pcd_Kp_ksp_type": "preonly",
-    "fieldsplit_1_pcd_Kp_pc_type": "lu",
+    "fieldsplit_1_pcd_Kp_pc_type": "hypre",
 
     # Finally, we just need to decide whether to apply the action of the
     # pressure-space convection-diffusion operator with an assembled matrix
