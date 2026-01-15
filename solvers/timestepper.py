@@ -78,14 +78,18 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     # setup stream function
     # ---------------------
 
-    Vpsi = FunctionSpace(Z.mesh(), "CG", 1)
-    psi = Function(Vpsi)
-    phi = TestFunction(Vpsi)
-    psi_trial = TrialFunction(Vpsi)
+    if is_mixed:
+        Vpsi = FunctionSpace(mesh, "CG", 1)
+        psi = Function(Vpsi)
+        phi = TestFunction(Vpsi)
+        psi_trial = TrialFunction(Vpsi)
 
-    a_psi = inner(grad(psi_trial), grad(phi)) * dx
-    A_psi = assemble(a_psi)
-    bcs_psi = DirichletBC(Vpsi, 0.0, "on_boundary")
+        a_psi = inner(grad(psi_trial), grad(phi)) * dx
+        bcs_psi = DirichletBC(Vpsi, 0.0, "on_boundary")
+
+        # Assemble ONCE, with BCs
+        A_psi = assemble(a_psi, bcs=bcs_psi)
+
 
     # ------------------
     # Setup timestepping
@@ -142,11 +146,21 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             # --------- stream ---------
             L_psi = omega * phi * dx
             b_psi = assemble(L_psi)
-            bcs_psi.apply(A_psi, b_psi)
+            bcs_psi.apply(b_psi)
 
-            solve(A_psi, psi, b_psi, solver_parameters={"ksp_type": "preonly", "pc_type": "lu"})
-            psi_L2 = assemble(inner(psi, psi) * dx)
-            stream_func_list.append(psi_L2)
+            solve(
+                A_psi,
+                psi,
+                b_psi,
+                solver_parameters={
+                    "ksp_type": "preonly",
+                    "pc_type": "lu"
+                }
+            )
+
+            stream_func_list.append(
+                assemble(inner(psi, psi) * dx)
+            )
 
             # --------- palinstrophy ---------
             palinstrophy_L2 = assemble(0.5 * inner(grad(omega), grad(omega)) * dx)
