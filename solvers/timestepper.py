@@ -164,9 +164,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
                 vorticity_list.append(omega_L2)
 
                 # --------- stream ---------
-                solver_psi.solve()
+                #solver_psi.solve()
 
-                stream_func_list.append(assemble(inner(psi, psi) * dx))
+                #stream_func_list.append(assemble(inner(psi, psi) * dx))
 
                 # --------- palinstrophy ---------
                 palinstrophy_L2 = assemble(0.5 * inner(grad(omega_f), grad(omega_f)) * dx)
