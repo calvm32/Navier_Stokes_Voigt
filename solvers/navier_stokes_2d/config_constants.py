@@ -81,5 +81,5 @@ solver_parameters = {
 
     # finally make the pcd look at the velocity function for more refined meshes
 
-    "fieldsplit_1_pcd_u": "velocity",
+    #"fieldsplit_1_pcd_u": "velocity",
     }
