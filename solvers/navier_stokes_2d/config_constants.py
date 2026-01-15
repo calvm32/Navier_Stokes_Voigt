@@ -9,7 +9,7 @@ T = 1           # final time
 dt = 0.01       # time step
 theta = 0.5     # theta constant
 gamma = 0.0     # grad-div stabilization constant
-Re = 5.0      # Reynold's num = 1/viscostiy
+Re = 100.0      # Reynold's num = 1/viscostiy
 
 G = 5.0         # initial pressure gauge
 P = -1.0        # pressure strength (P*x + G)
@@ -36,15 +36,15 @@ solver_parameters = {
     "ksp_type": "fgmres",
     "ksp_gmres_modifiedgramschmidt": None,
     "ksp_monitor_true_residual": None,
-    "ksp_view": None,
+    #"ksp_view": None,
 
     # Now to configure the preconditioner::
 
     "pc_type": "fieldsplit",
     "pc_fieldsplit_type": "schur",
     "pc_fieldsplit_schur_fact_type": "lower",
-    "pc_view": None,
-    "log_view": None,
+    #"pc_view": None,
+    #"log_view": None,
 
     # invert the velocity block with LU::
 
