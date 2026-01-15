@@ -4,7 +4,8 @@
 
 Crank-Nicolson solver for:
 - 2D Heat equation
-- 2D Navier-Stokes equation
+- 3D Heat equation
+- 2D Navier-Stokes equations
 
 ## How to run
 This repository uses Firedrake, which currently requires a lot of luck to install. 
