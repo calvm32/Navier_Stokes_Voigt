@@ -64,13 +64,13 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # rename
     if isinstance(Z.ufl_element(), MixedElement):
-        u.sub(0).rename("Velocity")
-        u.sub(1).rename("Pressure")
+        u.sub(0).rename("velocity")
+        u.sub(1).rename("pressure")
 
         u.sub(0).assign(u_old.sub(0))
         u.sub(1).assign(u_old.sub(1))
     else:
-        u.rename("Temperature")
+        u.rename("temperature")
         u.assign(u_old)
 
     u.assign(u_old)
