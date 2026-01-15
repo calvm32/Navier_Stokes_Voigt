@@ -35,6 +35,8 @@ solver_parameters = {
 
     "ksp_type": "fgmres",
     "ksp_gmres_modifiedgramschmidt": None,
+    "ksp_monitor_true_residual": None,
+    "ksp_view": None,
 
     # Now to configure the preconditioner::
 
