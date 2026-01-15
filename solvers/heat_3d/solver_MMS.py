@@ -5,7 +5,7 @@ from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue, green
 
-from .config_constants import vtkfile_name
+from .config_constants import solver_parameters, vtkfile_name
 
 # ---------
 # Constants
@@ -70,12 +70,11 @@ for N in N_list:
     # ----------
 
     u_error_list, palenstrophy_list, stream_func_list, vorticity_list, enstrophy_list = timestepper(get_data, theta, 
-            Z, dx, ds, 
+            V, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,
-            bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
-            appctx=appctx, vtkfile_name=new_vtkfile_name)
+            vtkfile_name=new_vtkfile_name)
     
     green(f"Final L2 Error (temperature) = {u_error:0.8e}", spaced=True)
 
