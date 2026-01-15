@@ -82,8 +82,8 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     while t < T:
 
-        # Perform time step and get data for funcs at current time
-        data_new = solver(t, dt)
+        # Perform time step
+        solver(t, dt)
         t += dt
         u_old.assign(u)
 
@@ -97,6 +97,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             energy = assemble(inner(u_old, u_old) * dx)
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
+
+        # get data at current time
+        data_new = get_data(t)
 
         # record L2 error at current time
         if is_mixed:
