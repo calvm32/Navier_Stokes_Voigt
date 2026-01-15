@@ -63,6 +63,5 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
 
         # Run the solver
         solver.solve()
-        return data_new
 
     return solve_one_step
