@@ -87,11 +87,17 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         phi = TestFunction(Vpsi)
         psi_trial = TrialFunction(Vpsi)
 
-        a_psi = inner(grad(psi_trial), grad(phi)) * dx
         bcs_psi = DirichletBC(Vpsi, 0.0, "on_boundary")
+        a_psi = inner(grad(psi_trial), grad(phi)) * dx
 
-        # Assemble ONCE, with BCs
-        A_psi = assemble(a_psi, bcs=bcs_psi)
+        problem_psi = LinearVariationalProblem(
+            a_psi, L_psi, psi, bcs=bcs_psi
+        )
+
+        solver_psi = LinearVariationalSolver(
+            problem_psi,
+            solver_parameters={"ksp_type": "preonly", "pc_type": "lu"},
+        )
 
 
     # ------------------
@@ -148,11 +154,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
             # --------- stream ---------
             L_psi = omega * phi * dx
-            b_psi = assemble(L_psi)
-            bcs_psi.apply(b_psi)
+            b_psi = assemble(L_psi, bcs=bcs_psi)
 
-            solve(A_psi, psi, b_psi, solver_parameters = {"ksp_type": "preonly","pc_type": "lu"})
-
+            solver_psi.solve()
             stream_func_list.append(assemble(inner(psi, psi) * dx))
 
             # --------- palinstrophy ---------
