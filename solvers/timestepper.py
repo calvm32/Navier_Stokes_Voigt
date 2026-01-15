@@ -109,7 +109,8 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         step += 1
 
         # --------- energy ---------
-        energy_list.append(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
+        energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
+        energy_list.append(energy)
 
         # --------- stream ---------
         stream_func_list.append("")
@@ -118,7 +119,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         omega = curl(u_old.sub(0))
         vorticity_list.append(omega)
 
-        # --------- palenstrophy ---------
+        # --------- palinstrophy ---------
         palinstrophy_list.append(assemble(0.5 * (div(grad(omega)))**2 * dx))
 
         # --------- enstrophy ---------
@@ -161,7 +162,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # Write error to file
     if is_mixed:
-        return(v_error_list, p_error_list, palenstrophy_list, stream_func_list, vorticity_list, enstrophy_list)
+        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list)
 
     else:
-        return(u_error_list, palenstrophy_list, stream_func_list, vorticity_list, enstrophy_list)
+        return(u_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list)
