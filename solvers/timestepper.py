@@ -80,19 +80,19 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     if is_mixed:
         domain = Z.mesh()
-        dim = domain.geometric_dimension()
-
         Vpsi = FunctionSpace(domain, "CG", 1)
         psi = Function(Vpsi)
         phi = TestFunction(Vpsi)
         psi_trial = TrialFunction(Vpsi)
 
-        bcs_psi = DirichletBC(Vpsi, 0.0, "on_boundary")
-        a_psi = inner(grad(psi_trial), grad(phi)) * dx
+        omega_f = Function(Vpsi, name="vorticity")
 
-        problem_psi = LinearVariationalProblem(
-            a_psi, L_psi, psi, bcs=bcs_psi
-        )
+        a_psi = inner(grad(psi_trial), grad(phi)) * dx
+        L_psi = omega_f * phi * dx
+
+        bcs_psi = DirichletBC(Vpsi, 0.0, "on_boundary")
+
+        problem_psi = LinearVariationalProblem(a_psi, L_psi, psi, bcs=bcs_psi)
 
         solver_psi = LinearVariationalSolver(
             problem_psi,
@@ -153,10 +153,11 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             vorticity_list.append(omega_L2)
 
             # --------- stream ---------
-            L_psi = omega * phi * dx
-            b_psi = assemble(L_psi, bcs=bcs_psi)
+            omega_expr = curl(u_old.sub(0))
+            omega_f.interpolate(omega_expr)
 
             solver_psi.solve()
+
             stream_func_list.append(assemble(inner(psi, psi) * dx))
 
             # --------- palinstrophy ---------
