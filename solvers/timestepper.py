@@ -11,6 +11,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     """
 
     num_steps = int((T-t0) / dt)
+    is_mixed = is_mixed
 
     # -------------
     # Setup problem
@@ -21,29 +22,29 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     u = Function(Z)
     u_exact = Function(Z)
 
-    data_t0 = get_data(t0) # get the functions at initial time
+    data_new0 = get_data(t0) # get the functions at initial time
 
-    if isinstance(Z.ufl_element(), MixedElement):
-        u_old.sub(0).interpolate(data_t0["ufl_v0"])  # velocity
-        u_old.sub(1).interpolate(data_t0["ufl_p0"])  # pressure
+    if is_mixed:
+        u_old.sub(0).interpolate(data_new0["ufl_v0"])  # velocity
+        u_old.sub(1).interpolate(data_new0["ufl_p0"])  # pressure
 
         # for L2 error
         v_error = 0
         p_error = 0
 
     else:
-        u_old.interpolate(data_t0["ufl_u0"])  # just velocity
+        u_old.interpolate(data_new0["ufl_u0"])  # just velocity
 
         # for L2 error
         u_error = 0
 
     # create timestep solver
     solver = create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u,
-                                    make_weak_form, bcs=bcs, nullspace=nullspace,
+                                    make_weak_form, is_mixed, bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx)
 
     # get energy + report run starting
-    if isinstance(Z.ufl_element(), MixedElement):
+    if is_mixed:
         energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
     else:
         energy = assemble(inner(u_old, u_old) * dx)
@@ -63,7 +64,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     outfile = VTKFile(f"{vtkfile_name}.pvd", comm=Z.mesh().comm)
 
     # rename
-    if isinstance(Z.ufl_element(), MixedElement):
+    if is_mixed:
         u.sub(0).rename("velocity")
         u.sub(1).rename("pressure")
 
@@ -74,15 +75,15 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         u.assign(u_old)
 
     u.assign(u_old)
-    if isinstance(Z.ufl_element(), MixedElement):
+    if is_mixed:
         outfile.write(u.sub(0), u.sub(1), time=t)
     else:
         outfile.write(u, time=t)
 
     while t < T:
 
-        # Perform time step
-        solver(t, dt)
+        # Perform time step and get data for funcs at current time
+        data_new = solver(t, dt)
         t += dt
         u_old.assign(u)
 
@@ -90,32 +91,30 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         step += 1
 
         # get energy + report each time step
-        if isinstance(Z.ufl_element(), MixedElement):
+        if is_mixed:
             energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
         else:
             energy = assemble(inner(u_old, u_old) * dx)
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
-        data_t = get_data(t) # get the functions at current time
-
         # record L2 error at current time
-        if isinstance(Z.ufl_element(), MixedElement):
-            u_exact.sub(0).interpolate(data_t["ufl_v0"])  # velocity
-            u_exact.sub(1).interpolate(data_t["ufl_p0"])  # pressure
+        if is_mixed:
+            u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
+            u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
 
             v_error += assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt
             v_error += assemble(inner(grad(u_exact.sub(0)) - grad(u.sub(0)), 
             grad(u_exact.sub(0)) - grad(u.sub(0)))*dx)*dt
 
         else:
-            u_exact.interpolate(data_t["ufl_u0"])  # just velocity
+            u_exact.interpolate(data_new["ufl_u0"])  # just velocity
 
             u_error += assemble(inner(u_exact - u, u_exact - u)*dx)*dt
 
         # write to VTK every 2 steps
         if step % 2 == 0:
-            if isinstance(Z.ufl_element(), MixedElement):
+            if is_mixed:
                 outfile.write(u.sub(0), u.sub(1), time=t)
             else:
                 outfile.write(u, time=t)
@@ -129,7 +128,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     green(f"Completed", spaced=True)
 
     # Write error to file
-    if isinstance(Z.ufl_element(), MixedElement):
+    if is_mixed:
         return(sqrt(v_error), sqrt(p_error))
 
     else:
