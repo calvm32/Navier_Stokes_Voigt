@@ -79,7 +79,10 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
     # ---------------------
 
     if is_mixed:
-        Vpsi = FunctionSpace(mesh, "CG", 1)
+        domain = Z.mesh()
+        dim = domain.geometric_dimension()
+
+        Vpsi = FunctionSpace(domain, "CG", 1)
         psi = Function(Vpsi)
         phi = TestFunction(Vpsi)
         psi_trial = TrialFunction(Vpsi)
@@ -148,19 +151,9 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
             b_psi = assemble(L_psi)
             bcs_psi.apply(b_psi)
 
-            solve(
-                A_psi,
-                psi,
-                b_psi,
-                solver_parameters={
-                    "ksp_type": "preonly",
-                    "pc_type": "lu"
-                }
-            )
+            solve(A_psi, psi, b_psi, solver_parameters = {"ksp_type": "preonly","pc_type": "lu"})
 
-            stream_func_list.append(
-                assemble(inner(psi, psi) * dx)
-            )
+            stream_func_list.append(assemble(inner(psi, psi) * dx))
 
             # --------- palinstrophy ---------
             palinstrophy_L2 = assemble(0.5 * inner(grad(omega), grad(omega)) * dx)
