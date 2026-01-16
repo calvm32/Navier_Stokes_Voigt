@@ -8,8 +8,8 @@ t0 = 0.0        # initial time
 T = 1           # final time
 dt = 0.01       # time step
 theta = 0.5     # theta constant
-gamma = 0.0     # grad-div stabilization constant
-Re = 100.0      # Reynold's num = 1/viscostiy
+gamma = 0.1     # grad-div stabilization constant
+Re = 600.0      # Reynold's num = 1/viscostiy
 
 G = 50.0         # initial pressure gauge
 P = -20.0        # pressure strength (P*x + G)
