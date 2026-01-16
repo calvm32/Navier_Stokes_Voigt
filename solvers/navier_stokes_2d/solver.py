@@ -46,12 +46,8 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
-u_inflow = as_vector((
-    4*P*y*(y - H)/(H**2), # normalize at center line
-    0.0
-))
-
-bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,2))
+g = Function(V)
+bc_inflow = DirichletBC(Z.sub(0), g, (1,))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
 bcs = [bc_walls, bc_inflow]
@@ -79,26 +75,20 @@ dt = CFL * hmin / Umax"""
 
 def get_data(t):
 
-    # velocity exact
-    ufl_v0 = as_vector([
-        0.0, #P*y*(y - H),
+    ramp = min(t / 0.5, 1.0)
+
+    u_inflow = ramp * as_vector((
+        sin(pi*y/H) * exp(-pi**2 * t / (H**2 * Re)),
         0.0
-    ])
+    ))
 
-    # pressure exact
-    ufl_p0 = P*x + G
-
-    # source termexact
-    ufl_f0 = as_vector([0.0,0.0])
-
-    # boundary term
-    ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
+    g.interpolate(u_inflow)
 
     return {
-        "ufl_v0": ufl_v0,
-        "ufl_p0": ufl_p0,
-        "ufl_f": ufl_f0,
-        "ufl_g": ufl_g0
+        "ufl_v0": Constant((0.0, 0.0)),
+        "ufl_p0": Constant(0.0),
+        "ufl_f": Constant((0.0, 0.0)),
+        "ufl_g": g
     }
 
 # ----------

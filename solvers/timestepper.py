@@ -142,7 +142,6 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
         solver(t, dt)
         t += dt
         u_old.assign(u)
-        time_list.append(t)
 
         # count steps to print
         step += 1
@@ -158,6 +157,8 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
 
         if step % compute_every == 0:
+            time_list.append(t)
+            
             if is_mixed:
 
                 # --------- vorticity = curl(v) ---------
