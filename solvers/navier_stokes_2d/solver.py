@@ -46,11 +46,8 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
-g = Function(V)
-bc_inflow = DirichletBC(Z.sub(0), g, (1,))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-
-bcs = [bc_walls, bc_inflow]
+bcs = [bc_walls]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
@@ -74,21 +71,26 @@ dt = CFL * hmin / Umax"""
 # ------------------
 
 def get_data(t):
-
+    
+    # Time-dependent modulation forcing (keeps solution unsteady)
     ramp = min(t / 0.5, 1.0)
+    Pt = ramp * P * (1.0 + 0.2*sin(2*pi*t))
+    ufl_f = as_vector((Pt, 0.0))
 
-    u_inflow = ramp * as_vector((
-        sin(pi*y/H) * exp(-pi**2 * t / (H**2 * Re)),
+    # Breaks symmetry and avoids immediate steady-state lock-in
+    ufl_v0 = as_vector((
+        1e-3 * sin(pi * y / H),
         0.0
     ))
 
-    g.interpolate(u_inflow)
+    ufl_p0 = Constant(0.0)
+    ufl_g = as_vector([0.0,0.0])
 
     return {
-        "ufl_v0": Constant((0.0, 0.0)),
-        "ufl_p0": Constant(0.0),
-        "ufl_f": Constant((0.0, 0.0)),
-        "ufl_g": g
+        "ufl_v0": ufl_v0,
+        "ufl_p0": ufl_p0,
+        "ufl_f": ufl_f,
+        "ufl_g": ufl_g
     }
 
 # ----------
