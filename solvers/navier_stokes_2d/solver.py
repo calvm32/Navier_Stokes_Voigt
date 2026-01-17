@@ -47,7 +47,7 @@ Z = V * W
 # -------------------
 
 u_inflow = as_vector((
-    y*(y - H)/(25),
+    4*P*y*(y - H)/(H**2), # normalize at center line
     0.0
 ))
 
@@ -86,13 +86,13 @@ def get_data(t):
     ])
 
     # pressure exact
-    ufl_p0 = Constant(0.0) #P*x + G
+    ufl_p0 = P*x + G
 
     # source termexact
     ufl_f0 = as_vector([0.0,0.0])
 
     # boundary term
-    ufl_g0 = as_vector([0.0,0.0]) #as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
+    ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
 
     return {
         "ufl_v0": ufl_v0,
