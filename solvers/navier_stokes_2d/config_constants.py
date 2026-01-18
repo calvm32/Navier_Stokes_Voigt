@@ -5,7 +5,7 @@ from firedrake import *
 # ---------
 
 t0 = 0.0        # initial time
-T = 1.0         # final time
+T = 0.3         # final time
 dt = 0.01       # time step
 theta = 0.5     # theta constant
 gamma = 0.1     # grad-div stabilization constant
