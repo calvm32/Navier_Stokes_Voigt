@@ -58,21 +58,6 @@ bcs = [bc_walls, bc_inflow]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
-"""# -------------
-# CFL Condition
-# -------------
-
-hmin = mesh.cell_sizes.dat.data.min()
-
-tol = 1e-12
-x_coords = mesh.coordinates.dat.data[:, 0]
-y_inflow = y_coords[np.abs(x_coords) < tol]
-
-Umax = Re*(0.5*P*y_inflow*(H - y_inflow)).max()
-
-CFL = 0.3
-dt = CFL * hmin / Umax"""
-
 # ------------------
 # Allocate functions
 # ------------------
@@ -95,7 +80,10 @@ def get_data(t):
     ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])"""
 
     # velocity exact
-    ufl_v0 = as_vector([0.0, 0.0])
+    ufl_v0 = as_vector([
+        P*y*(y - H),
+        0.0
+    ])
 
     # pressure exact
     ufl_p0 = Constant(0.0)
