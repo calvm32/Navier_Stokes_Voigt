@@ -81,12 +81,12 @@ def get_data(t):
 
     # velocity exact
     ufl_v0 = as_vector([
-        P*y*(y - H),
+        0.0, #P*y*(y - H),
         0.0
     ])
 
     # pressure exact
-    ufl_p0 = Constant(0.0)
+    ufl_p0 = P*x+G #Constant(0.0)
 
     # source termexact
     ufl_f0 = as_vector([0.0,0.0])
