@@ -10,28 +10,18 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
       -> bilinear, linear
     """
 
+    # Midpoints
+    f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
+    g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
+
     u_old = U_old.sub(0)
     p_old = U_old.sub(1)
-    
+
     def forms(U, V):
         u, p = split(U)
         v, q = split(V)
 
-        # Midpoint for f
-        f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
-
-        # Midpoint for g
-        if isinstance(g, dict):
-            g_mid = {b_id: theta*g[b_id] + (1.0 - theta)*g_old[b_id] for b_id in g}
-        else:
-            g_mid = theta*g.sub(0) + (1-theta)*g_old.sub(0)
-
-        print(g_mid)
-
-        # --------------------
         # Bilinear form a(U,V)
-        # --------------------
-    
         a = (
             # Time derivative
             idt * inner(u, v) * dx
@@ -51,10 +41,7 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
 
         )
 
-        # ----------------
         # Linear form L(V)
-        # ----------------
-
         L = (
             # Time derivative
             idt * inner(u_old, v) * dx
@@ -67,16 +54,11 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
 
             # Forcing
             + inner(f_mid, v) * dx
-        )
 
-        # ----------------
-        # Neumann boundary
-        # ----------------
-        if isinstance(g_mid, dict):
-            for b_id, g_mid_id in g_mid.items():
-                L += inner(g_mid_id, v) * ds(b_id)
-        else:
-            L += inner(g_mid, v) * dsN
+            # Neumann boundary
+            + inner(g_mid, v) * dsN
+
+        )
 
         return a, L
 
