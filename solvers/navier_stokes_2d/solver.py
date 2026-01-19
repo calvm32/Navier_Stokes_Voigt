@@ -63,7 +63,11 @@ def get_data(t):
     ufl_v0 = as_vector([0.0,0.0])
 
     # pressure exact
+<<<<<<< HEAD
     ufl_p0 = Constant(0.0)
+=======
+    ufl_p0 = Constant(0.0) #P*x+G
+>>>>>>> parent of e547837 (try p0, g0 both nonzero)
 
     # source termexact
     ufl_f0 = as_vector([0.0,0.0])
