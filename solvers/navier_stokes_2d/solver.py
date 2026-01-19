@@ -55,7 +55,7 @@ nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)]
 # Allocate functions
 # ------------------
 
-tol = 1e-1
+tol = 1e-2
 
 def get_data(t):
 
