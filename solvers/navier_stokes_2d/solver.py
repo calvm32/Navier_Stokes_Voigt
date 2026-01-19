@@ -46,15 +46,8 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
-u_inflow = as_vector((
-    4*P*y*(y - H)/(H**2), # normalize at center line
-    0.0
-))
-
-bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-
-bcs = [bc_walls, bc_inflow]
+bcs = [bc_walls]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
@@ -64,35 +57,20 @@ nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)]
 
 def get_data(t):
 
-    """# velocity exact
-    ufl_v0 = as_vector([
-        P*y*(y - H),
-        0.0
-    ])
-
-    # pressure exact
-    ufl_p0 = P*x + G
-
-    # source termexact
-    ufl_f0 = as_vector([0.0,0.0])
-
-    # boundary term
-    ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])"""
-
     # velocity exact
-    ufl_v0 = as_vector([
-        0.0, #P*y*(y - H),
-        0.0
-    ])
+    ufl_v0 = as_vector([0.0,0.0])
 
     # pressure exact
-    ufl_p0 = P*x+G #Constant(0.0)
+    ufl_p0 = Constant(0.0)
 
     # source termexact
     ufl_f0 = as_vector([0.0,0.0])
 
     # boundary term
-    ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
+    ufl_g0 = {
+        1: P * Constant((-1.0, 0.0)),
+        2: 0.0 * Constant(( 1.0, 0.0))
+    }
 
     return {
         "ufl_v0": ufl_v0,

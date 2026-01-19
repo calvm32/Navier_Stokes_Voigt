@@ -1,6 +1,6 @@
 from firedrake import *
 
-def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_form, is_mixed,
+def create_timestep_solver(get_data, theta, Z, dx, dsN, u_old, u, make_weak_form, is_mixed,
                            bcs=None, nullspace=None, solver_parameters=None, appctx=None):
     """
     Prepare timestep solver by theta-scheme for 
@@ -15,12 +15,21 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
     u_trial = TrialFunction(Z)
     v = TestFunction(Z)
 
-    # Initial weak form placeholders
-    f = Function(Z)
-    g = Function(Z)
+    data = get_data(0)
+    is_dict = isinstance(data["ufl_g"], dict)
 
+    # Initial weak form placeholders
+    # for f:
+    f = Function(Z)
     f_old = Function(Z)
-    g_old = Function(Z)
+
+    # for g:
+    if is_dict:
+        g = None
+        g_old = None
+    else:
+        g = Function(Z)
+        g_old = Function(Z)
 
     # Create the problem + solver once
     a, L = make_weak_form(
@@ -50,16 +59,25 @@ def create_timestep_solver(get_data, theta, Z, dx , dsN, u_old, u, make_weak_for
         data_old = get_data(t)
         data_new = get_data(t+dt)
 
-        if is_mixed:
-            f.sub(0).interpolate(data_new["ufl_f"])
-            g.sub(0).interpolate(data_new["ufl_g"])
-            f_old.sub(0).interpolate(data_old["ufl_f"])
-            g_old.sub(0).interpolate(data_old["ufl_g"])
+        # ----------
+        # new, old f
+        # ----------
+
+        f.sub(0).interpolate(data_new["ufl_f"])
+        f_old.sub(0).interpolate(data_old["ufl_f"])
+
+        # ----------
+        # new, old g
+        # ----------
+
+        nonlocal g, g_old
+
+        if is_dict:
+            g = data_new["ufl_g"]
+            g_old = data_old["ufl_g"]
         else:
-            f.interpolate(data_new["ufl_f"])
-            g.interpolate(data_new["ufl_g"])
-            f_old.interpolate(data_old["ufl_f"])
-            g_old.interpolate(data_old["ufl_g"])
+            g.sub(0).interpolate(data_new["ufl_g"])
+            g_old.sub(0).interpolate(data_old["ufl_g"])
 
         # Run the solver
         solver.solve()
