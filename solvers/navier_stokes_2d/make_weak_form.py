@@ -13,11 +13,10 @@ def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
     u_old = U_old.sub(0)
     p_old = U_old.sub(1)
 
-    # Midpoints
-    # for f:
+    # Midpoint for f
     f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
 
-    # for g:
+    # Midpoint for g
     if isinstance(g, dict):
         g_mid = {b_id: theta*g[b_id] + (1-theta)*g_old[b_id] for b_id in g}
     else:

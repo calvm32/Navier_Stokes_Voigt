@@ -19,17 +19,11 @@ def create_timestep_solver(get_data, theta, Z, dx, dsN, u_old, u, make_weak_form
     is_dict = isinstance(data["ufl_g"], dict)
 
     # Initial weak form placeholders
-    # for f:
     f = Function(Z)
     f_old = Function(Z)
-
-    # for g:
-    if is_dict:
-        g = None
-        g_old = None
-    else:
-        g = Function(Z)
-        g_old = Function(Z)
+    
+    g = Function(Z)
+    g_old = Function(Z)
 
     # Create the problem + solver once
     a, L = make_weak_form(
