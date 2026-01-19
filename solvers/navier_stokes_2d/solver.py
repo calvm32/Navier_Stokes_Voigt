@@ -86,7 +86,7 @@ def get_data(t):
     ])
 
     # pressure exact
-    ufl_p0 = Constant(0.0) #P*x+G
+    ufl_p0 = P*x+G #Constant(0.0)
 
     # source termexact
     ufl_f0 = as_vector([0.0,0.0])
