@@ -25,8 +25,6 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 
 # Load the mesh
 mesh = Mesh(MESH_PATH)
-print(list(mesh.exterior_facets.unique_markers()))
-
 x, y = SpatialCoordinate(mesh)
 
 # get height
