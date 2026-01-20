@@ -46,10 +46,11 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
+bc_p = DirichletBC(Z.sub(1), Constant(0.0), 2)
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-bcs = [bc_walls]
+bcs = [bc_walls, bc_p]
 
-nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
+nullspace = None #MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
 # ------------------
 # Allocate functions
