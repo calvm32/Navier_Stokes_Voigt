@@ -71,7 +71,7 @@ def get_data(t):
     ufl_f0 = as_vector([0.0,0.0])
 
     # boundary term
-    ufl_g0 = as_vector([P*exp(-(x/tol)**2), 0.0])
+    ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0]) #as_vector([P*exp(-(x/tol)**2), 0.0])
 
     return {
         "ufl_v0": ufl_v0,
