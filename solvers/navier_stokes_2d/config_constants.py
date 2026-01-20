@@ -85,3 +85,9 @@ solver_parameters = {
 
     #"fieldsplit_1_pcd_u": "velocity",
     }
+
+
+
+solver_parameters["snes_type"] = "newtonls"   # line search Newton
+solver_parameters["snes_max_it"] = 50
+solver_parameters["snes_rtol"] = 1e-8
