@@ -25,7 +25,6 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 
 # Load the mesh
 mesh = Mesh(MESH_PATH)
-mesh = RectangleMesh(64, 16, 4, 1)
 x, y = SpatialCoordinate(mesh)
 
 # get height
