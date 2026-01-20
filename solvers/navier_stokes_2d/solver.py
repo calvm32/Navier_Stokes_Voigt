@@ -52,9 +52,9 @@ u_inflow = as_vector((
     0.0
 ))
 
-bc_in = DirichletBC(Z.sub(0), u_inflow, (1))
+bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-bcs = [bc_walls, bc_in]
+bcs = [bc_walls, bc_inflow]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
@@ -67,7 +67,10 @@ tol = 1e-2
 def get_data(t):
 
     # velocity exact
-    ufl_v0 = as_vector([P*y*(y - H),0.0])
+    ufl_v0 = as_vector([
+        P*y*(y - H),
+        0.0
+    ])
 
     # pressure exact
     ufl_p0 = P*x + G
