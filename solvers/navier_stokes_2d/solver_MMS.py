@@ -53,7 +53,7 @@ for N in N_list:
     # Setup spaces
     # ------------
 
-    mesh = RectangleMesh(N, N, L, H)
+    mesh = RectangleMesh(L*N, H*N, L, H)
     x, y = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
