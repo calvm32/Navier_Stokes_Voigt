@@ -47,13 +47,13 @@ Z = V * W
 # -------------------
 
 u_inflow = as_vector((
-    y*(y - H)/(25),
+    P * y * (y - H),
     0.0
 ))
 
-bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1))
-bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-bcs = [bc_walls, bc_inflow]
+bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,))
+bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
+bcs = [bc_inflow, bc_walls]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
