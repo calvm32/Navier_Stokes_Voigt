@@ -47,13 +47,14 @@ Z = V * W
 # -------------------
 
 u_inflow = as_vector((
-    P * y * (y - H),
+    4*P*y*(y - H)/(H**2), # normalize at center line
     0.0
 ))
 
 bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,))
-bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))
-bcs = [bc_inflow, bc_walls]
+bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
+
+bcs = [bc_walls, bc_inflow]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
@@ -67,18 +68,12 @@ def get_data(t):
 
     # velocity exact
     ufl_v0 = as_vector([
-        Re*(sin(pi*y/H)*exp((-1*pi**2*t)/(H**2)) + 0.5*P*y**2 - 0.5*P*H*y),
+        0.0, #P*y*(y - H),
         0.0
     ])
 
     # pressure exact
     ufl_p0 = P*x + G
-
-    # v time derivative
-    v_t = as_vector([
-        Re*(-1*pi**2/(H**2))*(sin(y*pi/H)*exp(-1*pi**2*t/(H**2))), 
-        0.0
-    ])
 
     # source termexact
     ufl_f0 = as_vector([0.0,0.0])
@@ -92,6 +87,7 @@ def get_data(t):
         "ufl_f": ufl_f0,
         "ufl_g": ufl_g0
     }
+
 
 # ----------
 # Run solver
