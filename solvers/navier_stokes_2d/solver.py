@@ -46,11 +46,8 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
-bc_p_in  = DirichletBC(Z.sub(1), Constant(P), 1)
-bc_p_out = DirichletBC(Z.sub(1), Constant(0.0), 2)
-
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-bcs = [bc_walls, bc_p_in, bc_p_out]
+bcs = [bc_walls]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
@@ -69,7 +66,7 @@ def get_data(t):
     ufl_p0 = Constant(0.0)
 
     # source termexact
-    ufl_f0 = as_vector([0.0,0.0])
+    ufl_f0 = as_vector([G,0.0])
 
     # boundary term
     ufl_g0 = as_vector([0.0,0.0]) #as_vector([P*exp(-((y - H/2)/tol)**2), 0.0])
