@@ -47,9 +47,14 @@ Z = V * W
 # Boundary conditions
 # -------------------
 
-bc_out = DirichletBC(Z.sub(1), Constant(0.0), 2) # pin pressure
+u_inflow = as_vector((
+    4*P*y*(y - H)/(H**2), # normalize at center line
+    0.0
+))
+
+bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1))
+bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-bcs = [bc_walls, bc_out]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
