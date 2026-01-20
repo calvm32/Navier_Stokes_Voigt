@@ -12,7 +12,7 @@ def timestepper(get_data, theta, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     num_steps = int((T-t0) / dt)
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
-    compute_every = 10
+    compute_every = 5
 
     """    # only compute stats for 2d navier stokes
     mesh = Z.mesh()
