@@ -47,7 +47,7 @@ Z = V * W
 # -------------------
 
 u_inflow = as_vector((
-    4*P*y*(y - H)/(H**2), # normalize at center line
+    P*y*(y - H),
     0.0
 ))
 
