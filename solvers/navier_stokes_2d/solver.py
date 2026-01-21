@@ -51,7 +51,7 @@ u_inflow = as_vector((
     0.0
 ))
 
-bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,))
+bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,2))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
 bcs = [bc_walls, bc_inflow]
@@ -73,7 +73,7 @@ def get_data(t):
     # pressure exact
     ufl_p0 = 0
 
-    # source termexact
+    # source term exact
     ufl_f0 = as_vector([0.0,0.0])
 
     # boundary term
