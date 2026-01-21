@@ -7,7 +7,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, theta, gamma, P, G, Re, solver_parameters, vtkfile_name, appctx
+from .config_constants import t0, T, dt, theta, P, G, Re, solver_parameters, vtkfile_name, appctx
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MESH_PATH = os.path.join(HERE, "meshes", "poiseuille_with_step.msh")
@@ -62,8 +62,6 @@ nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)]
 # Allocate functions
 # ------------------
 
-tol = 1e-2
-
 def get_data(t):
 
     # velocity exact
@@ -79,7 +77,7 @@ def get_data(t):
     ufl_f0 = as_vector([0.0,0.0])
 
     # boundary term
-    ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
+    ufl_g0 = as_vector([0.0,0.0]) #as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
 
     return {
         "ufl_v0": ufl_v0,
