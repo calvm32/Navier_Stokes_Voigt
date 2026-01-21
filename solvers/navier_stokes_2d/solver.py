@@ -66,7 +66,7 @@ def get_data(t):
 
     # velocity exact
     ufl_v0 = as_vector([
-        P*y*(y - H), #P*y*(y - H),
+        4*P*y*(y - H)/(H**2), #P*y*(y - H),
         0.0
     ])
 
