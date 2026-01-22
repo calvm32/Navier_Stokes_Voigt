@@ -7,9 +7,3 @@ L: 4.0         # length of box
 Re: 3.0        # Reynold's num: 1/viscostiy
 G: 5.0         # initial pressure gauge
 P: 1.0         # pressure strength (P*x + G)
-
-appctx = {
-    "Re": Re, 
-    "gamma": gamma,
-    "velocity_space": 0
-}

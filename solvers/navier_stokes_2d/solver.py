@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 # Configuration
 # -------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
+CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
 cfg = load_config(CFG_PATH1)
 
 t0    = cfg["t0"]
@@ -26,8 +26,11 @@ Re    = cfg["Re"]
 G     = cfg["G"]
 P     = cfg["P"]
 
-CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
+CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
+
+# Extract appctx
+appctx = cfg["appctx"]
 
 vtkfile_name = "Soln"
 
