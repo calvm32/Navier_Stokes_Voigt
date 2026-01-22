@@ -1,13 +1,39 @@
-import os
-
 from firedrake import *
+import yaml
+from pathlib import Path
+import os
+import shutil
 
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue
+from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, theta, P, G, Re, solver_parameters, vtkfile_name, appctx
+# -----------------
+# MMS Configuration
+# -----------------
+
+CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
+cfg = load_config(CFG_PATH)
+
+t0    = cfg["t0"]
+T     = cfg["T"]
+dt     = cfg["dt"]
+theta = cfg["theta"]
+gamma = cfg["gamma"]
+Re    = cfg["Re"]
+G     = cfg["G"]
+P     = cfg["P"]
+
+CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
+solver_parameters = load_solver_parameters(CFG_PATH, dt=dt)
+
+vtkfile_name = "Soln"
+
+# ------------------
+# Mesh Configuration
+# ------------------
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MESH_PATH = os.path.join(HERE, "meshes", "poiseuille_with_step.msh")
@@ -146,3 +172,16 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("enstrophy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
+
+# -------------
+# Archive YAMLs
+# -------------
+
+# current working directory
+run_dir = Path(os.getcwd())
+
+# copy YAML files to current directory
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
+
+print(f"[solver.py] YAML configs archived in {run_dir}")

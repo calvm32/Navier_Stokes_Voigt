@@ -1,32 +1,41 @@
 from firedrake import *
+import yaml
+from pathlib import Path
+import shutil
 
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue, green
+from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
-from .config_constants import solver_parameters, vtkfile_name
+# -----------------
+# MMS Configuration
+# -----------------
 
-# ---------------------------
-# MMS Constants Configuration
-# ---------------------------
+CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
+cfg = load_config(CFG_PATH)
 
-t0 = 0.5        # initial time
-T = 1           # final time
-theta = 0.5     # theta constant
-gamma = 0.0     # grad-div stabilization constant
-H = 1.0         # height of box
-L = 4.0         # length of box
-Re = 3.0        # Reynold's num = 1/viscostiy
+t0    = cfg["t0"]
+T     = cfg["T"]
+theta = cfg["theta"]
+gamma = cfg["gamma"]
+H     = cfg["H"]
+L     = cfg["L"]
+Re    = cfg["Re"]
+G     = cfg["G"]
+P     = cfg["P"]
+
+CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
+solver_parameters = load_solver_parameters(CFG_PATH, dt=dt)
+
+vtkfile_name = "Soln"
 
 # Loop over mesh resolutions
 N_list = []
 for n in range(4, 9):
     N = 2**n
     N_list.append(N)
-
-G = 5.0     # initial pressure gauge
-P = 1.0     # pressure strength (P*x + G)
 
 # calculate error as mesh size increases
 v_finaL_error_list = []
@@ -150,3 +159,16 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("pressure_convergence_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
+
+# -------------
+# Archive YAMLs
+# -------------
+
+# current working directory
+run_dir = Path(os.getcwd())
+
+# copy YAML files to current directory
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
+
+print(f"[solver.py] YAML configs archived in {run_dir}")

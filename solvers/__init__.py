@@ -18,6 +18,7 @@ Modules:
 
 from .timestepper import timestepper
 from .printoff import *
+from .config_setup import *
 
 __all__ = [
     "timestepper",
