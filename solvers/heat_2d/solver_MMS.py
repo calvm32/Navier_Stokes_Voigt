@@ -26,6 +26,23 @@ solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
 
 vtkfile_name = "Soln"
 
+# -------------
+# Archive YAMLs
+# -------------
+
+# current working directory
+run_dir = Path(os.getcwd())
+
+# copy YAML files to current directory
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+
+print(f"[solver.py] YAML configs archived in {run_dir}")
+
+# -------------
+# Start solving
+# -------------
+
 # MMS loops over mesh resolutions in this list
 N_list = []
 for n in range(1, 6):
@@ -34,10 +51,6 @@ for n in range(1, 6):
 
 # calculate error as mesh size increases
 final_error_list = [] 
-
-# -------------
-# Start solving
-# -------------
 
 for N in N_list:
 

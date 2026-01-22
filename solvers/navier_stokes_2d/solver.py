@@ -53,6 +53,19 @@ print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
+# -------------
+# Archive YAMLs
+# -------------
+
+# current working directory
+run_dir = Path(os.getcwd())
+
+# copy YAML files to current directory
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
+
+print(f"[solver.py] YAML configs archived in {run_dir}")
+
 # ------------
 # Setup spaces
 # ------------
@@ -180,16 +193,3 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("enstrophy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
-
-# -------------
-# Archive YAMLs
-# -------------
-
-# current working directory
-run_dir = Path(os.getcwd())
-
-# copy YAML files to current directory
-shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
-shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
-
-print(f"[solver.py] YAML configs archived in {run_dir}")

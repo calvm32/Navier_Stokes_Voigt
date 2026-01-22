@@ -29,6 +29,23 @@ P = cfg["P"]
 CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
 
+# -------------
+# Archive YAMLs
+# -------------
+
+# current working directory
+run_dir = Path(os.getcwd())
+
+# copy YAML files to current directory
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+
+print(f"[solver.py] YAML configs archived in {run_dir}")
+
+# -------------
+# Start solving
+# -------------
+
 vtkfile_name = "Soln"
 
 # calculate error as mesh size increases
