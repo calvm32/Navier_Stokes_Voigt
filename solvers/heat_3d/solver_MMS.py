@@ -1,20 +1,30 @@
 from firedrake import *
+import yaml
+from pathlib import Path
+import shutils
 
 import matplotlib.pyplot as plt
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue, green
+from solvers.config_setup import *
 
-from .config_constants import solver_parameters, vtkfile_name
+# -----------------
+# MMS Configuration
+# -----------------
 
-# ---------
-# Constants
-# ---------
+CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
+cfg = load_config(CFG_PATH1)
 
-t0 = 0.0        # initial time
-T = 1.0         # final time
-dt = 1e-2       # timestepping length
-theta = 1/2     # theta constant
+t0 = cfg["t0"]
+T = cfg["T"]
+dt = cfg["dt"]
+theta = cfg["theta"]
+
+CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
+solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
+
+vtkfile_name = "Soln"
 
 # MMS loops over mesh resolutions in this list
 N_list = []

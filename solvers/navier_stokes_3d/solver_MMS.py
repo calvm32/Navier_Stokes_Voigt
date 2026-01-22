@@ -1,11 +1,35 @@
 from firedrake import *
+import yaml
+from pathlib import Path
+import shutil
 
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from solvers.printoff import blue
+from solvers.printoff import blue, green
+from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, Re, gamma, P, G, R, L, N_list, solver_parameters, vtkfile_name
+# -----------------
+# MMS Configuration
+# -----------------
+
+CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
+cfg = load_config(CFG_PATH1)
+
+t0 = cfg["t0"]
+T = cfg["T"]
+theta = cfg["theta"]
+gamma = cfg["gamma"]
+R = cfg["R"]
+L = cfg["L"]
+Re = cfg["Re"]
+G = cfg["G"]
+P = cfg["P"]
+
+CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
+solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
+
+vtkfile_name = "Soln"
 
 # calculate error as mesh size increases
 v_final_error_list = []

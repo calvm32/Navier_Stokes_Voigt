@@ -1,10 +1,40 @@
-from firedrake import * 
+from firedrake import *
+import yaml
+from pathlib import Path
+import os
+import shutil
 
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue
+from solvers.config_setup import *
+import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, N, solver_parameters, appctx, vtkfile_name
+# -------------
+# Configuration
+# -------------
+
+CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
+cfg = load_config(CFG_PATH1)
+
+# Extract constants
+t0 = cfg["t0"]
+T = cfg["T"]
+dt = cfg["dt"]
+theta = cfg["theta"]
+gamma = cfg["gamma"]
+Re = cfg["Re"]
+G = cfg["G"]
+P = cfg["P"]
+R = cfg["R"]
+L = cfg["L"]
+
+# Build appctx
+appctx = {
+    "Re": Re,
+    "gamma": gamma,
+    "velocity_space": cfg.get("velocity_space", 0)
+}
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 

@@ -8,6 +8,20 @@ from .config_constants import t0, T, dt, N, vtkfile_name, solver_parameters
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
+# -------------
+# Configuration
+# -------------
+
+CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
+cfg = load_config(CFG_PATH1)
+
+# Extract constants
+t0 = cfg["t0"]
+T = cfg["T"]
+dt = cfg["dt"]
+theta = cfg["theta"]
+N = cfg["N"]
+
 # ------------
 # Setup spaces
 # ------------

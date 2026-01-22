@@ -1,0 +1,3 @@
+solver_parameters:
+  ksp_type: cg
+  pc_type: hypre

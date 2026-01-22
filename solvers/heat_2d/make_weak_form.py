@@ -1,4 +1,21 @@
 from firedrake import *
+import yaml
+from pathlib import Path
+
+from solvers.config_setup import *
+
+# -------------
+# Configuration
+# -------------
+
+CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
+cfg = load_config(CFG_PATH1)
+
+theta = cfg["theta"]
+
+# ---------
+# Weak form
+# ---------
 
 def make_weak_form(idt, f, f_old, g, g_old, u_old, dx, dsN):
     """
