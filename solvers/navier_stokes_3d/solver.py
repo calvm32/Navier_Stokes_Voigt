@@ -4,7 +4,7 @@ from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 
-from .config_constants import t0, T, dt, theta, N, solver_parameters, appctx, vtkfile_name
+from .config_constants import t0, T, dt, N, solver_parameters, appctx, vtkfile_name
 
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
@@ -75,7 +75,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list = timestepper(get_data, theta, 
+v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list = timestepper(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,

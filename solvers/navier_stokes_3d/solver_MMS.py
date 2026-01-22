@@ -5,7 +5,7 @@ from .make_weak_form import make_weak_form
 from solvers.printoff import blue
 import matplotlib.pyplot as plt
 
-from .config_constants import t0, T, dt, theta, Re, gamma, P, G, R, L, N_list, solver_parameters, vtkfile_name
+from .config_constants import t0, T, dt, Re, gamma, P, G, R, L, N_list, solver_parameters, vtkfile_name
 
 # calculate error as mesh size increases
 v_final_error_list = []
@@ -97,7 +97,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list = timestepper(get_data, theta, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list = timestepper(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,

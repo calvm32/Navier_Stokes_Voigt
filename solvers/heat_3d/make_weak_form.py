@@ -1,6 +1,6 @@
 from firedrake import *
 
-def make_weak_form(theta, idt, f, f_old, g, g_old, u_old, dx, dsN):
+def make_weak_form(idt, f, f_old, g, g_old, u_old, dx, dsN):
     """
     Bilinear and linear forms for heat equation
       -> Crank-Nicolson

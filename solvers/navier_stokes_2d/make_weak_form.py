@@ -1,7 +1,21 @@
 from firedrake import *
-from .config_constants import Re, gamma
+import yaml
+from pathlib import Path
 
-def make_weak_form(theta, idt, f, f_old, g, g_old, U_old, dx, dsN):
+from solvers.config_setup import *
+
+# -----------------
+# MMS Configuration
+# -----------------
+
+CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
+cfg = load_config(CFG_PATH)
+
+theta = cfg["theta"]
+gamma = cfg["gamma"]
+Re    = cfg["Re"]
+
+def make_weak_form(idt, f, f_old, g, g_old, U_old, dx, dsN):
     """
     Bilinear and linear forms for incompressible Navier-Stokes
       -> Crank-Nicolson

@@ -10,9 +10,9 @@ from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
-# -----------------
-# MMS Configuration
-# -----------------
+# -------------
+# Configuration
+# -------------
 
 CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
 cfg = load_config(CFG_PATH)
@@ -117,7 +117,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list = timestepper(get_data, theta, 
+v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list = timestepper(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,
