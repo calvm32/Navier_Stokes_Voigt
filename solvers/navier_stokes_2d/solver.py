@@ -17,20 +17,25 @@ import matplotlib.pyplot as plt
 CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
 cfg = load_config(CFG_PATH1)
 
-t0    = cfg["t0"]
-T     = cfg["T"]
-dt     = cfg["dt"]
+# Extract constants
+t0 = cfg["t0"]
+T = cfg["T"]
+dt = cfg["dt"]
 theta = cfg["theta"]
 gamma = cfg["gamma"]
-Re    = cfg["Re"]
-G     = cfg["G"]
-P     = cfg["P"]
+Re = cfg["Re"]
+G = cfg["G"]
+P = cfg["P"]
+
+# Build appctx
+appctx = {
+    "Re": Re,
+    "gamma": gamma,
+    "velocity_space": cfg.get("velocity_space", 0)
+}
 
 CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
-
-# Extract appctx
-appctx = cfg["appctx"]
 
 vtkfile_name = "Soln"
 
