@@ -4,12 +4,12 @@ from pathlib import Path
 
 from solvers.config_setup import *
 
-# -----------------
-# MMS Configuration
-# -----------------
+# -------------
+# Configuration
+# -------------
 
 CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
-cfg = load_config(CFG_PATH)
+cfg = load_config(CFG_PATH1)
 
 theta = cfg["theta"]
 gamma = cfg["gamma"]
