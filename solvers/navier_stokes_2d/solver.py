@@ -111,16 +111,16 @@ nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)]
 
 def get_data(t):
 
-    # velocity exact
+    # velocity
     ufl_v0 = as_vector([
         4*P*y*(y - H)/(H**2), #P*y*(y - H),
         0.0
     ])
 
-    # pressure exact
+    # pressure
     ufl_p0 = 0
 
-    # source term exact
+    # source term
     ufl_f0 = as_vector([0.0,0.0])
 
     # boundary term
@@ -138,7 +138,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list = timestepper(get_data, 
+v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list = timestepper(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,
@@ -168,18 +168,6 @@ plt.ylabel("stream function L2")
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("stream_func_plot.png", dpi=200, bbox_inches='tight')
-plt.close()
-
-# --------------
-# Plot vorticity
-# --------------
-
-plt.loglog(time_list, vorticity_list, "-o")
-plt.xlabel("time")
-plt.ylabel("vorticity L2")
-plt.grid(True)
-plt.tight_layout()
-plt.savefig("vorticity_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------

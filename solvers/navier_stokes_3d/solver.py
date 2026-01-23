@@ -118,7 +118,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list = timestepper(get_data, 
+v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list = timestepper(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,
@@ -148,18 +148,6 @@ plt.ylabel("stream function L2")
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("stream_func_plot.png", dpi=200, bbox_inches='tight')
-plt.close()
-
-# --------------
-# Plot vorticity
-# --------------
-
-plt.loglog(time_list, vorticity_list, "-o")
-plt.xlabel("time")
-plt.ylabel("vorticity L2")
-plt.grid(True)
-plt.tight_layout()
-plt.savefig("vorticity_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------

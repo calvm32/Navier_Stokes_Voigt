@@ -26,7 +26,6 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     energy_list = []
     palinstrophy_list = []
     stream_func_list = []
-    vorticity_list = []
     enstrophy_list = []
     time_list = []
 
@@ -165,20 +164,15 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
                 omega = curl(u_old.sub(0))
                 omega_f.interpolate(omega)
 
-                omega_L2 = assemble(omega_f * omega_f * dx)
-                vorticity_list.append(omega_L2)
-
                 # --------- stream ---------
                 solver_psi.solve()
-
-                stream_func_list.append(assemble(inner(psi, psi) * dx))
+                stream_func_list.append(sqrt(assemble(inner(psi, psi) * dx)))
 
                 # --------- palinstrophy ---------
-                palinstrophy_L2 = assemble(0.5 * inner(grad(omega_f), grad(omega_f)) * dx)
-                palinstrophy_list.append(palinstrophy_L2)
+                palinstrophy_list.append(sqrt(assemble(0.5 * inner(grad(omega_f), grad(omega_f)) * dx)))
 
                 # --------- enstrophy ---------
-                enstrophy_list.append(assemble(0.5 * omega_f**2 * dx))
+                enstrophy_list.append(sqrt(assemble(0.5 * omega_f**2 * dx)))
 
             # --------- error ---------
             # get data at current time
@@ -189,8 +183,8 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
                 u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
 
                 v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt) 
-                p_error_list.append(assemble(inner(grad(u_exact.sub(0)) - grad(u.sub(0)), 
-                                    grad(u_exact.sub(0)) - grad(u.sub(0)))*dx)*dt)
+                p_error_list.append(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
+                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)*dt)
 
             else:
                 u_exact.interpolate(data_new["ufl_u0"])  # just velocity
@@ -214,7 +208,7 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # Write error to file
     if is_mixed:
-        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list)
+        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list)
 
     else:
-        return(u_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, time_list)
+        return(u_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list)
