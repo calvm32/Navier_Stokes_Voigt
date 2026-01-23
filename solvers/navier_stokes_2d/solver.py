@@ -101,7 +101,7 @@ u_inflow = as_vector((
 bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,2))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
-bcs = [bc_walls, bc_inflow]
+bcs = [bc_walls]
 
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
@@ -113,7 +113,7 @@ def get_data(t):
 
     # velocity
     ufl_v0 = as_vector([
-        4*P*y*(y - H)/(H**2), #P*y*(y - H),
+        1e-6, #4*P*y*(y - H)/(H**2), #P*y*(y - H),
         0.0
     ])
 
@@ -121,7 +121,7 @@ def get_data(t):
     ufl_p0 = 0
 
     # source term
-    ufl_f0 = as_vector([0.0,0.0])
+    ufl_f0 = as_vector([G,0.0]) #as_vector([0.0,0.0])
 
     # boundary term
     ufl_g0 = as_vector([0.0,0.0]) #as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
