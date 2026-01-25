@@ -22,8 +22,8 @@ solver_parameters:
 
   # ---- PRESSURE BLOCK ----
   fieldsplit_1_ksp_type: fgmres
-  fieldsplit_1_ksp_rtol: 5e-2 
-  fieldsplit_1_ksp_max_it: 5
+  fieldsplit_1_ksp_rtol: 1e-3 
+  fieldsplit_1_ksp_max_it: 10
   fieldsplit_1_pc_type: python
   fieldsplit_1_pc_python_type: firedrake.PCDPC
 
@@ -32,8 +32,8 @@ solver_parameters:
 
   fieldsplit_1_pcd_Kp_ksp_type: preonly
   fieldsplit_1_pcd_Kp_pc_type: hypre
-  fieldsplit_1_pcd_Kp_hypre_max_iter: 1             # <<< only 1 iteration in inner AMG
-  fieldsplit_1_pcd_Kp_hypre_tol: 1e-1              # <<< looser tolerance
+  fieldsplit_1_pcd_Kp_hypre_max_iter: 1 
+  fieldsplit_1_pcd_Kp_hypre_tol: 1e-1
 
   fieldsplit_1_pcd_Fp_mat_type: matfree
   fieldsplit_1_pcd_u: velocity
