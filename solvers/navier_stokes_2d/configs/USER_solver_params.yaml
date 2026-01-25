@@ -18,21 +18,20 @@ solver_parameters:
   pc_fieldsplit_schur_fact_type: lower
 
   fieldsplit_0_ksp_type: preonly
-  fieldsplit_0_pc_type: jacobi
+  fieldsplit_0_pc_type: python
+  fieldsplit_0_pc_python_type: firedrake.AssembledPC
+  fieldsplit_0_assembled_pc_type: hypre
+  fieldsplit_0_assembled_pc_hypre_type: boomeramg
+  fieldsplit_0_assembled_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
 
-  fieldsplit_1_ksp_type: fgmres
-  fieldsplit_1_ksp_rtol: 1e-2
-  fieldsplit_1_ksp_max_it: 10
-  fieldsplit_1_pc_type: python
-  fieldsplit_1_pc_python_type: firedrake.PCDPC
-  
-  fieldsplit_1_pcd_Mp_pc_type: jacobi
+  fieldsplit_1_pcd_Mp_pc_type: hypre
+  fieldsplit_1_pcd_Mp_pc_hypre_type: boomeramg
   fieldsplit_1_pcd_Mp_ksp_type: preonly
 
-  fieldsplit_1_pcd_Kp_pc_type: jacobi
+  fieldsplit_1_pcd_Kp_pc_type: hypre
+  fieldsplit_1_pcd_Kp_pc_hypre_type: boomeramg
   fieldsplit_1_pcd_Kp_ksp_type: preonly
-
+    
   fieldsplit_1_pcd_Fp_mat_type: aij
-
   fieldsplit_1_pcd_u: velocity
   fieldsplit_1_pcd_dt: "{dt}"
