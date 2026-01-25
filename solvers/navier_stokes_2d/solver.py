@@ -92,6 +92,12 @@ V = VectorFunctionSpace(mesh, "CG", 2)
 W = FunctionSpace(mesh, "CG", 1)
 Z = V * W
 
+num_dofs = V.dof_dset.size
+print(f"VNumber of degrees of freedom: {num_dofs}")
+num_dofs = W.dof_dset.size
+print(f"WNumber of degrees of freedom: {num_dofs}")
+
+
 # -------------------
 # Boundary conditions
 # -------------------
