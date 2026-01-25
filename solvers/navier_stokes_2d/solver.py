@@ -113,7 +113,7 @@ def get_data(t):
 
     # velocity
     ufl_v0 = as_vector([
-        1e-6, #4*P*y*(y - H)/(H**2), #P*y*(y - H),
+        4*P*y*(y - H)/(H**2), #P*y*(y - H),
         0.0
     ])
 
@@ -121,7 +121,7 @@ def get_data(t):
     ufl_p0 = 0
 
     # source term
-    ufl_f0 = as_vector([G,0.0]) #as_vector([0.0,0.0])
+    ufl_f0 = as_vector([0.0,0.0])
 
     # boundary term
     ufl_g0 = as_vector([0.0,0.0]) #as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
