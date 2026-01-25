@@ -1,5 +1,5 @@
 solver_parameters:
-  mat_type: matfree
+  mat_type: aij #matfree
   snes_monitor: null
 
   ksp_type: fgmres
@@ -28,7 +28,7 @@ solver_parameters:
   fieldsplit_1_pcd_Kp_ksp_type: preonly
   fieldsplit_1_pcd_Kp_pc_type: hypre
 
-  fieldsplit_1_pcd_Fp_mat_type: matfree
+  #fieldsplit_1_pcd_Fp_mat_type: matfree
 
   fieldsplit_1_pcd_u: velocity
   fieldsplit_1_pcd_dt: "{dt}"

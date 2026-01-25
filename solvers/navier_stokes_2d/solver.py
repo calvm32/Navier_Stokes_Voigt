@@ -74,6 +74,9 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 mesh = Mesh(MESH_PATH)
 x, y = SpatialCoordinate(mesh)
 
+num_dofs = V.dof_dset.size
+print(f"Number of degrees of freedom: {num_dofs}")
+
 # get height
 y_coords = mesh.coordinates.dat.data[:, 1]
 H = y_coords.max() - y_coords.min()
