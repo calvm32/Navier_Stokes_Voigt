@@ -5,7 +5,7 @@ solver_parameters:
   snes_type: newtonls
   snes_linesearch_type: bt
   snes_rtol: 1e-4
-  snes_max_it: 5
+  #snes_max_it: 5
 
   ksp_type: fgmres
   ksp_gmres_modifiedgramschmidt: null
