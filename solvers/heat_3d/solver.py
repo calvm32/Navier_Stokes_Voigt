@@ -33,7 +33,7 @@ run_dir = Path(os.getcwd())
 shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
 shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
 
-print(f"[solver.py] YAML configs archived in {run_dir}")
+print(f"[solver.py] YAML configs archived in {run_dir}\n")
 
 # ------------
 # Setup spaces
