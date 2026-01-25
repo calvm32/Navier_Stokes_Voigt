@@ -17,8 +17,8 @@ solver_parameters:
   fieldsplit_0_assembled_pc_hypre_type: boomeramg 
   
   fieldsplit_1_ksp_type: fgmres 
-  fieldsplit_1_ksp_rtol: 1e-3 
-  fieldsplit_1_ksp_max_it: 20 
+  fieldsplit_1_ksp_rtol: 1e-2
+  fieldsplit_1_ksp_max_it: 10 
   fieldsplit_1_pc_type: python 
   fieldsplit_1_pc_python_type: firedrake.PCDPC 
 
@@ -31,3 +31,6 @@ solver_parameters:
   fieldsplit_1_pcd_Fp_mat_type: matfree 
   fieldsplit_1_pcd_u: velocity 
   fieldsplit_1_pcd_dt: "{dt}"
+
+  pc_fieldsplit_schur_fact_type: lower
+  reuse_amg: True
