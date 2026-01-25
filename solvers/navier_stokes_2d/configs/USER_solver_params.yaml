@@ -16,13 +16,14 @@ solver_parameters:
   fieldsplit_0_pc_python_type: firedrake.AssembledPC
   fieldsplit_0_assembled_pc_type: hypre
   fieldsplit_0_assembled_pc_hypre_type: boomeramg
-  fieldsplit_0_assembled_pc_hypre_max_iter: 1        # <<< new: AMG solve only 1 iteration, much cheaper
-  fieldsplit_0_assembled_pc_hypre_tol: 1e-1         # <<< loose tolerance, still stable in most 2D flows
+
+  fieldsplit_0_assembled_pc_hypre_max_iter: 2
+  fieldsplit_0_assembled_pc_hypre_tol: 1e-2
 
   # ---- PRESSURE BLOCK ----
   fieldsplit_1_ksp_type: fgmres
-  fieldsplit_1_ksp_rtol: 5e-2                        # <<< slightly looser
-  fieldsplit_1_ksp_max_it: 5                         # <<< reduce max iterations
+  fieldsplit_1_ksp_rtol: 5e-2 
+  fieldsplit_1_ksp_max_it: 5
   fieldsplit_1_pc_type: python
   fieldsplit_1_pc_python_type: firedrake.PCDPC
 
