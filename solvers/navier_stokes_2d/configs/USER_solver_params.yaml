@@ -20,7 +20,6 @@ solver_parameters:
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: jacobi
 
-  fieldsplit_0_assembled_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
   fieldsplit_1_pcd_Mp_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
 
   fieldsplit_1_ksp_type: fgmres
