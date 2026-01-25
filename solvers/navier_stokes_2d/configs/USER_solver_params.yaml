@@ -30,8 +30,6 @@ solver_parameters:
   fieldsplit_1_ksp_max_it: 10
   fieldsplit_1_pc_type: python
   fieldsplit_1_pc_python_type: firedrake.PCDPC
-
-  fieldsplit_1_pcd_Mp_pc_hypre_type: boomeramg
   
   fieldsplit_1_pcd_Mp_pc_type: jacobi
   fieldsplit_1_pcd_Mp_ksp_type: preonly
