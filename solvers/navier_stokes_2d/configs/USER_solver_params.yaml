@@ -6,7 +6,6 @@ solver_parameters:
   snes_linesearch_type: bt
   snes_rtol: 1e-4
   snes_max_it: 5
-  snes_lag_jacobian: 5
 
   ksp_type: fgmres
   ksp_gmres_modifiedgramschmidt: null
@@ -25,7 +24,7 @@ solver_parameters:
   fieldsplit_0_assembled_pc_hypre_type: boomeramg
   fieldsplit_0_assembled_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
   fieldsplit_1_pcd_Mp_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
-  
+
   fieldsplit_1_ksp_type: fgmres
   fieldsplit_1_ksp_rtol: 1e-2
   fieldsplit_1_ksp_max_it: 10
