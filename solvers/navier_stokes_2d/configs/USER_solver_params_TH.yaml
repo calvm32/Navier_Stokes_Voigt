@@ -1,5 +1,7 @@
 solver_parameters:
   mat_type: matfree
+
+  snes_type: ksponly
   snes_monitor: null
 
   ksp_type: fgmres
