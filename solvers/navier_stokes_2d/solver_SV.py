@@ -91,7 +91,7 @@ W = FunctionSpace(fine_mesh, "DG", k-1)
 Z = V * W
 
 # Print number of DOFs
-print(f"Velocity DOFs: {V.dim()}, Pressure DOFs: {W.dim()}")
+print(W.sub(1).ufl_element())
 
 # -------------------
 # Boundary conditions
