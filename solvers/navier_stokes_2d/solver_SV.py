@@ -71,7 +71,8 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 # ------------
 
 # Load the mesh
-mesh = Mesh(MESH_PATH)
+#mesh = Mesh(MESH_PATH)
+mesh = RectangleMesh(64, 16, 4, 1)
 mesh_hierarchy = MeshHierarchy(mesh, 1)  # 1 = one barycenter refinement
 fine_mesh = mesh_hierarchy[-1]
 
