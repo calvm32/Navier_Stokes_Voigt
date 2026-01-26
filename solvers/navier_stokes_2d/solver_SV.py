@@ -72,30 +72,29 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 
 # Load the mesh
 mesh = Mesh(MESH_PATH)
+mesh_hierarchy = MeshHierarchy(mesh, 1)  # 1 = one barycenter refinement
+fine_mesh = mesh_hierarchy[-1]
 
-# Scott–Vogelius: barycentric refinement is still needed, but test with one level max
-mesh = MeshHierarchy(mesh, 1)[-1]  # don't do more than 1 for testing
-
-# Print number of DOFs
-print(f"Velocity DOFs: {V.dim()}, Pressure DOFs: {W.dim()}")
-
-x, y = SpatialCoordinate(mesh)
+x, y = SpatialCoordinate(fine_mesh)
 
 # get height
-y_coords = mesh.coordinates.dat.data[:, 1]
+y_coords = fine_mesh.coordinates.dat.data[:, 1]
 H = y_coords.max() - y_coords.min()
 
 # get length
-x_coords = mesh.coordinates.dat.data[:, 0]
+x_coords = fine_mesh.coordinates.dat.data[:, 0]
 L = x_coords.max() - x_coords.min()
 
-dx = Measure("dx", domain=mesh)
-ds = Measure("ds", domain=mesh)
+dx = Measure("dx", domain=fine_mesh)
+ds = Measure("ds", domain=fine_mesh)
 
 k = 2
-V = VectorFunctionSpace(mesh, "CG", k)
-W = FunctionSpace(mesh, "DG", k-1)
+V = VectorFunctionSpace(fine_mesh, "CG", k)
+W = FunctionSpace(fine_mesh, "DG", k-1)
 Z = V * W
+
+# Print number of DOFs
+print(f"Velocity DOFs: {V.dim()}, Pressure DOFs: {W.dim()}")
 
 # -------------------
 # Boundary conditions
