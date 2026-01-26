@@ -7,17 +7,23 @@ solver_parameters:
   ksp_rtol: 1e-6
   ksp_max_it: 100
   ksp_monitor_true_residual: null
+  ksp_gmres_modifiedgramschmidt: null
 
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
   pc_fieldsplit_schur_precondition: selfp
 
-  # Velocity
+  # Velocity block
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: hypre
   fieldsplit_0_pc_hypre_type: boomeramg
 
-  # Pressure (DG mass)
+  fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.5
+  fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
+  fieldsplit_0_pc_hypre_boomeramg_max_iter: 1
+  fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
+
+  # Pressure block (DG mass)
   fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: jacobi
