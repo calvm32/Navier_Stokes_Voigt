@@ -71,13 +71,7 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 # ------------
 
 # Load the mesh
-#mesh = Mesh(MESH_PATH)
-# Create coarse simplicial mesh (triangle)
-mesh = RectangleMesh(64, 16, 4, 1, quadrilateral=False)
-
-# Perform barycentric refinement
-refined_mesh = MeshHierarchy(mesh, 1)[-1]  # single refinement level
-
+fine_mesh = Mesh(MESH_PATH)
 x, y = SpatialCoordinate(fine_mesh)
 
 # get height
