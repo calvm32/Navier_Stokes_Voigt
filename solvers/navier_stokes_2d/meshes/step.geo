@@ -48,12 +48,6 @@ Line(8) = {8,1};  // left vertical wall
 Line Loop(1) = {1,2,3,4,5,6,7,8};  // all lines forming perimeter
 Plane Surface(1) = {1};
 
-// ----------------
-// Physical surface
-// ----------------
-
-Physical Surface("Fluid") = {1};
-
 // --------------
 // Physical lines
 // --------------
@@ -62,6 +56,12 @@ Physical Line("1") = {8};		    // left wall (id 1)
 Physical Line("2") = {6};		    // right wall (id 2)
 Physical Line("3") = {1,2,3,4,5};	// bottom including step (id 3)
 Physical Line("4") = {7};		    // top wall (id 4)
+
+// ----------------
+// Physical surface
+// ----------------
+
+Physical Surface("Fluid") = {1};
 
 // ------------
 // Mesh control
