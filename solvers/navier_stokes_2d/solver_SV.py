@@ -31,7 +31,7 @@ P = cfg["P"]
 appctx = {
     "Re": Re,
     "gamma": gamma,
-    "velocity_space": "scott-vogelius"
+    "velocity_space": 0
 }
 
 CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params_SV.yaml"
