@@ -2,6 +2,8 @@ solver_parameters:
   mat_type: aij
 
   ksp_type: gmres
+  ksp_rtol: 1e-10
+  ksp_atol: 1e-12
   pc_type: asm
   ksp_gmres_modifiedgramschmidt: null
   ksp_monitor_true_residual: null
