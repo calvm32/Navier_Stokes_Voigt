@@ -8,12 +8,12 @@ solver_parameters:
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
 
-  fieldsplit_0_ksp_type: chebyshev
-  fieldsplit_0_ksp_max_it: 5
-  fieldsplit_0_pc_type: jacobi
+  # --- Velocity block ---
+  fieldsplit_0_ksp_type: preonly
+  fieldsplit_0_pc_type: asm 
 
-  fieldsplit_1_ksp_type: preonly  
-  fieldsplit_1_ksp_rtol: 1e-3
-  fieldsplit_1_ksp_max_it: 20
+  # --- Pressure block ---
+  fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: hypre
   fieldsplit_1_pc_hypre_type: boomeramg
+
