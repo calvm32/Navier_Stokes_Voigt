@@ -30,8 +30,8 @@ Point(8) = {0, H, 0, lc};   // top-left
 // -----
 // Lines
 // -----
-// Bottom wall with step
 
+// Bottom wall with step
 Line(1) = {1,2};  // bottom horizontal left from origin
 Line(2) = {2,3};  // vertical up step
 Line(3) = {3,4};  // horizontal across step
@@ -44,6 +44,7 @@ Line(8) = {8,1};  // left vertical wall
 // -------------------
 // Line loop & surface
 // -------------------
+
 Line Loop(1) = {1,2,3,4,5,6,7,8};  // all lines forming perimeter
 Plane Surface(1) = {1};
 
@@ -57,7 +58,6 @@ Physical Line("Left") = {8};		    // left wall (id 1)
 Physical Line("Right") = {6};		    // right wall (id 2)
 Physical Line("Bottom") = {1,2,3,4,5};	// bottom including step (id 3)
 Physical Line("Top") = {7};		        // top wall (id 4)
-
 
 // ---------------
 // Bary refinement
@@ -79,3 +79,9 @@ RefineMesh;
 // Uncomment for MORE levels
 // RefineMesh;
 // RefineMesh;
+
+// ----------------
+// Physical surface
+// ----------------
+
+Physical Surface("Fluid") = {1};
