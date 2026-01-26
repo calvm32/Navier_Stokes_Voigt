@@ -48,11 +48,15 @@ Line(8) = {8,1};  // left vertical wall
 Line Loop(1) = {1,2,3,4,5,6,7,8};  // all lines forming perimeter
 Plane Surface(1) = {1};
 
+// ----------------
+// Physical surface
+// ----------------
+
+Physical Surface("Fluid") = {1};
+
 // --------------
 // Physical lines
 // --------------
-
-// (tag only y==0, y==H)
 
 Physical Line("Left") = {8};		    // left wall (id 1)
 Physical Line("Right") = {6};		    // right wall (id 2)
@@ -65,6 +69,7 @@ Physical Line("Top") = {7};		        // top wall (id 4)
 
 // Force triangular mesh
 Mesh.RecombineAll = 0;
+Mesh.Recombine3DAll = 0;
 Mesh.Algorithm = 6;
 
 // Initial mesh
@@ -79,9 +84,3 @@ RefineMesh;
 // Uncomment for MORE levels
 // RefineMesh;
 // RefineMesh;
-
-// ----------------
-// Physical surface
-// ----------------
-
-Physical Surface("Fluid") = {1};
