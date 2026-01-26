@@ -3,7 +3,9 @@ solver_parameters:
 
   snes_type: ksponly
   snes_monitor: null
-
+  snes_lag_preconditioner: 1
+  snes_lag_jacobian: 1
+  
   ksp_type: fgmres
   ksp_gmres_modifiedgramschmidt: null
   ksp_monitor_true_residual: null
