@@ -72,8 +72,8 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 
 # Load the mesh
 #mesh = Mesh(MESH_PATH)
-mesh = RectangleMesh(64, 16, 4, 1)
-mesh_hierarchy = MeshHierarchy(mesh, 1)  # 1 = one barycenter refinement
+mesh = RectangleMesh(8, 4, 4, 1)
+mesh_hierarchy = MeshHierarchy(mesh, 1, refinement_type="barycentric")
 fine_mesh = mesh_hierarchy[-1]
 
 x, y = SpatialCoordinate(fine_mesh)
@@ -112,7 +112,8 @@ bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 bcs = [bc_walls, bc_inflow]
 
 pressure_nullspace = VectorSpaceBasis(constant=True)
-nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), pressure_nullspace])
+#nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), pressure_nullspace])
+nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), Z.sub(1)])
 
 # ------------------
 # Allocate functions

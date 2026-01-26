@@ -1,10 +1,8 @@
 solver_parameters:
   mat_type: aij
 
-  ksp_type: fgmres
-  pc_type: fieldsplit
-  pc_fieldsplit_type: schur
-  pc_fieldsplit_schur_fact_type: lower
+  ksp_type: gmres
+  pc_type: asm
 
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: python
