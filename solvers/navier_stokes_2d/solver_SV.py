@@ -98,7 +98,7 @@ print(f"Velocity DOFs: {V.dim()}, Pressure DOFs: {W.dim()}")
 # -------------------
 
 u_inflow = as_vector((
-    4*P*y*(y - H)/(H**2), # normalize at center line
+    4*y*(H-y)/(H**2), # normalize at center line
     0.0
 ))
 
