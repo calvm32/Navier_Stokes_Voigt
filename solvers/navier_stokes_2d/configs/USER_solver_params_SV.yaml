@@ -1,20 +1,17 @@
 solver_parameters:
-  mat_type: matfree
-  ksp_type: fgmres
-  snes_monitor: null
+  mat_type: aij
 
+  ksp_type: fgmres
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
-  pc_fieldsplit_schur_fact_type: full
+  pc_fieldsplit_schur_fact_type: lower
 
-  # Velocity block
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: python
   fieldsplit_0_pc_python_type: firedrake.AssembledPC
   fieldsplit_0_assembled_pc_type: hypre
   fieldsplit_0_assembled_pc_hypre_type: boomeramg
 
-  # Pressure block
   fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: python
   fieldsplit_1_pc_python_type: firedrake.AssembledPC
