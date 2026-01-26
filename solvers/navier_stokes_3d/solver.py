@@ -118,7 +118,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list = timestepper(get_data, 
+v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,
@@ -130,34 +130,46 @@ v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list,
 # Plot palinstrophy
 # -----------------
 
-plt.loglog(time_list, palinstrophy_list, "-o")
+plt.loglog(every_time_list, palinstrophy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("palinstrophy L2")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("palinstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.savefig("0_palinstrophy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------------
 # Plot stream function
 # --------------------
 
-plt.loglog(time_list, stream_func_list, "-o")
+plt.loglog(every_time_list, stream_func_list, "-o")
 plt.xlabel("time")
 plt.ylabel("stream function L2")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("stream_func_plot.png", dpi=200, bbox_inches='tight')
+plt.savefig("0_stream_func_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------
 # Plot Enstrophy
 # --------------
 
-plt.loglog(time_list, enstrophy_list, "-o")
+plt.loglog(every_time_list, enstrophy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("enstrophy L2")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("enstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.savefig("0_enstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# --------------
+# Plot Enstrophy
+# --------------
+
+plt.loglog(all_time_list, energy_list, "-o")
+plt.xlabel("time")
+plt.ylabel("energy")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("0_energy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()

@@ -27,7 +27,8 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     palinstrophy_list = []
     stream_func_list = []
     enstrophy_list = []
-    time_list = []
+    every_time_list = []
+    all_time_list = []
 
     if is_mixed:
         v_error_list = []
@@ -66,11 +67,9 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
                                     solver_parameters=solver_parameters, appctx=appctx)
 
     # get energy + report run starting
-    if is_mixed:
-        energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
-    else:
-        energy = assemble(inner(u_old, u_old) * dx)
-    
+    energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
+    energy_list.append(energy)
+
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
     
@@ -113,6 +112,8 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     t = t0
     step = 0
 
+    all_time_list.append(t0)
+
     # initialize VTK
     outfile = VTKFile(f"{vtkfile_name}.pvd", comm=Z.mesh().comm)
 
@@ -152,11 +153,12 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
         # --------- energy ---------
         energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
         energy_list.append(energy)
+        all_time_list.append(t)
+
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
-
         if step % compute_every == 0:
-            time_list.append(t)
+            every_time_list.append(t)
             
             if is_mixed:
 
@@ -208,7 +210,7 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # Write error to file
     if is_mixed:
-        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list)
+        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list)
 
     else:
-        return(u_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list)
+        return(u_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list)
