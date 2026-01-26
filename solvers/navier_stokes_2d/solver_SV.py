@@ -73,8 +73,7 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 # Load the mesh
 #mesh = Mesh(MESH_PATH)
 mesh = RectangleMesh(8, 4, 4, 1)
-mesh_hierarchy = MeshHierarchy(mesh, 1, refinement_type="barycentric")
-fine_mesh = mesh_hierarchy[-1]
+fine_mesh = BarycentricRefinement(mesh)
 
 x, y = SpatialCoordinate(fine_mesh)
 
