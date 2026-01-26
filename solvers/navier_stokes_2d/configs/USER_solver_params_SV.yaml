@@ -1,6 +1,10 @@
 solver_parameters:
   mat_type: matfree
 
+  snes_monitor: null
+  ksp_gmres_modifiedgramschmidt: null
+  ksp_monitor_true_residual: null
+
   ksp_type: fgmres
   ksp_rtol: 1e-8
   ksp_atol: 1e-12
