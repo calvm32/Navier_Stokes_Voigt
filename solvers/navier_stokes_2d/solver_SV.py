@@ -90,9 +90,6 @@ V = VectorFunctionSpace(fine_mesh, "CG", k)
 W = FunctionSpace(fine_mesh, "DG", k-1)
 Z = V * W
 
-# Print number of DOFs
-print(W.ufl_element())
-
 # -------------------
 # Boundary conditions
 # -------------------
