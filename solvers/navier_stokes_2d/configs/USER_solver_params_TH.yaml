@@ -12,9 +12,7 @@ solver_parameters:
 
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: python
-  fieldsplit_0_pc_python_type: firedrake.AssembledPC
-  fieldsplit_0_assembled_pc_type: hypre
-  fieldsplit_0_assembled_pc_hypre_type: boomeramg
+  fieldsplit_0_pc_python_type: firedrake.MGPC
 
   fieldsplit_1_ksp_type: fgmres
   fieldsplit_1_ksp_rtol: 1e-3
