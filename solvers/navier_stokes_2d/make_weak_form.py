@@ -53,11 +53,11 @@ def make_weak_form(idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Pressure / continuity
             - p * div(v) * dx
             - q * div(u) * dx
-
-            # Grad–div stabilization
-             + theta * gamma * inner(div(u), div(v)) * dx
-
         )
+
+        # Grad–div stabilization
+        if gamma != 0:
+            a += theta * gamma * inner(div(u), div(v)) * dx
 
         # Linear form L(V)
         L = (
@@ -67,16 +67,16 @@ def make_weak_form(idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Explicit viscosity
             - ((1.0 - theta) / Re) * inner(grad(u_old), grad(v)) * dx
 
-            # Explicit grad–div
-             - (1.0 - theta) * gamma * inner(div(u_old), div(v)) * dx
-
             # Forcing
             + inner(f_mid, v) * dx
 
             # Neumann boundary
             + inner(g_mid, v) * dsN
-
         )
+
+        # Grad–div stabilization
+        if gamma != 0:
+            L -= (1.0 - theta) * gamma * inner(div(u_old), div(v)) * dx
 
         return a, L
 
