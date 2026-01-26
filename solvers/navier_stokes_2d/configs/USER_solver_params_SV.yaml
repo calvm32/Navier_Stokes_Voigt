@@ -3,6 +3,8 @@ solver_parameters:
 
   ksp_type: gmres
   pc_type: asm
+  ksp_gmres_modifiedgramschmidt: null
+  ksp_monitor_true_residual: null
 
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: python
