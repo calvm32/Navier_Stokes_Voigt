@@ -1,18 +1,34 @@
 solver_parameters:
-  mat_type: matfree          # optional: assembled ('aij') is fine too
+  mat_type: matfree
+  snes_monitor: null
 
   ksp_type: fgmres
-  ksp_monitor_short: null
+  ksp_gmres_modifiedgramschmidt: null
+  ksp_monitor_true_residual: null
 
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
 
-  # --- Velocity block ---
   fieldsplit_0_ksp_type: preonly
-  fieldsplit_0_pc_type: jacobi   # simple for velocity
+  fieldsplit_0_pc_type: python
+  fieldsplit_0_pc_python_type: firedrake.AssembledPC
+  fieldsplit_0_assembled_pc_type: hypre
+  fieldsplit_0_assembled_pc_hypre_type: boomeramg
 
-  # --- Pressure block ---
-  fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: hypre
-  fieldsplit_1_pc_hypre_type: boomeramg
+  fieldsplit_1_ksp_type: fgmres
+  fieldsplit_1_ksp_rtol: 1e-3
+  fieldsplit_1_ksp_max_it: 20
+  fieldsplit_1_pc_type: python
+  fieldsplit_1_pc_python_type: firedrake.PCDPC
+
+  fieldsplit_1_pcd_Mp_ksp_type: preonly
+  fieldsplit_1_pcd_Mp_pc_type: jacobi
+
+  fieldsplit_1_pcd_Kp_ksp_type: preonly
+  fieldsplit_1_pcd_Kp_pc_type: hypre
+
+  fieldsplit_1_pcd_Fp_mat_type: matfree
+
+  fieldsplit_1_pcd_u: velocity
+  fieldsplit_1_pcd_dt: "{dt}"
