@@ -67,7 +67,7 @@ Physical Surface("Fluid") = {1};
 // Mesh control
 // ------------
 
-// Absolutely forbid quads
+// forbid quads
 Mesh.RecombineAll = 0;
 Mesh.Recombine3DAll = 0;
 
