@@ -145,6 +145,11 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
         # count steps to print
         step += 1
 
+        # check SV
+        if step == 1:
+            div_norm = norm(div(U.sub(0)), "L2")
+            print("||div u|| =", div_norm)
+
         # -------
         # logging
         # -------

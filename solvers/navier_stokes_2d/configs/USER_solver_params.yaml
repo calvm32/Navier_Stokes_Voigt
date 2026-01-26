@@ -1,10 +1,8 @@
 solver_parameters:
   mat_type: matfree
-  snes_monitor: null
 
   ksp_type: fgmres
-  ksp_gmres_modifiedgramschmidt: null
-  ksp_monitor_true_residual: null
+  ksp_monitor_short: null
 
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
@@ -16,7 +14,7 @@ solver_parameters:
   fieldsplit_0_assembled_pc_type: hypre
   fieldsplit_0_assembled_pc_hypre_type: boomeramg
 
-  fieldsplit_1_ksp_type: fgmres
+  fieldsplit_1_ksp_type: preonly  
   fieldsplit_1_ksp_rtol: 1e-3
   fieldsplit_1_ksp_max_it: 20
   fieldsplit_1_pc_type: hypre
