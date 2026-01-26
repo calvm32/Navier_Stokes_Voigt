@@ -91,7 +91,7 @@ W = FunctionSpace(fine_mesh, "DG", k-1)
 Z = V * W
 
 # Print number of DOFs
-print(W.sub(1).ufl_element())
+print(W.ufl_element())
 
 # -------------------
 # Boundary conditions
