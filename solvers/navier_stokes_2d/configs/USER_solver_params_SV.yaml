@@ -9,10 +9,14 @@ solver_parameters:
 
   # Velocity block
   fieldsplit_0_ksp_type: preonly
-  fieldsplit_0_pc_type: hypre
-  fieldsplit_0_pc_hypre_type: boomeramg
+  fieldsplit_0_pc_type: python
+  fieldsplit_0_pc_python_type: firedrake.AssembledPC
+  fieldsplit_0_assembled_pc_type: hypre
+  fieldsplit_0_assembled_pc_hypre_type: boomeramg
 
   # Pressure block
   fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: hypre
-  fieldsplit_1_pc_hypre_type: boomeramg
+  fieldsplit_1_pc_type: python
+  fieldsplit_1_pc_python_type: firedrake.AssembledPC
+  fieldsplit_1_assembled_pc_type: hypre
+  fieldsplit_1_assembled_pc_hypre_type: boomeramg
