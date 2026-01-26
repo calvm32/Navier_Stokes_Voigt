@@ -118,7 +118,7 @@ def get_data(t):
 
     # velocity
     ufl_v0 = as_vector([
-        4*P*y*(y - H)/(H**2), #P*y*(y - H),
+        0.0, #4*P*y*(y - H)/(H**2), #P*y*(y - H),
         0.0
     ])
 
