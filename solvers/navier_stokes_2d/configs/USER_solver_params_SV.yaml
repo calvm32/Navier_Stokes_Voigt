@@ -19,17 +19,19 @@ solver_parameters:
   pc_fieldsplit_schur_fact_type: lower
   pc_fieldsplit_schur_precondition: selfp
 
+  # ------------------
   # Velocity block (V)
+  # ------------------
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: hypre
   fieldsplit_0_pc_hypre_type: boomeramg
-  fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7   # stronger threshold
+  fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
   fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
-  fieldsplit_0_pc_hypre_boomeramg_max_iter: 3             # more AMG iterations
+  fieldsplit_0_pc_hypre_boomeramg_max_iter: 3
   fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
 
+  # ------------------
   # Pressure block (DG mass)
+  # ------------------
   fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: python
-  fieldsplit_1_pc_python_type: firedrake.AssembledPC
-  fieldsplit_1_assembled_pc_type: jacobi
+  fieldsplit_1_pc_type: jacobi
