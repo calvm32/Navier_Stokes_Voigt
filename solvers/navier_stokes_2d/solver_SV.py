@@ -73,8 +73,12 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 # Load the mesh
 mesh = Mesh(MESH_PATH)
 
-# Scott–Vogelius requires barycentric refinement
-mesh = MeshHierarchy(mesh, 1, reorder=True)[-1]
+# Scott–Vogelius: barycentric refinement is still needed, but test with one level max
+mesh = MeshHierarchy(mesh, 1)[-1]  # don't do more than 1 for testing
+
+# Print number of DOFs
+print(f"Velocity DOFs: {V.dim()}, Pressure DOFs: {W.dim()}")
+
 x, y = SpatialCoordinate(mesh)
 
 # get height

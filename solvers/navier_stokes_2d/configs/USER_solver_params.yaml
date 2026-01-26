@@ -1,5 +1,5 @@
 solver_parameters:
-  mat_type: matfree
+  mat_type: aij            # safer than matfree for testing
 
   ksp_type: fgmres
   ksp_monitor_short: null
@@ -10,10 +10,9 @@ solver_parameters:
 
   # --- Velocity block ---
   fieldsplit_0_ksp_type: preonly
-  fieldsplit_0_pc_type: asm 
+  fieldsplit_0_pc_type: jacobi  # simple, lightweight
 
   # --- Pressure block ---
   fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: hypre
   fieldsplit_1_pc_hypre_type: boomeramg
-
