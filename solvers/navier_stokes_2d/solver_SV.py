@@ -34,7 +34,7 @@ appctx = {
     "velocity_space": "scott-vogelius"
 }
 
-CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params.yaml"
+CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params_SV.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
 
 vtkfile_name = "Soln"

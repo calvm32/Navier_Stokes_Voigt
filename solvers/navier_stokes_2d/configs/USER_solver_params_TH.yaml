@@ -1,0 +1,18 @@
+solver_parameters:
+  mat_type: matfree          # optional: assembled ('aij') is fine too
+
+  ksp_type: fgmres
+  ksp_monitor_short: null
+
+  pc_type: fieldsplit
+  pc_fieldsplit_type: schur
+  pc_fieldsplit_schur_fact_type: lower
+
+  # --- Velocity block ---
+  fieldsplit_0_ksp_type: preonly
+  fieldsplit_0_pc_type: jacobi   # simple for velocity
+
+  # --- Pressure block ---
+  fieldsplit_1_ksp_type: preonly
+  fieldsplit_1_pc_type: hypre
+  fieldsplit_1_pc_hypre_type: boomeramg
