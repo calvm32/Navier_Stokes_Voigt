@@ -1,34 +1,23 @@
 solver_parameters:
-  mat_type: matfree
+  mat_type: aij
 
-  # Linear solve only
   snes_type: ksponly
-  snes_monitor: null
 
-  # Krylov
   ksp_type: fgmres
   ksp_rtol: 1e-6
-  ksp_atol: 1e-12
-  ksp_max_it: 200
+  ksp_max_it: 100
   ksp_monitor_true_residual: null
-  ksp_gmres_modifiedgramschmidt: null
 
-  # Block Schur
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
-  pc_fieldsplit_schur_precondition: full
+  pc_fieldsplit_schur_precondition: selfp
 
-  # Velocity block
+  # Velocity
   fieldsplit_0_ksp_type: preonly
-  fieldsplit_0_pc_type: python
-  fieldsplit_0_pc_python_type: firedrake.AssembledPC
-  fieldsplit_0_assembled_pc_type: hypre
-  fieldsplit_0_assembled_pc_hypre_type: boomeramg
+  fieldsplit_0_pc_type: hypre
+  fieldsplit_0_pc_hypre_type: boomeramg
 
-  # Pressure block (DG mass)
+  # Pressure (DG mass)
   fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: python
-  fieldsplit_1_pc_python_type: firedrake.AssembledPC
-  fieldsplit_1_assembled_pc_type: hypre
-  fieldsplit_1_assembled_pc_hypre_type: boomeramg
+  fieldsplit_1_pc_type: jacobi
