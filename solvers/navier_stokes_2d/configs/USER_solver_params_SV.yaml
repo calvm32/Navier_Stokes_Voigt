@@ -1,31 +1,18 @@
 solver_parameters:
-  mat_type: matfree      # optional for speed
+  mat_type: matfree
   ksp_type: fgmres
+  snes_monitor: null
+
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
-  pc_fieldsplit_schur_fact_type: lower
+  pc_fieldsplit_schur_fact_type: full
 
-  ksp_monitor_true_residual: null       # prints residual at each Krylov iteration
-  snes_monitor: null                    # prints nonlinear residual
-  snes_converged_reason: null           # why SNES converged or diverged
-  ksp_converged_reason: null            # why KSP converged or diverged
-  pc_fieldsplit_debug: 1                # PETSc prints info about fieldsplit
-
-  # --- Velocity block ---
+  # Velocity block
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: hypre
-  fieldsplit_0_pc_hypre_type: boomeramg   # or 'python:AssembledPC' for matfree
+  fieldsplit_0_pc_hypre_type: boomeramg
 
-  # --- Pressure block ---
-  fieldsplit_1_ksp_type: fgmres
-  fieldsplit_1_ksp_rtol: 1e-3
-  fieldsplit_1_ksp_max_it: 20
-  fieldsplit_1_pc_type: python
-  fieldsplit_1_pc_python_type: firedrake.PCDPC
-  fieldsplit_1_pcd_Mp_ksp_type: preonly
-  fieldsplit_1_pcd_Mp_pc_type: jacobi
-  fieldsplit_1_pcd_Kp_ksp_type: preonly
-  fieldsplit_1_pcd_Kp_pc_type: hypre
-  fieldsplit_1_pcd_Fp_mat_type: matfree
-  fieldsplit_1_pcd_u: velocity
-  fieldsplit_1_pcd_dt: "{dt}"
+  # Pressure block
+  fieldsplit_1_ksp_type: preonly
+  fieldsplit_1_pc_type: hypre
+  fieldsplit_1_pc_hypre_type: boomeramg
