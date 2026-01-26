@@ -44,7 +44,7 @@ vtkfile_name = "Soln"
 # ------------------
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MESH_PATH = os.path.join(HERE, "meshes", "poiseuille_with_step.msh")
+MESH_PATH = os.path.join(HERE, "meshes", "step.msh")
 
 if not os.path.exists(MESH_PATH):
     raise FileNotFoundError(f"Mesh not found at {MESH_PATH}")

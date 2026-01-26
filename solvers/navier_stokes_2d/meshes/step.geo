@@ -57,3 +57,25 @@ Physical Line("Left") = {8};		    // left wall (id 1)
 Physical Line("Right") = {6};		    // right wall (id 2)
 Physical Line("Bottom") = {1,2,3,4,5};	// bottom including step (id 3)
 Physical Line("Top") = {7};		        // top wall (id 4)
+
+
+// ---------------
+// Bary refinement
+// ---------------
+
+// Force triangular mesh
+Mesh.RecombineAll = 0;
+Mesh.Algorithm = 6;
+
+// Initial mesh
+Mesh 2;
+
+// Select barycentric subdivision
+Mesh.SubdivisionAlgorithm = 1;
+
+// One barycentric refinement
+RefineMesh;
+
+// Uncomment for MORE levels
+// RefineMesh;
+// RefineMesh;

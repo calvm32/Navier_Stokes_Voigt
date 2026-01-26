@@ -44,7 +44,7 @@ vtkfile_name = "Soln"
 # ------------------
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MESH_PATH = os.path.join(HERE, "meshes", "poiseuille_with_step.msh")
+MESH_PATH = os.path.join(HERE, "meshes", "step.msh")
 
 if not os.path.exists(MESH_PATH):
     raise FileNotFoundError(f"Mesh not found at {MESH_PATH}")
@@ -73,10 +73,10 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 # Load the mesh
 #mesh = Mesh(MESH_PATH)
 # Create coarse simplicial mesh (triangle)
-mesh = UnitSquareMesh(8, 8, quadrilateral=False)  # must be triangular
+mesh = RectangleMesh(64, 16, 4, 1, quadrilateral=False)
 
-# Do one barycentric refinement
-fine_mesh = refine(mesh)
+# Perform barycentric refinement
+refined_mesh = MeshHierarchy(mesh, 1)[-1]  # single refinement level
 
 x, y = SpatialCoordinate(fine_mesh)
 
