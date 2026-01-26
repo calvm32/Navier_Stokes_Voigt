@@ -31,7 +31,7 @@ P = cfg["P"]
 appctx = {
     "Re": Re,
     "gamma": gamma,
-    "velocity_space": cfg.get("velocity_space", 0)
+    "velocity_space": "scott-vogelius"
 }
 
 CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params.yaml"
@@ -72,6 +72,9 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 
 # Load the mesh
 mesh = Mesh(MESH_PATH)
+
+# Scott–Vogelius requires barycentric refinement
+mesh = MeshHierarchy(mesh, 1, reorder=True)[-1]
 x, y = SpatialCoordinate(mesh)
 
 # get height
@@ -85,8 +88,9 @@ L = x_coords.max() - x_coords.min()
 dx = Measure("dx", domain=mesh)
 ds = Measure("ds", domain=mesh)
 
-V = VectorFunctionSpace(mesh, "CG", 2)
-W = FunctionSpace(mesh, "CG", 1)
+k = 2
+V = VectorFunctionSpace(mesh, "CG", k)
+W = FunctionSpace(mesh, "DG", k-1)
 Z = V * W
 
 # -------------------
@@ -101,9 +105,10 @@ u_inflow = as_vector((
 bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,2))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
-bcs = [bc_walls]
+bcs = [bc_walls, bc_inflow]
 
-nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
+pressure_nullspace = VectorSpaceBasis(constant=True)
+nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), pressure_nullspace])
 
 # ------------------
 # Allocate functions
