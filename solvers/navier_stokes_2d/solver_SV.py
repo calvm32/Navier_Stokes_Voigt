@@ -85,7 +85,7 @@ L = x_coords.max() - x_coords.min()
 dx = Measure("dx", domain=fine_mesh)
 ds = Measure("ds", domain=fine_mesh)
 
-k = 2
+k = 3  # or higher for stability on arbitrary triangles
 V = VectorFunctionSpace(fine_mesh, "CG", k)
 W = FunctionSpace(fine_mesh, "DG", k-1)
 Z = V * W
@@ -109,7 +109,6 @@ bcs = [bc_walls, bc_inflow]
 
 pressure_nullspace = VectorSpaceBasis(constant=True)
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), pressure_nullspace])
-#nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), Z.sub(1)])
 
 # ------------------
 # Allocate functions

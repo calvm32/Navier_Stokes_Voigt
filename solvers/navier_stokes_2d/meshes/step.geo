@@ -63,24 +63,16 @@ Physical Line("Right") = {6};		    // right wall (id 2)
 Physical Line("Bottom") = {1,2,3,4,5};	// bottom including step (id 3)
 Physical Line("Top") = {7};		        // top wall (id 4)
 
-// ---------------
-// Bary refinement
-// ---------------
+// ------------
+// Mesh control
+// ------------
 
-// Force triangular mesh
+// Absolutely forbid quads
 Mesh.RecombineAll = 0;
 Mesh.Recombine3DAll = 0;
-Mesh.Algorithm = 6;
 
-// Initial mesh
+// Force triangle-only meshing
+Mesh.Algorithm = 5; // Delaunay = TRIANGLES ONLY
+
+// Generate 2D mesh
 Mesh 2;
-
-// Select barycentric subdivision
-Mesh.SubdivisionAlgorithm = 1;
-
-// One barycentric refinement
-RefineMesh;
-
-// Uncomment for MORE levels
-// RefineMesh;
-// RefineMesh;
