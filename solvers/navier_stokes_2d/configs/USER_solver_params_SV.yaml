@@ -5,6 +5,12 @@ solver_parameters:
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
 
+  ksp_monitor_true_residual: null       # prints residual at each Krylov iteration
+  snes_monitor: null                    # prints nonlinear residual
+  snes_converged_reason: null           # why SNES converged or diverged
+  ksp_converged_reason: null            # why KSP converged or diverged
+  pc_fieldsplit_debug: 1                # PETSc prints info about fieldsplit
+
   # --- Velocity block ---
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: hypre
