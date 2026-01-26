@@ -2,8 +2,8 @@ solver_parameters:
   mat_type: matfree
 
   snes_monitor: null
-  ksp_gmres_modifiedgramschmidt: null
   ksp_monitor_true_residual: null
+  ksp_gmres_modifiedgramschmidt: null
 
   ksp_type: fgmres
   ksp_rtol: 1e-6
@@ -12,15 +12,13 @@ solver_parameters:
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
-  pc_fieldsplit_schur_precondition: all
+  pc_fieldsplit_schur_precondition: a11
 
-  # Velocity block
+  # Velocity block (cheap, inexact)
   fieldsplit_0_ksp_type: richardson
   fieldsplit_0_ksp_max_it: 2
   fieldsplit_0_pc_type: jacobi
 
-  # Pressure block
+  # Pressure block (DG mass matrix — correct for SV)
   fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: python
-  fieldsplit_1_pc_python_type: firedrake.AssembledPC
-  fieldsplit_1_assembled_pc_type: jacobi
+  fieldsplit_1_pc_type: jacobi
