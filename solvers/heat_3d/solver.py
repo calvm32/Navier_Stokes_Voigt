@@ -1,10 +1,10 @@
 from firedrake import *
 
+import matplotlib.pyplot as plt
 from solvers.timestepper import timestepper
 from .make_weak_form import make_weak_form
-from solvers.printoff import blue
-
-from .config_constants import t0, T, dt, N, vtkfile_name, solver_parameters
+from solvers.printoff import blue, green
+from solvers.config_setup import *
 
 # -------------
 # Configuration
