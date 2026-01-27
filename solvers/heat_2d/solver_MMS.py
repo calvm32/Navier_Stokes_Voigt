@@ -1,7 +1,8 @@
 from firedrake import *
 import yaml
 from pathlib import Path
-import shutils
+import os
+import shutil
 
 import matplotlib.pyplot as plt
 from solvers.timestepper import timestepper
