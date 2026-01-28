@@ -184,9 +184,9 @@ plt.tight_layout()
 plt.savefig("0_enstrophy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
-# --------------
-# Plot Enstrophy
-# --------------
+# -----------
+# Plot Energy
+# -----------
 
 plt.loglog(all_time_list, energy_list, "-o")
 plt.xlabel("time")
