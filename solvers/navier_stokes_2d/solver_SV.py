@@ -35,7 +35,7 @@ appctx = {
 }
 
 CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params_SV.yaml"
-solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
+solver_parameters = load_solver_parameters(CFG_PATH2)
 
 vtkfile_name = "Soln"
 
