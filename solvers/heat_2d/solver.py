@@ -79,7 +79,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-u_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list, energy_list, all_time_list = timestepper(get_data, 
+u_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper(get_data, 
         V, dx, ds, 
         t0, T, dt,
         make_weak_form=make_weak_form,
