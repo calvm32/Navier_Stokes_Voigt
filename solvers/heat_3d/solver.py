@@ -84,7 +84,7 @@ u_error_list, palinstrophy_list, stream_func_list, enstrophy_list, time_list = t
         t0, T, dt,
         make_weak_form=make_weak_form,
         solver_parameters=solver_parameters,
-        vtkfile_name=new_vtkfile_name)
+        vtkfile_name=vtkfile_name)
 
 # -----------------
 # Plot palinstrophy
