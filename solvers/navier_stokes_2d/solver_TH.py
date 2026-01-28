@@ -51,8 +51,6 @@ if not os.path.exists(MESH_PATH):
 
 print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
-blue(f"\n*** Starting solve ***\n", spaced=True)
-
 # -------------
 # Archive YAMLs
 # -------------
@@ -69,6 +67,8 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 # ------------
 # Setup spaces
 # ------------
+
+blue(f"\n*** Starting solve ***\n", spaced=True)
 
 # Load the mesh
 mesh = Mesh(MESH_PATH)

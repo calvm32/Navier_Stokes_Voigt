@@ -29,6 +29,8 @@ P = cfg["P"]
 CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
 
+vtkfile_name = "Soln"
+
 # -------------
 # Archive YAMLs
 # -------------

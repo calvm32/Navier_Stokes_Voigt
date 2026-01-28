@@ -24,7 +24,10 @@ dt = cfg["dt"]
 theta = cfg["theta"]
 N = cfg["N"]
 
-blue(f"\n*** Starting solve ***\n", spaced=True)
+CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
+solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
+
+vtkfile_name = "Soln"
 
 # -------------
 # Archive YAMLs
@@ -42,6 +45,8 @@ print(f"[solver.py] YAML configs archived in {run_dir}")
 # ------------
 # Setup spaces
 # ------------
+
+blue(f"\n*** Starting solve ***\n", spaced=True)
 
 # mesh and measures
 mesh = UnitCubeMesh(N, N, N)
