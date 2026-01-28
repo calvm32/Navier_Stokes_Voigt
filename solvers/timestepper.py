@@ -68,7 +68,6 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # get energy + report run starting
     energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
-    energy_list.append(energy)
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
@@ -113,6 +112,7 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     step = 0
 
     all_time_list.append(t0)
+    energy_list.append(energy)
 
     # initialize VTK
     outfile = VTKFile(f"{vtkfile_name}.pvd", comm=Z.mesh().comm)
@@ -213,4 +213,4 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list)
 
     else:
-        return(u_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list)
+        return(u_error_list, energy_list, all_time_list)
