@@ -29,6 +29,6 @@ solver_parameters:
   fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: jacobi
 
-  snes_view: None
-  ksp_view: None
-  pc_view: None
+  "snes_view": None
+  "ksp_view": None
+  "pc_view": None
