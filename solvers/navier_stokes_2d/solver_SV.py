@@ -38,7 +38,35 @@ CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params_SV.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # views = news
-solver_parameters.update({'ksp_view': None, 'pc_view': None, 'snes_view': None})
+solver_parameters.update({
+    'ksp_view': None, 
+    'pc_view': None,
+    'snes_view': None, 
+    'pc_fieldsplit_view': None,
+    'firedrake_0_ksp_view': None,
+    'firedrake_0_pc_view': None,
+    'firedrake_1_ksp_view': None,
+    'firedrake_1_pc_view': None,
+})
+
+"""
+#pc_type: lu
+pc_fieldsplit_type: additive
+
+# Velocity block (V)
+fieldsplit_0_ksp_type: preonly
+fieldsplit_0_pc_type: hypre
+fieldsplit_0_pc_hypre_type: boomeramg
+fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
+fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
+fieldsplit_0_pc_hypre_boomeramg_max_iter: 3
+fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
+
+# Pressure block (DG mass)
+fieldsplit_1_ksp_type: preonly
+fieldsplit_1_pc_type: jacobi
+"""
+
 
 vtkfile_name = "Soln"
 
