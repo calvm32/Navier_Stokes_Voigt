@@ -11,7 +11,7 @@ solver_parameters:
   ksp_max_it: 50
 
   # Block Schur
-  pc_type: lu
+  #pc_type: lu
   pc_fieldsplit_type: additive
 
   # Velocity block (V)
