@@ -14,6 +14,7 @@ solver_parameters:
   ksp_gmres_modifiedgramschmidt: null
 
   # Block
+  pc_type: fieldsplit
   pc_fieldsplit_type: additive
 
   # Velocity block (V)
