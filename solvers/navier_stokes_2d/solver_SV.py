@@ -10,6 +10,15 @@ from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
+# ------------
+# Views = news
+# ------------
+
+petsc.Options().setValue("ksp_view", None)
+petsc.Options().setValue("pc_view", None)
+petsc.Options().setValue("snes_view", None)
+petsc.Options().setValue("options_left", None)
+
 # -------------
 # Configuration
 # -------------
