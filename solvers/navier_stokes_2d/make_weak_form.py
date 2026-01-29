@@ -13,7 +13,7 @@ cfg = load_config(CFG_PATH1)
 
 theta = cfg["theta"]
 gamma = cfg["gamma"]
-Re    = cfg["Re"]
+Re = cfg["Re"]
 
 # ---------
 # Weak form
