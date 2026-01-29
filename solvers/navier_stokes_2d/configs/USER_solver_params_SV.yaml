@@ -13,7 +13,9 @@ solver_parameters:
   ksp_monitor_true_residual: null
   ksp_gmres_modifiedgramschmidt: null
 
-  pc_type: gamg
+  #pc_type: gamg
+  #pc_gamg_type: agg
+  #pc_gamg_agg_nsmooths: 1
 
   # Block Schur
   #pc_type: fieldsplit
