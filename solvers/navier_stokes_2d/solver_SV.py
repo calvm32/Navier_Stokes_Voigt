@@ -10,6 +10,8 @@ from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
+from firedrake import petsc
+
 # ------------
 # Views = news
 # ------------
