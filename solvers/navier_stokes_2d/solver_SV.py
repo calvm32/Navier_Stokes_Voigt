@@ -16,10 +16,10 @@ from firedrake import petsc
 # Views = news
 # ------------
 
-petsc.Options().setValue("ksp_view", None)
-petsc.Options().setValue("pc_view", None)
-petsc.Options().setValue("snes_view", None)
-petsc.Options().setValue("options_left", None)
+PETSc.Options().setValue("ksp_view", None)
+PETSc.Options().setValue("pc_view", None)
+PETSc.Options().setValue("snes_view", None)
+PETSc.Options().setValue("options_left", None)
 
 # -------------
 # Configuration
