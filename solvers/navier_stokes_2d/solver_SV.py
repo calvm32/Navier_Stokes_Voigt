@@ -10,17 +10,6 @@ from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
-from firedrake import petsc
-
-# ------------
-# Views = news
-# ------------
-
-PETSc.Options().setValue("ksp_view", None)
-PETSc.Options().setValue("pc_view", None)
-PETSc.Options().setValue("snes_view", None)
-PETSc.Options().setValue("options_left", None)
-
 # -------------
 # Configuration
 # -------------
