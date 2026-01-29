@@ -38,7 +38,7 @@ CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params_SV.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # views = news
-#solver_parameters.update({'ksp_view': None, 'pc_view': None, 'snes_view': None})
+solver_parameters.update({'ksp_view': None, 'pc_view': None, 'snes_view': None})
 
 vtkfile_name = "Soln"
 
