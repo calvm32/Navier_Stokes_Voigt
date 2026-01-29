@@ -11,17 +11,4 @@ solver_parameters:
   ksp_max_it: 500
 
   # Block Schur
-  pc_fieldsplit_type: additive
-
-  # Velocity block (V)
-  fieldsplit_0_ksp_type: preonly
-  fieldsplit_0_pc_type: hypre
-  fieldsplit_0_pc_hypre_type: boomeramg
-  fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
-  fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
-  fieldsplit_0_pc_hypre_boomeramg_max_iter: 3
-  fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
-
-  # Pressure block (DG mass)
-  fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: jacobi
+  pc_type: lu
