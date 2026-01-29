@@ -8,7 +8,21 @@ solver_parameters:
   ksp_type: fgmres
   ksp_rtol: 1e-6
   ksp_atol: 1e-12
-  ksp_max_it: 500
+  ksp_max_it: 50
 
   # Block Schur
-  pc_type: lu
+  pc_type: fieldsplit
+  pc_fieldsplit_type: additive
+
+  # Velocity block (V)
+  fieldsplit_0_ksp_type: preonly
+  fieldsplit_0_pc_type: hypre
+  fieldsplit_0_pc_hypre_type: boomeramg
+  fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
+  fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
+  fieldsplit_0_pc_hypre_boomeramg_max_iter: 3
+  fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
+
+  # Pressure block (DG mass)
+  fieldsplit_1_ksp_type: preonly
+  fieldsplit_1_pc_type: jacobi
