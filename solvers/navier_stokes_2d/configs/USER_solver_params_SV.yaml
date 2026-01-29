@@ -13,11 +13,8 @@ solver_parameters:
   ksp_monitor_true_residual: null
   ksp_gmres_modifiedgramschmidt: null
 
-  # Block Schur
-  pc_type: fieldsplit
-  pc_fieldsplit_type: schur
-  pc_fieldsplit_schur_fact_type: lower
-  pc_fieldsplit_schur_precondition: selfp
+  # Block
+  pc_type: additive
 
   # Velocity block (V)
   fieldsplit_0_ksp_type: preonly
