@@ -155,7 +155,7 @@ v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list,
 # Plot palinstrophy
 # -----------------
 
-plt.loglog(every_time_list, palinstrophy_list, "-o")
+plt.semilogy(every_time_list, palinstrophy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("palinstrophy L2")
 plt.grid(True)
@@ -167,7 +167,7 @@ plt.close()
 # Plot stream function
 # --------------------
 
-plt.loglog(every_time_list, stream_func_list, "-o")
+plt.semilogy(every_time_list, stream_func_list, "-o")
 plt.xlabel("time")
 plt.ylabel("stream function L2")
 plt.grid(True)
@@ -179,7 +179,7 @@ plt.close()
 # Plot Enstrophy
 # --------------
 
-plt.loglog(every_time_list, enstrophy_list, "-o")
+plt.semilogy(every_time_list, enstrophy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("enstrophy L2")
 plt.grid(True)
@@ -191,7 +191,7 @@ plt.close()
 # Plot Energy
 # -----------
 
-plt.loglog(all_time_list, energy_list, "-o")
+plt.semilogy(all_time_list, energy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("energy")
 plt.grid(True)

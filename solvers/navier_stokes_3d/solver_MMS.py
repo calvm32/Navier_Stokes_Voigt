@@ -168,7 +168,7 @@ for N in N_list:
 # -------------
 
 plt.figure()
-plt.loglog(N_list, v_final_error_list, "-o")
+plt.semilogy(N_list, v_final_error_list, "-o")
 plt.xlabel("mesh size")
 plt.ylabel("velocity error")
 plt.grid(True)
@@ -182,7 +182,7 @@ plt.close()
 # --------------
 
 plt.figure()
-plt.loglog(N_list, p_final_error_list, "-o")
+plt.semilogy(N_list, p_final_error_list, "-o")
 plt.xlabel("mesh size")
 plt.ylabel("pressure error")
 plt.grid(True)

@@ -90,7 +90,7 @@ u_error_list, energy_list, all_time_list = timestepper(get_data,
 # Plot Energy
 # -----------
 
-plt.loglog(all_time_list, energy_list, "-o")
+plt.semilogy(all_time_list, energy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("energy")
 plt.grid(True)
