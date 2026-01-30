@@ -14,23 +14,23 @@ solver_parameters:
   ksp_gmres_modifiedgramschmidt: null
 
   pc_type: lu
-  pc_factor_shift_type: none  # implied by zero-pivot tolerance
-  pc_factor_zero_pivot: 2.22045e-14
-  pc_factor_mat_ordering_type: external
-  
-  # pc_fieldsplit_type: schur
-  # pc_fieldsplit_schur_fact_type: lower
-  # pc_fieldsplit_schur_precondition: selfp
+  # pc_factor_shift_type: none  # implied by zero-pivot tolerance
+  # pc_factor_zero_pivot: 2.22045e-14
+  # pc_factor_mat_ordering_type: external
 
-  # # Velocity block (V)
-  # fieldsplit_0_ksp_type: preonly
-  # fieldsplit_0_pc_type: hypre
-  # fieldsplit_0_pc_hypre_type: boomeramg
-  # fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
-  # fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
-  # fieldsplit_0_pc_hypre_boomeramg_max_iter: 3
-  # fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
+  pc_fieldsplit_type: schur
+  pc_fieldsplit_schur_fact_type: lower
+  pc_fieldsplit_schur_precondition: selfp
 
-  # # Pressure block (DG mass)
-  # fieldsplit_1_ksp_type: preonly
-  # fieldsplit_1_pc_type: jacobi
+  # Velocity block (V)
+  fieldsplit_0_ksp_type: preonly
+  fieldsplit_0_pc_type: hypre
+  fieldsplit_0_pc_hypre_type: boomeramg
+  fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
+  fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
+  fieldsplit_0_pc_hypre_boomeramg_max_iter: 3
+  fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
+
+  # Pressure block (DG mass)
+  fieldsplit_1_ksp_type: preonly
+  fieldsplit_1_pc_type: jacobi
