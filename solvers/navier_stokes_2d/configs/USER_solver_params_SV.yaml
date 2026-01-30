@@ -1,4 +1,5 @@
 solver_parameters:
+  # Nonlinear solver
   snes_type: ksponly
 
   # Linear solver
