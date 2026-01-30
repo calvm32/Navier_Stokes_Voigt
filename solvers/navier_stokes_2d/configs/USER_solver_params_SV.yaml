@@ -1,4 +1,9 @@
 solver_parameters:
+
+  snes_monitor: null
+  ksp_monitor_true_residual: null
+  ksp_gmres_modifiedgramschmidt: null
+
   # Nonlinear solver
   snes_type: ksponly
   snes_max_it: 50
