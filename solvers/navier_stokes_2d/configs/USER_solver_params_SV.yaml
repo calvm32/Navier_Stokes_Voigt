@@ -1,12 +1,5 @@
 solver_parameters:
-  # Nonlinear solver (even though this is effectively linear)
   snes_type: ksponly
-  snes_max_it: 50
-  snes_max_funcs: 10000
-  snes_rtol: 1e-8
-  snes_atol: 1e-50
-  snes_stol: 1e-8
-  snes_norm_schedule: always
 
   # Linear solver
   ksp_type: fgmres
