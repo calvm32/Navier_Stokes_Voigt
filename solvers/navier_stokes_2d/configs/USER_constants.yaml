@@ -1,5 +1,5 @@
 t0: 0.0             # initial time
-T: 20.0              # final time
+T: 50.0              # final time
 dt: 0.005            # time step
 theta: 0.5          # theta constant
 gamma: 2.0          # grad-div stabilization constant
