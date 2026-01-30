@@ -1,0 +1,63 @@
+KSP Object: (firedrake_0_) 1 MPI process                                                                                                                 
+  type: fgmres                                                                                                                                           
+    restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement                                                 
+    happy breakdown tolerance 1e-30                                                                                                                      
+  maximum iterations=50, initial guess is zero                                                                                                           
+  tolerances: relative=1e-06, absolute=1e-12, divergence=10000.                                                                                          
+  right preconditioning                                                                                                                                  
+  using UNPRECONDITIONED norm type for convergence test                                                                                                  
+PC Object: (firedrake_0_) 1 MPI process                                                                                                                  
+  type: lu                                                                                                                                               
+    out-of-place factorization                                                                                                                           
+    tolerance for zero pivot 2.22045e-14                                                                                                                 
+    matrix ordering: external                                                                                                                            
+    factor fill ratio given 0., needed 0.                                                                                                                
+      Factored matrix follows:                                                                                                                           
+        Mat Object: (firedrake_0_) 1 MPI process                                                                                                         
+          type: mumps                                                                                                                                    
+          rows=2131316, cols=2131316                                                                                                                     
+          package used to perform factorization: mumps                                                                                                   
+          total: nonzeros=182049490, allocated nonzeros=182049490                                                                                        
+  linear system matrix = precond matrix:
+  Mat Object: (firedrake_0_) 1 MPI process
+    type: seqaij
+    rows=2131316, cols=2131316
+    total: nonzeros=78377446, allocated nonzeros=78377446
+    total number of mallocs used during MatSetValues calls=0
+      has attached null space
+      using I-node routines: found 1278243 nodes, limit used is 5
+SNES Object: (firedrake_0_) 1 MPI process
+  type: ksponly
+  maximum iterations=50, maximum function evaluations=10000
+  tolerances: relative=1e-08, absolute=1e-50, solution=1e-08
+  total number of linear solver iterations=1
+  total number of function evaluations=1
+  norm schedule ALWAYS
+  KSP Object: (firedrake_0_) 1 MPI process                                                                                                               
+    type: fgmres
+      restart=30, using Classical (unmodified) Gram-Schmidt Orthogonalization with no iterative refinement
+      happy breakdown tolerance 1e-30
+    maximum iterations=50, initial guess is zero
+    tolerances: relative=1e-06, absolute=1e-12, divergence=10000.
+    right preconditioning
+    using UNPRECONDITIONED norm type for convergence test
+  PC Object: (firedrake_0_) 1 MPI process
+    type: lu
+      out-of-place factorization
+      tolerance for zero pivot 2.22045e-14
+      matrix ordering: external
+      factor fill ratio given 0., needed 0.
+        Factored matrix follows:
+          Mat Object: (firedrake_0_) 1 MPI process
+            type: mumps
+            rows=2131316, cols=2131316 
+            package used to perform factorization: mumps
+            total: nonzeros=182049490, allocated nonzeros=182049490
+    linear system matrix = precond matrix:
+    Mat Object: (firedrake_0_) 1 MPI process
+      type: seqaij
+      rows=2131316, cols=2131316
+      total: nonzeros=78377446, allocated nonzeros=78377446
+      total number of mallocs used during MatSetValues calls=0
+        has attached null space
+        using I-node routines: found 1278243 nodes, limit used is 5

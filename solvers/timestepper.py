@@ -10,7 +10,7 @@ def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
     """
 
-    num_steps = int((float(T)-float(t0)) / float(dt)) + 1 # add 1 to include first pt
+    num_steps = int((float(T)-float(t0)) / float(dt)) 
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
 
