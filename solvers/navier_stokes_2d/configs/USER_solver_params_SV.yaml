@@ -3,14 +3,6 @@ solver_parameters:
 
   # Linear solver
   ksp_type: fgmres
-  ksp_max_it: 50
-  ksp_rtol: 1e-6
-  ksp_atol: 1e-12
-  ksp_divtol: 1e4
-  ksp_gmres_restart: 30
-  ksp_initial_guess_nonzero: False
-  ksp_norm_type: unpreconditioned
-  ksp_pc_side: right
 
   # Preconditioner
   pc_type: lu
