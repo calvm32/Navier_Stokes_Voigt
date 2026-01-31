@@ -122,7 +122,7 @@ bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 bcs = [bc_walls, bc_inflow]
 
 pressure_nullspace = VectorSpaceBasis(constant=True)
-nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), pressure_nullspace])
+nullspace = None # MixedVectorSpaceBasis(Z, [Z.sub(0), pressure_nullspace])
 
 # ------------------
 # Allocate functions
