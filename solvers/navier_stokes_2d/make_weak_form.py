@@ -35,15 +35,14 @@ def make_weak_form(idt, f, f_old, g, g_old, U_old, dx, dsN):
         u, p = split(U)
         v, q = split(V)
 
-        # Midpoint velocity
         u_mid = theta*u + (1.0 - theta)*u_old
 
         # -------------
         # Nonlinear LHS
         # -------------
 
-        # Time derivative
         a = (
+            # Time derivative
             idt * inner(u, v) * dx
 
             # Skew-symmetric convection
