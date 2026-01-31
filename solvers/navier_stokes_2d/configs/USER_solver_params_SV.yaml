@@ -14,8 +14,8 @@ solver_parameters:
   ksp_rtol: 1e-6
   ksp_atol: 1e-10
   ksp_max_it: 100
-  ksp_norm_type: unpreconditioned
-  ksp_pc_side: right
+  ksp_norm_type: preconditioned
+  ksp_pc_side: left
   ksp_gmres_restart: 30
 
   # Block Schur preconditioner

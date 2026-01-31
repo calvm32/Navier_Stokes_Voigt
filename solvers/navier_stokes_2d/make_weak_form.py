@@ -38,33 +38,40 @@ def make_weak_form(idt, f, f_old, g, g_old, U_old, dx, dsN):
         # Midpoint velocity
         u_mid = theta*u + (1.0 - theta)*u_old
 
+        # -------------
+        # Nonlinear LHS
+        # -------------
+
         # Time derivative
-        a = idt * inner(u, v) * dx
+        a = (
+            idt * inner(u, v) * dx
 
-        # Skew-symmetric convection
-        a += 0.5 * (
-            inner(dot(grad(u), u_mid), v)
-            - inner(dot(grad(v), u_mid), u)
-        ) * dx
+            # Skew-symmetric convection
+            + 0.5 * (inner(dot(u_mid, nabla_grad(u)), v)
+                - inner(dot(u_mid, nabla_grad(v)), u)) * dx
 
-        # Viscosity (midpoint)
-        a += (1.0 / Re) * inner(grad(u_mid), grad(v)) * dx
+            # Viscosity (midpoint)
+            + (1.0 / Re) * inner(grad(u_mid), grad(v)) * dx
 
-        # Pressure / incompressibility
-        a += -p * div(v) * dx
-        a += -q * div(u) * dx
+            # Pressure / incompressibility
+            - p * div(v) * dx
+            - q * div(u) * dx
+        )
 
         # Grad–div stabilization
         if gamma != 0:
             a += gamma * inner(div(u), div(v)) * dx
 
-        # ----------------
+        # ----------
         # Linear RHS
-        # ----------------
+        # ----------
 
-        L = idt * inner(u_old, v) * dx
-        L += inner(f_mid, v) * dx
-        L += inner(g_mid, v) * dsN
+        L = (
+            idt * inner(u_old, v) * dx
+            + inner(f_mid, v) * dx
+            + inner(g_mid, v) * dsN
+            + (1.0 / Re) * inner(g_mid, v) * dsN
+        )
 
         return a, L
 
