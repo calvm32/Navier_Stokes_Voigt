@@ -44,7 +44,7 @@ def make_weak_form(idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Time derivative
             idt * inner(u, v) * dx
 
-            # Oseen convection: skew version of (u_old * grad)u
+            # Oseen convection: skew convection (u_old * grad)u
             + 0.5 * (inner(dot(grad(u), u_old), v) - inner(dot(grad(v), u_old), u))
 
             # Viscosity
