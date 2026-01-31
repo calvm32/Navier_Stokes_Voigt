@@ -23,27 +23,27 @@ def create_timestep_solver(get_data, Z, dx , dsN, u_old, u, make_weak_form, is_m
     g_old = Function(Z)
 
     # Create the problem + solver once
-    a, L = make_weak_form(
-        idt, 
-        f, f_old, 
-        g, g_old, 
-        u_old,
-        dx, dsN
-    )(u_trial, v)
-    
     if is_mixed:
+        a, L = make_weak_form(
+            idt, f, f_old, g, g_old, u_old, dx, dsN
+        )(u, TestFunction(Z))
         problem_var = NonlinearVariationalProblem(a, L, u, bcs=bcs)
         solver = NonlinearVariationalSolver(
             problem_var,
             solver_parameters=solver_parameters,
-            nullspace=nullspace, appctx=appctx
+            nullspace=nullspace,
+            appctx=appctx
         )
     else:
+        a, L = make_weak_form(
+            idt, f, f_old, g, g_old, u_old, dx, dsN
+        )(u, TestFunction(Z))
         problem_var = LinearVariationalProblem(a, L, u, bcs=bcs)
         solver = LinearVariationalSolver(
             problem_var,
             solver_parameters=solver_parameters,
-            nullspace=nullspace, appctx=appctx
+            nullspace=nullspace,
+            appctx=appctx
         )
 
     # ------
