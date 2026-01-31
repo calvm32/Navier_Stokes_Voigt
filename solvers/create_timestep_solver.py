@@ -31,12 +31,20 @@ def create_timestep_solver(get_data, Z, dx , dsN, u_old, u, make_weak_form, is_m
         dx, dsN
     )(u_trial, v)
     
-    problem_var = LinearVariationalProblem(a, L, u, bcs=bcs)
-    solver = LinearVariationalSolver(
-        problem_var,
-        solver_parameters=solver_parameters,
-        nullspace=nullspace, appctx=appctx
-    )
+    if is_mixed:
+        problem_var = NonlinearVariationalProblem(a, L, u, bcs=bcs)
+        solver = NonlinearVariationalSolver(
+            problem_var,
+            solver_parameters=solver_parameters,
+            nullspace=nullspace, appctx=appctx
+        )
+    else:
+        problem_var = LinearVariationalProblem(a, L, u, bcs=bcs)
+        solver = LinearVariationalSolver(
+            problem_var,
+            solver_parameters=solver_parameters,
+            nullspace=nullspace, appctx=appctx
+        )
 
     # ------
     # Update

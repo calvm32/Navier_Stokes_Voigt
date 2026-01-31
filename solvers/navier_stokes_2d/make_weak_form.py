@@ -21,62 +21,50 @@ Re = cfg["Re"]
 
 def make_weak_form(idt, f, f_old, g, g_old, U_old, dx, dsN):
     """
-    Bilinear and linear forms for incompressible Navier-Stokes
-      -> Crank-Nicolson
-      -> Oseen linearization
-      -> grad-div stabilization
-      -> bilinear, linear
+    Energy-stable skew-symmetric Crank–Nicolson
+    incompressible Navier–Stokes
     """
 
-    # Midpoints
+    # Midpoint forcing
     f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
     g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
 
     u_old = U_old.sub(0)
-    p_old = U_old.sub(1)
 
     def forms(U, V):
         u, p = split(U)
         v, q = split(V)
 
-        # Bilinear form a(U,V)
-        a = (
-            # Time derivative
-            idt * inner(u, v) * dx
+        # Midpoint velocity
+        u_mid = theta*u + (1.0 - theta)*u_old
 
-            # Oseen convection: skew convection (u_old * grad)u
-            + 0.5 * (inner(dot(grad(u), u_old), v) - inner(dot(grad(v), u_old), u)) * dx
+        # Time derivative
+        a = idt * inner(u, v) * dx
 
-            # Viscosity
-            + (theta / Re) * inner(grad(u), grad(v)) * dx
+        # Skew-symmetric convection
+        a += 0.5 * (
+            inner(dot(grad(u), u_mid), v)
+            - inner(dot(grad(v), u_mid), u)
+        ) * dx
 
-            # Pressure / continuity
-            - p * div(v) * dx
-            - q * div(u) * dx
-        )
+        # Viscosity (midpoint)
+        a += (1.0 / Re) * inner(grad(u_mid), grad(v)) * dx
 
-        # Grad–div stabilization
-        if gamma != 0:
-            a += theta * gamma * inner(div(u), div(v)) * dx
-
-        # Linear form L(V)
-        L = (
-            # Time derivative
-            idt * inner(u_old, v) * dx
-
-            # Explicit viscosity
-            - ((1.0 - theta) / Re) * inner(grad(u_old), grad(v)) * dx
-
-            # Forcing
-            + inner(f_mid, v) * dx
-
-            # Neumann boundary
-            + inner(g_mid, v) * dsN
-        )
+        # Pressure / incompressibility
+        a += -p * div(v) * dx
+        a += -q * div(u) * dx
 
         # Grad–div stabilization
         if gamma != 0:
-            L -= (1.0 - theta) * gamma * inner(div(u_old), div(v)) * dx
+            a += gamma * inner(div(u), div(v)) * dx
+
+        # ----------------
+        # Linear RHS
+        # ----------------
+
+        L = idt * inner(u_old, v) * dx
+        L += inner(f_mid, v) * dx
+        L += inner(g_mid, v) * dsN
 
         return a, L
 

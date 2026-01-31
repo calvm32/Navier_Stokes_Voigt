@@ -1,32 +1,36 @@
 solver_parameters:
   mat_type: aij
 
-  # Linearized Oseen solve
-  snes_type: ksponly
+  # Nonlinear solver (Newton with line search)
+  snes_type: newtonls
+  snes_linesearch_type: bt        # backtracking line search
+  snes_rtol: 1e-8
+  snes_atol: 1e-10
+  snes_max_it: 20
+  snes_monitor: null              # remove or set to monitor iterations
 
-  # Krylov
+  # Krylov solver inside Newton
   ksp_type: fgmres
-  ksp_rtol: 1e-5          # <-- key: loosen this
+  ksp_rtol: 1e-6
   ksp_atol: 1e-10
   ksp_max_it: 100
-  ksp_norm_type: preconditioned
-  ksp_pc_side: left
+  ksp_norm_type: unpreconditioned
+  ksp_pc_side: right
   ksp_gmres_restart: 30
 
-  # Block Schur
+  # Block Schur preconditioner
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
   pc_fieldsplit_schur_precondition: selfp
 
-  # Velocity block (cheap on purpose)
-  fieldsplit_0_ksp_type: richardson
-  fieldsplit_0_ksp_max_it: 1
+  # Velocity block (fast AMG)
+  fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: hypre
   fieldsplit_0_pc_hypre_type: boomeramg
-  fieldsplit_0_pc_hypre_boomeramg_max_iter: 1
+  fieldsplit_0_pc_hypre_boomeramg_max_iter: 3
   fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
 
-  # Pressure block
+  # Pressure block (cheap mass inverse)
   fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: jacobi
