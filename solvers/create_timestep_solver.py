@@ -32,7 +32,7 @@ def create_timestep_solver(get_data, Z, dx , dsN, u_old, u, make_weak_form, is_m
         solver = NonlinearVariationalSolver(
             problem_var,
             solver_parameters=solver_parameters,
-            nullspace=nullspace,
+            #nullspace=nullspace,
             appctx=appctx
         )
     else:
