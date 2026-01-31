@@ -27,7 +27,8 @@ def create_timestep_solver(get_data, Z, dx , dsN, u_old, u, make_weak_form, is_m
         a, L = make_weak_form(
             idt, f, f_old, g, g_old, u_old, dx, dsN
         )(u, TestFunction(Z))
-        problem_var = NonlinearVariationalProblem(a, L, u, bcs)
+        F = a - L
+        problem_var = NonlinearVariationalProblem(F, u, bcs=bcs)
         solver = NonlinearVariationalSolver(
             problem_var,
             solver_parameters=solver_parameters,
