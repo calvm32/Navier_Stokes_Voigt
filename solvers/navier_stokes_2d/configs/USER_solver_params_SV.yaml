@@ -22,7 +22,7 @@ solver_parameters:
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
-  pc_fieldsplit_schur_precondition: all
+  pc_fieldsplit_schur_precondition: a11
 
   # Velocity block (fast AMG)
   fieldsplit_0_ksp_type: preonly
