@@ -20,8 +20,3 @@ from .timestepper_CN import timestepper
 from .timestepper_BDF2 import timestepper
 from .printoff import *
 from .config_setup import *
-
-__all__ = [
-    "timestepper_CN",
-    "printoff"
-]

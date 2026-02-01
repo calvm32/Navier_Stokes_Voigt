@@ -1,3 +1,5 @@
+print("here")
+
 from firedrake import *
 import yaml
 from pathlib import Path
