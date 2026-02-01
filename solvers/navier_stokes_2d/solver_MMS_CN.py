@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # adjust if this script moves
 TEMPLATES_DIR = PROJECT_ROOT / "templates"
 
-CFG_PATH1 = TEMPLATES_DIR / "constants" / "NS.yaml"
+CFG_PATH1 = TEMPLATES_DIR / "constants" / "NS_MMS.yaml"
 CFG_PATH2 = TEMPLATES_DIR / "solver_parameters" / "NS_MMS.yaml"
 
 # -----------------
