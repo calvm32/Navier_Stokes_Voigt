@@ -64,7 +64,7 @@ for n in range(4, 9):
     N_list.append(N)
 
 # calculate error as mesh size increases
-v_finaL_error_list = []
+v_final_error_list = []
 p_final_error_list = []
 
 for N in N_list:
