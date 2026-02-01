@@ -10,17 +10,20 @@ from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
+# ----------------------
+# Paths wrt project root
+# ----------------------
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # adjust if this script moves
+TEMPLATES_DIR = PROJECT_ROOT / "templates"
+
+CFG_PATH1 = TEMPLATES_DIR / "constants" / "NS.yaml"
+CFG_PATH2 = TEMPLATES_DIR / "solver_parameters" / "NS_SV_CN.yaml"
+
 # -------------
 # Configuration
 # -------------
 
-CFG_PATH1 = (
-    Path(__file__).resolve()
-    .parents[3] 
-    / "templates"
-    / "constants"
-    / "NS.yaml"
-)
 cfg = load_config(CFG_PATH1)
 
 # Extract constants
@@ -40,13 +43,6 @@ appctx = {
     "velocity_space": 0
 }
 
-CFG_PATH2 = (
-    Path(__file__).resolve()
-    .parents[3] 
-    / "templates"
-    / "solver_parameters"
-    / "NS_SV_CN.yaml"
-)
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # views = news

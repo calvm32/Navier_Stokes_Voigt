@@ -10,31 +10,26 @@ from .make_weak_form_CN import make_weak_form
 from solvers.printoff import blue, green
 from solvers.config_setup import *
 
+# ----------------------
+# Paths wrt project root
+# ----------------------
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # adjust if this script moves
+TEMPLATES_DIR = PROJECT_ROOT / "templates"
+
+CFG_PATH1 = TEMPLATES_DIR / "constants" / "heat.yaml"
+CFG_PATH2 = TEMPLATES_DIR / "solver_parameters" / "heat_CN.yaml"
+
 # -----------------
 # MMS Configuration
 # -----------------
 
-CFG_PATH1 = (
-    Path(__file__).resolve()
-    .parents[3] 
-    / "templates"
-    / "constants"
-    / "heat.yaml"
-)
 cfg = load_config(CFG_PATH1)
-
 t0 = cfg["t0"]
 T = cfg["T"]
 dt = cfg["dt"]
 theta = cfg["theta"]
 
-CFG_PATH2 = (
-    Path(__file__).resolve()
-    .parents[3] 
-    / "templates"
-    / "solver_parameters"
-    / "heat_CN.yaml"
-)
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 vtkfile_name = "Soln"
