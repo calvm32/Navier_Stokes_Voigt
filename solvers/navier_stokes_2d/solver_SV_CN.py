@@ -5,7 +5,7 @@ import os
 import shutil
 
 from solvers.timestepper_CN import timestepper_CN
-from .make_weak_form_CN import make_weak_form
+from .make_weak_form import make_weak_form_CN
 from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
