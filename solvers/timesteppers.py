@@ -234,7 +234,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # --------
     # Tracking
     # --------
-    step = 0
 
     energy_list = []
     palinstrophy_list = []
@@ -277,15 +276,13 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         # for L2 error
         u_error = 0
 
-    # create timestep solver
-    if step == 0:
-        solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
-                                    make_weak_form_CN, is_mixed, bcs=bcs, nullspace=nullspace,
-                                    solver_parameters=solver_parameters, appctx=appctx)
-    else:
-        solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_older, u_old, u,
-                                    make_weak_form_BDF2, is_mixed, bcs=bcs, nullspace=nullspace,
-                                    solver_parameters=solver_parameters, appctx=appctx)
+    # create timestep solvers
+    solver_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
+                                make_weak_form_CN, is_mixed, bcs=bcs, nullspace=nullspace,
+                                solver_parameters=solver_parameters, appctx=appctx)
+    solver = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u,
+                                make_weak_form_BDF2, is_mixed, bcs=bcs, nullspace=nullspace,
+                                solver_parameters=solver_parameters, appctx=appctx)
 
 
     # get energy + report run starting
@@ -331,6 +328,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     # initialize
     t = t0
+    step = 0
 
     all_time_list.append(t0)
     energy_list.append(energy)
@@ -360,7 +358,10 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     while t < T:
 
         # Perform time step
-        solver(t, dt)
+        if step == 0:
+            solver_CN(t, dt)
+        else:
+            solver(t,dt)
         t += dt
         u_older.assign(u_old)
         u_old.assign(u)
