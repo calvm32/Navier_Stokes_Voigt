@@ -55,6 +55,7 @@ def create_timestep_solver(get_data, Z, dx , dsN, u_older, u_old, u, make_weak_f
         """
         Update problem data to interval (t, t+dt) and run solver
         """
+        dt = float(dt)
         idt.assign(1.0/dt)
         data_old = get_data(t)
         data_new = get_data(t+dt)
