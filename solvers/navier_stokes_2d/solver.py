@@ -137,7 +137,7 @@ bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 bcs = [bc_walls, bc_inflow]
 
 # Pressure space
-Q = Z.sub(1).function_space()
+Q = Z.sub(1)
 
 # Constant pressure nullspace with correct communicator
 pressure_nullspace = VectorSpaceBasis(
