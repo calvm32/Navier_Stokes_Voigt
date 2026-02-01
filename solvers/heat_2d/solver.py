@@ -5,7 +5,7 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
-from solvers.timestepper_CN import timestepper
+from solvers.timestepper_CN import timestepper_CN
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue, green
 from solvers.config_setup import *
@@ -14,7 +14,7 @@ from solvers.config_setup import *
 # Configuration
 # -------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
+CFG_PATH1 = Path(__file__).parent / "configs" / "constants.yaml"
 cfg = load_config(CFG_PATH1)
 
 # Extract constants
@@ -79,7 +79,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-u_error_list, energy_list, all_time_list = timestepper(get_data, 
+u_error_list, energy_list, all_time_list = timestepper_CN(get_data, 
         V, dx, ds, 
         t0, T, dt,
         make_weak_form=make_weak_form,

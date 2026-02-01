@@ -4,7 +4,7 @@ from mpi4py import MPI
 from .create_timestep_solver_BDF2 import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
+def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces

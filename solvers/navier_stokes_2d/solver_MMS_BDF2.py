@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 import shutil
 
-from solvers.timestepper_BDF2 import timestepper
-from .make_weak_form_BDF2 import make_weak_form
+from solvers.timestepper_BDF2 import timestepper_BDF2
+from .make_weak_form import make_weak_form_BDF2
 from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
@@ -14,7 +14,13 @@ import matplotlib.pyplot as plt
 # MMS Configuration
 # -----------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
+CFG_PATH1 = (
+    Path(__file__).resolve()
+    .parents[3] 
+    / "templates"
+    / "constants"
+    / "NS_BDF2.yaml"
+)
 cfg = load_config(CFG_PATH1)
 
 t0 = cfg["t0"]
@@ -40,7 +46,7 @@ run_dir = Path(os.getcwd())
 
 # copy YAML files to current directory
 shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
-vshutil.copy(CFG_PATH1, run_dir / CFG_PATH2.name)
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH2.name)
 
 print(f"[solver.py] YAML configs archived in {run_dir}")
 
@@ -124,7 +130,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,

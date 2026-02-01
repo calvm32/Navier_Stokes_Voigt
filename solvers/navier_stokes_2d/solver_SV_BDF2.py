@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 import shutil
 
-from solvers.timestepper_BDF2 import timestepper
+from solvers.timestepper_BDF2 import timestepper_BDF2
 from .make_weak_form_BDF2 import make_weak_form
 from solvers.printoff import blue
 from solvers.config_setup import *
@@ -14,7 +14,13 @@ import matplotlib.pyplot as plt
 # Configuration
 # -------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
+CFG_PATH1 = (
+    Path(__file__).resolve()
+    .parents[3] 
+    / "templates"
+    / "constants"
+    / "NS_SV_BDF2.yaml"
+)
 cfg = load_config(CFG_PATH1)
 
 # Extract constants
@@ -34,7 +40,7 @@ appctx = {
     "velocity_space": 0
 }
 
-CFG_PATH2 = Path(__file__).parent / "configs" / "USER_solver_params_SV.yaml"
+CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params_SV_BDF2.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # views = news
@@ -157,7 +163,7 @@ def get_data(t):
 # Run solver
 # ----------
 
-v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper(get_data, 
+v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,

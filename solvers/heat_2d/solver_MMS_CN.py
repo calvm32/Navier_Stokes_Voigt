@@ -5,7 +5,7 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
-from solvers.timestepper_CN import timestepper
+from solvers.timestepper_CN import timestepper_CN
 from .make_weak_form_CN import make_weak_form
 from solvers.printoff import blue, green
 from solvers.config_setup import *
@@ -14,7 +14,13 @@ from solvers.config_setup import *
 # MMS Configuration
 # -----------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "MMS_constants.yaml"
+CFG_PATH1 = (
+    Path(__file__).resolve()
+    .parents[3] 
+    / "templates"
+    / "constants"
+    / "heat_CN.yaml"
+)
 cfg = load_config(CFG_PATH1)
 
 t0 = cfg["t0"]
@@ -93,7 +99,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    u_error_list, energy_list, all_time_list = timestepper(get_data, 
+    u_error_list, energy_list, all_time_list = timestepper_CN(get_data, 
             V, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form,

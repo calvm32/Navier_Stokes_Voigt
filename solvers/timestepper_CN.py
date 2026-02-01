@@ -4,7 +4,7 @@ from mpi4py import MPI
 from .create_timestep_solver_CN import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
-def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
+def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces

@@ -5,7 +5,7 @@ import os
 import shutil
 
 from solvers.timestepper_CN import timestepper_CN
-from .make_weak_form import make_weak_form
+from .make_weak_form_CN import make_weak_form
 from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ CFG_PATH1 = (
     .parents[3] 
     / "templates"
     / "constants"
-    / "NS_TH_CN.yaml"
+    / "NS_SV_CN.yaml"
 )
 cfg = load_config(CFG_PATH1)
 
@@ -40,8 +40,22 @@ appctx = {
     "velocity_space": 0
 }
 
-CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params_TH.yaml"
-solver_parameters = load_solver_parameters(CFG_PATH2, dt=dt)
+CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params_SV_CN.yaml"
+solver_parameters = load_solver_parameters(CFG_PATH2)
+
+# views = news
+"""
+solver_parameters.update({
+    'ksp_view': None, 
+    'pc_view': None,
+    'snes_view': None, 
+    'pc_fieldsplit_view': None,
+    'firedrake_0_ksp_view': None,
+    'firedrake_0_pc_view': None,
+    'firedrake_1_ksp_view': None,
+    'firedrake_1_pc_view': None,
+})
+"""
 
 vtkfile_name = "Soln"
 
@@ -50,7 +64,7 @@ vtkfile_name = "Soln"
 # ------------------
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MESH_PATH = os.path.join(HERE, "meshes", "step.msh")
+MESH_PATH = os.path.join(HERE, "meshes", "step_fine.msh")
 
 if not os.path.exists(MESH_PATH):
     raise FileNotFoundError(f"Mesh not found at {MESH_PATH}")
@@ -77,30 +91,34 @@ print(f"[solver.py] YAML configs archived in {run_dir}\n")
 blue(f"\n*** Starting solve ***\n", spaced=True)
 
 # Load the mesh
-mesh = Mesh(MESH_PATH)
-x, y = SpatialCoordinate(mesh)
+fine_mesh = Mesh(MESH_PATH)
+x, y = SpatialCoordinate(fine_mesh)
 
 # get height
-y_coords = mesh.coordinates.dat.data[:, 1]
+y_coords = fine_mesh.coordinates.dat.data[:, 1]
 H = y_coords.max() - y_coords.min()
 
 # get length
-x_coords = mesh.coordinates.dat.data[:, 0]
+x_coords = fine_mesh.coordinates.dat.data[:, 0]
 L = x_coords.max() - x_coords.min()
 
-dx = Measure("dx", domain=mesh)
-ds = Measure("ds", domain=mesh)
+dx = Measure("dx", domain=fine_mesh)
+ds = Measure("ds", domain=fine_mesh)
 
-V = VectorFunctionSpace(mesh, "CG", 2)
-W = FunctionSpace(mesh, "CG", 1)
+k = 3  # or higher for stability on arbitrary triangles
+V = VectorFunctionSpace(fine_mesh, "CG", k)
+W = FunctionSpace(fine_mesh, "DG", k-1)
 Z = V * W
+
+# print(f"V Total DoFs: {V.dof_count}")
+# print(f"W Total DoFs: {W.dof_count}")
 
 # -------------------
 # Boundary conditions
 # -------------------
 
 u_inflow = as_vector((
-    4*P*y*(y - H)/(H**2), # normalize at center line
+    4*y*(H-y)/(H**2), # normalize at center line
     0.0
 ))
 
@@ -109,7 +127,8 @@ bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
 bcs = [bc_walls, bc_inflow]
 
-nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
+pressure_nullspace = VectorSpaceBasis(constant=True)
+nullspace = None # MixedVectorSpaceBasis(Z, [Z.sub(0), pressure_nullspace])
 
 # ------------------
 # Allocate functions
@@ -119,7 +138,7 @@ def get_data(t):
 
     # velocity
     ufl_v0 = as_vector([
-        4*P*y*(y - H)/(H**2), #P*y*(y - H),
+        0.0, #4*P*y*(y - H)/(H**2), #P*y*(y - H),
         0.0
     ])
 
@@ -139,6 +158,10 @@ def get_data(t):
         "ufl_g": ufl_g0
     }
 
+
+# ----------
+# Run solver
+# ----------
 
 v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_CN(get_data, 
             Z, dx, ds, 

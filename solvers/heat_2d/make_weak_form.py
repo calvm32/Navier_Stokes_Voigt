@@ -8,14 +8,48 @@ from solvers.config_setup import *
 # Configuration
 # -------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
+CFG_PATH1 = Path(__file__).parent / "configs" / "constants.yaml"
 cfg = load_config(CFG_PATH1)
 
 theta = cfg["theta"]
 
-# ---------
-# Weak form
-# ---------
+# --------------
+# BDF2 Weak form
+# --------------
+
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, dsN):
+    """
+    Bilinear and linear forms for heat equation
+      -> BDF2 time stepping
+      -> bilinear, linear
+    """
+
+    def forms(u, v):
+
+        # -------------
+        # Bilinear form
+        # -------------
+        a = (
+            (3.0/2.0) * idt * u * v * dx
+            + inner(grad(u), grad(v)) * dx
+        )
+
+        # -----------
+        # Linear form
+        # -----------
+        L = (
+            idt * (2.0 * u_old - 0.5 * u_older) * v * dx
+            + f * v * dx
+            + g * v * dsN
+        )
+
+        return a, L
+
+    return forms
+
+# ------------
+# CN Weak form
+# ---000------
 
 def make_weak_form(idt, f, f_old, g, g_old, u_old, dx, dsN):
     """

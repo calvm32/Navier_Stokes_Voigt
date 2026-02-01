@@ -1,0 +1,51 @@
+name: Nightly MMS Unit Tests
+
+# Schedule: nightly at 2am UTC, plus manual trigger
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  mms_tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Python 3.12
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install firedrake pytest matplotlib pyyaml
+
+      # Run unit tests (heat equation)
+      - name: Run heat unit tests
+        run: |
+          echo "Running heat 2D CN + BDF2 tests"
+          pytest tests/unit/test_heat_timestepper.py -v --maxfail=1 --tb=short
+
+      # Run Navier-Stokes unit tests
+      - name: Run Navier-Stokes unit tests
+        run: |
+          echo "Running Navier-Stokes 2D CN + BDF2 tests"
+          pytest tests/unit/test_ns_timestepper.py -v --maxfail=1 --tb=short
+          pytest tests/unit/test_ns_weak_forms.py -v --maxfail=1 --tb=short
+
+      # Archive any plots for inspection
+      - name: Upload MMS plots
+        uses: actions/upload-artifact@v3
+        with:
+          name: mms-plots
+          path: |
+            heat_2d/convergence_plot.png
+            navier_stokes_2d/velocity_convergence_plot.png
+            navier_stokes_2d/pressure_convergence_plot.png
