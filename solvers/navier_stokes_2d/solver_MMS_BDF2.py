@@ -132,7 +132,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form_BDF2,
