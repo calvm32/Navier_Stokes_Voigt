@@ -216,7 +216,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
         return(u_error_list, energy_list, all_time_list)
 
 
-def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
+def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
@@ -280,11 +280,11 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     # create timestep solver
     if step == 0:
         solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
-                                    make_weak_form, is_mixed, bcs=bcs, nullspace=nullspace,
+                                    make_weak_form_CN, is_mixed, bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx)
     else:
         solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_older, u_old, u,
-                                    make_weak_form, is_mixed, bcs=bcs, nullspace=nullspace,
+                                    make_weak_form_BDF2, is_mixed, bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx)
 
 
