@@ -49,9 +49,9 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, dsN):
 
 # ------------
 # CN Weak form
-# ---000------
+# ------------
 
-def make_weak_form(idt, f, f_old, g, g_old, u_old, dx, dsN):
+def make_weak_form_CN(idt, f, f_old, g, g_old, u_old, dx, dsN):
     """
     Bilinear and linear forms for heat equation
       -> Crank-Nicolson
