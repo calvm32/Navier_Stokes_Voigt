@@ -7,7 +7,7 @@ solver_parameters:
 
   # Krylov solver
   ksp_type: fgmres
-  ksp_rtol: 1e-6
+  ksp_rtol: 1e-5
   ksp_atol: 1e-12
   ksp_max_it: 500
   ksp_monitor_true_residual: null
@@ -19,15 +19,15 @@ solver_parameters:
   pc_fieldsplit_schur_fact_type: lower
   pc_fieldsplit_schur_precondition: selfp
 
-  # Velocity block (V)
+  # Velocity block
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: hypre
   fieldsplit_0_pc_hypre_type: boomeramg
   fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
   fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
-  fieldsplit_0_pc_hypre_boomeramg_max_iter: 3
+  fieldsplit_0_pc_hypre_boomeramg_max_iter: 2
   fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
 
-  # Pressure block (DG mass)
+  # Pressure block
   fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: jacobi
