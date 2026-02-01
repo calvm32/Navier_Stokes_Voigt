@@ -1,10 +1,7 @@
 solver_parameters:
   mat_type: matfree
-  snes_monitor: null
 
   ksp_type: fgmres
-  ksp_gmres_modifiedgramschmidt: null
-  ksp_monitor_true_residual: null
 
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
