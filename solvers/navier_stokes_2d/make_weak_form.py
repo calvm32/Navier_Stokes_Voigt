@@ -23,7 +23,7 @@ from firedrake import *
 
 def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN):
     """
-    BDF2 Navier–Stokes
+    BDF2 Navier-Stokes
     - Oseen linearization
     - skew-symmetric convection
     - implicit viscosity
