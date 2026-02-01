@@ -1,9 +1,0 @@
-t0: 0.5        # initial time
-T: 1           # final time
-theta: 0.5     # theta constant
-gamma: 0.0     # grad-div stabilization constant
-R: 1.0         # radius of cylinder, if you change it then MUST change mesh
-L: 3.0         # length of box cylinder
-Re: 3.0        # Reynold's num: 1/viscostiy
-G: 5.0         # initial pressure gauge
-P: 1.0         # pressure strength (P*x + G)

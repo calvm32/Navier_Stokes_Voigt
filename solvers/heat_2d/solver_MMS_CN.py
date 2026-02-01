@@ -6,7 +6,7 @@ import shutil
 
 import matplotlib.pyplot as plt
 from solvers.timestepper_CN import timestepper
-from .make_weak_form import make_weak_form
+from .make_weak_form_CN import make_weak_form
 from solvers.printoff import blue, green
 from solvers.config_setup import *
 
@@ -63,8 +63,8 @@ for N in N_list:
     # ------------
 
     # mesh and measures
-    mesh = UnitCubeMesh(N, N, N)
-    x, y, z = SpatialCoordinate(mesh)
+    mesh = UnitSquareMesh(N, N)
+    x, y = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
     ds = Measure("ds", domain=mesh)
@@ -79,10 +79,10 @@ for N in N_list:
     # time dependant
     def get_data(t):
 
-        # exact functions for u=e^t*sin(pix)*cos(piy)*cos(pi*z)  
-        ufl_u0 = ufl.exp(t)*cos(pi*x)*cos(pi*y)*cos(pi*z)                  # initial condition u0 
-        ufl_f0 = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)*cos(pi*z)      # source term f 
-        ufl_g0 = Constant(0)                                               # bdy condition g
+        # exact functions for u=e^t*sin(pix)*cos(piy)
+        ufl_u0 = ufl.exp(t)*cos(pi*x)*cos(pi*y)                # initial condition u0 
+        ufl_f0 = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)    # source term f 
+        ufl_g0 = Constant(0)                                   # bdy condition g
 
         # returns
         return {"ufl_u0": ufl_u0,
@@ -105,7 +105,7 @@ for N in N_list:
         final_error += err
     
     final_error_list.append(sqrt(final_error))
-
+    
     green(f"Final L2 Error (temperature) = {final_error:0.8e}", spaced=True)
 
 # ------------------------

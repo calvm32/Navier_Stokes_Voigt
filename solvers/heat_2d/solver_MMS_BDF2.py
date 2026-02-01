@@ -5,8 +5,8 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
-from solvers.timestepper_CN import timestepper
-from .make_weak_form import make_weak_form
+from solvers.timestepper_BDF2 import timestepper
+from .make_weak_form_BDF2 import make_weak_form
 from solvers.printoff import blue, green
 from solvers.config_setup import *
 

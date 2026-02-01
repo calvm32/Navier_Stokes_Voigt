@@ -11,7 +11,6 @@ from solvers.config_setup import *
 CFG_PATH1 = Path(__file__).parent / "configs" / "USER_constants.yaml"
 cfg = load_config(CFG_PATH1)
 
-theta = cfg["theta"]
 gamma = cfg["gamma"]
 Re = cfg["Re"]
 
@@ -23,21 +22,20 @@ from firedrake import *
 
 def make_weak_form(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN):
     """
-    Recommended weak form for incompressible Navier-Stokes in Firedrake:
-
-      - BDF2 time stepping
-      - Oseen linearization about u^n
-      - skew-symmetric convection
-      - fully implicit viscosity
-      - implicit grad-div stabilization
-      - second-order extrapolated forcing
+    Bilinear and linear forms for Navier-Stokes equation
+      -> BDF2 time stepping
+      -> Oseen linearization about u^n
+      -> skew-symmetric convection
+      -> fully implicit viscosity
+      -> implicit grad-div stabilization
+      -> second-order extrapolated forcing
     """
 
-    # --- BDF2 extrapolated forcing / Neumann data ---
+    # Extrapolate
     f_bdf2 = 2.0 * f.sub(0) - f_old.sub(0)
     g_bdf2 = 2.0 * g.sub(0) - g_old.sub(0)
 
-    # --- History velocities ---
+    # Velocities
     u_old,  _ = split(U_old)
     u_older, _ = split(U_older)
 
@@ -45,9 +43,9 @@ def make_weak_form(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN):
         u, p = split(U)
         v, q = split(V)
 
-        # ----------------
+        # -------------
         # Bilinear form
-        # ----------------
+        # -------------
         a = (
             # BDF2 time derivative: (3 / 2 dt) u^{n+1}
             (3.0 / 2.0) * idt * inner(u, v) * dx
@@ -70,9 +68,9 @@ def make_weak_form(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN):
         if gamma != 0.0:
             a += gamma * inner(div(u), div(v)) * dx
 
-        # ----------------
+        # -----------
         # Linear form
-        # ----------------
+        # -----------
         L = (
             # BDF2 history: (4 u^n - u^{n-1}) / (2 dt)
             idt * inner(2.0 * u_old - 0.5 * u_older, v) * dx
