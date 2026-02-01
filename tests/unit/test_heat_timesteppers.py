@@ -1,8 +1,7 @@
 from firedrake import *
 import pytest
 
-from solvers.timestepper_BDF2 import timestepper_BDF2
-from solvers.timestepper_CN import timestepper_CN
+from solvers.timesteppers import *
 from solvers.heat_2d.make_weak_form import make_weak_form_CN, make_weak_form_BDF2
 
 def _setup_heat_timestepper():

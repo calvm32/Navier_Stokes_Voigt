@@ -40,12 +40,12 @@ jobs:
           pytest tests/unit/test_ns_timestepper.py -v --maxfail=1 --tb=short
           pytest tests/unit/test_ns_weak_forms.py -v --maxfail=1 --tb=short
 
-      # Archive any plots for inspection
-      - name: Upload MMS plots
-        uses: actions/upload-artifact@v3
-        with:
-          name: mms-plots
-          path: |
-            heat_2d/convergence_plot.png
-            navier_stokes_2d/velocity_convergence_plot.png
-            navier_stokes_2d/pressure_convergence_plot.png
+      # # Archive any plots for inspection
+      # - name: Upload MMS plots
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: mms-plots
+      #     path: |
+      #       heat_2d/convergence_plot.png
+      #       navier_stokes_2d/velocity_convergence_plot.png
+      #       navier_stokes_2d/pressure_convergence_plot.png

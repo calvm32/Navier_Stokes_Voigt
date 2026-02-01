@@ -2,8 +2,7 @@ from firedrake import *
 import pytest
 
 from solvers.navier_stokes_2d.make_weak_form import make_weak_form_BDF2, make_weak_form_CN
-from solvers.timestepper_BDF2 import timestepper_BDF2
-from solvers.timestepper_CN import timestepper_CN
+from solvers.timesteppers import *
 
 def _setup_ns_timestepper():
     mesh = UnitSquareMesh(4, 4)
