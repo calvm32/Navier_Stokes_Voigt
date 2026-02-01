@@ -5,5 +5,7 @@ Solver for the incompressible Navier-Stokes eqn:
     -> u = u0                                               on Omega x {0}
 """
 
-from .solver import *
-from .solver_MMS import *
+from .solver_SV import *
+from .solver_TH import *
+from .solver_MMS_CN import *
+from .solver_MMS_BDF2 import *
