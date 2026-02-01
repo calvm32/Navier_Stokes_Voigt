@@ -139,12 +139,10 @@ bcs = [bc_walls, bc_inflow]
 # Pressure space
 Q = Z.sub(1)
 
-# Constant pressure nullspace with correct communicator
-pressure_nullspace = VectorSpaceBasis(
+nullspace = VectorSpaceBasis(
     constant=True,
     comm=Q.mesh().comm
 )
-nullspace = pressure_nullspace
 
 # ------------------
 # Allocate functions

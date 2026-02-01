@@ -234,6 +234,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     # --------
     # Tracking
     # --------
+    step = 0
 
     energy_list = []
     palinstrophy_list = []
@@ -277,9 +278,15 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
         u_error = 0
 
     # create timestep solver
-    solver = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u,
+    if step == 0:
+        solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
                                     make_weak_form, is_mixed, bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx)
+    else:
+        solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_older, u_old, u,
+                                    make_weak_form, is_mixed, bcs=bcs, nullspace=nullspace,
+                                    solver_parameters=solver_parameters, appctx=appctx)
+
 
     # get energy + report run starting
     energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
@@ -324,7 +331,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # initialize
     t = t0
-    step = 0
 
     all_time_list.append(t0)
     energy_list.append(energy)

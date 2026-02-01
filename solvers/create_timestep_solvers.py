@@ -101,11 +101,6 @@ def create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u, make_w
             nullspace=nullspace,
             appctx=appctx
         )
-        ksp = solver.snes.ksp
-        A, _ = ksp.getOperators()
-
-        A.setNullSpace(nullspace)
-        A.setNearNullSpace(nullspace)
     else:
         a, L = make_weak_form(
             idt, f, f_old, g, g_old, u_older, u_old, dx, dsN
