@@ -1,29 +1,56 @@
-solver_parameters: 
-  # Nonlinear solver 
-  snes_type: ksponly 
-  snes_max_it: 50 
-  snes_max_funcs: 10000 
-  snes_rtol: 1e-8 
-  snes_atol: 1e-50 
-  snes_stol: 1e-8 
-  snes_norm_schedule: always 
-  
-  # Linear solver 
-  ksp_type: fgmres 
-  ksp_max_it: 50 
-  ksp_rtol: 1e-6 
-  ksp_atol: 1e-12 
-  ksp_divtol: 1e4 
-  ksp_gmres_restart: 30 
-  ksp_initial_guess_nonzero: False 
-  ksp_norm_type: unpreconditioned 
-  ksp_pc_side: right 
-  
-  # Preconditioner 
-  pc_type: lu 
-  pc_factor_shift_type: none # implied by zero-pivot tolerance 
-  pc_factor_zero_pivot: 2.22045e-14 
-  pc_factor_mat_ordering_type: external 
-  
-  # LU backend 
-  pc_factor_mat_solver_type: mumps
+solver_parameters:
+
+  # --------------------------------------------------
+  # Nonlinear / linearized solve
+  # --------------------------------------------------
+  snes_type: ksponly
+  snes_max_it: 1
+  snes_rtol: 1e-8
+  snes_atol: 1e-50
+  snes_stol: 0.0
+  snes_norm_schedule: always
+
+  # --------------------------------------------------
+  # Krylov solver
+  # --------------------------------------------------
+  ksp_type: fgmres
+  ksp_max_it: 100
+  ksp_rtol: 1e-8
+  ksp_atol: 1e-12
+  ksp_divtol: 1e4
+  ksp_gmres_restart: 30
+
+  # IMPORTANT for time stepping stability
+  ksp_initial_guess_nonzero: true
+
+  # Report *meaningful* convergence
+  ksp_norm_type: preconditioned
+  ksp_pc_side: right
+
+  # --------------------------------------------------
+  # Block preconditioner: Schur complement
+  # --------------------------------------------------
+  pc_type: fieldsplit
+  pc_fieldsplit_type: schur
+  pc_fieldsplit_schur_fact_type: lower
+
+  # Use pressure mass matrix approximation
+  pc_fieldsplit_schur_precondition: selfp
+
+  # --------------------------------------------------
+  # Velocity block (convection–diffusion dominated)
+  # --------------------------------------------------
+  fieldsplit_0_ksp_type: preonly
+  fieldsplit_0_pc_type: lu
+
+  # LU backend
+  fieldsplit_0_pc_factor_mat_solver_type: mumps
+  fieldsplit_0_pc_factor_shift_type: none
+  fieldsplit_0_pc_factor_zero_pivot: 2.22045e-14
+  fieldsplit_0_pc_factor_mat_ordering_type: external
+
+  # --------------------------------------------------
+  # Pressure block (mass matrix)
+  # --------------------------------------------------
+  fieldsplit_1_ksp_type: preonly
+  fieldsplit_1_pc_type: jacobi
