@@ -105,7 +105,7 @@ for N in N_list:
     u_error_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
             V, dx, ds, 
             t0, T, dt,
-            make_weak_form=make_weak_form,
+            make_weak_form=make_weak_form_BDF2,
             solver_parameters=solver_parameters,
             vtkfile_name=new_vtkfile_name)
 

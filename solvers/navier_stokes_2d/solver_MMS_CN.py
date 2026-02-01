@@ -136,7 +136,7 @@ for N in N_list:
     v_error_list, p_error_list, palinstrophy_list, stream_func_list, vorticity_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_CN(get_data, 
             Z, dx, ds, 
             t0, T, dt,
-            make_weak_form=make_weak_form,
+            make_weak_form=make_weak_form_CN,
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=new_vtkfile_name)
