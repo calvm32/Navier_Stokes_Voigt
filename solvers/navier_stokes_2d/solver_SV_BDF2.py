@@ -134,6 +134,12 @@ nullspace = MixedVectorSpaceBasis(
     Z, [Z.sub(0), pressure_nullspace]
 )
 
+# Constant pressure nullspace
+nullspace = VectorSpaceBasis(constant=True, comm=W.mesh().comm)
+
+# Attach to the solver
+solver.snes.ksp.setNullSpace(nullspace)
+
 # ------------------
 # Allocate functions
 # ------------------
