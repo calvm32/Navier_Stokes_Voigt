@@ -10,8 +10,6 @@ from .make_weak_form import make_weak_form_BDF2
 from solvers.printoff import blue, green
 from solvers.config_setup import *
 
-from pathlib import Path
-
 # ----------------------
 # Paths wrt project root
 # ----------------------
