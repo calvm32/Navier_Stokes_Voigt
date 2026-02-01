@@ -19,7 +19,7 @@ CFG_PATH1 = (
     .parents[3] 
     / "templates"
     / "constants"
-    / "heat_CN.yaml"
+    / "heat.yaml"
 )
 cfg = load_config(CFG_PATH1)
 
@@ -28,7 +28,13 @@ T = cfg["T"]
 dt = cfg["dt"]
 theta = cfg["theta"]
 
-CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
+CFG_PATH2 = (
+    Path(__file__).resolve()
+    .parents[3] 
+    / "templates"
+    / "solver_parameters"
+    / "heat_CN.yaml"
+)
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 vtkfile_name = "Soln"

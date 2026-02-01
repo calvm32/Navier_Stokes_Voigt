@@ -19,7 +19,7 @@ CFG_PATH1 = (
     .parents[3] 
     / "templates"
     / "constants"
-    / "NS_BDF2.yaml"
+    / "NS.yaml"
 )
 cfg = load_config(CFG_PATH1)
 
@@ -33,7 +33,13 @@ Re = cfg["Re"]
 G = cfg["G"]
 P = cfg["P"]
 
-CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
+CFG_PATH2 = (
+    Path(__file__).resolve()
+    .parents[3] 
+    / "templates"
+    / "solver_parameters"
+    / "NS_CN.yaml"
+)
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 vtkfile_name = "Soln"

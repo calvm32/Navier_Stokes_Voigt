@@ -19,7 +19,7 @@ CFG_PATH1 = (
     .parents[3] 
     / "templates"
     / "constants"
-    / "NS_SV_CN.yaml"
+    / "NS.yaml"
 )
 cfg = load_config(CFG_PATH1)
 
@@ -40,7 +40,13 @@ appctx = {
     "velocity_space": 0
 }
 
-CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params_SV_CN.yaml"
+CFG_PATH2 = (
+    Path(__file__).resolve()
+    .parents[3] 
+    / "templates"
+    / "solver_parameters"
+    / "NS_SV_CN.yaml"
+)
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # views = news
