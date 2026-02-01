@@ -13,20 +13,18 @@ solver_parameters:
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: python
   fieldsplit_0_pc_python_type: firedrake.AssembledPC
-  fieldsplit_0_assembled_pc_type: hypre
-  fieldsplit_0_assembled_pc_hypre_type: boomeramg
+  fieldsplit_0_assembled_pc_type: lu
 
-  fieldsplit_1_ksp_type: fgmres
-  fieldsplit_1_ksp_rtol: 1e-3
-  fieldsplit_1_ksp_max_it: 20
+  fieldsplit_1_ksp_type: gmres
+  fieldsplit_1_ksp_rtol: 1e-4
   fieldsplit_1_pc_type: python
   fieldsplit_1_pc_python_type: firedrake.PCDPC
 
   fieldsplit_1_pcd_Mp_ksp_type: preonly
-  fieldsplit_1_pcd_Mp_pc_type: jacobi
+  fieldsplit_1_pcd_Mp_pc_type: lu
 
   fieldsplit_1_pcd_Kp_ksp_type: preonly
-  fieldsplit_1_pcd_Kp_pc_type: hypre
+  fieldsplit_1_pcd_Kp_pc_type: lu
 
   fieldsplit_1_pcd_Fp_mat_type: matfree
 
