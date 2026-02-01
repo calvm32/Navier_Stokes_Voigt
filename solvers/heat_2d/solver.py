@@ -5,7 +5,9 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
+from solvers.timestepper_BDF2 import timestepper_BDF2
 from solvers.timestepper_CN import timestepper_CN
+from .make_weak_form import *
 from .make_weak_form import make_weak_form
 from solvers.printoff import blue, green
 from solvers.config_setup import *
@@ -23,6 +25,7 @@ T = cfg["T"]
 dt = cfg["dt"]
 theta = cfg["theta"]
 N = cfg["N"]
+solver = cfg["solver"]
 
 CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
 solver_parameters = load_solver_parameters(CFG_PATH2)
@@ -72,19 +75,27 @@ def get_data(t):
 
     # returns
     return {"ufl_u0": ufl_u0,
-            "ufl_f": ufl_f0,
+        	"ufl_f": ufl_f0,
             "ufl_g": ufl_g0}
 
 # ----------
 # Run solver
 # ----------
 
-u_error_list, energy_list, all_time_list = timestepper_CN(get_data, 
-        V, dx, ds, 
-        t0, T, dt,
-        make_weak_form=make_weak_form_CN,
-        solver_parameters=solver_parameters,
-        vtkfile_name=vtkfile_name)
+if solver == "CN":
+    u_error_list, energy_list, all_time_list = timestepper_CN(get_data, 
+		V, dx, ds, 
+		t0, T, dt,
+		make_weak_form=make_weak_form_CN,
+		solver_parameters=solver_parameters,
+		vtkfile_name=vtkfile_name)
+elif solver == "BDF2":
+    u_error_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
+		V, dx, ds, 
+		t0, T, dt,
+		make_weak_form=make_weak_form_BDF2,
+		solver_parameters=solver_parameters,
+		vtkfile_name=vtkfile_name)
 
 # -----------
 # Plot Energy
