@@ -17,7 +17,7 @@ theta = cfg["theta"]
 # Weak form
 # ---------
 
-def make_weak_form(idt, f, g, u_old, u_older, dx, dsN):
+def make_weak_form(idt, f, f_old, g, g_old, u_older, u_old, dx, dsN):
     """
     Bilinear and linear forms for heat equation
       -> BDF2 time stepping
