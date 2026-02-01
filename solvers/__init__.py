@@ -17,6 +17,6 @@ Modules:
 
 """
 
-from .timesteppers import timestepper_CN, timesteper_BDF2
+from .timesteppers import timestepper_CN, timestepper_BDF2
 from .printoff import *
 from .config_setup import *
