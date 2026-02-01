@@ -1,30 +1,36 @@
 solver_parameters:
-  # Linearized problem
+  mat_type: matfree
+
   snes_type: ksponly
   snes_monitor: null
 
-  # Krylov solver
   ksp_type: fgmres
-  ksp_rtol: 1e-6
-  ksp_atol: 1e-12
-  ksp_max_it: 100
-  ksp_monitor_true_residual: null
   ksp_gmres_modifiedgramschmidt: null
+  ksp_monitor_true_residual: null
 
-  # Block preconditioner
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
-  pc_fieldsplit_schur_precondition: selfp
 
-  # Velocity block (SPD-ish because of BDF2 + visc + grad-div)
   fieldsplit_0_ksp_type: preonly
-  fieldsplit_0_pc_type: hypre
-  fieldsplit_0_pc_hypre_type: boomeramg
-  fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
-  fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
-  fieldsplit_0_pc_hypre_boomeramg_max_iter: 2
+  fieldsplit_0_pc_type: python
+  fieldsplit_0_pc_python_type: firedrake.AssembledPC
+  fieldsplit_0_assembled_pc_type: hypre
+  fieldsplit_0_assembled_pc_hypre_type: boomeramg
 
-  # Pressure block (mass matrix)
-  fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: jacobi
+  fieldsplit_1_ksp_type: fgmres
+  fieldsplit_1_ksp_rtol: 1e-3
+  fieldsplit_1_ksp_max_it: 20
+  fieldsplit_1_pc_type: python
+  fieldsplit_1_pc_python_type: firedrake.PCDPC
+
+  fieldsplit_1_pcd_Mp_ksp_type: preonly
+  fieldsplit_1_pcd_Mp_pc_type: jacobi
+
+  fieldsplit_1_pcd_Kp_ksp_type: preonly
+  fieldsplit_1_pcd_Kp_pc_type: hypre
+
+  fieldsplit_1_pcd_Fp_mat_type: matfree
+
+  fieldsplit_1_pcd_u: velocity
+  fieldsplit_1_pcd_dt: "{dt}"
