@@ -1,7 +1,7 @@
 solver_parameters:
 
   # --------------------------------------------------
-  # Nonlinear / linearized solve
+  # Linearized solve (Oseen)
   # --------------------------------------------------
   snes_type: ksponly
   snes_max_it: 1
@@ -20,37 +20,32 @@ solver_parameters:
   ksp_divtol: 1e4
   ksp_gmres_restart: 30
 
-  # IMPORTANT for time stepping stability
+  # IMPORTANT for time stepping
   ksp_initial_guess_nonzero: true
 
-  # Report *meaningful* convergence
-  ksp_norm_type: preconditioned
+  # REQUIRED for FGMRES + right PC
   ksp_pc_side: right
+  ksp_norm_type: unpreconditioned
 
   # --------------------------------------------------
-  # Block preconditioner: Schur complement
+  # Schur-complement block preconditioner
   # --------------------------------------------------
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
-
-  # Use pressure mass matrix approximation
   pc_fieldsplit_schur_precondition: selfp
 
   # --------------------------------------------------
-  # Velocity block (convection–diffusion dominated)
+  # Velocity block
   # --------------------------------------------------
   fieldsplit_0_ksp_type: preonly
   fieldsplit_0_pc_type: lu
-
-  # LU backend
   fieldsplit_0_pc_factor_mat_solver_type: mumps
-  fieldsplit_0_pc_factor_shift_type: none
   fieldsplit_0_pc_factor_zero_pivot: 2.22045e-14
   fieldsplit_0_pc_factor_mat_ordering_type: external
 
   # --------------------------------------------------
-  # Pressure block (mass matrix)
+  # Pressure block
   # --------------------------------------------------
   fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: jacobi
