@@ -1,30 +1,26 @@
 solver_parameters:
-  # Linearized problem
   snes_type: ksponly
-  snes_monitor: null
+  snes_max_it: 50
+  snes_rtol: 1e-6
 
-  # Krylov solver
   ksp_type: fgmres
+  ksp_max_it: 50
   ksp_rtol: 1e-6
   ksp_atol: 1e-12
-  ksp_max_it: 100
-  ksp_monitor_true_residual: null
-  ksp_gmres_modifiedgramschmidt: null
 
-  # Block preconditioner
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
   pc_fieldsplit_schur_fact_type: lower
   pc_fieldsplit_schur_precondition: selfp
 
-  # Velocity block (SPD-ish because of BDF2 + visc + grad-div)
-  fieldsplit_0_ksp_type: preonly
+  # velocity block
+  fieldsplit_0_ksp_type: cg        # instead of preonly
   fieldsplit_0_pc_type: hypre
   fieldsplit_0_pc_hypre_type: boomeramg
-  fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.7
-  fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
-  fieldsplit_0_pc_hypre_boomeramg_max_iter: 2
+  fieldsplit_0_ksp_rtol: 1e-4     # relaxed tolerance
+  fieldsplit_0_ksp_max_it: 20     # enough for first CN step
 
-  # Pressure block (mass matrix)
+  # pressure block
   fieldsplit_1_ksp_type: preonly
   fieldsplit_1_pc_type: jacobi
+
