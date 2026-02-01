@@ -3,9 +3,9 @@ import yaml
 from pathlib import Path
 import shutil
 
-from solvers.timestepper_CN import timestepper
-from .make_weak_form import make_weak_form
-from solvers.printoff import blue, green
+from solvers.timestepper_BDF2 import timestepper
+from .make_weak_form_BDF2 import make_weak_form
+from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
@@ -18,9 +18,8 @@ cfg = load_config(CFG_PATH1)
 
 t0 = cfg["t0"]
 T = cfg["T"]
-theta = cfg["theta"]
 gamma = cfg["gamma"]
-R = cfg["R"]
+H = cfg["H"]
 L = cfg["L"]
 Re = cfg["Re"]
 G = cfg["G"]
@@ -40,7 +39,7 @@ run_dir = Path(os.getcwd())
 
 # copy YAML files to current directory
 shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
-shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
+vshutil.copy(CFG_PATH1, run_dir / CFG_PATH2.name)
 
 print(f"[solver.py] YAML configs archived in {run_dir}")
 
@@ -48,10 +47,14 @@ print(f"[solver.py] YAML configs archived in {run_dir}")
 # Start solving
 # -------------
 
-vtkfile_name = "Soln"
+# Loop over mesh resolutions
+N_list = []
+for n in range(4, 9):
+    N = 2**n
+    N_list.append(N)
 
 # calculate error as mesh size increases
-v_final_error_list = []
+v_finaL_error_list = []
 p_final_error_list = []
 
 for N in N_list:
@@ -71,18 +74,11 @@ for N in N_list:
     # Setup spaces
     # ------------
 
-    disk = UnitDiskMesh(N)
-    mesh = ExtrudedMesh(disk, layers=N, layer_height=L/N)
-    V = VectorFunctionSpace(mesh, "CG", 2)
-    Z = V * FunctionSpace(mesh, "CG", 1)
-    x, y, z = SpatialCoordinate(mesh)
+    mesh = RectangleMesh(L*N, H*N, L, H)
+    x, y = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
-    ds_v = Measure("ds_v", domain=mesh)
-    ds_b = Measure("ds_b", domain=mesh)
-    ds_t = Measure("ds_t", domain=mesh)
-
-    ds = [ds_v, ds_b, ds_t]
+    ds = Measure("ds", domain=mesh)
 
     V = VectorFunctionSpace(mesh, "CG", 2)
     W = FunctionSpace(mesh, "CG", 1)
@@ -92,8 +88,7 @@ for N in N_list:
     # Boundary conditions
     # -------------------
 
-    # Lateral walls are SUPPOSEDLY marker 1 in ExtrudedMesh
-    bcs = [DirichletBC(Z.sub(0), Constant((0,0,0)), 1)]
+    bcs = [DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4))]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
     # ------------------
@@ -104,30 +99,18 @@ for N in N_list:
 
         # velocity exact
         ufl_v0 = as_vector([
-            0.0, 0.0,
-            Re*(sin(sqrt(x**2+y**2)*pi/R)*exp((-1*pi**2*t)/(R**2*Re)) + 0.5*P*sqrt(x**2+y**2)*(sqrt(x**2+y**2) - R))
+            Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
+            0.0
         ])
 
         # pressure exact
         ufl_p0 = P*x + G
 
-        # v time derivative
-        v_t = as_vector([
-            0.0, 0.0,
-            (-1*pi**2/(R**2))*(sin(sqrt(x**2+y**2)*pi/R)*exp(-1*pi**2*t/(R**2*Re)))
-        ])
-
-        # v Laplacian
-        lap_v = div(grad(ufl_v0))
-
-        # pressure gradient
-        grad_p = as_vector([P, 0.0, 0.0])
-
         # source termexact
-        ufl_f0 = as_vector([0.0, 0.0, 0.0])
+        ufl_f0 = as_vector([0.0,0.0])
 
         # boundary term
-        ufl_g0 = as_vector([0.0, 0.0, (P*z+G)*cos(z*pi/L)])
+        ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
 
         return {
             "ufl_v0": ufl_v0,
@@ -158,8 +141,8 @@ for N in N_list:
     for err in p_error_list:
         p_final_error += err
 
-    p_final_error_list.append(sqrt(p_final_error))    
-    
+    p_final_error_list.append(sqrt(p_final_error))
+
     green(f"Final L2 Error (velocity) = {v_final_error:0.8e}", spaced=True)
     green(f"Final L2 Error (pressure) = {p_final_error:0.8e}", spaced=True)
 
@@ -172,7 +155,6 @@ plt.semilogy(N_list, v_final_error_list, "-o")
 plt.xlabel("mesh size")
 plt.ylabel("velocity error")
 plt.grid(True)
-
 plt.tight_layout()
 plt.savefig("velocity_convergence_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
@@ -186,7 +168,6 @@ plt.semilogy(N_list, p_final_error_list, "-o")
 plt.xlabel("mesh size")
 plt.ylabel("pressure error")
 plt.grid(True)
-
 plt.tight_layout()
 plt.savefig("pressure_convergence_plot.png", dpi=200, bbox_inches='tight')
 plt.close()

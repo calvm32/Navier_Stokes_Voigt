@@ -3,7 +3,7 @@ from firedrake import *
 def create_timestep_solver(get_data, Z, dx , dsN, u_old, u, make_weak_form, is_mixed,
                            bcs=None, nullspace=None, solver_parameters=None, appctx=None):
     """
-    Prepare timestep solver by theta-scheme for 
+    Prepare Crank-Nicolson theta-scheme for 
         - given solution u_old at time t 
         - unknown u at time t+dt
 
@@ -32,7 +32,7 @@ def create_timestep_solver(get_data, Z, dx , dsN, u_old, u, make_weak_form, is_m
         solver = NonlinearVariationalSolver(
             problem_var,
             solver_parameters=solver_parameters,
-            #nullspace=nullspace,
+            nullspace=nullspace,
             appctx=appctx
         )
     else:

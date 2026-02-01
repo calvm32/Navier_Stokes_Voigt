@@ -4,8 +4,8 @@ from pathlib import Path
 import os
 import shutil
 
-from solvers.timestepper import timestepper
-from .make_weak_form import make_weak_form
+from solvers.timestepper_BDF2 import timestepper
+from .make_weak_form_BDF2 import make_weak_form
 from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt

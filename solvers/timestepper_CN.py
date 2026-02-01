@@ -1,7 +1,7 @@
 from firedrake import *
 from mpi4py import MPI
 
-from .create_timestep_solver import create_timestep_solver
+from .create_timestep_solver_CN import create_timestep_solver
 from .printoff import iter_info_verbose, text, green
 
 def timestepper(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,

@@ -11,16 +11,17 @@ We perform theta-scheme discretization, i.e.
 ---
 
 Modules:
-    -> timestepper.py: fixed-step theta-scheme time integrator
+    -> timestepper_CN.py: fixed-step theta-scheme time integrator
     -> printoff: for logging and printing results
 
 """
 
-from .timestepper import timestepper
+from .timestepper_CN import timestepper
+from .timestepper_BDF2 import timestepper
 from .printoff import *
 from .config_setup import *
 
 __all__ = [
-    "timestepper",
+    "timestepper_CN",
     "printoff"
 ]
