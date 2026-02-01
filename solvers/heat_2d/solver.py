@@ -5,19 +5,24 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
-from solvers.timestepper_BDF2 import timestepper_BDF2
-from solvers.timestepper_CN import timestepper_CN
+from solvers.timesteppers import *
 from .make_weak_form import *
-from .make_weak_form import make_weak_form
 from solvers.printoff import blue, green
 from solvers.config_setup import *
+
+# -----------------
+# Paths wrt current
+# -----------------
+
+CFG_PATH1 = Path(__file__).parent / "configs" / "constants.yaml"
+cfg = load_config(CFG_PATH1)
+
+CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params.yaml"
+solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # -------------
 # Configuration
 # -------------
-
-CFG_PATH1 = Path(__file__).parent / "configs" / "constants.yaml"
-cfg = load_config(CFG_PATH1)
 
 # Extract constants
 t0 = cfg["t0"]
@@ -26,9 +31,6 @@ dt = cfg["dt"]
 theta = cfg["theta"]
 N = cfg["N"]
 solver = cfg["solver"]
-
-CFG_PATH2 = Path(__file__).parent / "configs" / "MMS_solver_params.yaml"
-solver_parameters = load_solver_parameters(CFG_PATH2)
 
 vtkfile_name = "Soln"
 

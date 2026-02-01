@@ -5,7 +5,7 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
-from solvers.timestepper_CN import timestepper_CN
+from solvers.timesteppers import timestepper_CN
 from .make_weak_form import make_weak_form_CN
 from solvers.printoff import blue, green
 from solvers.config_setup import *
@@ -19,9 +19,6 @@ TEMPLATES_DIR = PROJECT_ROOT / "templates"
 
 CFG_PATH1 = TEMPLATES_DIR / "constants" / "heat.yaml"
 CFG_PATH2 = TEMPLATES_DIR / "solver_parameters" / "heat_CN.yaml"
-
-print("Solver YAML exists?", CFG_PATH2.exists())
-print("Solver YAML path:", CFG_PATH2)
 
 # -----------------
 # MMS Configuration

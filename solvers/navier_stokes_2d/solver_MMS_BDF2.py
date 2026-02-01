@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import shutil
 
-from solvers.timestepper_BDF2 import timestepper_BDF2
+from solvers.timesteppers import timestepper_BDF2
 from .make_weak_form import make_weak_form_BDF2
 from solvers.printoff import blue
 from solvers.config_setup import *

@@ -5,8 +5,7 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
-from solvers.timestepper_BDF2 import timestepper_BDF2
-from solvers.timestepper_CN import timestepper_CN
+from solvers.timestepper import timestepper_BDF2
 from .make_weak_form import *
 from solvers.printoff import blue, green
 from solvers.config_setup import *
@@ -18,7 +17,7 @@ from solvers.config_setup import *
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # adjust if this script moves
 TEMPLATES_DIR = PROJECT_ROOT / "templates"
 
-CFG_PATH1 = TEMPLATES_DIR / "constants" / "heat.yaml"
+CFG_PATH1 = TEMPLATES_DIR / "constants" / "heat_MMS.yaml"
 CFG_PATH2 = TEMPLATES_DIR / "solver_parameters" / "heat_BDF2.yaml"
 
 # -----------------

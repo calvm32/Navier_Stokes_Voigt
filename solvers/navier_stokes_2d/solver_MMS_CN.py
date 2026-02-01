@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import shutil
 
-from solvers.timestepper_CN import timestepper_CN
+from solvers.timesteppers import timestepper_CN
 from .make_weak_form import make_weak_form_CN
 from solvers.printoff import blue, green
 from solvers.config_setup import *

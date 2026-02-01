@@ -4,21 +4,21 @@ from pathlib import Path
 import os
 import shutil
 
-from solvers.timestepper_CN import timestepper_CN
-from .make_weak_form import make_weak_form_CN
+from solvers.timesteppers import *
+from .make_weak_form import *
 from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
-# ----------------------
-# Paths wrt project root
-# ----------------------
+# -----------------
+# Paths wrt current
+# -----------------
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # adjust if this script moves
-TEMPLATES_DIR = PROJECT_ROOT / "templates"
+CFG_PATH1 = Path(__file__).parent / "configs" / "constants.yaml"
+cfg = load_config(CFG_PATH1)
 
-CFG_PATH1 = TEMPLATES_DIR / "constants" / "NS.yaml"
-CFG_PATH2 = TEMPLATES_DIR / "solver_parameters" / "NS_SV_CN.yaml"
+CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params.yaml"
+solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # -------------
 # Configuration
@@ -35,6 +35,8 @@ gamma = cfg["gamma"]
 Re = cfg["Re"]
 G = cfg["G"]
 P = cfg["P"]
+solver = cfg["solver"]
+elements = cfg["elements"]
 
 # Build appctx
 appctx = {
@@ -107,10 +109,15 @@ L = x_coords.max() - x_coords.min()
 dx = Measure("dx", domain=fine_mesh)
 ds = Measure("ds", domain=fine_mesh)
 
-k = 3  # or higher for stability on arbitrary triangles
-V = VectorFunctionSpace(fine_mesh, "CG", k)
-W = FunctionSpace(fine_mesh, "DG", k-1)
-Z = V * W
+if elements == "SV":
+    k = 3  # or higher for stability on arbitrary triangles
+    V = VectorFunctionSpace(fine_mesh, "CG", k)
+    W = FunctionSpace(fine_mesh, "DG", k-1)
+    Z = V * W
+elif elements == "TH":
+    V = VectorFunctionSpace(mesh, "CG", 2)
+    W = FunctionSpace(mesh, "CG", 1)
+    Z = V * W
 
 # print(f"V Total DoFs: {V.dof_count}")
 # print(f"W Total DoFs: {W.dof_count}")
@@ -129,8 +136,15 @@ bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
 bcs = [bc_walls, bc_inflow]
 
-pressure_nullspace = VectorSpaceBasis(constant=True)
-nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), pressure_nullspace])
+# Pressure space
+Q = Z.sub(1).function_space()
+
+# Constant pressure nullspace with correct communicator
+pressure_nullspace = VectorSpaceBasis(
+    constant=True,
+    comm=Q.mesh().comm
+)
+nullspace = pressure_nullspace
 
 # ------------------
 # Allocate functions
@@ -165,10 +179,20 @@ def get_data(t):
 # Run solver
 # ----------
 
-v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_CN(get_data, 
+if solver == "CN":
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_CN(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form_CN,
+            bcs=bcs, nullspace=nullspace,
+            solver_parameters=solver_parameters,
+            appctx=appctx, vtkfile_name=vtkfile_name)
+
+elif solver == "BDF2":
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
+            Z, dx, ds, 
+            t0, T, dt,
+            make_weak_form=make_weak_form_BDF2,
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=vtkfile_name)

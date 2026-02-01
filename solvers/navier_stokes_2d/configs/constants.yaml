@@ -1,8 +1,12 @@
 t0: 0.0             # initial time
 T: 4.0              # final time
-dt: 0.005            # time step
+dt: 0.005           # time step
 theta: 0.5          # theta constant
-gamma: 1          # grad-div stabilization constant
-Re: 3.0           # Reynold's num: 1/viscostiy
+gamma: 2.0          # grad-div stabilization constant
+Re: 3.0             # Reynold's num: 1/viscostiy
 G: 50.0             # initial pressure gauge
 P: -20.0            # pressure strength (P*x + G)
+
+
+solver: "BDF2"      # valid: "BDF2" or "CN" (Crank-Nicolson)
+elements: "SV"      # valid: "SV" (Scott Vogelius) or "TH" (Taylor Hood)
