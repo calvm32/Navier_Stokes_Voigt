@@ -31,6 +31,7 @@ dt = cfg["dt"]
 theta = cfg["theta"]
 
 solver_parameters = load_solver_parameters(CFG_PATH2)
+print(solver_parameters)
 
 vtkfile_name = "Soln"
 
