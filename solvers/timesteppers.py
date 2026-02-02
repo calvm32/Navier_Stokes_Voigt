@@ -54,7 +54,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     u = Function(Z)
     u_exact = Function(Z)
 
-    mean_prof = mean_profiles(Z.sub(0), Re=Re, wall_id=3)
+    mean_prof = mean_profiles(Z.sub(0), Re=Re, dsN=dsN, wall_id=3)
     pdfs = pdf_sampler()
     struct_func = structure_funcs(u_old.sub(0), Z.mesh())
 
