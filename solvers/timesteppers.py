@@ -59,7 +59,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     struct_func = structure_funcs(
         u_old.sub(0),
         Z.mesh(),
-        r_max=0.25*L,
+        r_max=0.25*sample_length,
         nbins=30
     )
 
