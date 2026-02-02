@@ -1,8 +1,7 @@
-# solvers/diagnostics/mean_profiles.py
 import numpy as np
 from firedrake import *
 
-class MeanProfiles:
+class mean_profiles:
     def __init__(self, V, Re, dsN, wall_id):
         """
         V       : velocity FunctionSpace
