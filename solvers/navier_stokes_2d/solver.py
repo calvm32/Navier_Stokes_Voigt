@@ -198,94 +198,121 @@ elif solver == "BDF2":
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=vtkfile_name)
 
+# Data logging dict
+plot_data = {}
+
 # -----------------
 # Plot palinstrophy
 # -----------------
 
+plot_data["palinstrophy"] = (every_time_list, palinstrophy_list)
 plt.semilogy(every_time_list, palinstrophy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("palinstrophy L2")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("0_palinstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.savefig("1_palinstrophy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------------
 # Plot stream function
 # --------------------
 
+plot_data["stream_func"] = (every_time_list, stream_func_list)
 plt.semilogy(every_time_list, stream_func_list, "-o")
 plt.xlabel("time")
 plt.ylabel("stream function L2")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("0_stream_func_plot.png", dpi=200, bbox_inches='tight')
+plt.savefig("1_stream_func_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------
 # Plot Enstrophy
 # --------------
 
+plot_data["enstrophy"] = (every_time_list, enstrophy_list)
 plt.semilogy(every_time_list, enstrophy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("enstrophy L2")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("0_enstrophy_plot.png", dpi=200, bbox_inches='tight')
+plt.savefig("1_enstrophy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # -----------
 # Plot Energy
 # -----------
 
+plot_data["energy"] = (all_time_list, energy_list)
 plt.semilogy(all_time_list, energy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("energy")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("0_energy_plot.png", dpi=200, bbox_inches='tight')
+plt.savefig("1_energy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # ------------------------
 # plot Log Law of the Wall
 # ------------------------
 
+plot_data["loglaw"] = (y_plus, u_plus)
 plt.semilogx(y_plus, u_plus, "o")
 plt.xlabel(r"$y^+$")
 plt.ylabel(r"$U^+$")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("0_LogLawotWall.png", dpi=200, bbox_inches='tight')
+plt.savefig("1_LogLaw.png", dpi=200, bbox_inches='tight')
 plt.close()
 
-# -------------------------
-# Velocity + vorticity PDFS
-# -------------------------
+# ------------
+# Velocity PDF
+# ------------
 
+plot_data["velocity_pdf"] = (np.arange(len(velocity_vals)), velocity_vals)
 plt.hist(velocity_vals, bins=100, density=True)
 plt.xlabel("samples")
 plt.ylabel("velocity")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("0_velocity_PDF.png", dpi=200, bbox_inches='tight')
+plt.savefig("1_velocity_PDF.png", dpi=200, bbox_inches='tight')
 plt.close()
 
+# -------------
+# Vorticity PDF
+# -------------
+
+plot_data["vorticity_pdf"] = (np.arange(len(omega_vals)), omega_vals)
 plt.hist(omega_vals, bins=100, density=True)
 plt.xlabel("samples")
 plt.ylabel("vorticity")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("0_vorticity_PDF.png", dpi=200, bbox_inches='tight')
+plt.savefig("1_vorticity_PDF.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------
 # structure func
 # --------------
 
+plot_data["structure_function"] = (r_vals, S2)
 plt.plot(r_vals, S2, "-o")
 plt.xlabel(r"$r$")
 plt.ylabel(r"$S_2(r)$")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("0_structure_function.png", dpi=200)
+plt.savefig("1_structure_function.png", dpi=200)
 plt.close()
+
+# Save all data to CSV
+with open("all_plot_data.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+    for key, (x_vals, y_vals) in plot_data.items():
+        writer.writerow([f"# {key}"])
+        writer.writerow(["x", "y"])
+        for x, y in zip(x_vals, y_vals):
+            writer.writerow([x, y])
+        writer.writerow([])  # empty row between datasets
+
+print("[solver.py] All plot data saved to '0_all_plot_data.csv'")
