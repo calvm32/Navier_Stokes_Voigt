@@ -3,15 +3,15 @@ solver_parameters:
 
   # Solve linearized system only
   snes_type: ksponly
-  snes_monitor: null
+  #snes_monitor: null
 
   # Krylov solver
   ksp_type: fgmres
   ksp_rtol: 1e-6
   ksp_atol: 1e-12
   ksp_max_it: 500
-  ksp_monitor_true_residual: null
-  ksp_gmres_modifiedgramschmidt: null
+  #ksp_monitor_true_residual: null
+  #ksp_gmres_modifiedgramschmidt: null
 
   # Block Schur
   pc_type: fieldsplit
