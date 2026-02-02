@@ -18,8 +18,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     num_steps = int((float(T)-float(t0)) / float(dt)) 
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
-    compute_every_large = 50
-    start_sampling = 30
+    compute_every_large = 5
+    start_sampling = 10
 
     # # only compute stats for 2d navier stokes
     # mesh = Z.mesh()
