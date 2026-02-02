@@ -44,10 +44,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, Re=1,
     else:
         u_error_list = []
 
-    mean_prof = mean_profiles(Z.sub(0), Re=Re, wall_id=3)
-    pdfs = pdf_sampler()
-    struct_func = structure_funcs(u_old.sub(0), Z.mesh())
-
     # -------------
     # Setup problem
     # -------------
@@ -56,6 +52,10 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, Re=1,
     u_old = Function(Z)
     u = Function(Z)
     u_exact = Function(Z)
+
+    mean_prof = mean_profiles(Z.sub(0), Re=Re, wall_id=3)
+    pdfs = pdf_sampler()
+    struct_func = structure_funcs(u_old.sub(0), Z.mesh())
 
     data_new0 = get_data(t0) # get the functions at initial time
 
