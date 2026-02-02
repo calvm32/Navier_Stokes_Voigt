@@ -177,7 +177,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
         if step > start_sampling and is_mixed:
             mean_prof.sample(u_old.sub(0))
 
-        if step % compute_every_large and is_mixed == 0:
+        if step % compute_every_large == 0 and is_mixed:
             pdfs.sample_velocity(u_old.sub(0))
             pdfs.sample_vorticity(omega_f)
 
