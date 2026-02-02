@@ -9,7 +9,7 @@ from solvers.diagnostics.pdfs import pdf_sampler
 from solvers.diagnostics.structure_funcs import structure_funcs
 from solvers.diagnostics.energy_spectra import energy_spectra
 
-def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_height=1, Re=1,
+def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_height=1, sample_length=4, Re=1,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
@@ -56,7 +56,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
 
     mean_prof = mean_profiles(Z.sub(0), Re=Re, dsN=dsN, wall_id=3)
     pdfs = pdf_sampler()
-    struct_func = structure_funcs(u_old.sub(0), Z.mesh())
+    struct_func = structure_funcs(
+        u_old.sub(0),
+        Z.mesh(),
+        r_max=0.25*L,
+        nbins=30
+    )
 
     data_new0 = get_data(t0) # get the functions at initial time
 
@@ -180,6 +185,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
         if step % compute_every_large == 0 and is_mixed:
             pdfs.sample_velocity(u_old.sub(0))
             pdfs.sample_vorticity(omega_f)
+            struct_func.sample(nsamples_per_bin=20)
 
         if step % compute_every == 0:
             every_time_list.append(t)
@@ -230,7 +236,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     y_plus, u_plus = mean_prof.finalize(H=sample_height)
     velocity_vals, omega_vals = pdfs.finalize()
 
-    S2 = struct_func.compute(r=0.05, nsamples=5000)
+    r_vals, S2 = struct_func.compute()
 
     # ----------------------------------
     # Report done; find and return error
@@ -244,7 +250,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, 
-        velocity_vals, omega_vals)
+        velocity_vals, omega_vals, r_vals, S2)
 
     else:
         return(u_error_list, energy_list, all_time_list)

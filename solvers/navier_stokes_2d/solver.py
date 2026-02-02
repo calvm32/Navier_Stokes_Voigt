@@ -181,20 +181,19 @@ def get_data(t):
 # ----------
 
 if solver == "CN":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, velocity_vals, omega_vals = timestepper_CN(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, velocity_vals, omega_vals, r_vals, S2 = timestepper_CN(get_data, 
             Z, dx, ds, 
-            t0, T, dt, sample_height=H,
+            t0, T, dt, sample_height=H, sample_length=L,
             make_weak_form=make_weak_form_CN, Re=Re,
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=vtkfile_name)
 
 elif solver == "BDF2":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, velocity_vals, omega_vals = timestepper_BDF2(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, velocity_vals, omega_vals, r_vals, S2 = timestepper_BDF2(get_data, 
             Z, dx, ds, 
-            t0, T, dt, sample_height=H,
+            t0, T, dt, sample_height=H, sample_length=L,
             make_weak_form_BDF2=make_weak_form_BDF2, Re=Re,
-            make_weak_form_CN=make_weak_form_CN,
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=vtkfile_name)
@@ -263,6 +262,30 @@ plt.close()
 # Velocity + vorticity PDFS
 # -------------------------
 
+plt.hist(velocity_vals, bins=100, density=True)
+plt.xlabel("samples")
+plt.ylabel("velocity")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("0_velocity_PDF.png", dpi=200, bbox_inches='tight')
+plt.close()
 
 plt.hist(velocity_vals, bins=100, density=True)
-plt.hist(omega_vals, bins=100, density=True)
+plt.xlabel("samples")
+plt.ylabel("vorticity")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("0_vorticity_PDF.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# --------------
+# structure func
+# --------------
+
+plt.loglog(r_vals, S2, "-o")
+plt.xlabel(r"$r$")
+plt.ylabel(r"$S_2(r)$")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("0_structure_function.png", dpi=200)
+plt.close()
