@@ -19,6 +19,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
     compute_every_large = 50
+    start_sampling = 30
 
     # # only compute stats for 2d navier stokes
     # mesh = Z.mesh()
@@ -69,7 +70,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
 
         # for LLW (log law ot wall)
         u_mean = Function(Z.sub(0))
-        start_sampling = 100
         sample_count = 0
 
     else:
