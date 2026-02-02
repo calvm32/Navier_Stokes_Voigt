@@ -7,7 +7,7 @@ from .printoff import iter_info_verbose, text, green
 from solvers.diagnostics.mean_profiles import mean_profiles
 from solvers.diagnostics.pdfs import pdf_sampler
 from solvers.diagnostics.structure_funcs import structure_funcs
-from solvers.diagnostics.spectra import energy_spectra
+from solvers.diagnostics.energy_spectra import energy_spectra
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, Re=1,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
