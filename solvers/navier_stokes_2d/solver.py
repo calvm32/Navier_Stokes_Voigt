@@ -270,7 +270,7 @@ plt.tight_layout()
 plt.savefig("0_velocity_PDF.png", dpi=200, bbox_inches='tight')
 plt.close()
 
-plt.hist(velocity_vals, bins=100, density=True)
+plt.hist(vorticity_vals, bins=100, density=True)
 plt.xlabel("samples")
 plt.ylabel("vorticity")
 plt.grid(True)
@@ -282,7 +282,7 @@ plt.close()
 # structure func
 # --------------
 
-plt.loglog(r_vals, S2, "-o")
+plt.plot(r_vals, S2, "-o")
 plt.xlabel(r"$r$")
 plt.ylabel(r"$S_2(r)$")
 plt.grid(True)

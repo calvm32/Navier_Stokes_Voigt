@@ -2,7 +2,7 @@ from firedrake import *
 import pytest
 
 from solvers.timesteppers import *
-from solvers.heat_2d.make_weak_form import make_weak_form_CN, make_weak_form_BDF2
+from solvers.heat_2d.make_weak_form import *
 
 def _setup_heat_timestepper():
     mesh = UnitSquareMesh(4, 4)
