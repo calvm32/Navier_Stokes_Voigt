@@ -68,8 +68,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, Re=1,
         p_error = 0
 
         # for LLW (log law ot wall)
-        V = Z.sub(0).function_space()
-        u_mean = Function(V)
+        u_mean = Function(Z.sub(0))
         start_sampling = 100
         sample_count = 0
 
