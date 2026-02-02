@@ -3,6 +3,7 @@ import yaml
 from pathlib import Path
 import os
 import shutil
+import csv
 
 from solvers.timesteppers import *
 from .make_weak_form import *

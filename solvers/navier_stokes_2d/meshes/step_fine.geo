@@ -1,3 +1,7 @@
+// INFO: 
+// V Total DoFs: 1,279,610
+// W Total DoFs: 851,706
+
 // ----------
 // Parameters
 // ----------
