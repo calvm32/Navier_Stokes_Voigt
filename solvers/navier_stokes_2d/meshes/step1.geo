@@ -1,6 +1,6 @@
 // INFO: 
-// V Total DoFs: 109,244
-// W Total DoFs: 72,138
+// V Total DoFs: 153,344
+// W Total DoFs: 101,412
 
 // ----------
 // Parameters
@@ -13,7 +13,7 @@ step_width = 0.1;	    // step width
 step_height = 0.1;	    // step distance from y=0
 step_distance = 0.5;	// step distance from x=0
 
-lc = 0.025;		// mesh size
+lc = 0.05;		// mesh size
 
 // ------------------
 // Points (CCW order)
