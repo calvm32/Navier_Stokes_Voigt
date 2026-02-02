@@ -140,12 +140,14 @@ bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 bcs = [bc_walls, bc_inflow]
 
 # Pressure space
-Q = Z.sub(1)
+# Q = Z.sub(1)
 
-nullspace = VectorSpaceBasis(
-    constant=True,
-    comm=Q.mesh().comm
-)
+# nullspace = VectorSpaceBasis(
+#     constant=True,
+#     comm=Q.mesh().comm
+# )
+
+nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
 # ------------------
 # Allocate functions
