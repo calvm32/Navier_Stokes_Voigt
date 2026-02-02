@@ -9,6 +9,7 @@ from .make_weak_form import *
 from solvers.printoff import blue
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
+import numpy as np
 
 # -----------------
 # Paths wrt current
@@ -46,10 +47,6 @@ appctx = {
 }
 
 solver_parameters = load_solver_parameters(CFG_PATH2)
-
-print("[solver.py] Using solver params from:", CFG_PATH2.resolve())
-print(solver_parameters)
-print(solver)
 
 # views = news
 """
@@ -184,19 +181,19 @@ def get_data(t):
 # ----------
 
 if solver == "CN":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_CN(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, velocity_vals, omega_vals = timestepper_CN(get_data, 
             Z, dx, ds, 
             t0, T, dt,
-            make_weak_form=make_weak_form_CN,
+            make_weak_form=make_weak_form_CN, Re=Re,
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=vtkfile_name)
 
 elif solver == "BDF2":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, velocity_vals, omega_vals = timestepper_BDF2(get_data, 
             Z, dx, ds, 
             t0, T, dt,
-            make_weak_form_BDF2=make_weak_form_BDF2,
+            make_weak_form_BDF2=make_weak_form_BDF2, Re=Re,
             make_weak_form_CN=make_weak_form_CN,
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
@@ -249,3 +246,23 @@ plt.grid(True)
 plt.tight_layout()
 plt.savefig("0_energy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
+
+# ------------------------
+# plot Log Law of the Wall
+# ------------------------
+
+plt.semilogx(y_plus, u_plus, "o")
+plt.xlabel(r"$y^+$")
+plt.ylabel(r"$U^+$")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("0_LogLawotWall.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+# -------------------------
+# Velocity + vorticity PDFS
+# -------------------------
+
+
+plt.hist(velocity_vals, bins=100, density=True)
+plt.hist(omega_vals, bins=100, density=True)

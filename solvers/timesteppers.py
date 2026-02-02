@@ -4,7 +4,12 @@ from mpi4py import MPI
 from .create_timestep_solvers import *
 from .printoff import iter_info_verbose, text, green
 
-def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
+from solvers.diagnostics.mean_profiles import mean_profiles
+from solvers.diagnostics.pdfs import pdf_sampler
+from solvers.diagnostics.structure_functions import structure_funcs
+from solvers.diagnostics.spectra import energy_spectra
+
+def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, Re=1,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
@@ -13,11 +18,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     num_steps = int((float(T)-float(t0)) / float(dt)) 
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
+    compute_every_large = 50
 
-    """    # only compute stats for 2d navier stokes
-    mesh = Z.mesh()
-    dim = mesh.geometric_dimension()
-    compute_flow_diagnostics = is_mixed and (dim == 2)"""
+    # # only compute stats for 2d navier stokes
+    # mesh = Z.mesh()
+    # dim = mesh.geometric_dimension()
+    # compute_flow_diagnostics = is_mixed and (dim == 2)
 
     # --------
     # Tracking
@@ -29,12 +35,18 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     enstrophy_list = []
     every_time_list = []
     all_time_list = []
+    velocity_samples = []
+    omega_samples = []
 
     if is_mixed:
         v_error_list = []
         p_error_list = []
     else:
         u_error_list = []
+
+    mean_prof = mean_profiles(Z.sub(0).function_space(), Re=Re, wall_id=3)
+    pdfs = pdf_sampler()
+    struct_func = structure_functions(u_old.sub(0), Z.mesh())
 
     # -------------
     # Setup problem
@@ -54,6 +66,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
         # for L2 error
         v_error = 0
         p_error = 0
+
+        # for LLW (log law ot wall)
+        V = Z.sub(0).function_space()
+        u_mean = Function(V)
+        start_sampling = 100
+        sample_count = 0
 
     else:
         u_old.interpolate(data_new0["ufl_u0"])  # just velocity
@@ -157,6 +175,13 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
+        if step > start_sampling and is_mixed:
+            mean_prof.sample(u_old.sub(0))
+
+        if step % compute_every_large and is_mixed == 0:
+            pdfs.sample_velocity(u_old.sub(0))
+            pdfs.sample_vorticity(omega_f)
+
         if step % compute_every == 0:
             every_time_list.append(t)
             
@@ -199,6 +224,14 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
             else:
                 outfile.write(u, time=t)
 
+    # ----------------------
+    # finish computing stats
+    # ----------------------
+
+    y_plus, u_plus = mean_prof.finalize(H=H)
+    velocity_vals, omega_vals = pdfs.finalize()
+
+    S2 = struct_func.compute(r=0.05, nsamples=5000)
 
     # ----------------------------------
     # Report done; find and return error
@@ -210,7 +243,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
 
     # Write error to file
     if is_mixed:
-        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list)
+        return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
+        enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, 
+        velocity_vals, omega_vals)
 
     else:
         return(u_error_list, energy_list, all_time_list)
