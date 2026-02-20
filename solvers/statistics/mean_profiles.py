@@ -16,20 +16,20 @@ class mean_profiles:
         self.wall_id = wall_id
 
         self.u_sum = Function(V)
-        self.nsamples = 0
+        self.num_samples = 0
 
     def sample(self, u):
         self.u_sum += u
-        self.nsamples += 1
+        self.num_samples += 1
 
     def finalize(self, nbins=100, H=1.0):
-        if self.nsamples == 0:
-            raise RuntimeError("MeanProfiles: no samples collected")
+        if self.num_samples == 0:
+            raise RuntimeError("mean_profiles: no samples collected")
 
         u_mean = Function(self.V)
-        u_mean.assign(self.u_sum / self.nsamples)
+        u_mean.assign(self.u_sum / self.num_samples)
 
-        # ---- wall shear stress (correct) ----
+        # ---- wall shear stress ----
         nu = 1.0 / self.Re
         tau_w = nu * assemble(
             grad(u_mean)[0, 1] * self.dsN(self.wall_id)

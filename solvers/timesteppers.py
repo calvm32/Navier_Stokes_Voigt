@@ -21,11 +21,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     compute_every_large = 5
     start_sampling = 10
 
-    # # only compute stats for 2d navier stokes
-    # mesh = Z.mesh()
-    # dim = mesh.geometric_dimension()
-    # compute_flow_diagnostics = is_mixed and (dim == 2)
-
     # --------
     # Tracking
     # --------
@@ -185,7 +180,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
         if step % compute_every_large == 0 and is_mixed:
             pdfs.sample_velocity(u_old.sub(0))
             pdfs.sample_vorticity(omega_f)
-            struct_func.sample(nsamples_per_bin=20)
+            struct_func.sample(num_samples_per_bin=20)
 
         if step % compute_every == 0:
             every_time_list.append(t)
@@ -233,7 +228,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     # finish computing stats
     # ----------------------
 
-    y_plus, u_plus = mean_prof.finalize(H=sample_height)
     velocity_vals, omega_vals = pdfs.finalize()
 
     r_vals, S2 = struct_func.compute()
@@ -249,7 +243,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     # Write error to file
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
-        enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, 
+        enstrophy_list, every_time_list, energy_list, all_time_list, 
         velocity_vals, omega_vals, r_vals, S2)
 
     else:

@@ -121,8 +121,8 @@ elif elements == "TH":
     W = FunctionSpace(mesh, "CG", 1)
     Z = V * W
 
-print(f"V Total DoFs: {V.dof_count}")
-print(f"W Total DoFs: {W.dof_count}")
+# print(f"V Total DoFs: {V.dof_count}")
+# print(f"W Total DoFs: {W.dof_count}")
 
 # -------------------
 # Boundary conditions
@@ -182,7 +182,7 @@ def get_data(t):
 # ----------
 
 if solver == "CN":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, velocity_vals, omega_vals, r_vals, S2 = timestepper_CN(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2 = timestepper_CN(get_data, 
             Z, dx, ds, 
             t0, T, dt, sample_height=H, sample_length=L,
             make_weak_form=make_weak_form_CN, Re=Re,
@@ -191,7 +191,7 @@ if solver == "CN":
             appctx=appctx, vtkfile_name=vtkfile_name)
 
 elif solver == "BDF2":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, u_plus, y_plus, velocity_vals, omega_vals, r_vals, S2 = timestepper_BDF2(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2 = timestepper_BDF2(get_data, 
             Z, dx, ds, 
             t0, T, dt, sample_height=H, sample_length=L,
             make_weak_form_BDF2=make_weak_form_BDF2, Re=Re,
@@ -252,19 +252,6 @@ plt.ylabel("energy")
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("1_energy_plot.png", dpi=200, bbox_inches='tight')
-plt.close()
-
-# ------------------------
-# plot Log Law of the Wall
-# ------------------------
-
-plot_data["loglaw"] = (y_plus, u_plus)
-plt.semilogx(y_plus, u_plus, "o")
-plt.xlabel(r"$y^+$")
-plt.ylabel(r"$U^+$")
-plt.grid(True)
-plt.tight_layout()
-plt.savefig("1_LogLaw.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # ------------
