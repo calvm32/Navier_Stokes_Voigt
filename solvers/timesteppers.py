@@ -4,10 +4,9 @@ from mpi4py import MPI
 from .create_timestep_solvers import *
 from .printoff import iter_info_verbose, text, green
 
-from solvers.diagnostics.mean_profiles import mean_profiles
-from solvers.diagnostics.pdfs import pdf_sampler
-from solvers.diagnostics.structure_funcs import structure_funcs
-from solvers.diagnostics.energy_spectra import energy_spectra
+from solvers.statistics.pdf_sampler import pdf_sampler
+from solvers.statistics.structure_funcs import structure_funcs
+from solvers.statistics.energy_spectra import energy_spectra
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_height=1, sample_length=4, Re=1,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
@@ -18,7 +17,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     num_steps = int((float(T)-float(t0)) / float(dt)) 
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
-    compute_every_large = 5
     start_sampling = 10
 
     # --------
@@ -49,11 +47,11 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     u = Function(Z)
     u_exact = Function(Z)
 
-    mean_prof = mean_profiles(Z.sub(0), Re=Re, dsN=dsN, wall_id=3)
-    pdfs = pdf_sampler()
+    mesh = Z.mesh()
+    pdfs = pdf_sampler(mesh)
     struct_func = structure_funcs(
         u_old.sub(0),
-        Z.mesh(),
+        mesh,
         r_max=0.25*sample_length,
         nbins=30
     )
@@ -94,7 +92,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
     # ---------------------
 
     if is_mixed:
-        domain = Z.mesh()
+        domain = mesh
         Vpsi = FunctionSpace(domain, "CG", 1)
         psi = Function(Vpsi)
         phi = TestFunction(Vpsi)
@@ -174,14 +172,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
-        if step > start_sampling and is_mixed:
-            mean_prof.sample(u_old.sub(0))
-
-        if step % compute_every_large == 0 and is_mixed:
-            pdfs.sample_velocity(u_old.sub(0))
-            pdfs.sample_vorticity(omega_f)
-            struct_func.sample(num_samples_per_bin=20)
-
         if step % compute_every == 0:
             every_time_list.append(t)
             
@@ -200,6 +190,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
 
                 # --------- enstrophy ---------
                 enstrophy_list.append(sqrt(assemble(0.5 * omega_f**2 * dx)))
+
+                # --------- compute stats!!! ---------
+                pdfs.sample_velocity(u_old.sub(0))
+                pdfs.sample_vorticity(omega_f)
+                
+                struct_func.sample(nsamples_per_bin=20)
 
             # --------- error ---------
             # get data at current time
@@ -259,11 +255,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     num_steps = int((float(T)-float(t0)) / float(dt)) 
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
-
-    """    # only compute stats for 2d navier stokes
-    mesh = Z.mesh()
-    dim = mesh.geometric_dimension()
-    compute_flow_diagnostics = is_mixed and (dim == 2)"""
 
     # --------
     # Tracking
@@ -330,7 +321,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # ---------------------
 
     if is_mixed:
-        domain = Z.mesh()
+        domain = mesh
         Vpsi = FunctionSpace(domain, "CG", 1)
         psi = Function(Vpsi)
         phi = TestFunction(Vpsi)

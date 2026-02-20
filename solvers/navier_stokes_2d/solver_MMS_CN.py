@@ -10,19 +10,30 @@ from solvers.printoff import blue, green
 from solvers.config_setup import *
 import matplotlib.pyplot as plt
 
-# ----------------------
-# Paths wrt project root
-# ----------------------
+# -------------------
+# Get + archive paths
+# -------------------
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # adjust if this script moves
 TEMPLATES_DIR = PROJECT_ROOT / "templates"
 
-CFG_PATH1 = TEMPLATES_DIR / "constants" / "NS_MMS.yaml"
+CFG_PATH1 = TEMPLATES_DIR / "settings" / "NS_MMS.yaml"
 CFG_PATH2 = TEMPLATES_DIR / "solver_parameters" / "NS_MMS.yaml"
+CFG_PATH3 = TEMPLATES_DIR / "ufl_expr" / "NS_MMS.yaml"
 
-# -----------------
-# MMS Configuration
-# -----------------
+# current working directory
+run_dir = Path(os.getcwd())
+
+# copy YAML files to current directory
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
+shutil.copy(CFG_PATH3, run_dir / CFG_PATH3.name)
+
+print(f"[solver.py] YAML configs archived in {run_dir}\n")
+
+# ------------------
+# Configure settings
+# ------------------
 
 cfg = load_config(CFG_PATH1)
 
@@ -39,19 +50,6 @@ P = cfg["P"]
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 vtkfile_name = "Soln"
-
-# -------------
-# Archive YAMLs
-# -------------
-
-# current working directory
-run_dir = Path(os.getcwd())
-
-# copy YAML files to current directory
-shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
-shutil.copy(CFG_PATH1, run_dir / CFG_PATH2.name)
-
-print(f"[solver.py] YAML configs archived in {run_dir}")
 
 # -------------
 # Start solving
@@ -95,6 +93,28 @@ for N in N_list:
     Z = V * W
 
     # -------------------
+    # Configure functions
+    # -------------------
+
+    namespace = {
+        "as_vector": as_vector,
+        "Constant": Constant,
+        "x": x,
+        "y": y,
+        "H": H,
+        "L": L,
+        "G": G,
+        "P": P,
+        "Re": Re,
+        "pi": pi,
+        "sin": sin,
+        "cos": cos,
+        "exp": exp,
+    }
+
+    ufl_cfg = load_ufl_expressions(CFG_PATH3, namespace=namespace)
+
+    # -------------------
     # Boundary conditions
     # -------------------
 
@@ -106,27 +126,16 @@ for N in N_list:
     # ------------------
 
     def get_data(t):
-
-        # velocity exact
-        ufl_v0 = as_vector([
-            Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
-            0.0
-        ])
-
-        # pressure exact
-        ufl_p0 = P*x + G
-
-        # source termexact
-        ufl_f0 = as_vector([0.0,0.0])
-
-        # boundary term
-        ufl_g0 = as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
+        
+        namespace.update({
+            "t": t,
+        })
 
         return {
-            "ufl_v0": ufl_v0,
-            "ufl_p0": ufl_p0,
-            "ufl_f": ufl_f0,
-            "ufl_g": ufl_g0
+            "ufl_v0": ufl_cfg["ufl_v0"],
+            "ufl_p0": ufl_cfg["ufl_p0"],
+            "ufl_f": ufl_cfg["ufl_f"],
+            "ufl_g": ufl_cfg["ufl_g"]
         }
 
     # ----------

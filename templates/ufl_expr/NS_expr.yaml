@@ -1,0 +1,14 @@
+# velocity boundary inflow
+u_inflow: "as_vector([4*y*(H-y)/(H**2), 0.0])"
+
+# velocity initial guess
+ufl_v0: "as_vector([0.0, 0.0])"
+
+# pressure initial guess
+ufl_p0: "0"
+
+# source term
+ufl_f: "as_vector([0.0, 0.0])"
+
+# boundary term
+ufl_g: "as_vector([0.0, 0.0])"

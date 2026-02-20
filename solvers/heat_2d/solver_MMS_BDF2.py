@@ -5,38 +5,21 @@ import os
 import shutil
 
 import matplotlib.pyplot as plt
-from solvers.timestepper import timestepper_BDF2
-from .make_weak_form import *
+from solvers.timesteppers import timestepper_BDF2
+from .make_weak_form import make_weak_form_BDF2
 from solvers.printoff import blue, green
 from solvers.config_setup import *
 
-# ----------------------
-# Paths wrt project root
-# ----------------------
+# -------------------
+# Get + archive paths
+# -------------------
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent  # adjust if this script moves
 TEMPLATES_DIR = PROJECT_ROOT / "templates"
 
-CFG_PATH1 = TEMPLATES_DIR / "constants" / "heat_MMS.yaml"
+CFG_PATH1 = TEMPLATES_DIR / "settings" / "heat_MMS.yaml"
 CFG_PATH2 = TEMPLATES_DIR / "solver_parameters" / "heat_MMS.yaml"
-
-# -----------------
-# MMS Configuration
-# -----------------
-
-cfg = load_config(CFG_PATH1)
-t0 = cfg["t0"]
-T = cfg["T"]
-dt = cfg["dt"]
-theta = cfg["theta"]
-
-solver_parameters = load_solver_parameters(CFG_PATH2)
-
-vtkfile_name = "Soln"
-
-# -------------
-# Archive YAMLs
-# -------------
+CFG_PATH3 = TEMPLATES_DIR / "ufl_expr" / "heat_MMS.yaml"
 
 # current working directory
 run_dir = Path(os.getcwd())
@@ -44,8 +27,26 @@ run_dir = Path(os.getcwd())
 # copy YAML files to current directory
 shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
 shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
+shutil.copy(CFG_PATH3, run_dir / CFG_PATH3.name)
 
-print(f"[solver.py] YAML configs archived in {run_dir}")
+print(f"[solver.py] YAML configs archived in {run_dir}\n")
+
+# -----------------
+# MMS Configuration
+# -----------------
+
+cfg = load_config(CFG_PATH1)
+
+# extract settings
+t0 = cfg["t0"]
+T = cfg["T"]
+dt = cfg["dt"]
+theta = cfg["theta"]
+
+solver_parameters = load_solver_parameters(CFG_PATH2)
+print(solver_parameters)
+
+vtkfile_name = "Soln"
 
 # -------------
 # Start solving
@@ -79,6 +80,23 @@ for N in N_list:
     # declare function space and interpolate functions
     V = FunctionSpace(mesh, "CG", 1)
 
+    # -------------------
+    # Configure functions
+    # -------------------
+
+    namespace = {
+        "as_vector": as_vector,
+        "Constant": Constant,
+        "x": x,
+        "y": y,
+        "pi": pi,
+        "sin": sin,
+        "cos": cos,
+        "exp": exp,
+    }
+
+    ufl_cfg = load_ufl_expressions(CFG_PATH3, namespace=namespace)
+
     # ------------------
     # Allocate functions
     # ------------------
@@ -86,15 +104,16 @@ for N in N_list:
     # time dependant
     def get_data(t):
 
-        # exact functions for u=e^t*sin(pix)*cos(piy)
-        ufl_u0 = ufl.exp(t)*cos(pi*x)*cos(pi*y)                # initial condition u0 
-        ufl_f0 = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)    # source term f 
-        ufl_g0 = Constant(0)                                   # bdy condition g
+        namespace.update({
+            "t": t,
+        })
 
-        # returns
-        return {"ufl_u0": ufl_u0,
-                "ufl_f": ufl_f0,
-                "ufl_g": ufl_g0}
+        return {
+            "ufl_v0": ufl_cfg["ufl_v0"],
+            "ufl_p0": ufl_cfg["ufl_p0"],
+            "ufl_f": ufl_cfg["ufl_f"],
+            "ufl_g": ufl_cfg["ufl_g"]
+        }
 
     # ----------
     # Run solver

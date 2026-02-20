@@ -10,21 +10,31 @@ from .make_weak_form import *
 from solvers.printoff import blue, green
 from solvers.config_setup import *
 
-# -----------------
-# Paths wrt current
-# -----------------
+# -------------------
+# Get + archive paths
+# -------------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "constants.yaml"
+CFG_PATH1 = Path(__file__).parent / "configs" / "settings.yaml"
+CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params.yaml"
+CFG_PATH3 = Path(__file__).parent / "configs" / "ufl_expr.yaml"
+
+# current working directory
+run_dir = Path(os.getcwd())
+
+# copy YAML files to current directory
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
+shutil.copy(CFG_PATH3, run_dir / CFG_PATH3.name)
+
+print(f"[solver.py] YAML configs archived in {run_dir}")
+
+# ------------------
+# Configure settings
+# ------------------
+
 cfg = load_config(CFG_PATH1)
 
-CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params.yaml"
-solver_parameters = load_solver_parameters(CFG_PATH2)
-
-# -------------
-# Configuration
-# -------------
-
-# Extract constants
+# Extract settings
 t0 = cfg["t0"]
 T = cfg["T"]
 dt = cfg["dt"]
@@ -34,18 +44,7 @@ solver = cfg["solver"]
 
 vtkfile_name = "Soln"
 
-# -------------
-# Archive YAMLs
-# -------------
-
-# current working directory
-run_dir = Path(os.getcwd())
-
-# copy YAML files to current directory
-shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
-shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
-
-print(f"[solver.py] YAML configs archived in {run_dir}")
+solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # ------------
 # Setup spaces
@@ -63,6 +62,23 @@ ds = Measure("ds", domain=mesh)
 # declare function space and interpolate functions
 V = FunctionSpace(mesh, "CG", 1)
 
+# -------------------
+# Configure functions
+# -------------------
+
+namespace = {
+    "as_vector": as_vector,
+    "Constant": Constant,
+    "x": x,
+    "y": y,
+    "pi": pi,
+    "sin": sin,
+    "cos": cos,
+    "exp": exp,
+}
+
+ufl_cfg = load_ufl_expressions(CFG_PATH3, namespace=namespace)
+
 # ------------------
 # Allocate functions
 # ------------------
@@ -70,15 +86,16 @@ V = FunctionSpace(mesh, "CG", 1)
 # time dependant
 def get_data(t):
 
-    # exact functions for u=e^t*sin(pix)*cos(piy)
-    ufl_u0 = ufl.exp(t)*cos(pi*x)*cos(pi*y)                # initial condition u0 
-    ufl_f0 = (1+2*pi**2)*ufl.exp(t)*cos(pi*x)*cos(pi*y)    # source term f 
-    ufl_g0 = Constant(0)                                   # bdy condition g
+    namespace.update({
+        "t": t,
+    })
 
-    # returns
-    return {"ufl_u0": ufl_u0,
-        	"ufl_f": ufl_f0,
-            "ufl_g": ufl_g0}
+    return {
+        "ufl_v0": ufl_cfg["ufl_v0"],
+        "ufl_p0": ufl_cfg["ufl_p0"],
+        "ufl_f": ufl_cfg["ufl_f"],
+        "ufl_g": ufl_cfg["ufl_g"]
+    }
 
 # ----------
 # Run solver

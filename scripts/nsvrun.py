@@ -1,0 +1,266 @@
+#!/usr/bin/env python
+
+import getopt
+import os
+import sys
+from time import sleep
+
+from firedrake import COMM_WORLD as comm
+# from pyop2.mpi import COMM_WORLD as comm
+from firedrake import Function, VectorFunctionSpace
+# from firedrake.tsfc_interface import TSFCKernel
+# from pyop2.global_kernel import GlobalKernel
+
+import q3d.compute as compute
+import q3d.config as config
+import q3d.printoff as pr
+import q3d.saves as saves
+import q3d.uflcache as uflcache
+from q3d.firedrakeplus import (EqnGlobalFunction, choose_mesh, compute_energy, errorH1,
+                               errorL2, set_eqn_globals, solve_PDE)
+from q3d.loaddump import load_json, load_yml
+from q3d.misc import Timer, check, get_range
+
+
+def print0(*args,**kwargs):
+    if comm.rank == 0:
+        print(*args,**kwargs)
+
+def usage():
+    usage_str = """usage:
+    qtensor3d [-o] [-a] [--no-gd] [--dt={0}step-size{1}] [--num-steps={0}num-steps{1}]
+              [--save-every={0}save-every{1}] {0}save-directory{1}
+
+Opens save at {0}save-directory{1} and solves.
+              
+options:
+    -o                          overwrite mode
+    -a                          auto run mode
+    --no-gd                     turns off gradient descent and directly solves
+    --no-checkpoints            turns off checkpoints
+    --dt={0}step-size{1}              specify the step size of gradient descent
+    --num-steps={0}num-steps{1}       specify the number of time steps
+    --save-every={0}save-every{1}     specify the number of steps before saving state""".format('\033[4m','\033[0m')
+    print0(usage_str)
+
+def answers_yes_to(input_message):
+    while True:
+        answer = input(input_message) if comm.rank == 0 else None
+        answer = comm.bcast(answer,root=0)
+        if answer in ('y','Y'):
+            return True
+        if answer in ('n','N'):
+            return False
+
+def check_if_valid_save(path):
+    if not os.path.exists(path):
+        print0(f'no save at path "{path}"')
+        sys.exit()
+    for filename in ('constants.yml','settings.yml','userexpr.yml'):
+        if not os.path.exists(f'{path}/{filename}'):
+            print0(f'missing file: "{filename}"')
+            sys.exit()
+
+def check_if_checkpoint_exists(path):
+        if not os.path.exists(f'{path}/chk/checkpoint.h5') and (not os.path.exists(f'{path}/chk/q_soln.h5') or not os.path.exists(f'{path}/chk/q_prev.h5')):
+            print0("cannot resume since no checkpoint found. Try overwriting instead.")
+            sys.exit()
+
+def run(path, *, overwrite=False, supersessions={}):
+    # first, check if path is a valid save
+    check_if_valid_save(path)
+
+    # then, check if checkpoint exists if in resume mode
+    if not overwrite:
+        check_if_checkpoint_exists(path)
+    
+    # if in overwrite mode, make sure the user really wants to overwrite
+    if overwrite and not answers_yes_to(f"will overwrite save at '{path}'. Are you sure you want to continue? (y/n) "):
+        pr.text('exiting')
+        sys.exit()
+
+    # clear the cache, otherwise could cause memory to run out in long simulations
+    # TSFCKernel._cache.clear()
+    # GlobalKernel._cache.clear()
+
+    # must initialize q3d.config before q3d.saves, otherwise will break
+    settings, constants = config.initialize(f'{path}/settings.yml', f'{path}/constants.yml', supersessions=supersessions)
+
+    # initialize saves. Must be done before logging to a file can occur
+    mode = 'o' if overwrite else 'r'
+    saves.initialize(mode,path)
+    
+    if overwrite:
+        pr.info(f'overwriting save at {path}', mode='w')
+    else:
+        pr.info(f'resuming save at {path}')
+
+    # if we have time steps that, when added together, would be 16 digits or more, we must stop this
+    if (dt := settings.time.step) < 1.0e-5 or dt >= 1.0e+9:
+        pr.fail(f'step size {dt} not allowed')
+        sys.exit()
+
+    # print contents of YML's
+    pr.yml_info()
+
+    # perform a check that will ensure the elastic constants are physical
+    check.elastic_constants(constants)
+
+    sleep(1)
+    pr.stext(f'PRELIMINARY COMPUTATIONS:',color='uline')
+
+    # perform sympyplus preliminary computations
+    timer = Timer()
+    timer.start()
+    comp = compute.compute()
+    timer.stop()
+
+    # rebuild UFL cache if in overwrite mode
+    if overwrite:
+        pr.text("Rebuilding UFL cache...",end=' ')
+        uflcache.build_uflcache(path)
+        pr.text("build successful.")
+
+    # if, however, the UFL cache is missing, rebuild it regardless of the mode
+    try:
+        uflcache_dict = load_json(f'{path}/uflcache.json')
+    except FileNotFoundError:
+        pr.text("UFL cache not found. Rebuilding...",end=' ')
+        uflcache.build_uflcache(path)
+        pr.text("build successful.")
+        uflcache_dict = load_json(f'{path}/uflcache.json')
+
+    pr.stext(f'Finished preliminary computations in {timer.str_time}.')
+    sleep(1)
+    pr.stext(f'PDE SOLVE:',color='uline')
+
+    # allow for multiple refinement levels for an in-depth comparison
+    for refinement_level in get_range(settings.mesh.refs):
+        # choose mesh, depending on the mesh source and mesh name, as well as the refinement level
+        mesh = choose_mesh(settings.mesh.source, settings.mesh.name, refinement_level=refinement_level)
+        func_space_data = [mesh,'CG',1] # is this the beginning of good things to come?
+
+        # set equation globals to initialize
+        set_eqn_globals(comp, uflcache_dict)
+
+        # solve PDE and get info about it
+        q_soln, time_elapsed, times, energies, completed = solve_PDE(mesh,ref_lvl=refinement_level)
+
+        # in case q_soln was loaded with a mesh from checkpoint, use this mesh instead of the other one
+        mesh = q_soln.function_space().mesh()
+
+        # if a manufactured solution was specified in userexpr.yml,
+        # go ahead and compute its energy, and compare it to the
+        # solution we got from solve_PDE()
+        if 'manu_q' in uflcache.load_userexpr_yml(path).keys():
+            q_manu = EqnGlobalFunction('manu_q', func_space_data)
+            manu_energy = compute_energy(q_manu)
+            h1_error = errorH1(q_soln,q_manu,mesh)
+            l2_error = errorL2(q_soln,q_manu,mesh)
+
+            # print a verbose summary of the PDE solve info
+            try:
+                pr.pde_solve_info(refinement_level=refinement_level,
+                    h1_error=h1_error,
+                    l2_error=l2_error,
+                    energy=energies[-1],
+                    custom={'title':'Manu. Sol. Energy','text':manu_energy},
+                    time_elapsed=time_elapsed)
+            except IndexError:
+                pass
+            
+            # returns True if solve completes, False if convergence error occurs
+            return completed
+        
+        # if a manufactured solution was not specified, then print
+        # an abbreviated summary of the PDE solve info
+        try:
+            pr.pde_solve_info(refinement_level=refinement_level,energy=energies[-1],time_elapsed=time_elapsed)
+        except IndexError:
+            pass
+        
+        # returns True if solve completes, False if convergence error occurs
+        return completed
+
+def auto_run(path, *, overwrite=False, supersessions):
+    check_if_valid_save(path)
+
+    pr.info('Starting AUTO RUN', spaced=True)
+
+    timer_autorun = Timer()
+    timer_autorun.start()
+
+    # default supersessions given here, may be overriden on command line
+    supersessions['dt'] = supersessions.get('dt', 0.001)
+    supersessions['num-steps'] = supersessions.get('num-steps', 50)
+    supersessions['save-every'] = supersessions.get('save-every', 50)
+    if 'no-gd' in supersessions:
+        print0("cannot choose --no-gd in auto mode")
+        return
+    if not load_yml(f'{path}/settings.yml')['pde']['grad_desc']:
+        print("cannot turn off settings.pde.grad_desc in auto mode")
+        return
+    
+    for i in range(100):
+        # assume not completed, then run iterations until completed, adjusting the step size as appropriate
+        completed = False
+        while not completed:
+            completed = run(path, overwrite=overwrite, supersessions=supersessions)
+            supersessions['dt'] *= 10 if completed else 0.1
+            if supersessions['dt'] > 100_000: supersessions['dt'] = 100_000
+        # if a direct solve was completed, then stop the auto_run
+        if completed == 'direct-solve': break
+        # turn off overwrite mode after iteration i == 0 is completed
+        overwrite = False
+    
+    timer_autorun.stop()
+    pr.info(f'AUTO RUN completed in {timer_autorun.str_time}')
+
+def main():
+    sys_argv = sys.argv[1:]
+    if len(sys_argv) == 0:
+        print0('no argument supplied')
+        return
+
+    try:
+        opts, listargs = getopt.getopt(sys.argv[1:],'oa',['no-gd','no-checkpoints','dt=','num-steps=','save-every=','help'])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print0(err)
+        print0('use --help for usage')
+        return
+
+    # resume mode is default
+    overwrite = False
+    auto = False
+    supersessions = {}
+
+    for o, a in opts:
+        # change to overwrite mode
+        if o in ('-o'):
+            overwrite = True
+        elif o in ('-a'):
+            auto = True
+        # allow for supersessions over what was specified in settings/constants files
+        elif o in ('--dt','--num-steps','--save-every'):
+            supersessions[o[2:]] = float(a)
+        elif o in ('--no-gd','--no-checkpoints'):
+            supersessions[o[2:]] = a
+        # get help
+        elif o in ('--help'):
+            usage()
+            return
+        else:
+            return
+    
+    # overwrite or resume
+    if auto:
+        auto_run(listargs[-1], overwrite=overwrite, supersessions=supersessions)
+        return
+    
+    run(listargs[-1], overwrite=overwrite, supersessions=supersessions)
+
+if __name__ == '__main__':
+	main()
+
+# END OF CODE

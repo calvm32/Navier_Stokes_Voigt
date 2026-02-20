@@ -1,0 +1,14 @@
+# velocity exact
+ufl_v0: "as_vector([
+    Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
+    0.0
+  ])"
+
+# pressure exact
+ufl_p0: "P*x + G"
+
+# source termexact
+ufl_f: "as_vector([0.0,0.0])"
+
+# boundary term
+ufl_g: "as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])"

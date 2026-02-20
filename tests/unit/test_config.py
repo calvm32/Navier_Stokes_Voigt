@@ -4,9 +4,9 @@ import pytest
 from pathlib import Path
 from solvers.config_setup import load_config, load_solver_parameters
 
-def test_constants_yaml_loads():
+def test_settings_yaml_loads():
     cfg = load_config(
-        Path("templates/constants/heat_MMS.yaml")
+        Path("templates/settings/heat_MMS.yaml")
     )
 
     required_keys = ["t0", "T", "dt", "theta"]

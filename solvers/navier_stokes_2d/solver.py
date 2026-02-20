@@ -12,23 +12,31 @@ from solvers.config_setup import *
 import matplotlib.pyplot as plt
 import numpy as np
 
-# -----------------
-# Paths wrt current
-# -----------------
+# -------------------
+# Get + archive paths
+# -------------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "constants.yaml"
-cfg = load_config(CFG_PATH1)
-
+CFG_PATH1 = Path(__file__).parent / "configs" / "settings.yaml"
 CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params.yaml"
-solver_parameters = load_solver_parameters(CFG_PATH2)
+CFG_PATH3 = Path(__file__).parent / "configs" / "ufl_expr.yaml"
 
-# -------------
-# Configuration
-# -------------
+# current working directory
+run_dir = Path(os.getcwd())
+
+# copy YAML files to current directory
+shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
+shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
+shutil.copy(CFG_PATH3, run_dir / CFG_PATH3.name)
+
+print(f"[solver.py] YAML configs archived in {run_dir}\n")
+
+# ------------------
+# Configure settings
+# ------------------
 
 cfg = load_config(CFG_PATH1)
 
-# Extract constants
+# Extract settings
 t0 = cfg["t0"]
 T = cfg["T"]
 dt = cfg["dt"]
@@ -39,6 +47,7 @@ G = cfg["G"]
 P = cfg["P"]
 solver = cfg["solver"]
 elements = cfg["elements"]
+views = cfg["views"]
 
 # Build appctx
 appctx = {
@@ -49,46 +58,29 @@ appctx = {
 
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
-# views = news
-"""
-solver_parameters.update({
-    'ksp_view': None, 
-    'pc_view': None,
-    'snes_view': None, 
-    'pc_fieldsplit_view': None,
-    'firedrake_0_ksp_view': None,
-    'firedrake_0_pc_view': None,
-    'firedrake_1_ksp_view': None,
-    'firedrake_1_pc_view': None,
-})
-"""
+# views = news for solver param debugging
+if views == "True":
+    solver_parameters.update({
+        'ksp_view': None, 
+        'pc_view': None,
+        'snes_view': None, 
+        'pc_fieldsplit_view': None,
+        'firedrake_0_ksp_view': None,
+        'firedrake_0_pc_view': None,
+        'firedrake_1_ksp_view': None,
+        'firedrake_1_pc_view': None,
+    })
 
 vtkfile_name = "Soln"
 
-# ------------------
-# Mesh Configuration
-# ------------------
+# --------------
+# Configure mesh
+# --------------
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MESH_PATH = os.path.join(HERE, "meshes", "step1.msh")
 
-if not os.path.exists(MESH_PATH):
-    raise FileNotFoundError(f"Mesh not found at {MESH_PATH}")
-
 print(f"[solver.py] Loading mesh from: {MESH_PATH}")
-
-# -------------
-# Archive YAMLs
-# -------------
-
-# current working directory
-run_dir = Path(os.getcwd())
-
-# copy YAML files to current directory
-shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
-shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
-
-print(f"[solver.py] YAML configs archived in {run_dir}\n")
 
 # ------------
 # Setup spaces
@@ -117,35 +109,40 @@ if elements == "SV":
     W = FunctionSpace(fine_mesh, "DG", k-1)
     Z = V * W
 elif elements == "TH":
-    V = VectorFunctionSpace(mesh, "CG", 2)
-    W = FunctionSpace(mesh, "CG", 1)
+    V = VectorFunctionSpace(fine_mesh, "CG", 2)
+    W = FunctionSpace(fine_mesh, "CG", 1)
     Z = V * W
 
 # print(f"V Total DoFs: {V.dof_count}")
 # print(f"W Total DoFs: {W.dof_count}")
 
 # -------------------
+# Configure functions
+# -------------------
+
+namespace = {
+    "as_vector": as_vector,
+    "Constant": Constant,
+    "x": x,
+    "y": y,
+    "H": H,
+    "L": L,
+    "G": G,
+    "P": P
+}
+
+ufl_cfg = load_ufl_expressions(CFG_PATH3, namespace=namespace)
+
+# -------------------
 # Boundary conditions
 # -------------------
 
-u_inflow = as_vector((
-    4*y*(H-y)/(H**2), # normalize at center line
-    0.0
-))
+u_inflow = ufl_cfg["u_inflow"]
 
 bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,2))
 bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
 bcs = [bc_walls, bc_inflow]
-
-# Pressure space
-# Q = Z.sub(1)
-
-# nullspace = VectorSpaceBasis(
-#     constant=True,
-#     comm=Q.mesh().comm
-# )
-
 nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)])
 
 # ------------------
@@ -154,28 +151,16 @@ nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True)]
 
 def get_data(t):
 
-    # velocity
-    ufl_v0 = as_vector([
-        0.0, #4*P*y*(y - H)/(H**2), #P*y*(y - H),
-        0.0
-    ])
-
-    # pressure
-    ufl_p0 = 0
-
-    # source term
-    ufl_f0 = as_vector([0.0,0.0])
-
-    # boundary term
-    ufl_g0 = as_vector([0.0,0.0]) #as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])
+    namespace.update({
+        "t": t,
+    })
 
     return {
-        "ufl_v0": ufl_v0,
-        "ufl_p0": ufl_p0,
-        "ufl_f": ufl_f0,
-        "ufl_g": ufl_g0
+        "ufl_v0": ufl_cfg["ufl_v0"],
+        "ufl_p0": ufl_cfg["ufl_p0"],
+        "ufl_f": ufl_cfg["ufl_f"],
+        "ufl_g": ufl_cfg["ufl_g"]
     }
-
 
 # ----------
 # Run solver

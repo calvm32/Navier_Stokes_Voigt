@@ -4,11 +4,11 @@ from pathlib import Path
 
 from solvers.config_setup import *
 
-# -------------
-# Configuration
-# -------------
+# ------------------
+# Configure settings
+# ------------------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "constants.yaml"
+CFG_PATH1 = Path(__file__).parent / "configs" / "settings.yaml"
 cfg = load_config(CFG_PATH1)
 
 theta = cfg["theta"]

@@ -2,6 +2,12 @@ import numpy as np
 from firedrake import *
 
 class mean_profiles:
+    """
+    Used for Log Law of the Wall, which does't exist in 2D,
+    so this isn't currently used
+
+    untested & may have errors
+    """
     def __init__(self, V, Re, dsN, wall_id):
         """
         V       : velocity FunctionSpace

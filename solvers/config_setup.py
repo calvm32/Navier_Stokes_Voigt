@@ -18,3 +18,24 @@ def load_solver_parameters(path, *, dt=dt):
                 params[k] = dt
 
     return params
+
+def load_ufl_expressions(path, *, namespace=None):
+    """
+    Load UFL expressions from a YAML file where entries are stored as strings.
+    """
+
+    with open(path, "r") as f:
+        data = yaml.safe_load(f)
+
+    namespace = namespace or {}
+
+    results = {}
+
+    for key, value in data.items():
+        if isinstance(value, str):
+            # Evaluate expression using provided namespace
+            results[key] = eval(value, {}, namespace)
+        else:
+            results[key] = value
+
+    return results
