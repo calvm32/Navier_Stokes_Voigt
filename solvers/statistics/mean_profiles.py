@@ -9,12 +9,6 @@ class mean_profiles:
     untested & may have errors
     """
     def __init__(self, V, Re, dsN, wall_id):
-        """
-        V       : velocity FunctionSpace
-        Re      : Reynolds number
-        dsN     : boundary measure (already bound to mesh)
-        wall_id : boundary id
-        """
         self.V = V
         self.mesh = V.mesh()
         self.Re = Re

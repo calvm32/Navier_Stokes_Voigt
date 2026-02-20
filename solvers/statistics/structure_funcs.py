@@ -1,18 +1,30 @@
 import numpy as np
-from solvers.statistics.spatial_sampler import spatial_sampler
+
 
 class structure_funcs:
+    """
+    2nd-order longitudinal structure function S^2(r) using DOF sampling
+    """
+
     def __init__(self, u, mesh, r_max=None, nbins=30):
+
         self.u = u
         self.mesh = mesh
 
-        self.sampler = spatial_sampler(mesh)
+        # DOF values (view updates automatically)
+        self.values = u.dat.data_ro
 
-        xmin, ymin = self.sampler.xmin, self.sampler.ymin
-        xmax, ymax = self.sampler.xmax, self.sampler.ymax
+        ndofs = self.values.shape[0]
 
-        # we need to avoid the boundaries, so only sample a small radial distance (r)
-        # this only accounts for small eddies, altho can get an even smaller length scale if wanted
+        # Fake geometric scale from mesh bounding box
+        # (only needed to define r bins)
+
+        coords = mesh.coordinates.dat.data_ro
+        xmin, ymin = coords.min(axis=0)
+        xmax, ymax = coords.max(axis=0)
+
+        # we need to avoid the boundaries, so only sample a small radial distance (r) #
+        #  this only accounts for small eddies, altho can get an even smaller length scale if wanted
         if r_max is None:
             Lx = xmax - xmin
             Ly = ymax - ymin
@@ -21,52 +33,48 @@ class structure_funcs:
         self.r_edges = np.linspace(0.0, r_max, nbins + 1)
         self.r_centers = 0.5 * (self.r_edges[:-1] + self.r_edges[1:])
 
-        self.S2_accum = np.zeros(nbins) # sum of squared velocity differences for bin i, will be averaged
+        self.S2_accum = np.zeros(nbins) # sum of squared velocity differences for bin i, will be averaged 
         self.counts = np.zeros(nbins, dtype=int) # count successful samples (denominator for avg)
 
-    def sample_increment(self, r):
+        self.ndofs = ndofs
+
+    def sample_increment(self):
         """
-        finds the longitudinal velocity inrement
-        along a random vector w/ distance r
+        longitudinal velocity increment
         """
-        x1 = self.sampler.random_point() # random pt in domain
 
-        theta = 2 * np.pi * np.random.rand() # random direction in radians
-        r_vec = r * np.array([np.cos(theta), np.sin(theta)]) # vector of length r in that direction
-        x2 = x1 + r_vec # next pt to sample & measure difference
+        i = np.random.randint(0, self.ndofs)
+        j = np.random.randint(0, self.ndofs)
 
-        try:
-            u1 = self.u(x1) # velocity at x1
-            u2 = self.u(x2) # velocity at x2
-        except:
-            return None
+        u1 = self.values[i]
+        u2 = self.values[j]
 
-        diff_u = u2 - u1 # difference
-        r_hat = r_vec / np.linalg.norm(r_vec) # unit vector along diff
+        diff = u2 - u1
 
-        return np.dot(diff_u, r_hat) # longitudinal velocity increment
+        # random direction (isotropic projection)
+        theta = 2.0 * np.pi * np.random.rand()
+        r_hat = np.array([np.cos(theta), np.sin(theta)])
+
+        return np.dot(diff, r_hat)
 
     def sample(self, nsamples_per_bin=50):
         """
-        finds samples for all of the bins
-        sums them to get increments
+        actually sample now
         """
-        for i, r in enumerate(self.r_centers): # go thru all bins
-            success = 0
-            attempts = 0
 
-            # keep sampling until desired number of samples
-            while success < nsamples_per_bin and attempts < 5 * nsamples_per_bin:
-                inc = self.sample_increment(r)
-                attempts += 1
+        for i in range(len(self.r_centers)):
 
-                if inc is not None:
-                    self.S2_accum[i] += inc**2 # gathers squared longitudinal increments
-                    self.counts[i] += 1
-                    success += 1
+            for _ in range(nsamples_per_bin):
+
+                inc = self.sample_increment()
+
+                self.S2_accum[i] += inc ** 2
+                self.counts[i] += 1
 
     def compute(self):
-        mask = self.counts > 0 # given atl one valid sample
+
+        mask = self.counts > 0 # don't include zeros
         S2 = np.zeros_like(self.S2_accum)
         S2[mask] = self.S2_accum[mask] / self.counts[mask]
+
         return self.r_centers, S2
