@@ -183,13 +183,13 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_heig
 
                 # --------- stream ---------
                 solver_psi.solve()
-                stream_func_list.append(sqrt(assemble(inner(psi, psi) * dx)))
+                stream_func_list.append(assemble(inner(psi, psi) * dx))
 
                 # --------- palinstrophy ---------
-                palinstrophy_list.append(sqrt(assemble(0.5 * inner(grad(omega_f), grad(omega_f)) * dx)))
+                palinstrophy_list.append(assemble(0.5 * inner(grad(omega_f), grad(omega_f)) * dx))
 
                 # --------- enstrophy ---------
-                enstrophy_list.append(sqrt(assemble(0.5 * omega_f**2 * dx)))
+                enstrophy_list.append(assemble(0.5 * omega_f**2 * dx))
 
                 # --------- compute stats!!! ---------
                 pdfs.sample_velocity(u_old.sub(0))

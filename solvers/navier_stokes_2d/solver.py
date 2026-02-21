@@ -83,7 +83,7 @@ vtkfile_name = "Soln"
 # --------------
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MESH_PATH = os.path.join(HERE, "meshes", "step1.msh")
+MESH_PATH = os.path.join(HERE, "meshes", "step_big.msh")
 
 print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
@@ -133,7 +133,10 @@ namespace = {
     "H": H,
     "L": L,
     "G": G,
-    "P": P
+    "P": P,
+    "sin": sin,
+    "cos": cos,
+    "pi": pi,
 }
 
 ufl_cfg = load_ufl_expressions(CFG_PATH3, namespace=namespace)
@@ -199,7 +202,7 @@ plot_data = {}
 plot_data["palinstrophy"] = (every_time_list, palinstrophy_list)
 plt.semilogy(every_time_list, palinstrophy_list, "-o")
 plt.xlabel("time")
-plt.ylabel("palinstrophy L2")
+plt.ylabel("palinstrophy")
 plt.title('Palinstrophy')
 plt.grid(True)
 plt.tight_layout()
@@ -213,7 +216,7 @@ plt.close()
 plot_data["stream_func"] = (every_time_list, stream_func_list)
 plt.semilogy(every_time_list, stream_func_list, "-o")
 plt.xlabel("time")
-plt.ylabel("stream function L2")
+plt.ylabel("stream function")
 plt.title('Stream Function')
 plt.grid(True)
 plt.tight_layout()
@@ -227,7 +230,7 @@ plt.close()
 plot_data["enstrophy"] = (every_time_list, enstrophy_list)
 plt.semilogy(every_time_list, enstrophy_list, "-o")
 plt.xlabel("time")
-plt.ylabel("enstrophy L2")
+plt.ylabel("enstrophy")
 plt.title('Enstrophy')
 plt.grid(True)
 plt.tight_layout()
