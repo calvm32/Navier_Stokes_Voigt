@@ -1,7 +1,7 @@
 # velocity boundary inflow
 # u_inflow: "as_vector([4*y*(H-y)/(H**2), 0.0])"
 
-eps: "0.002"
+eps: "0.0"
 noise: "eps*(sin(13*pi*x/L) + cos(17*pi*y/H))"
 u_inflow: "as_vector([4*y*(H-y)/(H**2)*(1 + noise), noise])"
 
