@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class spatial_sampler:
     """
     Samples a Firedrake Function using DOF nodes

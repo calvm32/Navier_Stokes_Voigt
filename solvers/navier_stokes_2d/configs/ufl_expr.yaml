@@ -8,7 +8,7 @@ ufl_v0: "as_vector([0.0, 0.0])"
 ufl_p0: "0"
 
 # source term
-ufl_f0: "as_vector([0.0, 0.0])"
+ufl_f: "as_vector([0.0, 0.0])"
 
 # boundary term
-ufl_g0: "as_vector([0.0, 0.0])"
+ufl_g: "as_vector([0.0, 0.0])"

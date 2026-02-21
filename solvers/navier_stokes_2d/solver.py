@@ -59,7 +59,7 @@ appctx = {
 solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # views = news for solver param debugging
-if views == "True":
+if views == "Full":
     solver_parameters.update({
         'ksp_view': None, 
         'pc_view': None,
@@ -69,6 +69,11 @@ if views == "True":
         'firedrake_0_pc_view': None,
         'firedrake_1_ksp_view': None,
         'firedrake_1_pc_view': None,
+    })
+elif views == "Some":
+    solver_parameters.update({
+        'ksp_monitor_true_residual': None, 
+        'snes_monitor': None,
     })
 
 vtkfile_name = "Soln"
@@ -167,7 +172,7 @@ def get_data(t):
 # ----------
 
 if solver == "CN":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2 = timestepper_CN(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_CN(get_data, 
             Z, dx, ds, 
             t0, T, dt, sample_height=H, sample_length=L,
             make_weak_form=make_weak_form_CN, Re=Re,
@@ -176,7 +181,7 @@ if solver == "CN":
             appctx=appctx, vtkfile_name=vtkfile_name)
 
 elif solver == "BDF2":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2 = timestepper_BDF2(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_BDF2(get_data, 
             Z, dx, ds, 
             t0, T, dt, sample_height=H, sample_length=L,
             make_weak_form_BDF2=make_weak_form_BDF2, Re=Re,
@@ -195,6 +200,7 @@ plot_data["palinstrophy"] = (every_time_list, palinstrophy_list)
 plt.semilogy(every_time_list, palinstrophy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("palinstrophy L2")
+plt.title('Palinstrophy')
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("1_palinstrophy_plot.png", dpi=200, bbox_inches='tight')
@@ -208,6 +214,7 @@ plot_data["stream_func"] = (every_time_list, stream_func_list)
 plt.semilogy(every_time_list, stream_func_list, "-o")
 plt.xlabel("time")
 plt.ylabel("stream function L2")
+plt.title('Stream Function')
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("1_stream_func_plot.png", dpi=200, bbox_inches='tight')
@@ -221,6 +228,7 @@ plot_data["enstrophy"] = (every_time_list, enstrophy_list)
 plt.semilogy(every_time_list, enstrophy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("enstrophy L2")
+plt.title('Enstrophy')
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("1_enstrophy_plot.png", dpi=200, bbox_inches='tight')
@@ -234,6 +242,7 @@ plot_data["energy"] = (all_time_list, energy_list)
 plt.semilogy(all_time_list, energy_list, "-o")
 plt.xlabel("time")
 plt.ylabel("energy")
+plt.title('Total Kinetic Energy')
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("1_energy_plot.png", dpi=200, bbox_inches='tight')
@@ -247,6 +256,7 @@ plot_data["velocity_pdf"] = (np.arange(len(velocity_vals)), velocity_vals)
 plt.hist(velocity_vals, bins=100, density=True)
 plt.xlabel("samples")
 plt.ylabel("velocity")
+plt.title('Velocity Probabiility Density Function')
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("1_velocity_PDF.png", dpi=200, bbox_inches='tight')
@@ -260,6 +270,7 @@ plot_data["vorticity_pdf"] = (np.arange(len(omega_vals)), omega_vals)
 plt.hist(omega_vals, bins=100, density=True)
 plt.xlabel("samples")
 plt.ylabel("vorticity")
+plt.title('Vorticity Probability Density Function')
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("1_vorticity_PDF.png", dpi=200, bbox_inches='tight')
@@ -273,13 +284,44 @@ plot_data["structure_function"] = (r_vals, S2)
 plt.plot(r_vals, S2, "-o")
 plt.xlabel(r"$r$")
 plt.ylabel(r"$S_2(r)$")
+plt.title('2nd-Order Longitudinal Structure Function')
 plt.grid(True)
 plt.tight_layout()
 plt.savefig("1_structure_function.png", dpi=200)
 plt.close()
 
+# --------------------
+# Plot Energy spectrum
+# --------------------
+
+all_E = np.array([E for k, E in energy_spec_list])
+mean_E = np.mean(all_E, axis=0)
+k = energy_spec_list[0][0]
+
+plt.figure()
+plt.loglog(k, mean_E, 'r-', label="Simulation")
+
+# reference slope k^-3
+C1 = mean_E[1] * k[1]**3
+C2 = mean_E[1] * k[1]**(5/3)
+
+plt.loglog(k, C1 * k**(-3), '--', label=r"$k^{-3}$")
+plt.loglog(k, C2 * k**(-5/3), ':', label=r"$k^{-5/3}$")
+
+plt.xlabel('Wavenumber k')
+plt.ylabel('E(k)')
+plt.title('Time-Averaged Energy Spectrum')
+plt.grid(True)
+plt.legend()
+
+plt.tight_layout()
+plt.savefig("1_energy_spec.png", dpi=200)
+
+# --------------------
 # Save all data to CSV
-with open("all_plot_data.csv", "w", newline="") as f:
+# --------------------
+
+with open("0_all_plot_data.csv", "w", newline="") as f:
     writer = csv.writer(f)
     for key, (x_vals, y_vals) in plot_data.items():
         writer.writerow([f"# {key}"])

@@ -142,7 +142,7 @@ for N in N_list:
     # Run solver
     # ----------
 
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list = timestepper_CN(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_CN(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             make_weak_form=make_weak_form_CN,
