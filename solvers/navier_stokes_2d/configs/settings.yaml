@@ -3,7 +3,7 @@ T: 4.0              # final time
 dt: 0.001            # time step
 theta: 0.5          # theta constant
 gamma: 2.0          # grad-div stabilization constant
-Re: 60.0           # Reynold's num: 1/viscostiy
+Re: 1.0           # Reynold's num: 1/viscostiy
 G: 50.0             # initial pressure gauge
 P: -0.5            # pressure strength (P*x + G)
 
