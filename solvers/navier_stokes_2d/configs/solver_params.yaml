@@ -24,7 +24,7 @@ solver_parameters:
   fieldsplit_0_pc_hypre_type: boomeramg
   fieldsplit_0_pc_hypre_boomeramg_strong_threshold: 0.5
   fieldsplit_0_pc_hypre_boomeramg_relax_type_all: symmetric-SOR/Jacobi
-  fieldsplit_0_pc_hypre_boomeramg_max_iter: 10
+  fieldsplit_0_pc_hypre_boomeramg_max_iter: 5
   fieldsplit_0_pc_hypre_boomeramg_cycle_type: V
 
   # Pressure block (DG mass)
