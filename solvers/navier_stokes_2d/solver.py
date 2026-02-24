@@ -118,8 +118,8 @@ elif elements == "TH":
     W = FunctionSpace(fine_mesh, "CG", 1)
     Z = V * W
 
-print(f"// V Total DoFs: {V.dof_count}")
-print(f"// W Total DoFs: {W.dof_count}")
+# print(f"// V Total DoFs: {V.dof_count}")
+# print(f"// W Total DoFs: {W.dof_count}")
 
 # -------------------
 # Configure functions
