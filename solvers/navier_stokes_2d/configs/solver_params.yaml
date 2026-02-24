@@ -13,8 +13,9 @@ solver_parameters:
   # Block Schur
   pc_type: fieldsplit
   pc_fieldsplit_type: schur
-  pc_fieldsplit_schur_fact_type: lower
+  pc_fieldsplit_schur_fact_type: full # changed from lower
   pc_fieldsplit_schur_precondition: selfp
+  pc_fieldsplit_schur_scale: -1 # added this
 
   # Velocity block (V)
   fieldsplit_0_ksp_type: preonly
@@ -27,5 +28,4 @@ solver_parameters:
 
   # Pressure block (DG mass)
   fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: hypre
-  fieldsplit_1_pc_hypre_type: boomeramg
+  fieldsplit_1_pc_type: jacobi # tested hypre = required much more ksp its
