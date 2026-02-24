@@ -8,7 +8,7 @@ from solvers.statistics.pdf_sampler import pdf_sampler
 from solvers.statistics.structure_funcs import structure_funcs
 from solvers.statistics.energy_spectra import energy_spectra
 
-def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
+def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_length=40, sample_height=10,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
@@ -53,7 +53,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     struct_func = structure_funcs(
         u_old.sub(0),
         mesh,
-        r_max=0.25*sample_length,
+        r_max=0.25*min(sample_length,sample_height),
         nbins=30
     )
 
@@ -248,7 +248,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
     else:
         return(u_error_list, energy_list, all_time_list)
 
-def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN,
+def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_length, sample_height,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
@@ -285,6 +285,15 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     u_old = Function(Z)
     u = Function(Z)
     u_exact = Function(Z)
+
+    mesh = Z.mesh()
+    pdfs = pdf_sampler(mesh)
+    struct_func = structure_funcs(
+        u_old.sub(0),
+        mesh,
+        r_max=0.25*min(sample_length,sample_height),
+        nbins=30
+    )
 
     data_new0 = get_data(t0) # get the functions at initial time
 
