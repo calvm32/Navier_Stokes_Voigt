@@ -177,8 +177,8 @@ def get_data(t):
 if solver == "CN":
     v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_CN(get_data, 
             Z, dx, ds, 
-            t0, T, dt, sample_height=H, sample_length=L,
-            make_weak_form=make_weak_form_CN, Re=Re,
+            t0, T, dt,
+            make_weak_form=make_weak_form_CN, 
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=vtkfile_name)
@@ -186,8 +186,9 @@ if solver == "CN":
 elif solver == "BDF2":
     v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_BDF2(get_data, 
             Z, dx, ds, 
-            t0, T, dt, sample_height=H, sample_length=L,
-            make_weak_form_BDF2=make_weak_form_BDF2, Re=Re,
+            t0, T, dt, 
+            make_weak_form_BDF2=make_weak_form_BDF2,
+            make_weak_form_CN=make_weak_form_CN,
             bcs=bcs, nullspace=nullspace,
             solver_parameters=solver_parameters,
             appctx=appctx, vtkfile_name=vtkfile_name)

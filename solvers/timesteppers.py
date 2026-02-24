@@ -8,7 +8,7 @@ from solvers.statistics.pdf_sampler import pdf_sampler
 from solvers.statistics.structure_funcs import structure_funcs
 from solvers.statistics.energy_spectra import energy_spectra
 
-def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_height=1, sample_length=4, Re=1,
+def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
