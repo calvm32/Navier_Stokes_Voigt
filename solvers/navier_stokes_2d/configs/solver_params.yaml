@@ -27,4 +27,5 @@ solver_parameters:
 
   # Pressure block (DG mass)
   fieldsplit_1_ksp_type: preonly
-  fieldsplit_1_pc_type: jacobi
+  fieldsplit_1_pc_type: hypre
+  fieldsplit_1_pc_hypre_type: boomeramg
