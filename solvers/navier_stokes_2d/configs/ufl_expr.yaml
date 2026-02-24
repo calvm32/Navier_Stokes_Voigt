@@ -2,7 +2,7 @@
 u_inflow: "as_vector([0.1*4*y*(H-y)/(H**2), 0.0])"
 
 # velocity initial guess
-ufl_v0: "as_vector([0.1*4*y*(H-y)/(H**2), 0.0])"
+ufl_v0: "as_vector([0.0, 0.0])"
 
 # pressure initial guess
 ufl_p0: "0"
