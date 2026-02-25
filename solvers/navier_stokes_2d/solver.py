@@ -83,7 +83,7 @@ vtkfile_name = "Soln"
 # --------------
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MESH_PATH = os.path.join(HERE, "meshes", "step_big_fine.msh")
+MESH_PATH = os.path.join(HERE, "meshes", "step_big0.msh")
 
 print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
