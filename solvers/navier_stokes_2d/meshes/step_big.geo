@@ -13,7 +13,7 @@ step_width = 1;	        // step width
 step_height = 1;	    // step distance from y=0
 step_distance = 5;	    // step distance from x=0
 
-lc = 0.8;		        // mesh size
+lc = 1.0;		        // mesh size
 
 // ------------------
 // Points (CCW order)
