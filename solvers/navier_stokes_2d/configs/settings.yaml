@@ -7,7 +7,7 @@ Re: 0.01            # Reynold's num: 1/viscostiy
 G: 0.0              # initial pressure gauge
 P: 0.0              # pressure strength (P*x + G)
 
-solver: "BDF2"      # valid:  "BDF2" (Backward Differentiation) or 
+solver: "CN"      # valid:  "BDF2" (Backward Differentiation) or 
                     #         "CN" (Crank-Nicolson)
 elements: "SV"      # valid:  "SV" (Scott Vogelius - requires barycentric refinement) or 
                     #         "TH" (Taylor Hood)
