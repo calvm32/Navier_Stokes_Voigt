@@ -39,7 +39,7 @@ class pdf_sampler:
             return
 
         vals = np.array(vals) # velocities
-        vals_x = vals[:, 1] # extract y-component
+        vals_y = vals[:, 1] # extract y-component
 
         self.velocity_y_samples.append(vals_y)
 
@@ -53,7 +53,7 @@ class pdf_sampler:
             return
 
         vals = np.array(vals) # velocities
-        vals_x = vals[:, 2] # extract z-component
+        vals_z = vals[:, 2] # extract z-component
 
         self.velocity_z_samples.append(vals_z)
 
