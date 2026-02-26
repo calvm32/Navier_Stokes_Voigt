@@ -19,7 +19,7 @@ def test_constant_field(mesh):
     u = Function(V).interpolate(as_vector((1.0, 0.0)))
 
     sampler = pdf_sampler(mesh)
-    sampler.sample_velocity(u, npoints=1000)
+    sampler.sample_velocity_y(u, npoints=1000)
 
     vel, vort = sampler.finalize()
 

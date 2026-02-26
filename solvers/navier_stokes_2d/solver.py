@@ -53,7 +53,7 @@ views = cfg["views"]
 appctx = {
     "Re": Re,
     "gamma": gamma,
-    "velocity_space": 0
+    "velocity_x_space": 0
 }
 
 solver_parameters = load_solver_parameters(CFG_PATH2)
@@ -118,8 +118,8 @@ elif elements == "TH":
     W = FunctionSpace(fine_mesh, "CG", 1)
     Z = V * W
 
-print(f"// V Total DoFs: {V.dof_count}")
-print(f"// W Total DoFs: {W.dof_count}")
+# print(f"// V Total DoFs: {V.dof_count}")
+# print(f"// W Total DoFs: {W.dof_count}")
 
 # -------------------
 # Configure functions
@@ -175,7 +175,7 @@ def get_data(t):
 # ----------
 
 if solver == "CN":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_CN(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_CN(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             sample_length=L, sample_height=H,
@@ -185,7 +185,7 @@ if solver == "CN":
             appctx=appctx, vtkfile_name=vtkfile_name)
 
 elif solver == "BDF2":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_BDF2(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list = timestepper_BDF2(get_data, 
             Z, dx, ds, 
             t0, T, dt, 
             sample_length=L, sample_height=H,
@@ -244,8 +244,14 @@ plt.close()
 # Plot Energy
 # -----------
 
+# pop first values 
+all_time_list_del = all_time_list
+all_time_list_del.pop(0)
+energy_list_del = energy_list
+energy_list_del.pop(0)
+
 plot_data["energy"] = (all_time_list, energy_list)
-plt.semilogy(all_time_list, energy_list, "-o")
+plt.semilogy(all_time_list_del, energy_list_del, "-o")
 plt.xlabel("time")
 plt.ylabel("energy")
 plt.title('Total Kinetic Energy')
@@ -258,14 +264,24 @@ plt.close()
 # Velocity PDF
 # ------------
 
-plot_data["velocity_pdf"] = (np.arange(len(velocity_vals)), velocity_vals)
-plt.hist(velocity_vals, bins=100, density=True)
+plot_data["velocity_x_pdf"] = (np.arange(len(velocity_x_vals)), velocity_x_vals)
+plt.hist(velocity_x_vals, bins=100, density=True)
 plt.xlabel("samples")
 plt.ylabel("velocity")
 plt.title('Velocity Probabiility Density Function')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_velocity_PDF.png", dpi=200, bbox_inches='tight')
+plt.savefig("1_velocity_x_PDF.png", dpi=200, bbox_inches='tight')
+plt.close()
+
+plot_data["velocity_y_pdf"] = (np.arange(len(velocity_y_vals)), velocity_y_vals)
+plt.hist(velocity_y_vals, bins=100, density=True)
+plt.xlabel("samples")
+plt.ylabel("velocity")
+plt.title('Velocity Probabiility Density Function')
+plt.grid(True)
+plt.tight_layout()
+plt.savefig("1_velocity_y_PDF.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # -------------

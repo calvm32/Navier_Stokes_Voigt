@@ -115,8 +115,11 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN):
             # Time derivative
             idt * inner(u, v) * dx
 
-            # Oseen convection: skew symmetric (u_old * grad)u
-            + 0.5 * (inner(dot(grad(u), u_old), v) - inner(dot(grad(v), u_old), u)) * dx
+            # Skew-symmetric Oseen advection
+            + 0.5 * (
+                inner(dot(u_old, nabla_grad(u)), v)
+              - inner(dot(u_old, nabla_grad(v)), u)
+            ) * dx
 
             # Viscosity
             + (theta / Re) * inner(grad(u), grad(v)) * dx

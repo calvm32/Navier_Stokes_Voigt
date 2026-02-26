@@ -79,7 +79,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
                                     solver_parameters=solver_parameters, appctx=appctx)
 
     # get energy + report run starting
-    energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
+    energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
 
     # energy spectra object
     energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
@@ -166,7 +166,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
         # -------
 
         # --------- energy ---------
-        energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
+        energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
         energy_list.append(energy)
         all_time_list.append(t)
 
@@ -183,16 +183,16 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
                 # --------- stream ---------
                 solver_psi.solve()
-                stream_func_list.append(assemble(inner(psi, psi) * dx))
+                stream_func_list.append(sqrt(assemble(inner(psi, psi) * dx)))
 
                 # --------- palinstrophy ---------
-                palinstrophy_list.append(assemble(0.5 * inner(grad(omega_f), grad(omega_f)) * dx))
+                palinstrophy_list.append(sqrt(assemble(inner(grad(omega_f), grad(omega_f)) * dx)))
 
                 # --------- enstrophy ---------
-                enstrophy_list.append(assemble(0.5 * omega_f**2 * dx))
+                enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
 
                 # --------- compute stats!!! ---------
-                pdfs.sample_velocity(u_old.sub(0))
+                pdfs.sample_velocity_y(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples_per_bin=20)
@@ -323,7 +323,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
 
     # get energy + report run starting
-    energy = assemble(inner(u_old.sub(0), u_old.sub(0)) * dx)
+    energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
 
     # energy spectra object
     energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
@@ -360,7 +360,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 "ksp_max_it": 50,
             },
         )
-
 
     # ------------------
     # Setup timestepping
@@ -414,7 +413,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         # -------
 
         # --------- energy ---------
-        energy = assemble(0.5 * inner(u_old.sub(0), u_old.sub(0)) * dx)
+        energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
         energy_list.append(energy)
         all_time_list.append(t)
 
@@ -434,13 +433,14 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 stream_func_list.append(sqrt(assemble(inner(psi, psi) * dx)))
 
                 # --------- palinstrophy ---------
-                palinstrophy_list.append(sqrt(assemble(0.5 * inner(grad(omega_f), grad(omega_f)) * dx)))
+                palinstrophy_list.append(sqrt(assemble(inner(grad(omega_f), grad(omega_f)) * dx)))
 
                 # --------- enstrophy ---------
-                enstrophy_list.append(sqrt(assemble(0.5 * omega_f**2 * dx)))
+                enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
 
                 # --------- compute stats!!! ---------
-                pdfs.sample_velocity(u_old.sub(0))
+                pdfs.sample_velocity_x(u_old.sub(0))
+                pdfs.sample_velocity_y(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples_per_bin=20)
@@ -476,7 +476,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # finish computing stats
     # ----------------------
 
-    velocity_vals, omega_vals = pdfs.finalize()
+    velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
     r_vals, S2 = struct_func.compute()
 
     # ----------------------------------
@@ -490,8 +490,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # Write error to file
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
-        enstrophy_list, every_time_list, energy_list, all_time_list, 
-        velocity_vals, omega_vals, r_vals, S2, energy_spec_list)
+        enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list)
 
     else:
         return(u_error_list, energy_list, all_time_list)
