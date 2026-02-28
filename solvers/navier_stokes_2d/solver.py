@@ -371,8 +371,8 @@ plt.close()
 probe_values = np.array(energy_spec_probe)
 time_values = np.array(every_time_list)
 
-dt = time_values[1] - time_values[0]
-T_total = len(time_values) * dt
+tdt = time_values[1] - time_values[0]
+T_total = len(time_values) * tdt
 N = len(time_values)
 
 ux = probe_values[:, 0]
@@ -382,7 +382,7 @@ ux = ux - np.mean(ux) # remove mean
 u_hat = np.fft.fft(ux)
 
 # frequencies
-f = np.fft.fftfreq(N, d=dt)
+f = np.fft.fftfreq(N, d=tdt)
 
 # keep positive frequencies only
 pos = f > 0

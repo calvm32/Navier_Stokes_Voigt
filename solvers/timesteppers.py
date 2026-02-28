@@ -19,6 +19,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     compute_every = 5
     start_sampling = 10
 
+    if num_steps <= start_sampling:
+        start_sampling = 0
+
     # --------
     # Tracking
     # --------
@@ -116,7 +119,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     if probe_dof != -1:
         print("Using probe DOF:", probe_dof)
         print("Probe location:", coords[probe_dof])
-    
+        print("\\")
+
     # ---------------------
     # setup stream function
     # ---------------------
@@ -318,6 +322,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     compute_every = 5
     start_sampling = 10
 
+    if num_steps <= start_sampling:
+        start_sampling = 0
+
     # --------
     # Tracking
     # --------
@@ -424,6 +431,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     if probe_dof != -1:
         print("Using probe DOF:", probe_dof)
         print("Probe location:", coords[probe_dof])
+        print("\\")
     
     # ---------------------
     # setup stream function
