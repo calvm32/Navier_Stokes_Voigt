@@ -347,11 +347,8 @@ plt.figure()
 plt.loglog(k, mean_E, 'r-', label="Spectrum at time")
 
 # reference slope k^-3
-C1 = mean_E[1] * k[1]**3
-C2 = mean_E[1] * k[1]**(5/3)
-
-plt.loglog(k, C1 * k**(-3), '--', label=r"$k^{-3}$")
-plt.loglog(k, C2 * k**(-5/3), ':', label=r"$k^{-5/3}$")
+plt.loglog(k, k**(-3), '--', label=r"$k^{-3}$")
+plt.loglog(k, k**(-5/3), ':', label=r"$k^{-5/3}$")
 
 plot_data["energy_spec_list"] = (energy_spec_list)
 plt.xlabel('Wavenumber k')
@@ -400,11 +397,9 @@ E_k = E_f / U_mean
 plt.figure()
 plt.loglog(k[1:], E_k[1:], 'r-', label="Spectrum at probe")
 
-C1 = E_k[5] * k[5]**3
-C2 = E_k[5] * k[5]**(5/3)
-
-plt.loglog(k, C1*k**(-3), '--', label=r"$k^{-3}$")
-plt.loglog(k, C2*k**(-5/3), ':', label=r"$k^{-5/3}$")
+# reference slope k^-3
+plt.loglog(k, k**(-3), '--', label=r"$k^{-3}$")
+plt.loglog(k, k**(-5/3), ':', label=r"$k^{-5/3}$")
 
 plot_data["energy_spec_probe"] = (energy_spec_list)
 plt.xlabel("Wavenumber k")
