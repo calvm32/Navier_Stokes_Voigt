@@ -1,6 +1,6 @@
 import numpy as np
 from solvers.statistics.spatial_sampler import spatial_sampler
-
+from mpi4py import MPI
 
 class pdf_sampler:
     """
@@ -70,22 +70,29 @@ class pdf_sampler:
 
     def finalize(self):
 
-        vel_x = (
+        comm = MPI.COMM_WORLD
+
+        vel_x_local = (
             np.concatenate(self.velocity_x_samples)
-            if self.velocity_x_samples
-            else np.array([])
+            if self.velocity_x_samples else np.array([])
         )
 
-        vel_y = (
+        vel_y_local = (
             np.concatenate(self.velocity_y_samples)
-            if self.velocity_y_samples
-            else np.array([])
+            if self.velocity_y_samples else np.array([])
         )
 
-        vort = (
+        vort_local = (
             np.concatenate(self.vorticity_samples)
-            if self.vorticity_samples
-            else np.array([])
+            if self.vorticity_samples else np.array([])
         )
+
+        vel_x = comm.allgather(vel_x_local)
+        vel_y = comm.allgather(vel_y_local)
+        vort = comm.allgather(vort_local)
+
+        vel_x = np.concatenate(vel_x)
+        vel_y = np.concatenate(vel_y)
+        vort = np.concatenate(vort)
 
         return vel_x, vel_y, vort

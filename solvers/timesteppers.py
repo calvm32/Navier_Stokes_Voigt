@@ -29,9 +29,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     enstrophy_list = []
     every_time_list = []
     all_time_list = []
-    velocity_samples = []
-    omega_samples = []
     energy_spec_list = []
+    energy_spec_probe = []
 
     if is_mixed:
         v_error_list = []
@@ -39,9 +38,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     else:
         u_error_list = []
 
-    # -------------
+    # -----------
     # Setup problem
-    # -------------
+    # -----------
 
     # old and new solutions
     u_old = Function(Z)
@@ -84,12 +83,38 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     # energy spectra object
     energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
 
+    # target physical location
+    target = np.array(energy_spec_target)
+
+    # DOF coordinates (parallel safe)
+    coords = u.sub(0).function_space().tabulate_dof_coordinates().reshape(-1, 2)
+
+    local_min_dist = 1e20
+    local_index = -1
+
+    for i, xy in enumerate(coords):
+        d = np.linalg.norm(xy - target)
+        if d < local_min_dist:
+            local_min_dist = d
+            local_index = i
+
+    global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
+
+    if abs(local_min_dist - global_min_dist) < 1e-14:
+        probe_dof = local_index
+
+    else:
+        probe_dof = -1
+
+    print("Using probe DOF:", probe_dof)
+    print("Probe location:", coords[probe_dof])
+
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
     
-    # ---------------------
+    # -------------------
     # setup stream function
-    # ---------------------
+    # -------------------
 
     if is_mixed:
         domain = mesh
@@ -117,10 +142,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
             },
         )
 
-
-    # ------------------
+    # ----------------
     # Setup timestepping
-    # ------------------
+    # ----------------
 
     # initialize
     t = t0
@@ -147,9 +171,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
         outfile.write(u, time=t)
 
-    # --------------------
+    # ------------------
     # Perform timestepping
-    # --------------------
+    # ------------------
 
     while t < T:
 
@@ -165,43 +189,56 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
         # logging
         # -------
 
-        # --------- energy ---------
+        # -------- energy --------
         energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
         energy_list.append(energy)
         all_time_list.append(t)
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
-        if step % compute_every == 0:
+        if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
             
             if is_mixed:
 
-                # --------- vorticity = curl(v) ---------
+                # -------- vorticity = curl(v) --------
                 omega = curl(u_old.sub(0))
                 omega_f.interpolate(omega)
 
-                # --------- stream ---------
+                # -------- stream --------
                 solver_psi.solve()
                 stream_func_list.append(sqrt(assemble(inner(psi, psi) * dx)))
 
-                # --------- palinstrophy ---------
+                # -------- palinstrophy --------
                 palinstrophy_list.append(sqrt(assemble(inner(grad(omega_f), grad(omega_f)) * dx)))
 
-                # --------- enstrophy ---------
+                # -------- enstrophy --------
                 enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
 
-                # --------- compute stats!!! ---------
+                # -------- compute stats!!! --------
+                pdfs.sample_velocity_x(u_old.sub(0))
                 pdfs.sample_velocity_y(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples_per_bin=20)
 
-                # --------- energy spectrum ---------
+                # -------- energy spectrum --------
                 k_vals, E_vals = energy_spec.compute()
                 energy_spec_list.append((k_vals, E_vals))
 
-            # --------- error ---------
+                # -------- parallel safe --------
+                comm = u.sub(0).function_space().mesh().comm
+                local_val = np.zeros(2)
+
+                if probe_dof != -1:
+                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
+
+                global_val = comm.allreduce(local_val, op=MPI.SUM)
+                ux, uy = global_val
+
+                energy_spec_probe.append([ux, uy])
+
+            # -------- error --------
             # get data at current time
             data_new = get_data(t)
             
@@ -218,32 +255,32 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
                 u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx)*dt)
 
-            # --------- solution ---------
+            # -------- solution --------
             if is_mixed:
                 outfile.write(u.sub(0), u.sub(1), time=t)
             else:
                 outfile.write(u, time=t)
 
-    # ----------------------
+    # --------------------
     # finish computing stats
-    # ----------------------
+    # --------------------
 
-    velocity_vals, omega_vals = pdfs.finalize()
+    velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
     r_vals, S2 = struct_func.compute()
 
-    # ----------------------------------
+    # --------------------------------
     # Report done; find and return error
-    # ----------------------------------
+    # --------------------------------
 
     # report completed
     print(f"\n")
     green(f"Completed", spaced=True)
 
-    # Write error to file
+    # Return everything
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
-        enstrophy_list, every_time_list, energy_list, all_time_list, 
-        velocity_vals, omega_vals, r_vals, S2, energy_spec_list)
+        enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe)
 
     else:
         return(u_error_list, energy_list, all_time_list)
@@ -271,6 +308,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     num_steps = int((float(T)-float(t0)) / float(dt)) 
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
+    start_sampling = 10
 
     # --------
     # Tracking
@@ -291,9 +329,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     else:
         u_error_list = []
 
-    # -------------
+    # -----------
     # Setup problem
-    # -------------
+    # -----------
 
     # old and new solutions
     u_older = Function(Z)
@@ -345,13 +383,24 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # target physical location
     target = np.array(energy_spec_target)
 
-    # DOF coordinates
-    coords = u.function_space().tabulate_dof_coordinates()
-    coords = coords.reshape(-1, 2)
+    # DOF coordinates (parallel safe)
+    coords = u.sub(0).function_space().tabulate_dof_coordinates().reshape(-1, 2)
 
-    # find nearest node
-    dist = np.linalg.norm(coords - target, axis=1)
-    probe_dof = np.argmin(dist)
+    local_min_dist = 1e20
+    local_index = -1
+
+    for i, xy in enumerate(coords):
+        d = np.linalg.norm(xy - target)
+        if d < local_min_dist:
+            local_min_dist = d
+            local_index = i
+
+    global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
+
+    if abs(local_min_dist - global_min_dist) < 1e-14:
+        probe_dof = local_index
+    else:
+        probe_dof = -1
 
     print("Using probe DOF:", probe_dof)
     print("Probe location:", coords[probe_dof])
@@ -359,9 +408,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
     
-    # ---------------------
+    # -------------------
     # setup stream function
-    # ---------------------
+    # -------------------
 
     if is_mixed:
         domain = mesh
@@ -389,9 +438,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             },
         )
 
-    # ------------------
+    # ----------------
     # Setup timestepping
-    # ------------------
+    # ----------------
 
     # initialize
     t = t0
@@ -418,9 +467,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
         outfile.write(u, time=t)
 
-    # --------------------
+    # ------------------
     # Perform timestepping
-    # --------------------
+    # ------------------
 
     while t < T:
 
@@ -440,53 +489,57 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         # logging
         # -------
 
-        # --------- energy ---------
+        # -------- energy --------
         energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
         energy_list.append(energy)
         all_time_list.append(t)
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
-        if step % compute_every == 0:
+        if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
             
             if is_mixed:
 
-                # --------- vorticity = curl(v) ---------
+                # -------- vorticity = curl(v) --------
                 omega = curl(u_old.sub(0))
                 omega_f.interpolate(omega)
 
-                # --------- stream ---------
+                # -------- stream --------
                 solver_psi.solve()
                 stream_func_list.append(sqrt(assemble(inner(psi, psi) * dx)))
 
-                # --------- palinstrophy ---------
+                # -------- palinstrophy --------
                 palinstrophy_list.append(sqrt(assemble(inner(grad(omega_f), grad(omega_f)) * dx)))
 
-                # --------- enstrophy ---------
+                # -------- enstrophy --------
                 enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
 
-                # --------- compute stats!!! ---------
+                # -------- compute stats!!! --------
                 pdfs.sample_velocity_x(u_old.sub(0))
                 pdfs.sample_velocity_y(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples_per_bin=20)
 
-                # --------- energy spectrum ---------
+                # -------- energy spectrum --------
                 k_vals, E_vals = energy_spec.compute()
                 energy_spec_list.append((k_vals, E_vals))
 
-                uvals = u.dat.data_ro # local array view
+                # -------- parallel safe --------
+                comm = u.sub(0).function_space().mesh().comm
 
-                # If vector-valued:
-                ux = uvals[probe_dof, 0]
-                uy = uvals[probe_dof, 1]
+                local_val = np.zeros(2)
+
+                if probe_dof != -1:
+                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
+
+                global_val = comm.allreduce(local_val, op=MPI.SUM)
+                ux, uy = global_val
 
                 energy_spec_probe.append([ux, uy])
-                time_values.append(t)
                 
-            # --------- error ---------
+            # -------- error --------
             # get data at current time
             data_new = get_data(t)
             
@@ -503,28 +556,28 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
                 u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx)*dt)
 
-            # --------- solution ---------
+            # -------- solution --------
             if is_mixed:
                 outfile.write(u.sub(0), u.sub(1), time=t)
             else:
                 outfile.write(u, time=t)
 
-    # ----------------------
+    # --------------------
     # finish computing stats
-    # ----------------------
+    # --------------------
 
     velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
     r_vals, S2 = struct_func.compute()
 
-    # ----------------------------------
+    # --------------------------------
     # Report done; find and return error
-    # ----------------------------------
+    # --------------------------------
 
     # report completed
     print(f"\n")
     green(f"Completed", spaced=True)
 
-    # Write error to file
+    # Return everything
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,

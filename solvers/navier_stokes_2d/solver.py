@@ -12,6 +12,10 @@ from solvers.config_setup import *
 import matplotlib.pyplot as plt
 import numpy as np
 
+from mpi4py import MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+
 # -------------------
 # Get + archive paths
 # -------------------
@@ -97,16 +101,27 @@ blue(f"\n*** Starting solve ***\n", spaced=True)
 fine_mesh = Mesh(MESH_PATH)
 x, y = SpatialCoordinate(fine_mesh)
 
-# get height
+# get height H
 y_coords = fine_mesh.coordinates.dat.data[:, 1]
-H = y_coords.max() - y_coords.min()
 
-# get length
+local_ymin = y_coords.min()
+local_ymax = y_coords.max()
+
+global_ymin = comm.allreduce(local_ymin, op=MPI.MIN)
+global_ymax = comm.allreduce(local_ymax, op=MPI.MAX)
+
+H = global_ymax - global_ymin
+
+# get length L
 x_coords = fine_mesh.coordinates.dat.data[:, 0]
-L = x_coords.max() - x_coords.min()
 
-dx = Measure("dx", domain=fine_mesh)
-ds = Measure("ds", domain=fine_mesh)
+local_xmin = x_coords.min()
+local_xmax = x_coords.max()
+
+global_xmin = comm.allreduce(local_xmin, op=MPI.MIN)
+global_xmax = comm.allreduce(local_xmax, op=MPI.MAX)
+
+L = global_xmax - global_xmin
 
 if elements == "SV":
     k = 3  # or higher for stability on arbitrary triangles
@@ -209,7 +224,8 @@ plt.ylabel("palinstrophy")
 plt.title('Palinstrophy')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_palinstrophy_plot.png", dpi=200, bbox_inches='tight')
+if rank == 0:
+    plt.savefig("1_palinstrophy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------------
@@ -223,7 +239,8 @@ plt.ylabel("stream function")
 plt.title('Stream Function')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_stream_func_plot.png", dpi=200, bbox_inches='tight')
+if rank == 0:
+    plt.savefig("1_stream_func_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------
@@ -237,7 +254,8 @@ plt.ylabel("enstrophy")
 plt.title('Enstrophy')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_enstrophy_plot.png", dpi=200, bbox_inches='tight')
+if rank == 0:
+    plt.savefig("1_enstrophy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # -----------
@@ -257,7 +275,8 @@ plt.ylabel("energy")
 plt.title('Total Kinetic Energy')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_energy_plot.png", dpi=200, bbox_inches='tight')
+if rank == 0:
+    plt.savefig("1_energy_plot.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # ------------
@@ -271,7 +290,8 @@ plt.ylabel("x-velocity")
 plt.title('x-Velocity Probabiility Density Function')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_velocity_x_PDF.png", dpi=200, bbox_inches='tight')
+if rank == 0:
+    plt.savefig("1_velocity_x_PDF.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 plot_data["velocity_y_pdf"] = (np.arange(len(velocity_y_vals)), velocity_y_vals)
@@ -281,7 +301,8 @@ plt.ylabel("y-velocity")
 plt.title('y-Velocity Probabiility Density Function')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_velocity_y_PDF.png", dpi=200, bbox_inches='tight')
+if rank == 0:
+    plt.savefig("1_velocity_y_PDF.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # -------------
@@ -295,7 +316,8 @@ plt.ylabel("vorticity")
 plt.title('Vorticity Probability Density Function')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_vorticity_PDF.png", dpi=200, bbox_inches='tight')
+if rank == 0:
+    plt.savefig("1_vorticity_PDF.png", dpi=200, bbox_inches='tight')
 plt.close()
 
 # --------------
@@ -309,7 +331,8 @@ plt.ylabel(r"$S_2(r)$")
 plt.title('2nd-Order Longitudinal Structure Function')
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_structure_function.png", dpi=200)
+if rank == 0:
+    plt.savefig("1_structure_function.png", dpi=200)
 plt.close()
 
 # -----------------------------------------------
@@ -337,7 +360,8 @@ plt.title('Point-Averaged Energy Spectrum at Final Time')
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
-plt.savefig("1_energy_spec_FF1.png", dpi=200)
+if rank == 0:
+    plt.savefig("1_energy_spec_FF1.png", dpi=200)
 plt.close()
 
 # -----------------------------------------------
@@ -389,20 +413,22 @@ plt.title('Time-Averaged Energy Spectrum at Single Pt.')
 plt.legend()
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("1_energy_spec_FF2.png", dpi=200)
+if rank == 0:
+    plt.savefig("1_energy_spec_FF2.png", dpi=200)
 plt.close()
 
 # --------------------
 # Save all data to CSV
 # --------------------
 
-with open("0_all_plot_data.csv", "w", newline="") as f:
-    writer = csv.writer(f)
-    for key, (x_vals, y_vals) in plot_data.items():
-        writer.writerow([f"# {key}"])
-        writer.writerow(["x", "y"])
-        for x, y in zip(x_vals, y_vals):
-            writer.writerow([x, y])
-        writer.writerow([])  # empty row between datasets
+if rank == 0:
+    with open("0_all_plot_data.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        for key, (x_vals, y_vals) in plot_data.items():
+            writer.writerow([f"# {key}"])
+            writer.writerow(["x", "y"])
+            for x, y in zip(x_vals, y_vals):
+                writer.writerow([x, y])
+            writer.writerow([])  # empty row between datasets
 
 print("[solver.py] All plot data saved to '0_all_plot_data.csv'")

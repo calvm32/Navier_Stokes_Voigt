@@ -1,5 +1,5 @@
 import numpy as np
-
+from mpi4py import MPI
 
 class structure_funcs:
     """
@@ -73,8 +73,13 @@ class structure_funcs:
 
     def compute(self):
 
-        mask = self.counts > 0 # don't include zeros
-        S2 = np.zeros_like(self.S2_accum)
-        S2[mask] = self.S2_accum[mask] / self.counts[mask]
+        comm = MPI.COMM_WORLD
+
+        S2_global = comm.allreduce(self.S2_accum, op=MPI.SUM)
+        counts_global = comm.allreduce(self.counts, op=MPI.SUM)
+
+        mask = counts_global > 0
+        S2 = np.zeros_like(S2_global)
+        S2[mask] = S2_global[mask] / counts_global[mask]
 
         return self.r_centers, S2

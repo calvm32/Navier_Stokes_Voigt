@@ -1,5 +1,6 @@
 import numpy as np
 from firedrake import *
+from mpi4py import MPI
 
 class mean_profiles:
     """
@@ -40,13 +41,14 @@ class mean_profiles:
         u_tau = np.sqrt(abs(tau_w))
 
         # ---- wall-normal binning ----
-        coords = self.mesh.coordinates.dat.data
+        coords = self.mesh.coordinates.dat.data_ro
         yvals = coords[:, 1]
         uvals = u_mean.dat.data[:, 0]
 
         bins = np.linspace(0, H, nbins + 1)
-        u_bin = np.zeros(nbins)
-        count = np.zeros(nbins)
+        comm = self.mesh.comm
+        u_bin = comm.allreduce(u_bin, op=MPI.SUM)
+        count = comm.allreduce(count, op=MPI.SUM)
 
         for y, u in zip(yvals, uvals):
             j = np.searchsorted(bins, y) - 1
