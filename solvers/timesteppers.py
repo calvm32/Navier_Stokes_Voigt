@@ -248,8 +248,22 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     else:
         return(u_error_list, energy_list, all_time_list)
 
+
+# ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
+
+# ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
+
+# ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
+
+# ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
+
+# ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
+
+# ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
+
+
 def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_length, sample_height,
-                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
+                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
     """
@@ -269,6 +283,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     every_time_list = []
     all_time_list = []
     energy_spec_list = []
+    energy_spec_probe = []
 
     if is_mixed:
         v_error_list = []
@@ -321,12 +336,25 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                                 make_weak_form_BDF2, is_mixed, bcs=bcs, nullspace=nullspace,
                                 solver_parameters=solver_parameters, appctx=appctx)
 
-
     # get energy + report run starting
     energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
 
     # energy spectra object
     energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
+
+    # target physical location
+    target = np.array(energy_spec_target)
+
+    # DOF coordinates
+    coords = u.function_space().tabulate_dof_coordinates()
+    coords = coords.reshape(-1, 2)
+
+    # find nearest node
+    dist = np.linalg.norm(coords - target, axis=1)
+    probe_dof = np.argmin(dist)
+
+    print("Using probe DOF:", probe_dof)
+    print("Probe location:", coords[probe_dof])
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
@@ -448,6 +476,15 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 # --------- energy spectrum ---------
                 k_vals, E_vals = energy_spec.compute()
                 energy_spec_list.append((k_vals, E_vals))
+
+                uvals = u.dat.data_ro # local array view
+
+                # If vector-valued:
+                ux = uvals[probe_dof, 0]
+                uy = uvals[probe_dof, 1]
+
+                energy_spec_probe.append([ux, uy])
+                time_values.append(t)
                 
             # --------- error ---------
             # get data at current time
@@ -491,7 +528,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
-        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list)
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe)
 
     else:
         return(u_error_list, energy_list, all_time_list)
