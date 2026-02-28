@@ -87,7 +87,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     target = np.array(energy_spec_target)
 
     # DOF coordinates (parallel safe)
-    coords = u.sub(0).function_space().tabulate_dof_coordinates().reshape(-1, 2)
+    V = u.function_space().sub(0).collapse()
+    coords = V.tabulate_dof_coordinates().reshape(-1, 2)
 
     local_min_dist = 1e20
     local_index = -1
@@ -384,7 +385,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     target = np.array(energy_spec_target)
 
     # DOF coordinates (parallel safe)
-    coords = u.sub(0).function_space().tabulate_dof_coordinates().reshape(-1, 2)
+    V = u.function_space().sub(0).collapse()
+    coords = V.tabulate_dof_coordinates().reshape(-1, 2)
 
     local_min_dist = 1e20
     local_index = -1
