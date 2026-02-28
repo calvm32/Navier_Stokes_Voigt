@@ -38,9 +38,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     else:
         u_error_list = []
 
-    # -----------
+    # -------------
     # Setup problem
-    # -----------
+    # -------------
 
     # old and new solutions
     u_old = Function(Z)
@@ -83,42 +83,43 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     # energy spectra object
     energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
 
-    # target physical location
+    # ------------------------------
+    # Probe DOF selection (MPI safe)
+    # ------------------------------
+
+    # velocity function
+    u_vel = u.sub(0)
+    mesh = u_vel.function_space().mesh()
+    comm = mesh.comm
+
+    # mesh coordinates (nodal positions)
+    coords = mesh.coordinates.dat.data_ro.copy()  # shape (num_local_nodes, 2)
+
+    # target location for probe
     target = np.array(energy_spec_target)
 
-    # DOF coordinates (parallel safe)
-    mesh = Z.mesh()
-    vel_element = Z.ufl_element().sub_elements[0]
+    # compute distance locally
+    local_distances = np.linalg.norm(coords - target, axis=1)
+    local_min_index = np.argmin(local_distances)
+    local_min_dist = local_distances[local_min_index]
 
-    V_real = FunctionSpace(mesh, vel_element)
-    coords = V_real.tabulate_dof_coordinates().reshape(-1, 2)
-
-    local_min_dist = 1e20
-    local_index = -1
-
-    for i, xy in enumerate(coords):
-        d = np.linalg.norm(xy - target)
-        if d < local_min_dist:
-            local_min_dist = d
-            local_index = i
-
+    # find global minimum across all ranks
     global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
 
+    # determine which rank has the closest node
     if abs(local_min_dist - global_min_dist) < 1e-14:
-        probe_dof = local_index
-
+        probe_dof = local_min_index
     else:
         probe_dof = -1
 
-    print("Using probe DOF:", probe_dof)
-    print("Probe location:", coords[probe_dof])
-
-    iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
-    text(f"*** Beginning solve with step size {dt} ***", spaced=True)
+    # print probe info from the owning rank
+    if probe_dof != -1:
+        print("Using probe DOF:", probe_dof)
+        print("Probe location:", coords[probe_dof])
     
-    # -------------------
+    # ---------------------
     # setup stream function
-    # -------------------
+    # ---------------------
 
     if is_mixed:
         domain = mesh
@@ -146,9 +147,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
             },
         )
 
-    # ----------------
+    # ------------------
     # Setup timestepping
-    # ----------------
+    # ------------------
 
     # initialize
     t = t0
@@ -175,9 +176,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
         outfile.write(u, time=t)
 
-    # ------------------
+    # --------------------
     # Perform timestepping
-    # ------------------
+    # --------------------
+
+    iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
+    text(f"*** Beginning solve with step size {dt} ***", spaced=True)
 
     while t < T:
 
@@ -230,7 +234,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
                 k_vals, E_vals = energy_spec.compute()
                 energy_spec_list.append((k_vals, E_vals))
 
-                # -------- parallel safe --------
+                # -------- MPI safe --------
                 comm = u.sub(0).function_space().mesh().comm
                 local_val = np.zeros(2)
 
@@ -265,16 +269,16 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
             else:
                 outfile.write(u, time=t)
 
-    # --------------------
+    # ----------------------
     # finish computing stats
-    # --------------------
+    # ----------------------
 
     velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
     r_vals, S2 = struct_func.compute()
 
-    # --------------------------------
+    # ----------------------------------
     # Report done; find and return error
-    # --------------------------------
+    # ----------------------------------
 
     # report completed
     print(f"\n")
@@ -333,9 +337,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     else:
         u_error_list = []
 
-    # -----------
+    # -------------
     # Setup problem
-    # -----------
+    # -------------
 
     # old and new solutions
     u_older = Function(Z)
@@ -384,41 +388,46 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # energy spectra object
     energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
 
-    # target physical location
+    # energy spectra object
+    energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
+
+    # ------------------------------
+    # Probe DOF selection (MPI safe)
+    # ------------------------------
+
+    # velocity function
+    u_vel = u.sub(0)
+    mesh = u_vel.function_space().mesh()
+    comm = mesh.comm
+
+    # mesh coordinates (nodal positions)
+    coords = mesh.coordinates.dat.data_ro.copy()  # shape (num_local_nodes, 2)
+
+    # target location for probe
     target = np.array(energy_spec_target)
 
-    # DOF coordinates (parallel safe)
-    mesh = Z.mesh()
-    vel_element = Z.ufl_element().sub_elements[0]
+    # compute distance locally
+    local_distances = np.linalg.norm(coords - target, axis=1)
+    local_min_index = np.argmin(local_distances)
+    local_min_dist = local_distances[local_min_index]
 
-    V_real = FunctionSpace(mesh, vel_element)
-    coords = V_real.tabulate_dof_coordinates().reshape(-1, 2)
-
-    local_min_dist = 1e20
-    local_index = -1
-
-    for i, xy in enumerate(coords):
-        d = np.linalg.norm(xy - target)
-        if d < local_min_dist:
-            local_min_dist = d
-            local_index = i
-
+    # find global minimum across all ranks
     global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
 
+    # determine which rank has the closest node
     if abs(local_min_dist - global_min_dist) < 1e-14:
-        probe_dof = local_index
+        probe_dof = local_min_index
     else:
         probe_dof = -1
 
-    print("Using probe DOF:", probe_dof)
-    print("Probe location:", coords[probe_dof])
-
-    iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
-    text(f"*** Beginning solve with step size {dt} ***", spaced=True)
+    # print probe info from the owning rank
+    if probe_dof != -1:
+        print("Using probe DOF:", probe_dof)
+        print("Probe location:", coords[probe_dof])
     
-    # -------------------
+    # ---------------------
     # setup stream function
-    # -------------------
+    # ---------------------
 
     if is_mixed:
         domain = mesh
@@ -446,9 +455,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             },
         )
 
-    # ----------------
+    # ------------------
     # Setup timestepping
-    # ----------------
+    # ------------------
 
     # initialize
     t = t0
@@ -475,9 +484,12 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
         outfile.write(u, time=t)
 
-    # ------------------
+    iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
+    text(f"*** Beginning solve with step size {dt} ***", spaced=True)
+
+    # --------------------
     # Perform timestepping
-    # ------------------
+    # --------------------
 
     while t < T:
 
@@ -534,7 +546,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 k_vals, E_vals = energy_spec.compute()
                 energy_spec_list.append((k_vals, E_vals))
 
-                # -------- parallel safe --------
+                # -------- MPI safe --------
                 comm = u.sub(0).function_space().mesh().comm
 
                 local_val = np.zeros(2)
@@ -570,16 +582,16 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             else:
                 outfile.write(u, time=t)
 
-    # --------------------
+    # ----------------------
     # finish computing stats
-    # --------------------
+    # ----------------------
 
     velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
     r_vals, S2 = struct_func.compute()
 
-    # --------------------------------
+    # ----------------------------------
     # Report done; find and return error
-    # --------------------------------
+    # ----------------------------------
 
     # report completed
     print(f"\n")
