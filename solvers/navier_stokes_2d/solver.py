@@ -263,10 +263,8 @@ plt.close()
 # -----------
 
 # pop first values 
-all_time_list_del = all_time_list
-all_time_list_del.pop(0)
-energy_list_del = energy_list
-energy_list_del.pop(0)
+all_time_list_del = all_time_list[1:]
+energy_list_del = energy_list[1:]
 
 plot_data["energy"] = (all_time_list, energy_list)
 plt.semilogy(all_time_list_del, energy_list_del, "-o")
@@ -401,7 +399,7 @@ plt.loglog(k[1:], E_k[1:], 'r-', label="Spectrum at probe")
 plt.loglog(k, k**(-3), '--', label=r"$k^{-3}$")
 plt.loglog(k, k**(-5/3), ':', label=r"$k^{-5/3}$")
 
-plot_data["energy_spec_probe"] = (energy_spec_list)
+plot_data["energy_spec_probe"] = (energy_spec_probe)
 plt.xlabel("Wavenumber k")
 plt.ylabel("E(k)")
 plt.title('Time-Averaged Energy Spectrum at Single Pt.')
@@ -419,11 +417,39 @@ plt.close()
 if rank == 0:
     with open("0_all_plot_data.csv", "w", newline="") as f:
         writer = csv.writer(f)
-        for key, (x_vals, y_vals) in plot_data.items():
+
+        for key, value in plot_data.items():
             writer.writerow([f"# {key}"])
-            writer.writerow(["x", "y"])
-            for x, y in zip(x_vals, y_vals):
-                writer.writerow([x, y])
-            writer.writerow([])  # empty row between datasets
+
+            # -----------------------------
+            # Case 1: Standard (x, y) tuple
+            # -----------------------------
+            if isinstance(value, tuple) and len(value) == 2:
+                x_vals, y_vals = value
+                writer.writerow(["x", "y"])
+                for x, y in zip(x_vals, y_vals):
+                    writer.writerow([x, y])
+
+            # ----------------------------------------
+            # Case 2: List of (k, E) spectra over time
+            # ----------------------------------------
+            elif isinstance(value, list):
+                for i, (k_vals, E_vals) in enumerate(value):
+                    writer.writerow([f"# spectrum_{i}"])
+                    writer.writerow(["k", "E(k)"])
+                    for k_i, E_i in zip(k_vals, E_vals):
+                        writer.writerow([k_i, E_i])
+                    writer.writerow([])
+
+            # ---------------------
+            # Case 3: Anything else
+            # ---------------------
+            else:
+                writer.writerow(["value"])
+                for v in value:
+                    writer.writerow([v])
+
+            writer.writerow([])
+
 
 print("[solver.py] All plot data saved to '0_all_plot_data.csv'")
