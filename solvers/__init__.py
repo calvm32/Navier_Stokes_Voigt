@@ -19,8 +19,9 @@ Modules:
 
 # individual files to use in solvers
 from .timesteppers import timestepper_CN, timestepper_BDF2
-from .printoff import *
-from .config_setup import *
 
 # folder w/ statistics helper functions to use in timesteppers.py
 from .statistics import *
+
+# folder w/ processing helper functions to use throughout
+from .processing import *

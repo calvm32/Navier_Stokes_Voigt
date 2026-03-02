@@ -7,8 +7,8 @@ import csv
 
 from solvers.timesteppers import *
 from .make_weak_form import *
-from solvers.printoff import blue
-from solvers.config_setup import *
+from solvers.processing.printoff import blue
+from solvers.processing.config_setup import *
 import matplotlib.pyplot as plt
 import numpy as np
 

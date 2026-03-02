@@ -18,6 +18,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
     start_sampling = 10
+    write_every = 100
 
     if num_steps <= start_sampling:
         start_sampling = 0
@@ -162,7 +163,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     energy_list.append(energy)
 
     # initialize VTK
-    outfile = VTKFile(f"{vtkfile_name}.pvd", comm=Z.mesh().comm)
+    visfile = VTKFile(f"vis/{vtkfile_name}.pvd", comm=Z.mesh().comm)
 
     # rename
     if is_mixed:
@@ -172,12 +173,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
         u.sub(0).assign(u_old.sub(0))
         u.sub(1).assign(u_old.sub(1))
 
-        outfile.write(u.sub(0), u.sub(1), time=t)
+        visfile.write(u.sub(0), u.sub(1), time=t)
     else:
         u.rename("temperature")
         u.assign(u_old)
 
-        outfile.write(u, time=t)
+        visfile.write(u, time=t)
 
     # --------------------
     # Perform timestepping
@@ -268,9 +269,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
             # -------- solution --------
             if is_mixed:
-                outfile.write(u.sub(0), u.sub(1), time=t)
+                visfile.write(u.sub(0), u.sub(1), time=t)
             else:
-                outfile.write(u, time=t)
+                visfile.write(u, time=t)
 
     # ----------------------
     # finish computing stats
@@ -320,6 +321,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
     start_sampling = 10
+    write_every = 100
 
     if num_steps <= start_sampling:
         start_sampling = 0
@@ -473,7 +475,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     energy_list.append(energy)
 
     # initialize VTK
-    outfile = VTKFile(f"{vtkfile_name}.pvd", comm=Z.mesh().comm)
+    visfile = VTKFile(f"vis/{vtkfile_name}.pvd", comm=Z.mesh().comm)
 
     # rename
     if is_mixed:
@@ -483,12 +485,12 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         u.sub(0).assign(u_old.sub(0))
         u.sub(1).assign(u_old.sub(1))
 
-        outfile.write(u.sub(0), u.sub(1), time=t)
+        visfile.write(u.sub(0), u.sub(1), time=t)
     else:
         u.rename("temperature")
         u.assign(u_old)
 
-        outfile.write(u, time=t)
+        visfile.write(u, time=t)
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt} ***", spaced=True)
@@ -584,9 +586,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
             # -------- solution --------
             if is_mixed:
-                outfile.write(u.sub(0), u.sub(1), time=t)
+                visfile.write(u.sub(0), u.sub(1), time=t)
             else:
-                outfile.write(u, time=t)
+                visfile.write(u, time=t)
 
     # ----------------------
     # finish computing stats

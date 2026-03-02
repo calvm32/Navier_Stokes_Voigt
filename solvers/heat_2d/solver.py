@@ -7,8 +7,8 @@ import shutil
 import matplotlib.pyplot as plt
 from solvers.timesteppers import *
 from .make_weak_form import *
-from solvers.printoff import blue, green
-from solvers.config_setup import *
+from solvers.processing.printoff import blue, green
+from solvers.processing.config_setup import *
 
 # -------------------
 # Get + archive paths

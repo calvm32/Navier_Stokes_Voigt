@@ -1,268 +1,136 @@
-#!/usr/bin/env python
-
-import getopt
+import argparse
 import os
-import shutil
 import sys
-import yaml
-from q3d.loaddump import *
+from dataclasses import dataclass
+from .load_dump import load_txt, dump_txt
 
-default_ymls = {}
+@dataclass
+class RunConfig:
+    problem: str
+    mms: bool
+    timestep: str | None
+    elements: str | None
 
-default_ymls['settings'] = """mesh:
-  source: builtin # builtin, local, global, or legacy
-  name: BoxMesh 10 10 10 1 1 1
-  refs: 0
-options:
-  strong_boundary: [5,6] # plane z == 0 and z == Lz
-  weak_boundary: none
-pde:
-  formulation: default
-  grad_desc: true
-  gd_ls: none
-  solver: builtin_nonlinear
-  tol_u: 2.0
-  tol_l: 0.2
-  tol: 1.0e-8
-solver:
-  ksp_type: gmres
-  pc_type: gamg
-time:
-  num: 1
-  save_every: 1
-  step: 1
-  checkpoints: True
-vis:
-  write_outward: True"""
+# -----------------
+# template resolver
+# -----------------
 
-default_ymls['constants'] = """A: 7.502103740308257
-B: 60.97581316589323
-C: 66.51906890824715
-L1: 1.0
-L2: 0
-L3: 0
-W0: 1.0
-W1: 0
-W2: 0
-ep: 1.0
-q0: 0"""
+class TemplateResolver:
 
-default_ymls['userexpr'] = """initcond:
-  # simple: !FromDirector [1,0,0]
-  simple: !FromTensor [cos(x0),sin(x1),cos(x2),sin(x1),sin(x2),cos(x0),cos(x2),cos(x0),-cos(x0)-sin(x2)]
-  # piecewise:
-  #   if: eq(abs(x2-0.25),0.25)
-  #   then: !FromDirector [0,0,1]
-  #   else: !FromDirector [x0-0.21,x1-0.27,x2-0.26]"""
+    BASE = "templates"
 
-def usage():
-    usage_str = """usage:
-    qsave (-c | -h ) {0}old-save-path{1} {0}new-save-path{1}
-    qsave (-b | -r) {0}save-path{1}
+    @staticmethod
+    def resolve(cfg: RunConfig):
 
-options:
-    -c  copies yml's from {0}old-save-path{1} to {0}new-save-path{1}
-    -h  hard copy: copies yml's and checkpoints from {0}old-save-path{1} to {0}new-save-path{1}
-    -b  builds new save at {0}save-path{1} from default yml's
-    -r  repairs save at {0}save-path{1} from default yml's""".format('\033[4m','\033[0m')
-    print(usage_str)
+        if cfg.problem == "h2":
+            return TemplateResolver._resolve_heat(cfg)
+        elif cfg.problem == "ns2":
+            return TemplateResolver._resolve_ns(cfg)
+        else:
+            raise ValueError("Unknown problem type")
 
-# MAIN FUNCTIONS
+    @staticmethod
+    def _resolve_heat(cfg: RunConfig):
 
-def build(save_path:str):
-    """ Builds new save at <save_path> from default yml's. """
+        if cfg.mms:
+            return {
+                "settings": f"{TemplateResolver.BASE}/settings/heat_MMS.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_MMS.yaml",
+                "solver_path": "solvers/heat_2d/solver_MMS",
+            }
 
-    # load settings, constants, and userexpr text
-    settings_txt = default_ymls['settings']
-    constants_txt = default_ymls['constants']
-    userexpr_txt = default_ymls['userexpr']
+        return {
+            "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
+            "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_expr.yaml",
+            "solver_path": "solvers/heat_2d/solver",
+        }
 
-    # create save
-    create_save(save_path,settings_txt,constants_txt,userexpr_txt)
+    @staticmethod
+    def _resolve_ns(cfg: RunConfig):
 
-def copy(old_save_path:str,new_save_path:str):
-    """ Copies yml's from <save_name> to new save. """
-
-    if not os.path.exists(old_save_path):
-        print(f'Save does not exist at \'{old_save_path}\'. Cannot copy.')
-        sys.exit()
-    
-    # load settings, constants, and userexpr text
-    try:
-        settings_txt = load_txt(f'{old_save_path}/settings.yml')
-    except FileNotFoundError:
-        print('No settings file found. Reverting to default...')
-        settings_txt = default_ymls['settings']
-    try:
-        constants_txt = load_txt(f'{old_save_path}/constants.yml')
-    except FileNotFoundError:
-        print('No constants file found. Reverting to default...')
-        constants_txt = default_ymls['constants']
-    try:
-        userexpr_txt = load_txt(f'{old_save_path}/userexpr.yml')
-    except FileNotFoundError:
-        print('No userepxr file found. Reverting to default...')
-        userexpr_txt = default_ymls['userexpr']
-
-    create_save(new_save_path,settings_txt,constants_txt,userexpr_txt)
-
-    return new_save_path
-
-def hard_copy(old_save_path:str,new_save_path:str):
-    """ Does everything copy() does, but also copies checkpoints. """
-
-    # It goes without saying that mixing a custom copy function with the built-in 
-    # shutil copy is poor form. I will have to change this.
-
-    if not os.path.exists(old_save_path):
-        print(f'Save does not exist at \'{old_save_path}\'. Cannot copy.')
-        sys.exit()
-
-    if not os.path.exists(f'{old_save_path}/chk/checkpoint.h5') and (not os.path.exists(f'{old_save_path}/chk/q_soln.h5') or not os.path.exists(f'{old_save_path}/chk/q_prev.h5')):
-        raise FileNotFoundError('One or more checkpoint file missing')
-    
-    if not os.path.exists(f'{old_save_path}/energy/energies.yml'):
-        raise FileNotFoundError('energies.yml missing')
-    
-    copy(old_save_path,new_save_path)
-
-    try:
-        shutil.copy(f'{old_save_path}/chk/checkpoint.h5',f'{new_save_path}/chk')
-    except FileNotFoundError:
-        print(f'Failed to copy {old_save_path}/chk/checkpoint.h5')
-    try:
-        shutil.copy(f'{old_save_path}/chk/q_soln.h5',f'{new_save_path}/chk')
-    except FileNotFoundError:
-        print(f'Failed to copy {old_save_path}/chk/q_soln.h5')
-    try:
-        shutil.copy(f'{old_save_path}/chk/q_prev.h5',f'{new_save_path}/chk')
-    except FileNotFoundError:
-        print(f'Failed to copy {old_save_path}/chk/q_prev.h5')
-    try:
-        shutil.copy(f'{old_save_path}/energy/energies.yml',f'{new_save_path}/energy')
-    except FileNotFoundError:
-        print(f'Failed to copy {old_save_path}/energy/energies.h5')
-
-def repair(save_path:str):
-    """ Repairs save with missing attributes in settings.yml or constants.yml. """
-
-    if not os.path.exists(save_path):
-        print(f'Save does not exist at \'{save_path}\'. Cannot repair.')
-        sys.exit()
-
-    def repair_dict(bad_dict,good_dict):
-        global repair_index
-        for key, val in good_dict.items():
-            if key not in bad_dict.keys():
-                bad_dict[key] = val
-                repair_index += 1
-            elif isinstance(val,dict):
-                if not isinstance(bad_dict[key],dict):
-                    raise ValueError(f'Key value mismatch between bad_dict and good_dict: {key}')
-                bad_subdict = bad_dict[key]
-                good_subdict = val
-                repair_dict(bad_subdict,good_subdict)
-    
-    def repair_yml(save_path:str,file_type:str):
-        global repair_index
-        repair_index = 0
-
-        bad_yml_path = f'{save_path}/{file_type}.yml'
-
-        bad_yml = load_yml(bad_yml_path)
-        good_yml = yaml.load(default_ymls[file_type],Loader=yaml.Loader)
-
-        repair_dict(bad_yml,good_yml)
+        if cfg.mms:
+            return {
+                "settings": f"{TemplateResolver.BASE}/settings/NS_MMS.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_MMS.yaml",
+                "solver_path": "solvers/navier_stokes_2d/solver_MMS",
+            }
         
-        dump_yml(bad_yml,bad_yml_path)
-        
-        print(f'Made {repair_index} repairs to {file_type}.yml in save at \'{save_path}\'.')
+        if cfg.elements is None:
+            raise ValueError("NS requires element type")
 
-        del repair_index
-    
-    repair_yml(save_path,'settings')
-    repair_yml(save_path,'constants')
+        return {
 
-# SUPPLEMENTARY FUNCTIONS
+            "settings": f"{TemplateResolver.BASE}/settings/NS.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_{cfg.elements.upper()}.yaml",
+            "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_expr.yaml",
+            "solver_path": "solvers/navier_stokes_2d/solver",
+        }
 
-def create_save(save_path,settings_txt,constants_txt,userexpr_txt):
-    """ Creates a new save <save_name> (unless there is a naming conflict) with
-    specifed settings, constants, and userexpr text. """
+# ------------
+# save builder
+# ------------
 
-    if os.path.exists(save_path):
-        # i = 1
-        # while True:
-        #     if not os.path.exists(f'{save_path}{i}'):
-        #         new_save_name = f'{save_path}{i}'
-        #         new_save_path = f'{save_path}{i}'
-        #         break
-        #     i += 1
-        # while True:
-        #     answer = input(f"Save '{save_path}' already exists. Create save at '{new_save_name}' instead? (y/n) ")
-        #     if answer in ('y','Y'):
-        #         save_path = new_save_name
-        #         save_path = new_save_path
-        #         break
-        #     if answer in ('n','N'):
-        #         print("No new save created.")
-        #         sys.exit()
-        print(f"Save already exists at '{save_path}'. Try another path.")
-        sys.exit()
+class SaveManager:
 
-    os.makedirs(save_path)
-    os.makedirs(save_path+'/chk') # stores checkpoints
-    os.makedirs(save_path+'/energy') # contains the plot of the energy decrease
-    os.makedirs(save_path+'/vis') # contains paraview stuff
+    @staticmethod
+    def create(save_path: str, templates: dict):
 
-    # dump yaml files into save
-    dump_txt(settings_txt,f'{save_path}/settings.yml')
-    dump_txt(constants_txt,f'{save_path}/constants.yml')
-    dump_txt(userexpr_txt,f'{save_path}/userexpr.yml')
+        if os.path.exists(save_path):
+            raise FileExistsError(f"Save already exists: {save_path}")
 
-    print(f"New save at '{save_path}' successfully created.")
+        # write the solver path for nsvrun
+        def write_solver_metadata(save_path, solver_module):
+            with open(f"{save_path}/run_info.yaml", "w") as f:
+                yaml.dump({"solver_module": solver_module}, f)
 
-    return save_path
+        os.makedirs(save_path)
+        os.makedirs(f"{save_path}/data")
+        os.makedirs(f"{save_path}/vis")
 
-# MAIN
+        dump_txt(load_txt(templates["settings"]),
+                 f"{save_path}/settings.yaml")
+
+        dump_txt(load_txt(templates["solver"]),
+                 f"{save_path}/solver_params.yaml")
+
+        dump_txt(load_txt(templates["ufl"]),
+                 f"{save_path}/ufl_expr.yaml")
+
+        print(f"Created save at: {save_path}")
+        print(f"Solver path: {templates['solver_path']}")
+
+def build_parser():
+    parser = argparse.ArgumentParser(description="nsvsave research CLI")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    # build
+    build = sub.add_parser("build")
+    build.add_argument("problem", choices=["h2", "ns2"])
+    build.add_argument("save_path")
+    build.add_argument("--mms", action="store_true")
+    build.add_argument("--elements", choices=["sv", "th"])
+
+    return parser
 
 def main():
-    try:
-        opts, listargs = getopt.getopt(sys.argv[1:],'c:h:br',['help'])
-    except getopt.GetoptError as err:
-        # print help information and exit:
-        print(err)
-        print('Use --help for usage.')
-        sys.exit()
+    parser = build_parser()
+    args = parser.parse_args()
 
-    for o, a in opts:
-        if o in ('-c'):
-            try:
-                copy(a,listargs[-1])
-            except IndexError:
-                print('Missing <new_save_path>. Use --help for usage.')
-                sys.exit()
-        elif o in ('-h'):
-            try:
-                hard_copy(a,listargs[-1])
-            except IndexError:
-                print('Missing <new_save_path>. Use --help for usage.')
-                sys.exit()
-        elif o in ('-b'):
-            try:
-                build(listargs[-1])
-            except IndexError:
-                print('Missing <save_path>. Use --help for usage.')
-                sys.exit()
-        elif o in ('-r'):
-            try:
-                repair(listargs[-1])
-            except IndexError:
-                print('Missing <save_path>. Use --help for usage.')
-                sys.exit()
-        elif o in ('--help'):
-            usage()
-        else:
-            sys.exit()
+    if args.command == "build":
 
-if __name__ == '__main__':
-	main()
+        cfg = RunConfig(
+            problem=args.problem,
+            mms=args.mms,
+            timestep=args.time,
+            elements=args.elements,
+        )
+
+        templates = TemplateResolver.resolve(cfg)
+        SaveManager.create(args.save_path, templates)
+        write_solver_metadata(save_path, templates["solver_path"])
+
+if __name__ == "__main__":
+    main()

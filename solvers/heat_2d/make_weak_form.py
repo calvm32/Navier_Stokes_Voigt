@@ -2,7 +2,7 @@ from firedrake import *
 import yaml
 from pathlib import Path
 
-from solvers.config_setup import *
+from solvers.processing.config_setup import *
 
 # ------------------
 # Configure settings

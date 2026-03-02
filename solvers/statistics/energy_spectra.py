@@ -19,74 +19,82 @@ class energy_spectra:
 
         comm = self.mesh.comm
 
+        coords = self.mesh.coordinates.dat.data_ro
         uvals = self.u.dat.data_ro
 
-        if uvals.ndim == 1:
-            ux = uvals
-            uy = np.zeros_like(ux)
-        else:
-            ux = uvals[:, 0]
-            uy = uvals[:, 1]
+        # Only work on rank 0
+        coords_all = comm.gather(coords, root=0)
+        uvals_all = comm.gather(uvals, root=0)
 
-        # ---- remove global mean (must be global!) ----
-        local_sum_x = np.sum(ux)
-        local_sum_y = np.sum(uy)
-        local_N = len(ux)
+        if comm.rank != 0:
+            return None, None
 
-        global_sum_x = comm.allreduce(local_sum_x, op=MPI.SUM)
-        global_sum_y = comm.allreduce(local_sum_y, op=MPI.SUM)
-        global_N = comm.allreduce(local_N, op=MPI.SUM)
+        coords_all = np.vstack(coords_all)
+        uvals_all = np.vstack(uvals_all)
 
-        mean_x = global_sum_x / global_N
-        mean_y = global_sum_y / global_N
+        # Separate velocity components
+        ux = uvals_all[:, 0]
+        uy = uvals_all[:, 1]
 
-        ux = ux - mean_x
-        uy = uy - mean_y
+        # Remove global mean
+        ux -= np.mean(ux)
+        uy -= np.mean(uy)
 
-        # ---- local FFT ----
-        ux_hat = np.fft.fft(ux)
-        uy_hat = np.fft.fft(uy)
+        # Sort DOFs lexicographically (y fastest)
+        sort_inds = np.lexsort((coords_all[:,1], coords_all[:,0]))
+        coords_sorted = coords_all[sort_inds]
+        ux_sorted = ux[sort_inds]
+        uy_sorted = uy[sort_inds]
 
-        energy_modes = 0.5 * (np.abs(ux_hat)**2 + np.abs(uy_hat)**2)
+        # Determine grid size
+        x_unique = np.unique(coords_sorted[:,0])
+        y_unique = np.unique(coords_sorted[:,1])
 
-        # ---- global bounding box ----
-        coords = self.mesh.coordinates.dat.data_ro
-        xmin_local, ymin_local = coords.min(axis=0)
-        xmax_local, ymax_local = coords.max(axis=0)
+        Nx = len(x_unique)
+        Ny = len(y_unique)
 
-        xmin = comm.allreduce(xmin_local, op=MPI.MIN)
-        ymin = comm.allreduce(ymin_local, op=MPI.MIN)
-        xmax = comm.allreduce(xmax_local, op=MPI.MAX)
-        ymax = comm.allreduce(ymax_local, op=MPI.MAX)
+        # Reshape into 2D grid
+        ux_grid = ux_sorted.reshape(Nx, Ny)
+        uy_grid = uy_sorted.reshape(Nx, Ny)
 
-        Lx = xmax - xmin
-        Ly = ymax - ymin
+        # Domain lengths
+        Lx = x_unique.max() - x_unique.min()
+        Ly = y_unique.max() - y_unique.min()
 
-        N = global_N
+        # 2D FFT
+        ux_hat = np.fft.fft2(ux_grid)
+        uy_hat = np.fft.fft2(uy_grid)
 
-        k = np.fft.fftfreq(len(energy_modes), d=min(Lx, Ly)/np.sqrt(N))
-        k = np.abs(k)
+        norm = (Nx * Ny)
+        E_hat = 0.5 * (np.abs(ux_hat)**2 + np.abs(uy_hat)**2) / norm**2
 
-        k_bins = np.linspace(0, k.max(), self.nbins + 1)
+        # Wavenumbers
+        kx = 2*np.pi * np.fft.fftfreq(Nx, d=Lx/Nx)
+        ky = 2*np.pi * np.fft.fftfreq(Ny, d=Ly/Ny)
 
-        E_local = np.zeros(self.nbins)
-        counts_local = np.zeros(self.nbins)
+        KX, KY = np.meshgrid(kx, ky, indexing="ij")
+        K = np.sqrt(KX**2 + KY**2)
 
-        inds = np.digitize(k, k_bins) - 1
+        # Radial binning
+        K_flat = K.ravel()
+        E_flat = E_hat.ravel()
 
-        for i in range(len(energy_modes)):
+        k_bins = np.linspace(0, K_flat.max(), self.nbins + 1)
+
+        E = np.zeros(self.nbins)
+        counts = np.zeros(self.nbins)
+
+        inds = np.digitize(K_flat, k_bins) - 1
+
+        for i in range(len(E_flat)):
             b = inds[i]
             if 0 <= b < self.nbins:
-                E_local[b] += energy_modes[i]
-                counts_local[b] += 1
-
-        # ---- GLOBAL REDUCTION ----
-        E = comm.allreduce(E_local, op=MPI.SUM)
-        counts = comm.allreduce(counts_local, op=MPI.SUM)
+                E[b] += E_flat[i]
+                counts[b] += 1
 
         counts[counts == 0] = 1
         E /= counts
 
-        k_centers = 0.5 * (k_bins[:-1] + k_bins[1:])
+        k_centers = 0.5*(k_bins[:-1] + k_bins[1:])
 
         return k_centers, E

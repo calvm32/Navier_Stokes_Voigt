@@ -1,4 +1,8 @@
-t0: 0.0        # initial time
-T: 1.0         # final time
-dt: 0.01       # timestepping length
-theta: 0.5     # theta constant
+t0: 0.0           # initial time
+T: 1.0            # final time
+dt: 0.1           # timestepping length
+theta: 0.5        # theta constant
+N: 10             # mesh resolution
+
+solver: "BDF2"      # valid:  "BDF2" (Backward Differentiation) or 
+                    #         "CN" (Crank-Nicolson)
