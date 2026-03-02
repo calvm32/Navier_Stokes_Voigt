@@ -62,7 +62,7 @@ class TemplateResolver:
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}/settings/NS.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/NS_MMS.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_{cfg.elements.upper()}.yaml",
             "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_expr.yaml",
             "solver_path": "solvers/navier_stokes_2d/solver",
