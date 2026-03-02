@@ -3,6 +3,7 @@ import os
 import sys
 from dataclasses import dataclass
 from solvers.processing.load_dump import load_txt, dump_txt
+from pathlib import Path
 
 @dataclass
 class RunConfig:
