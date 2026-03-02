@@ -144,7 +144,7 @@ for N in N_list:
     # ----------
 
     if solver == "CN":
-        v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe = timestepper_CN(get_data, 
+        v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe, compute_every_large = timestepper_CN(get_data, 
                 Z, dx, ds, 
                 t0, T, dt,
                 sample_length=L, sample_height=H,
@@ -154,7 +154,7 @@ for N in N_list:
                 appctx=appctx, vtkfile_name=vtkfile_name)
 
     elif solver == "BDF2":
-        v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe = timestepper_BDF2(get_data, 
+        v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe, compute_every_large = timestepper_BDF2(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
                 sample_length=L, sample_height=H,

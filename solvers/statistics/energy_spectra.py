@@ -1,56 +1,33 @@
 import numpy as np
 from mpi4py import MPI
 from firedrake import *
+import cmath
+
 
 class energy_spectra:
     """
     2D isotropic shell-averaged kinetic energy spectrum
-    - Projects velocity onto structured DG0 grid
-    - Performs 2D FFT
-    - Radially bins in |k|
+    computed by direct Fourier projection.
+
+    Works on arbitrary unstructured meshes.
+    No structured grid required.
     """
 
-    def __init__(self, u, mesh, nbins=50, Nx=128, Ny=128):
+    def __init__(self, u, mesh, nbins=40, kmax=40):
         self.u = u
         self.mesh = mesh
         self.nbins = nbins
-        self.Nx = Nx
-        self.Ny = Ny
-
-        # Structured sampling space
-        self.Vs = VectorFunctionSpace(mesh, "DG", 0)
-        self.u_proj = Function(self.Vs)
+        self.kmax = kmax
 
     def compute(self):
 
         comm = self.mesh.comm
 
-        # -----------------------------
-        # Project velocity (fast solve)
-        # -----------------------------
-        self.u_proj.project(self.u)
+        # Remove mean velocity (important!)
+        mean_u = assemble(self.u * dx) / assemble(1.0 * dx(domain=self.mesh))
+        u_fluct = self.u - mean_u
 
-        uvals = self.u_proj.dat.data_ro
-
-        # Gather everything to rank 0
-        u_all = comm.gather(uvals, root=0)
-
-        if comm.rank != 0:
-            return None, None
-
-        u_all = np.vstack(u_all)
-
-        # Extract components
-        ux = u_all[:, 0]
-        uy = u_all[:, 1]
-
-        # Remove mean
-        ux -= np.mean(ux)
-        uy -= np.mean(uy)
-
-        # ---------------------
-        # Determine domain size
-        # ---------------------
+        # Domain size estimate (for wavenumber scaling)
         coords = self.mesh.coordinates.dat.data_ro
         xmin = coords[:, 0].min()
         xmax = coords[:, 0].max()
@@ -60,53 +37,58 @@ class energy_spectra:
         Lx = xmax - xmin
         Ly = ymax - ymin
 
-        # ---------------------------
-        # Interpolate to uniform grid
-        # ---------------------------
-        Nx = self.Nx
-        Ny = self.Ny
+        # Define wavenumber grid
+        kx_vals = np.arange(-self.kmax, self.kmax + 1)
+        ky_vals = np.arange(-self.kmax, self.kmax + 1)
 
-        ux = ux[:Nx*Ny]
-        uy = uy[:Nx*Ny]
+        energies = []
+        kmags = []
 
-        ux_grid = ux.reshape(Nx, Ny)
-        uy_grid = uy.reshape(Nx, Ny)
+        for kx_i in kx_vals:
+            for ky_i in ky_vals:
 
-        # ------
-        # 2D FFT
-        # ------
-        ux_hat = np.fft.fft2(ux_grid)
-        uy_hat = np.fft.fft2(uy_grid)
+                if kx_i == 0 and ky_i == 0:
+                    continue
 
-        norm = Nx * Ny
-        E_hat = 0.5 * (np.abs(ux_hat)**2 + np.abs(uy_hat)**2) / norm**2
+                kx = 2 * np.pi * kx_i / Lx
+                ky = 2 * np.pi * ky_i / Ly
 
-        # -----------
-        # Wavenumbers
-        # -----------
-        kx = 2*np.pi * np.fft.fftfreq(Nx, d=Lx/Nx)
-        ky = 2*np.pi * np.fft.fftfreq(Ny, d=Ly/Ny)
+                kvec = as_vector([kx, ky])
+                x = SpatialCoordinate(self.mesh)
 
-        KX, KY = np.meshgrid(kx, ky, indexing="ij")
-        K = np.sqrt(KX**2 + KY**2)
+                phase = exp(-1j * (kx * x[0] + ky * x[1]))
 
-        # -------------
+                # Fourier coefficient (complex)
+                uhat_x = assemble(u_fluct[0] * phase * dx)
+                uhat_y = assemble(u_fluct[1] * phase * dx)
+
+                # Combine MPI contributions
+                uhat_x = comm.allreduce(uhat_x, op=MPI.SUM)
+                uhat_y = comm.allreduce(uhat_y, op=MPI.SUM)
+
+                energy = 0.5 * (abs(uhat_x)**2 + abs(uhat_y)**2)
+
+                energies.append(energy)
+                kmags.append(np.sqrt(kx**2 + ky**2))
+
+        energies = np.array(energies)
+        kmags = np.array(kmags)
+
+        if comm.rank != 0:
+            return None, None
+
         # Shell binning
-        # -------------
-        K_flat = K.ravel()
-        E_flat = E_hat.ravel()
-
-        k_bins = np.linspace(0, K_flat.max(), self.nbins + 1)
+        k_bins = np.linspace(0, kmags.max(), self.nbins + 1)
 
         E = np.zeros(self.nbins)
         counts = np.zeros(self.nbins)
 
-        inds = np.digitize(K_flat, k_bins) - 1
+        inds = np.digitize(kmags, k_bins) - 1
 
-        for i in range(len(E_flat)):
+        for i in range(len(energies)):
             b = inds[i]
             if 0 <= b < self.nbins:
-                E[b] += E_flat[i]
+                E[b] += energies[i]
                 counts[b] += 1
 
         counts[counts == 0] = 1
