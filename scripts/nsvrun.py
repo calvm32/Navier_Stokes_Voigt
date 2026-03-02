@@ -10,6 +10,7 @@ def build_parser():
     parser.add_argument("--np", type=int, help="MPI processes")
     return parser
 
+
 def main():
 
     parser = build_parser()
@@ -25,13 +26,16 @@ def main():
         run_info = yaml.safe_load(f)
 
     solver_module = run_info["solver_module"]
-    print(f"Launching solver: {solver_module}")
-    cmd = ["python3", "-m", solver_module]
+
+    print(f"Launching solver module: {solver_module}")
+    print(f"Working directory: {args.path}")
+    cmd = [sys.executable, "-m", solver_module]
 
     if args.np:
         cmd = ["mpirun", "-np", str(args.np)] + cmd
 
-    subprocess.run(cmd)
+    subprocess.run(cmd, cwd=args.path)
+    
 
 if __name__ == "__main__":
     main()
