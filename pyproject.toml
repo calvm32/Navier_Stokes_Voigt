@@ -1,15 +1,10 @@
 [project]
-name = "navier-stokes-voigt"
-version = "0.1.0"
-requires-python = ">=3.10"
-
-[tool.setuptools.packages.find]
-where = ["."]
-
-[project]
 name = "nsv"
 version = "0.1.0"
 
 [project.scripts]
 nsvsave = "scripts.nsvsave:main"
 nsvrun  = "scripts.nsvrun:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
