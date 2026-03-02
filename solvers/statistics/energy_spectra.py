@@ -1,16 +1,12 @@
 import numpy as np
 from mpi4py import MPI
 from firedrake import *
-import cmath
 
 
 class energy_spectra:
     """
     2D isotropic shell-averaged kinetic energy spectrum
-    computed by direct Fourier projection.
-
-    Works on arbitrary unstructured meshes.
-    No structured grid required.
+    computed by direct Fourier projection on unstructured meshes.
     """
 
     def __init__(self, u, mesh, nbins=40, kmax=40):
@@ -22,27 +18,47 @@ class energy_spectra:
     def compute(self):
 
         comm = self.mesh.comm
+        dxm = Measure("dx", domain=self.mesh)
 
-        # Remove mean velocity (important!)
-        mean_u = assemble(self.u * dx) / assemble(1.0 * dx(domain=self.mesh))
-        u_fluct = self.u - mean_u
+        # -------------------------------------------------
+        # Domain area
+        # -------------------------------------------------
+        area = assemble(1.0 * dxm)
 
-        # Domain size estimate (for wavenumber scaling)
+        # -------------------------------------------------
+        # Remove mean velocity (componentwise!)
+        # -------------------------------------------------
+        mean_u0 = assemble(self.u[0] * dxm) / area
+        mean_u1 = assemble(self.u[1] * dxm) / area
+
+        u_fluct = as_vector([
+            self.u[0] - mean_u0,
+            self.u[1] - mean_u1
+        ])
+
+        # -------------------------------------------------
+        # Domain size (global min/max across MPI)
+        # -------------------------------------------------
         coords = self.mesh.coordinates.dat.data_ro
-        xmin = coords[:, 0].min()
-        xmax = coords[:, 0].max()
-        ymin = coords[:, 1].min()
-        ymax = coords[:, 1].max()
+
+        xmin = comm.allreduce(coords[:, 0].min(), op=MPI.MIN)
+        xmax = comm.allreduce(coords[:, 0].max(), op=MPI.MAX)
+        ymin = comm.allreduce(coords[:, 1].min(), op=MPI.MIN)
+        ymax = comm.allreduce(coords[:, 1].max(), op=MPI.MAX)
 
         Lx = xmax - xmin
         Ly = ymax - ymin
 
-        # Define wavenumber grid
+        # -------------------------------------------------
+        # Wavenumber grid
+        # -------------------------------------------------
         kx_vals = np.arange(-self.kmax, self.kmax + 1)
         ky_vals = np.arange(-self.kmax, self.kmax + 1)
 
         energies = []
         kmags = []
+
+        x = SpatialCoordinate(self.mesh)
 
         for kx_i in kx_vals:
             for ky_i in ky_vals:
@@ -50,21 +66,18 @@ class energy_spectra:
                 if kx_i == 0 and ky_i == 0:
                     continue
 
-                kx = 2 * np.pi * kx_i / Lx
-                ky = 2 * np.pi * ky_i / Ly
-
-                kvec = as_vector([kx, ky])
-                x = SpatialCoordinate(self.mesh)
+                kx = 2.0 * np.pi * kx_i / Lx
+                ky = 2.0 * np.pi * ky_i / Ly
 
                 phase = exp(-1j * (kx * x[0] + ky * x[1]))
 
-                # Fourier coefficient (complex)
-                uhat_x = assemble(u_fluct[0] * phase * dx)
-                uhat_y = assemble(u_fluct[1] * phase * dx)
+                # Fourier coefficients (Firedrake already MPI-reduced)
+                uhat_x = assemble(u_fluct[0] * phase * dxm)
+                uhat_y = assemble(u_fluct[1] * phase * dxm)
 
-                # Combine MPI contributions
-                uhat_x = comm.allreduce(uhat_x, op=MPI.SUM)
-                uhat_y = comm.allreduce(uhat_y, op=MPI.SUM)
+                # Normalize by domain area
+                uhat_x /= area
+                uhat_y /= area
 
                 energy = 0.5 * (abs(uhat_x)**2 + abs(uhat_y)**2)
 
@@ -74,10 +87,13 @@ class energy_spectra:
         energies = np.array(energies)
         kmags = np.array(kmags)
 
+        # Only rank 0 performs binning
         if comm.rank != 0:
             return None, None
 
-        # Shell binning
+        # -------------------------------------------------
+        # Shell averaging
+        # -------------------------------------------------
         k_bins = np.linspace(0, kmags.max(), self.nbins + 1)
 
         E = np.zeros(self.nbins)
