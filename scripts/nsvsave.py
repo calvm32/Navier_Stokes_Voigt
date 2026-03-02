@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 from dataclasses import dataclass
-from .load_dump import load_txt, dump_txt
+from solvers.processing.load_dump import load_txt, dump_txt
 
 @dataclass
 class RunConfig:
