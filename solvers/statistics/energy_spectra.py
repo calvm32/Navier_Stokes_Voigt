@@ -19,54 +19,45 @@ class energy_spectra:
 
         comm = self.mesh.comm
 
-        coords = self.mesh.coordinates.dat.data_ro
-        uvals = self.u.dat.data_ro
-
-        # Only work on rank 0
-        coords_all = comm.gather(coords, root=0)
-        uvals_all = comm.gather(uvals, root=0)
-
         if comm.rank != 0:
             return None, None
 
-        coords_all = np.vstack(coords_all)
-        uvals_all = np.vstack(uvals_all)
+        # Domain bounds
+        coords = self.mesh.coordinates.dat.data_ro
+        xmin = coords[:,0].min()
+        xmax = coords[:,0].max()
+        ymin = coords[:,1].min()
+        ymax = coords[:,1].max()
 
-        # Separate velocity components
-        ux = uvals_all[:, 0]
-        uy = uvals_all[:, 1]
+        Lx = xmax - xmin
+        Ly = ymax - ymin
 
-        # Remove global mean
+        Nx = 128
+        Ny = 128
+
+        x = np.linspace(xmin, xmax, Nx, endpoint=False)
+        y = np.linspace(ymin, ymax, Ny, endpoint=False)
+
+        X, Y = np.meshgrid(x, y, indexing="ij")
+        points = np.vstack([X.ravel(), Y.ravel()]).T
+
+        # Sample velocity
+        u_sample = np.array([self.u.at(pt) for pt in points])
+        u_sample = u_sample.reshape(Nx, Ny, 2)
+
+        ux = u_sample[:,:,0]
+        uy = u_sample[:,:,1]
+
+        # Remove mean
         ux -= np.mean(ux)
         uy -= np.mean(uy)
 
-        # Sort DOFs lexicographically (y fastest)
-        sort_inds = np.lexsort((coords_all[:,1], coords_all[:,0]))
-        coords_sorted = coords_all[sort_inds]
-        ux_sorted = ux[sort_inds]
-        uy_sorted = uy[sort_inds]
-
-        # Determine grid size
-        x_unique = np.unique(coords_sorted[:,0])
-        y_unique = np.unique(coords_sorted[:,1])
-
-        Nx = len(x_unique)
-        Ny = len(y_unique)
-
-        # Reshape into 2D grid
-        ux_grid = ux_sorted.reshape(Nx, Ny)
-        uy_grid = uy_sorted.reshape(Nx, Ny)
-
-        # Domain lengths
-        Lx = x_unique.max() - x_unique.min()
-        Ly = y_unique.max() - y_unique.min()
-
         # 2D FFT
-        ux_hat = np.fft.fft2(ux_grid)
-        uy_hat = np.fft.fft2(uy_grid)
+        ux_hat = np.fft.fft2(ux)
+        uy_hat = np.fft.fft2(uy)
 
-        norm = (Nx * Ny)
-        E_hat = 0.5 * (np.abs(ux_hat)**2 + np.abs(uy_hat)**2) / norm**2
+        norm = Nx * Ny
+        E_hat = 0.5*(np.abs(ux_hat)**2 + np.abs(uy_hat)**2) / norm**2
 
         # Wavenumbers
         kx = 2*np.pi * np.fft.fftfreq(Nx, d=Lx/Nx)
@@ -79,16 +70,17 @@ class energy_spectra:
         K_flat = K.ravel()
         E_flat = E_hat.ravel()
 
-        k_bins = np.linspace(0, K_flat.max(), self.nbins + 1)
+        nbins = self.nbins
+        k_bins = np.linspace(0, K_flat.max(), nbins+1)
 
-        E = np.zeros(self.nbins)
-        counts = np.zeros(self.nbins)
+        E = np.zeros(nbins)
+        counts = np.zeros(nbins)
 
         inds = np.digitize(K_flat, k_bins) - 1
 
         for i in range(len(E_flat)):
             b = inds[i]
-            if 0 <= b < self.nbins:
+            if 0 <= b < nbins:
                 E[b] += E_flat[i]
                 counts[b] += 1
 

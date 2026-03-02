@@ -32,7 +32,7 @@ shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
 shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
 shutil.copy(CFG_PATH3, run_dir / CFG_PATH3.name)
 
-print(f"[solver.py] YAML configs archived in {run_dir}\n")
+#print(f"[solver.py] YAML configs archived in {run_dir}\n")
 
 # ------------------
 # Configure settings
@@ -89,7 +89,7 @@ vtkfile_name = "Soln"
 HERE = os.path.dirname(os.path.abspath(__file__))
 MESH_PATH = os.path.join(HERE, "meshes", "step_big.msh")
 
-print(f"[solver.py] Loading mesh from: {MESH_PATH}")
+#print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
 # ------------
 # Setup spaces
@@ -452,4 +452,4 @@ if rank == 0:
             writer.writerow([])
 
 
-print("[solver.py] All plot data saved to '0_all_plot_data.csv'")
+#print("[solver.py] All plot data saved to '0_all_plot_data.csv'")
