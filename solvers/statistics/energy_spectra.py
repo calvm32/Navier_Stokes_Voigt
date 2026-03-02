@@ -69,11 +69,28 @@ class energy_spectra:
                 kx = 2.0 * np.pi * kx_i / Lx
                 ky = 2.0 * np.pi * ky_i / Ly
 
-                phase = exp(-1j * (kx * x[0] + ky * x[1]))
+                theta = kx * x[0] + ky * x[1]
 
-                # Fourier coefficients (Firedrake already MPI-reduced)
-                uhat_x = assemble(u_fluct[0] * phase * dxm)
-                uhat_y = assemble(u_fluct[1] * phase * dxm)
+                cos_phase = cos(theta)
+                sin_phase = sin(theta)
+
+                # Real and imaginary parts separately
+                uhat_x_real = assemble(u_fluct[0] * cos_phase * dxm)
+                uhat_x_imag = -assemble(u_fluct[0] * sin_phase * dxm)
+
+                uhat_y_real = assemble(u_fluct[1] * cos_phase * dxm)
+                uhat_y_imag = -assemble(u_fluct[1] * sin_phase * dxm)
+
+                # Normalize by area
+                uhat_x_real /= area
+                uhat_x_imag /= area
+                uhat_y_real /= area
+                uhat_y_imag /= area
+
+                energy = 0.5 * (
+                    uhat_x_real**2 + uhat_x_imag**2 +
+                    uhat_y_real**2 + uhat_y_imag**2
+                )
 
                 # Normalize by domain area
                 uhat_x /= area
