@@ -4,6 +4,7 @@ import sys
 from dataclasses import dataclass
 from solvers.processing.load_dump import load_txt, dump_txt
 from pathlib import Path
+import yaml
 
 @dataclass
 class RunConfig:
@@ -81,11 +82,6 @@ class SaveManager:
         if os.path.exists(save_path):
             raise FileExistsError(f"Save already exists: {save_path}")
 
-        # write the solver path for nsvrun
-        def write_solver_metadata(save_path, solver_module):
-            with open(f"{save_path}/run_info.yaml", "w") as f:
-                yaml.dump({"solver_module": solver_module}, f)
-
         os.makedirs(save_path)
         os.makedirs(f"{save_path}/data")
         os.makedirs(f"{save_path}/vis")
@@ -98,6 +94,9 @@ class SaveManager:
 
         dump_txt(load_txt(templates["ufl"]),
                  f"{save_path}/ufl_expr.yaml")
+
+        with open(f"{save_path}/run_info.yaml", "w") as f:
+            yaml.dump({"solver_module": templates["solver_path"]}, f)
 
         print(f"Created save at: {save_path}")
         print(f"Solver path: {templates['solver_path']}")
@@ -129,7 +128,6 @@ def main():
 
         templates = TemplateResolver.resolve(cfg)
         SaveManager.create(args.save_path, templates)
-        write_solver_metadata(save_path, templates["solver_path"])
 
 if __name__ == "__main__":
     main()
