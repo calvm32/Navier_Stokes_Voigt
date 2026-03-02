@@ -20,14 +20,14 @@ class energy_spectra:
         comm = self.mesh.comm
         dxm = Measure("dx", domain=self.mesh)
 
-        # -------------------------------------------------
+        # ------------------------------------
         # Domain area
-        # -------------------------------------------------
+        # ------------------------------------
         area = assemble(1.0 * dxm)
 
-        # -------------------------------------------------
-        # Remove mean velocity (componentwise!)
-        # -------------------------------------------------
+        # ------------------------------------
+        # Remove mean velocity
+        # ------------------------------------
         mean_u0 = assemble(self.u[0] * dxm) / area
         mean_u1 = assemble(self.u[1] * dxm) / area
 
@@ -36,9 +36,9 @@ class energy_spectra:
             self.u[1] - mean_u1
         ])
 
-        # -------------------------------------------------
-        # Domain size (global min/max across MPI)
-        # -------------------------------------------------
+        # ------------------------------------
+        # Global domain size
+        # ------------------------------------
         coords = self.mesh.coordinates.dat.data_ro
 
         xmin = comm.allreduce(coords[:, 0].min(), op=MPI.MIN)
@@ -49,9 +49,9 @@ class energy_spectra:
         Lx = xmax - xmin
         Ly = ymax - ymin
 
-        # -------------------------------------------------
+        # ------------------------------------
         # Wavenumber grid
-        # -------------------------------------------------
+        # ------------------------------------
         kx_vals = np.arange(-self.kmax, self.kmax + 1)
         ky_vals = np.arange(-self.kmax, self.kmax + 1)
 
@@ -74,29 +74,17 @@ class energy_spectra:
                 cos_phase = cos(theta)
                 sin_phase = sin(theta)
 
-                # Real and imaginary parts separately
-                uhat_x_real = assemble(u_fluct[0] * cos_phase * dxm)
-                uhat_x_imag = -assemble(u_fluct[0] * sin_phase * dxm)
+                # Fourier coefficients (real + imaginary)
+                uhat_x_real = assemble(u_fluct[0] * cos_phase * dxm) / area
+                uhat_x_imag = -assemble(u_fluct[0] * sin_phase * dxm) / area
 
-                uhat_y_real = assemble(u_fluct[1] * cos_phase * dxm)
-                uhat_y_imag = -assemble(u_fluct[1] * sin_phase * dxm)
-
-                # Normalize by area
-                uhat_x_real /= area
-                uhat_x_imag /= area
-                uhat_y_real /= area
-                uhat_y_imag /= area
+                uhat_y_real = assemble(u_fluct[1] * cos_phase * dxm) / area
+                uhat_y_imag = -assemble(u_fluct[1] * sin_phase * dxm) / area
 
                 energy = 0.5 * (
                     uhat_x_real**2 + uhat_x_imag**2 +
                     uhat_y_real**2 + uhat_y_imag**2
                 )
-
-                # Normalize by domain area
-                uhat_x /= area
-                uhat_y /= area
-
-                energy = 0.5 * (abs(uhat_x)**2 + abs(uhat_y)**2)
 
                 energies.append(energy)
                 kmags.append(np.sqrt(kx**2 + ky**2))
@@ -104,13 +92,13 @@ class energy_spectra:
         energies = np.array(energies)
         kmags = np.array(kmags)
 
-        # Only rank 0 performs binning
+        # Only rank 0 does binning
         if comm.rank != 0:
             return None, None
 
-        # -------------------------------------------------
+        # ------------------------------------
         # Shell averaging
-        # -------------------------------------------------
+        # ------------------------------------
         k_bins = np.linspace(0, kmags.max(), self.nbins + 1)
 
         E = np.zeros(self.nbins)
