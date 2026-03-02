@@ -326,6 +326,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     compute_every = 5
     start_sampling = 10
     write_every = 100
+    compute_every_large = 50
 
     if num_steps <= start_sampling:
         start_sampling = 0
