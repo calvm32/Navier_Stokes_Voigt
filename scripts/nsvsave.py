@@ -8,7 +8,6 @@ from solvers.processing.load_dump import load_txt, dump_txt
 class RunConfig:
     problem: str
     mms: bool
-    timestep: str | None
     elements: str | None
 
 # -----------------
@@ -124,7 +123,6 @@ def main():
         cfg = RunConfig(
             problem=args.problem,
             mms=args.mms,
-            timestep=args.time,
             elements=args.elements,
         )
 
