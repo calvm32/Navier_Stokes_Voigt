@@ -13,7 +13,6 @@ We perform theta-scheme discretization, i.e.
 Modules:
     -> timestepper_CN.py: fixed-step theta-scheme time step solver
     -> timestepper_BDF2.py: BDF2 time step solver
-    -> printoff: for logging and printing results
 
 """
 

@@ -2,7 +2,7 @@ from firedrake import *
 from mpi4py import MPI
 
 from .create_timestep_solvers import *
-from .printoff import iter_info_verbose, text, green
+from processing.printoff import iter_info_verbose, text, green
 
 from solvers.statistics.pdf_sampler import pdf_sampler
 from solvers.statistics.structure_funcs import structure_funcs
