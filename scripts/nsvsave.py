@@ -35,16 +35,16 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}.settings.heat_MMS.yaml",
-                "solver": f"{TemplateResolver.BASE}.solver_parameters.heat_MMS.yaml",
-                "ufl": f"{TemplateResolver.BASE}.ufl_expr.heat_MMS.yaml",
+                "settings": f"{TemplateResolver.BASE}/settings/heat_MMS.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_MMS.yaml",
                 "solver_path": "solvers.heat_2d.solver_MMS",
             }
 
         return {
-            "settings": f"{TemplateResolver.BASE}.settings.heat.yaml",
-            "solver": f"{TemplateResolver.BASE}.solver_parameters.heat.yaml",
-            "ufl": f"{TemplateResolver.BASE}.ufl_expr.heat_expr.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
+            "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_expr.yaml",
             "solver_path": "solvers.heat_2d.solver",
         }
 
@@ -53,9 +53,9 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}.settings.NS_MMS.yaml",
-                "solver": f"{TemplateResolver.BASE}.solver_parameters.NS_MMS.yaml",
-                "ufl": f"{TemplateResolver.BASE}.ufl_expr.NS_MMS.yaml",
+                "settings": f"{TemplateResolver.BASE}/settings/NS_MMS.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_MMS.yaml",
                 "solver_path": "solvers.navier_stokes_2d.solver_MMS",
             }
         
@@ -64,9 +64,9 @@ class TemplateResolver:
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}.settings.NS_MMS.yaml",
-            "solver": f"{TemplateResolver.BASE}.solver_parameters.NS_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}.ufl_expr.NS_expr.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/NS_MMS.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_{cfg.elements.upper()}.yaml",
+            "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_expr.yaml",
             "solver_path": "solvers.navier_stokes_2d.solver",
         }
 
