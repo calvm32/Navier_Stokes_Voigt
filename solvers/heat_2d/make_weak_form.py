@@ -4,20 +4,11 @@ from pathlib import Path
 
 from solvers.processing.config_setup import *
 
-# ------------------
-# Configure settings
-# ------------------
-
-CFG_PATH1 = Path(__file__).parent / "configs" / "settings.yaml"
-cfg = load_config(CFG_PATH1)
-
-theta = cfg["theta"]
-
 # --------------
 # BDF2 Weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, dsN):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, dsN, theta, gamma=0.0, Re=0.0):
     """
     Bilinear and linear forms for heat equation
       -> BDF2 time stepping
@@ -51,7 +42,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, dsN):
 # CN Weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, u_old, dx, dsN):
+def make_weak_form_CN(idt, f, f_old, g, g_old, u_old, dx, dsN, gamma=0.0, Re=0.0):
     """
     Bilinear and linear forms for heat equation
       -> Crank-Nicolson

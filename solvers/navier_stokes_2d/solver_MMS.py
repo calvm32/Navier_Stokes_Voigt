@@ -146,7 +146,7 @@ for N in N_list:
     if solver == "CN":
         v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe, compute_every_large = timestepper_CN(get_data, 
                 Z, dx, ds, 
-                t0, T, dt,
+                t0, T, dt, theta=theta, gamma=gamma, Re=Re,
                 sample_length=L, sample_height=H,
                 make_weak_form=make_weak_form_CN, 
                 bcs=bcs, nullspace=nullspace,
@@ -156,7 +156,7 @@ for N in N_list:
     elif solver == "BDF2":
         v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe, compute_every_large = timestepper_BDF2(get_data, 
                 Z, dx, ds, 
-                t0, T, dt, 
+                t0, T, dt, gamma=gamma, Re=Re,
                 sample_length=L, sample_height=H,
                 make_weak_form_BDF2=make_weak_form_BDF2,
                 make_weak_form_CN=make_weak_form_CN,

@@ -1,6 +1,6 @@
 from firedrake import *
 
-def create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u, make_weak_form, is_mixed,
+def create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u, make_weak_form, is_mixed, theta, gamma, Re,
                            bcs=None, nullspace=None, solver_parameters=None, appctx=None):
     """
     Prepare Crank-Nicolson theta-scheme for 
@@ -28,7 +28,7 @@ def create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u, make_weak_form, i
         f, f_old, 
         g, g_old, 
         u_old,
-        dx, dsN
+        dx, dsN, theta, gamma=gamma, Re=Re
     )(u_trial, v)
     
     problem_var = LinearVariationalProblem(a, L, u, bcs=bcs)
@@ -66,7 +66,7 @@ def create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u, make_weak_form, i
 
     return solve_one_step
 
-def create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u, make_weak_form, is_mixed,
+def create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u, make_weak_form, is_mixed, gamma, Re,
                            bcs=None, nullspace=None, solver_parameters=None, appctx=None):
     """
     Prepare BDF2 scheme for 
@@ -91,7 +91,7 @@ def create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u, make_w
     # Create the problem + solver once
     if is_mixed:
         a, L = make_weak_form(
-            idt, f, f_old, g, g_old, u_older, u_old, dx, dsN
+            idt, f, f_old, g, g_old, u_older, u_old, dx, dsN, gamma, Re
         )(u, TestFunction(Z))
         F = a - L
         problem_var = NonlinearVariationalProblem(F, u, bcs=bcs)
@@ -103,7 +103,7 @@ def create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u, make_w
         )
     else:
         a, L = make_weak_form(
-            idt, f, f_old, g, g_old, u_older, u_old, dx, dsN
+            idt, f, f_old, g, g_old, u_older, u_old, dx, dsN, gamma, Re
         )(u_trial, TestFunction(Z))
         problem_var = LinearVariationalProblem(a, L, u, bcs)
         solver = LinearVariationalSolver(
