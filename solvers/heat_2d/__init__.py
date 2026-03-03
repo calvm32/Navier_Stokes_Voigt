@@ -6,5 +6,4 @@ Solver for the heat eqn:
 """
 
 from .solver import *
-from .solver_MMS_CN import *
-from .solver_MMS_BDF2 import *
+from .solver_MMS import *
