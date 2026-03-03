@@ -7,7 +7,7 @@ from .processing.printoff import iter_info_verbose, text, green
 from solvers.statistics.pdf_sampler import pdf_sampler
 from solvers.statistics.structure_funcs import structure_funcs
 
-def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_length=40, sample_height=10, theta=0.5, gamma=0.0, Re=0.0,
+def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_length=40, sample_height=10, theta=0.5, gamma=0.0, Re=1.0,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
@@ -302,7 +302,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 # ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
 
 
-def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_length, sample_height, gamma=0.0, Re=0.0,
+def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_length, sample_height, gamma=0.0, Re=1.0,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces

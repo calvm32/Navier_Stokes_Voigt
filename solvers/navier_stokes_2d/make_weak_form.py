@@ -10,7 +10,7 @@ from solvers.processing.config_setup import *
 
 from firedrake import *
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma=0.0, Re=0.0):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma=0.0, Re=1.0):
     """
     BDF2 Navier-Stokes
     - Oseen linearization
@@ -79,7 +79,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma=
 # Weak form
 # ---------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma=0.0, Re=0.0):
+def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma=0.0, Re=1.0):
     """
     Bilinear and linear forms for incompressible Navier-Stokes
       -> Crank-Nicolson
