@@ -18,7 +18,7 @@ class RunConfig:
 
 class TemplateResolver:
 
-    BASE = Path(__file__).resolve().parents[1] / "templates"
+    BASE = Path(__file__).resolve().parents[2] / "templates"
 
     @staticmethod
     def resolve(cfg: RunConfig):
