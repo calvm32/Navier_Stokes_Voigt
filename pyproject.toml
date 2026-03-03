@@ -1,6 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "nsv"
 version = "0.1.0"
+requires-python = ">=3.10"
 
 [project.scripts]
 nsvsave = "scripts.nsvsave:main"
@@ -8,3 +13,4 @@ nsvrun  = "scripts.nsvrun:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
+include = ["solvers*", "scripts*"]
