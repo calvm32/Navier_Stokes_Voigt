@@ -4,6 +4,7 @@ from pathlib import Path
 import os
 import shutil
 import csv
+import sys
 
 from solvers.timesteppers import *
 from .make_weak_form import *

@@ -3,6 +3,7 @@ import yaml
 from pathlib import Path
 import os
 import shutil
+import sys
 
 import matplotlib.pyplot as plt
 from solvers.timesteppers import *

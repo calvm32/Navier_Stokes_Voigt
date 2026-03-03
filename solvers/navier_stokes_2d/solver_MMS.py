@@ -3,6 +3,7 @@ import yaml
 import os
 from pathlib import Path
 import shutil
+import sys
 
 from solvers.timesteppers import timestepper_BDF2
 from .make_weak_form import make_weak_form_BDF2
