@@ -16,29 +16,28 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-# -------------------
-# Get + archive paths
-# -------------------
+# ---------
+# Get paths
+# ---------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "settings.yaml"
-CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params.yaml"
-CFG_PATH3 = Path(__file__).parent / "configs" / "ufl_expr.yaml"
+def load_run_configs(save_dir):
+    save_dir = Path(save_dir)
+    cfg_path = save_dir / "settings.yaml"
+    solver_params_path = save_dir / "solver_params.yaml"
+    ufl_path = save_dir / "ufl_expr.yaml"
 
-# current working directory
-run_dir = Path(os.getcwd())
+    cfg = load_config(cfg_path)
+    solver_parameters = load_solver_parameters(solver_params_path)
 
-# copy YAML files to current directory
-shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
-shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
-shutil.copy(CFG_PATH3, run_dir / CFG_PATH3.name)
+    # optionally load UFL expressions
+    namespace = {"Constant": Constant, "as_vector": as_vector}  # extend as needed
+    ufl_cfg = load_ufl_expressions(ufl_path, namespace=namespace)
 
-#print(f"[solver.py] YAML configs archived in {run_dir}\n")
+    return cfg, solver_parameters, ufl_cfg
 
 # ------------------
 # Configure settings
 # ------------------
-
-cfg = load_config(CFG_PATH1)
 
 # Extract settings
 t0 = cfg["t0"]
@@ -59,8 +58,6 @@ appctx = {
     "gamma": gamma,
     "velocity_x_space": 0
 }
-
-solver_parameters = load_solver_parameters(CFG_PATH2)
 
 # views = news for solver param debugging
 if views == "Full":
@@ -153,8 +150,6 @@ namespace = {
     "cos": cos,
     "pi": pi,
 }
-
-ufl_cfg = load_ufl_expressions(CFG_PATH3, namespace=namespace)
 
 # -------------------
 # Boundary conditions

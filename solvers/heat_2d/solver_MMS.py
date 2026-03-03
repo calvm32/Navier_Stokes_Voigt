@@ -10,29 +10,28 @@ from .make_weak_form import make_weak_form_BDF2
 from solvers.processing.printoff import blue, green
 from solvers.processing.config_setup import *
 
-# -------------------
-# Get + archive paths
-# -------------------
+# ---------
+# Get paths
+# ---------
 
-CFG_PATH1 = Path(__file__).parent / "configs" / "settings.yaml"
-CFG_PATH2 = Path(__file__).parent / "configs" / "solver_params.yaml"
-CFG_PATH3 = Path(__file__).parent / "configs" / "ufl_expr.yaml"
+def load_run_configs(save_dir):
+    save_dir = Path(save_dir)
+    cfg_path = save_dir / "settings.yaml"
+    solver_params_path = save_dir / "solver_params.yaml"
+    ufl_path = save_dir / "ufl_expr.yaml"
 
-# current working directory
-run_dir = Path(os.getcwd())
+    cfg = load_config(cfg_path)
+    solver_parameters = load_solver_parameters(solver_params_path)
 
-# copy YAML files to current directory
-shutil.copy(CFG_PATH1, run_dir / CFG_PATH1.name)
-shutil.copy(CFG_PATH2, run_dir / CFG_PATH2.name)
-shutil.copy(CFG_PATH3, run_dir / CFG_PATH3.name)
+    # optionally load UFL expressions
+    namespace = {"Constant": Constant, "as_vector": as_vector}  # extend as needed
+    ufl_cfg = load_ufl_expressions(ufl_path, namespace=namespace)
 
-#print(f"[solver.py] YAML configs archived in {run_dir}")
+    return cfg, solver_parameters, ufl_cfg
 
 # -----------------
 # MMS Configuration
 # -----------------
-
-cfg = load_config(CFG_PATH1)
 
 # extract settings
 t0 = cfg["t0"]
@@ -40,9 +39,6 @@ T = cfg["T"]
 dt = cfg["dt"]
 theta = cfg["theta"]
 solver = cfg["solver"]
-
-solver_parameters = load_solver_parameters(CFG_PATH2)
-print(solver_parameters)
 
 vtkfile_name = "Soln"
 
@@ -92,8 +88,6 @@ for N in N_list:
         "cos": cos,
         "exp": exp,
     }
-
-    ufl_cfg = load_ufl_expressions(CFG_PATH3, namespace=namespace)
 
     # ------------------
     # Allocate functions
