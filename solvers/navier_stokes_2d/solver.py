@@ -91,7 +91,7 @@ def main(save_dir):
     # --------------
 
     HERE = os.path.dirname(os.path.abspath(__file__))
-    MESH_PATH = os.path.join(HERE, "meshes", "step_big.msh")
+    MESH_PATH = os.path.join(HERE, "meshes", "step_big1.msh")
 
     #print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
