@@ -276,7 +276,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     # ----------------------------------
 
     # report completed
-    print(f"\n")
+    # print(f"\n")
     green(f"Completed", spaced=True)
 
     # Return everything
@@ -581,7 +581,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # ----------------------------------
 
     # report completed
-    print(f"\n")
+    # print(f"\n")
     green(f"Completed", spaced=True)
 
     # Return everything

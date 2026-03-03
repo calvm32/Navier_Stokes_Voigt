@@ -375,7 +375,7 @@ plt.loglog(k, E_k, 'r-', label="Spectrum at probe")
 C = E_k[5] * k[5]**(5/3)
 plt.loglog(k, C * k**(-5/3), '--', label=r"$k^{-5/3}$")
 
-plot_data["energy_spec_probe"] = (energy_spec_probe)
+plot_data["energy_spec_probe"] = (k, E_k)
 plt.xlabel("Wavenumber k")
 plt.ylabel("E(k)")
 plt.title('Time-Averaged Energy Spectrum at Single Pt.')
@@ -397,35 +397,17 @@ if rank == 0:
         for key, value in plot_data.items():
             writer.writerow([f"# {key}"])
 
-            # -----------------------------
-            # Case 1: Standard (x, y) tuple
-            # -----------------------------
             if isinstance(value, tuple) and len(value) == 2:
                 x_vals, y_vals = value
                 writer.writerow(["x", "y"])
                 for x, y in zip(x_vals, y_vals):
                     writer.writerow([x, y])
 
-            # ----------------------------------------
-            # Case 2: List of (k, E) spectra over time
-            # ----------------------------------------
-            elif isinstance(value, list):
-                for i, (k_vals, E_vals) in enumerate(value):
-                    writer.writerow([f"# spectrum_{i}"])
-                    writer.writerow(["k", "E(k)"])
-                    for k_i, E_i in zip(k_vals, E_vals):
-                        writer.writerow([k_i, E_i])
-                    writer.writerow([])
-
-            # ---------------------
-            # Case 3: Anything else
-            # ---------------------
             else:
                 writer.writerow(["value"])
                 for v in value:
                     writer.writerow([v])
 
             writer.writerow([])
-
 
 #print("[solver.py] All plot data saved to '0_all_plot_data.csv'")
