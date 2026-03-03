@@ -29,6 +29,9 @@ def load_run_configs(save_dir):
 
     return cfg, solver_parameters, ufl_cfg
 
+save_dir = Path(sys.argv[1])
+cfg, solver_params, ufl_cfg = load_run_configs(save_dir)
+
 # ------------------
 # Configure settings
 # ------------------
