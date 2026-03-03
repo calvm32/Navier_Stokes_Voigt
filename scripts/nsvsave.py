@@ -102,15 +102,33 @@ class SaveManager:
         print(f"Solver path: {templates['solver_path']}")
 
 def build_parser():
-    parser = argparse.ArgumentParser(description="nsvsave research CLI")
-    sub = parser.add_subparsers(dest="command", required=True)
+    parser = argparse.ArgumentParser(
+        description="Create a Navier–Stokes–Voigt save directory"
+    )
 
-    # build
-    build = sub.add_parser("build")
-    build.add_argument("problem", choices=["h2", "ns2"])
-    build.add_argument("save_path")
-    build.add_argument("--mms", action="store_true")
-    build.add_argument("--elements", choices=["sv", "th"])
+    parser.add_argument(
+        "save_path",
+        help="Name of the save directory to create"
+    )
+
+    parser.add_argument(
+        "--problem",
+        required=True,
+        choices=["h2", "ns2"],
+        help="Problem type"
+    )
+
+    parser.add_argument(
+        "--mms",
+        action="store_true",
+        help="Use manufactured solution setup"
+    )
+
+    parser.add_argument(
+        "--elements",
+        choices=["sv", "th"],
+        help="Element type (required for ns2)"
+    )
 
     return parser
 
@@ -118,16 +136,14 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
 
-    if args.command == "build":
+    cfg = RunConfig(
+        problem=args.problem,
+        mms=args.mms,
+        elements=args.elements,
+    )
 
-        cfg = RunConfig(
-            problem=args.problem,
-            mms=args.mms,
-            elements=args.elements,
-        )
-
-        templates = TemplateResolver.resolve(cfg)
-        SaveManager.create(args.save_path, templates)
+    templates = TemplateResolver.resolve(cfg)
+    SaveManager.create(args.save_path, templates)
 
 if __name__ == "__main__":
     main()
