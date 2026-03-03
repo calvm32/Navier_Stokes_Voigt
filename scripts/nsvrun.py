@@ -1,4 +1,3 @@
-# nsvrun
 import argparse
 import subprocess
 import sys
