@@ -3,20 +3,19 @@ import subprocess
 import sys
 import yaml
 import os
+from pathlib import Path
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Run NSV solver")
-    parser.add_argument("path", help="Save directory")
     parser.add_argument("--np", type=int, help="MPI processes")
     return parser
-
 
 def main():
 
     parser = build_parser()
     args = parser.parse_args()
 
-    run_info_path = os.path.join(args.path, "run_info.yaml")
+    run_info_path = "run_info.yaml"
 
     if not os.path.exists(run_info_path):
         print("run_info.yaml not found. Was this built with nsvsave?")
