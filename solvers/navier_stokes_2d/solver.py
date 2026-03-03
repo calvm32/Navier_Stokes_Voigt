@@ -190,7 +190,7 @@ def get_data(t):
 # ----------
 
 if solver == "CN":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe, compute_every_large = timestepper_CN(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe = timestepper_CN(get_data, 
             Z, dx, ds, 
             t0, T, dt,
             sample_length=L, sample_height=H,
@@ -200,7 +200,7 @@ if solver == "CN":
             appctx=appctx, vtkfile_name=vtkfile_name)
 
 elif solver == "BDF2":
-    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe, compute_every_large = timestepper_BDF2(get_data, 
+    v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe = timestepper_BDF2(get_data, 
             Z, dx, ds, 
             t0, T, dt, 
             sample_length=L, sample_height=H,
@@ -333,71 +333,47 @@ if rank == 0:
     plt.savefig("1_structure_function.png", dpi=200)
 plt.close()
 
-# -----------------------------------------------
-# Plot Energy spectrum FF1 (at time, vary points)
-# -----------------------------------------------
+# --------------------
+# Plot Energy spectrum 
+# --------------------
 
-all_E = np.array([E for k, E in energy_spec_list])
-mean_E = np.mean(all_E, axis=0)
-k = energy_spec_list[0][0]
-
-plt.figure()
-plt.loglog(k, mean_E, 'r-', label="Spectrum at time")
-
-# reference slope k^-3
-plt.loglog(k, k**(-3), '--', label=r"$k^{-3}$")
-plt.loglog(k, k**(-5/3), ':', label=r"$k^{-5/3}$")
-
-plot_data["energy_spec_list"] = (energy_spec_list)
-plt.xlabel('Wavenumber k')
-plt.ylabel('E(k)')
-plt.title('Point-Averaged Energy Spectrum at Final Time')
-plt.grid(True)
-plt.legend()
-plt.tight_layout()
-if rank == 0:
-    plt.savefig("1_energy_spec_FF1.png", dpi=200)
-plt.close()
-
-# -----------------------------------------------
-# Plot Energy spectrum FF2 (at point, vary times)
-# -----------------------------------------------
+# based on Taylor's frozen flow hypothesis (at point, vary times)
 
 probe_values = np.array(energy_spec_probe)
 time_values = np.array(every_time_list)
 
-tdt = time_values[1] - time_values[0]
-T_total = len(time_values) * tdt
-N = len(time_values)
+dt = time_values[1] - time_values[0]
 
+N = len(time_values)
+T_total = N * dt
 ux = probe_values[:, 0]
 ux = ux - np.mean(ux) # remove mean
 
 # FFT
 u_hat = np.fft.fft(ux)
 
-# frequencies
-f = np.fft.fftfreq(N, d=tdt)
+# Frequencies
+f = np.fft.fftfreq(N, d=dt)
 
 # keep positive frequencies only
 pos = f > 0
 f = f[pos]
 u_hat = u_hat[pos]
 
-# temporal energy spectrum
-E_f = (1/(2*T_total)) * np.abs(u_hat)**2
+# One-sided temporal spectrum
+E_f = 2 * (dt / N) * np.abs(u_hat)**2
 
+# Taylor hypothesis
 U_mean = np.mean(probe_values[:,0])
-
 k = 2*np.pi*f / U_mean
-E_k = E_f / U_mean
+E_k = E_f * U_mean / (2*np.pi)
 
 plt.figure()
-plt.loglog(k[1:], E_k[1:], 'r-', label="Spectrum at probe")
+plt.loglog(k, E_k, 'r-', label="Spectrum at probe")
 
-# reference slope k^-3
-plt.loglog(k, k**(-3), '--', label=r"$k^{-3}$")
-plt.loglog(k, k**(-5/3), ':', label=r"$k^{-5/3}$")
+# Reference slope
+C = E_k[5] * k[5]**(5/3)
+plt.loglog(k, C * k**(-5/3), '--', label=r"$k^{-5/3}$")
 
 plot_data["energy_spec_probe"] = (energy_spec_probe)
 plt.xlabel("Wavenumber k")

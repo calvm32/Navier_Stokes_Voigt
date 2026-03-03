@@ -6,10 +6,9 @@ from .processing.printoff import iter_info_verbose, text, green
 
 from solvers.statistics.pdf_sampler import pdf_sampler
 from solvers.statistics.structure_funcs import structure_funcs
-from solvers.statistics.energy_spectra import energy_spectra
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_length=40, sample_height=10,
-                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
+                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
     """
@@ -17,7 +16,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     num_steps = int((float(T)-float(t0)) / float(dt)) 
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
-    compute_every_large = 50
     start_sampling = 10
     write_every = 100
 
@@ -33,9 +31,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     stream_func_list = []
     enstrophy_list = []
     every_time_list = []
-    every_large_time_list = []
     all_time_list = []
-    energy_spec_list = []
     energy_spec_probe = []
 
     if is_mixed:
@@ -85,9 +81,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
     # get energy + report run starting
     energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
-
-    # energy spectra object
-    energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
 
     # ------------------------------
     # Probe DOF selection (MPI safe)
@@ -210,24 +203,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
-        if (step % compute_every_large == 0) and (step >= start_sampling):
-
-                # -------- energy spectrum --------
-                k_vals, E_vals = energy_spec.compute()
-                energy_spec_list.append((k_vals, E_vals))
-
-                # -------- MPI safe --------
-                comm = u.sub(0).function_space().mesh().comm
-                local_val = np.zeros(2)
-
-                if probe_dof != -1:
-                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
-
-                global_val = comm.allreduce(local_val, op=MPI.SUM)
-                ux, uy = global_val
-
-                energy_spec_probe.append([ux, uy])
-
         if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
             
@@ -253,6 +228,18 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples_per_bin=20)
+
+                # -------- energy spec probe --------
+                comm = u.sub(0).function_space().mesh().comm
+                local_val = np.zeros(2)
+
+                if probe_dof != -1:
+                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
+
+                global_val = comm.allreduce(local_val, op=MPI.SUM)
+                ux, uy = global_val
+
+                energy_spec_probe.append([ux, uy])
 
             # -------- error --------
             # get data at current time
@@ -296,7 +283,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
-        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe, compute_every_large)
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe)
 
     else:
         return(u_error_list, energy_list, all_time_list)
@@ -326,7 +313,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     compute_every = 5
     start_sampling = 10
     write_every = 100
-    compute_every_large = 50
 
     if num_steps <= start_sampling:
         start_sampling = 0
@@ -341,7 +327,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     enstrophy_list = []
     every_time_list = []
     all_time_list = []
-    energy_spec_list = []
     energy_spec_probe = []
 
     if is_mixed:
@@ -397,12 +382,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     # get energy + report run starting
     energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
-
-    # energy spectra object
-    energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
-
-    # energy spectra object
-    energy_spec = energy_spectra(u_old.sub(0), mesh, nbins=40)
 
     # ------------------------------
     # Probe DOF selection (MPI safe)
@@ -529,24 +508,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
         iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
 
-        if (step % compute_every_large == 0) and (step >= start_sampling):
-
-                # -------- energy spectrum --------
-                k_vals, E_vals = energy_spec.compute()
-                energy_spec_list.append((k_vals, E_vals))
-
-                # -------- MPI safe --------
-                comm = u.sub(0).function_space().mesh().comm
-                local_val = np.zeros(2)
-
-                if probe_dof != -1:
-                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
-
-                global_val = comm.allreduce(local_val, op=MPI.SUM)
-                ux, uy = global_val
-
-                energy_spec_probe.append([ux, uy])
-
         if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
             
@@ -572,6 +533,18 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples_per_bin=20)
+
+                # -------- energy spec probe --------
+                comm = u.sub(0).function_space().mesh().comm
+                local_val = np.zeros(2)
+
+                if probe_dof != -1:
+                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
+
+                global_val = comm.allreduce(local_val, op=MPI.SUM)
+                ux, uy = global_val
+
+                energy_spec_probe.append([ux, uy])
                 
             # -------- error --------
             # get data at current time
@@ -615,7 +588,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
-        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_list, energy_spec_probe, compute_every_large)
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe)
 
     else:
         return(u_error_list, energy_list, all_time_list)
