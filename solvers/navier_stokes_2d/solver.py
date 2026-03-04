@@ -223,8 +223,7 @@ def main(save_dir):
     plot_path = Path(save_dir) / "plots"
     plot_path.mkdir(exist_ok=True)
 
-    x = True
-    if x:
+    if rank == 0:
 
         # -----------------
         # Plot palinstrophy
@@ -415,8 +414,8 @@ def main(save_dir):
 
         #print("[solver.py] All plot data saved to 'all_plot_data.csv'")
 
-    if __name__ == "__main__":
-        import sys
-        if len(sys.argv) < 2:
-            raise RuntimeError("Must provide save_dir as argument")
-        main(sys.argv[1])
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 2:
+        raise RuntimeError("Must provide save_dir as argument")
+    main(sys.argv[1])
