@@ -223,184 +223,176 @@ def main(save_dir):
     plot_path = Path(save_dir) / "plots"
     plot_path.mkdir(exist_ok=True)
 
-    # -----------------
-    # Plot palinstrophy
-    # -----------------
-
-    plot_data["palinstrophy"] = (every_time_list, palinstrophy_list)
-    plt.semilogy(every_time_list, palinstrophy_list, "-o")
-    plt.xlabel("time")
-    plt.ylabel("palinstrophy")
-    plt.title('Palinstrophy')
-    plt.grid(True)
-    plt.tight_layout()
     if rank == 0:
+
+        # -----------------
+        # Plot palinstrophy
+        # -----------------
+
+        plot_data["palinstrophy"] = (every_time_list, palinstrophy_list)
+        plt.semilogy(every_time_list, palinstrophy_list, "-o")
+        plt.xlabel("time")
+        plt.ylabel("palinstrophy")
+        plt.title('Palinstrophy')
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "palinstrophy_plot.png", dpi=200, bbox_inches='tight')
-    plt.close()
+        plt.close()
 
-    # --------------------
-    # Plot stream function
-    # --------------------
+        # --------------------
+        # Plot stream function
+        # --------------------
 
-    plot_data["stream_func"] = (every_time_list, stream_func_list)
-    plt.semilogy(every_time_list, stream_func_list, "-o")
-    plt.xlabel("time")
-    plt.ylabel("stream function")
-    plt.title('Stream Function')
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
+        plot_data["stream_func"] = (every_time_list, stream_func_list)
+        plt.semilogy(every_time_list, stream_func_list, "-o")
+        plt.xlabel("time")
+        plt.ylabel("stream function")
+        plt.title('Stream Function')
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "stream_func_plot.png", dpi=200, bbox_inches='tight')
-    plt.close()
+        plt.close()
 
-    # --------------
-    # Plot Enstrophy
-    # --------------
+        # --------------
+        # Plot Enstrophy
+        # --------------
 
-    plot_data["enstrophy"] = (every_time_list, enstrophy_list)
-    plt.semilogy(every_time_list, enstrophy_list, "-o")
-    plt.xlabel("time")
-    plt.ylabel("enstrophy")
-    plt.title('Enstrophy')
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
+        plot_data["enstrophy"] = (every_time_list, enstrophy_list)
+        plt.semilogy(every_time_list, enstrophy_list, "-o")
+        plt.xlabel("time")
+        plt.ylabel("enstrophy")
+        plt.title('Enstrophy')
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "enstrophy_plot.png", dpi=200, bbox_inches='tight')
-    plt.close()
+        plt.close()
 
-    # -----------
-    # Plot Energy
-    # -----------
+        # -----------
+        # Plot Energy
+        # -----------
 
-    # pop first values 
-    all_time_list_del = all_time_list[1:]
-    energy_list_del = energy_list[1:]
+        # pop first values 
+        all_time_list_del = all_time_list[1:]
+        energy_list_del = energy_list[1:]
 
-    plot_data["energy"] = (all_time_list, energy_list)
-    plt.semilogy(all_time_list_del, energy_list_del, "-o")
-    plt.xlabel("time")
-    plt.ylabel("energy")
-    plt.title('Total Kinetic Energy')
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
+        plot_data["energy"] = (all_time_list, energy_list)
+        plt.semilogy(all_time_list_del, energy_list_del, "-o")
+        plt.xlabel("time")
+        plt.ylabel("energy")
+        plt.title('Total Kinetic Energy')
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "energy_plot.png", dpi=200, bbox_inches='tight')
-    plt.close()
+        plt.close()
 
-    # ------------
-    # Velocity PDF
-    # ------------
+        # ------------
+        # Velocity PDF
+        # ------------
 
-    plot_data["velocity_x_pdf"] = (np.arange(len(velocity_x_vals)), velocity_x_vals)
-    plt.hist(velocity_x_vals, bins=100, density=True)
-    plt.xlabel("samples")
-    plt.ylabel("x-velocity")
-    plt.title('x-Velocity Probabiility Density Function')
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
+        plot_data["velocity_x_pdf"] = (np.arange(len(velocity_x_vals)), velocity_x_vals)
+        plt.hist(velocity_x_vals, bins=100, density=True)
+        plt.xlabel("samples")
+        plt.ylabel("x-velocity")
+        plt.title('x-Velocity Probabiility Density Function')
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "velocity_x_PDF.png", dpi=200, bbox_inches='tight')
-    plt.close()
+        plt.close()
 
-    plot_data["velocity_y_pdf"] = (np.arange(len(velocity_y_vals)), velocity_y_vals)
-    plt.hist(velocity_y_vals, bins=100, density=True)
-    plt.xlabel("samples")
-    plt.ylabel("y-velocity")
-    plt.title('y-Velocity Probabiility Density Function')
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
+        plot_data["velocity_y_pdf"] = (np.arange(len(velocity_y_vals)), velocity_y_vals)
+        plt.hist(velocity_y_vals, bins=100, density=True)
+        plt.xlabel("samples")
+        plt.ylabel("y-velocity")
+        plt.title('y-Velocity Probabiility Density Function')
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "velocity_y_PDF.png", dpi=200, bbox_inches='tight')
-    plt.close()
+        plt.close()
 
-    # -------------
-    # Vorticity PDF
-    # -------------
+        # -------------
+        # Vorticity PDF
+        # -------------
 
-    plot_data["vorticity_pdf"] = (np.arange(len(omega_vals)), omega_vals)
-    plt.hist(omega_vals, bins=100, density=True)
-    plt.xlabel("samples")
-    plt.ylabel("vorticity")
-    plt.title('Vorticity Probability Density Function')
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
+        plot_data["vorticity_pdf"] = (np.arange(len(omega_vals)), omega_vals)
+        plt.hist(omega_vals, bins=100, density=True)
+        plt.xlabel("samples")
+        plt.ylabel("vorticity")
+        plt.title('Vorticity Probability Density Function')
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "vorticity_PDF.png", dpi=200, bbox_inches='tight')
-    plt.close()
+        plt.close()
 
-    # --------------
-    # structure func
-    # --------------
+        # --------------
+        # structure func
+        # --------------
 
-    plot_data["structure_function"] = (r_vals, S2)
-    plt.plot(r_vals, S2, "-o")
-    plt.xlabel(r"$r$")
-    plt.ylabel(r"$S_2(r)$")
-    plt.title('2nd-Order Longitudinal Structure Function')
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
+        plot_data["structure_function"] = (r_vals, S2)
+        plt.plot(r_vals, S2, "-o")
+        plt.xlabel(r"$r$")
+        plt.ylabel(r"$S_2(r)$")
+        plt.title('2nd-Order Longitudinal Structure Function')
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "structure_function.png", dpi=200)
-    plt.close()
+        plt.close()
 
-    # --------------------
-    # Plot Energy spectrum 
-    # --------------------
+        # --------------------
+        # Plot Energy spectrum 
+        # --------------------
 
-    # based on Taylor's frozen flow hypothesis (at point, vary times)
+        # based on Taylor's frozen flow hypothesis (at point, vary times)
 
-    probe_values = np.array(energy_spec_probe)
-    time_values = np.array(every_time_list)
+        probe_values = np.array(energy_spec_probe)
+        time_values = np.array(every_time_list)
 
-    dt = time_values[1] - time_values[0]
+        dt = time_values[1] - time_values[0]
 
-    N = len(time_values)
-    T_total = N * dt
-    ux = probe_values[:, 0]
-    ux = ux - np.mean(ux) # remove mean
+        N = len(time_values)
+        T_total = N * dt
+        ux = probe_values[:, 0]
+        ux = ux - np.mean(ux) # remove mean
 
-    # FFT
-    u_hat = np.fft.fft(ux)
+        # FFT
+        u_hat = np.fft.fft(ux)
 
-    # Frequencies
-    f = np.fft.fftfreq(N, d=dt)
+        # Frequencies
+        f = np.fft.fftfreq(N, d=dt)
 
-    # keep positive frequencies only
-    pos = f > 0
-    f = f[pos]
-    u_hat = u_hat[pos]
+        # keep positive frequencies only
+        pos = f > 0
+        f = f[pos]
+        u_hat = u_hat[pos]
 
-    # One-sided temporal spectrum
-    E_f = 2 * (dt / N) * np.abs(u_hat)**2
+        # One-sided temporal spectrum
+        E_f = 2 * (dt / N) * np.abs(u_hat)**2
 
-    # Taylor hypothesis
-    U_mean = np.mean(probe_values[:,0])
-    k = 2*np.pi*f / U_mean
-    E_k = E_f * U_mean / (2*np.pi)
+        # Taylor hypothesis
+        U_mean = np.mean(probe_values[:,0])
+        k = 2*np.pi*f / U_mean
+        E_k = E_f * U_mean / (2*np.pi)
 
-    plt.figure()
-    plt.loglog(k, E_k, 'r-', label="Spectrum at probe")
+        plt.figure()
+        plt.loglog(k, E_k, 'r-', label="Spectrum at probe")
 
-    # Reference slope
-    C = E_k[5] * k[5]**(5/3)
-    plt.loglog(k, C * k**(-5/3), '--', label=r"$k^{-5/3}$")
+        # Reference slope
+        C = E_k[5] * k[5]**(5/3)
+        plt.loglog(k, C * k**(-5/3), '--', label=r"$k^{-5/3}$")
 
-    plot_data["energy_spec_probe"] = (k, E_k)
-    plt.xlabel("Wavenumber k")
-    plt.ylabel("E(k)")
-    plt.title('Time-Averaged Energy Spectrum at Single Pt.')
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
+        plot_data["energy_spec_probe"] = (k, E_k)
+        plt.xlabel("Wavenumber k")
+        plt.ylabel("E(k)")
+        plt.title('Time-Averaged Energy Spectrum at Single Pt.')
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
         plt.savefig(plot_path / "energy_spec_FF2.png", dpi=200)
-    plt.close()
+        plt.close()
 
-    # --------------------
-    # Save all data to CSV
-    # --------------------
+        # --------------------
+        # Save all data to CSV
+        # --------------------
 
-    if rank == 0:
         with open(plot_path / "all_plot_data.csv", "w", newline="") as f:
             writer = csv.writer(f)
 
@@ -420,10 +412,10 @@ def main(save_dir):
 
                 writer.writerow([])
 
-    #print("[solver.py] All plot data saved to 'all_plot_data.csv'")
+        #print("[solver.py] All plot data saved to 'all_plot_data.csv'")
 
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 2:
-        raise RuntimeError("Must provide save_dir as argument")
-    main(sys.argv[1])
+    if __name__ == "__main__":
+        import sys
+        if len(sys.argv) < 2:
+            raise RuntimeError("Must provide save_dir as argument")
+        main(sys.argv[1])
