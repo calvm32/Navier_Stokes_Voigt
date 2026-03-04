@@ -223,7 +223,8 @@ def main(save_dir):
     plot_path = Path(save_dir) / "plots"
     plot_path.mkdir(exist_ok=True)
 
-    if rank == 0:
+    x = True
+    if x:
 
         # -----------------
         # Plot palinstrophy
