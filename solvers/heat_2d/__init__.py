@@ -4,6 +4,3 @@ Solver for the heat eqn:
     -> partial u/ partial n = g      on bdy(Omega) x (0,T)
     -> u = u0                        on Omega x {0}
 """
-
-from .solver import *
-from .solver_MMS import *
