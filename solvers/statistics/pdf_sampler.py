@@ -71,28 +71,29 @@ class pdf_sampler:
     def finalize(self):
 
         comm = MPI.COMM_WORLD
+        rank = comm.rank
 
         vel_x_local = (
             np.concatenate(self.velocity_x_samples)
-            if self.velocity_x_samples else np.array([])
+            if self.velocity_x_samples else np.array([], dtype=float)
         )
-
         vel_y_local = (
             np.concatenate(self.velocity_y_samples)
-            if self.velocity_y_samples else np.array([])
+            if self.velocity_y_samples else np.array([], dtype=float)
         )
-
         vort_local = (
             np.concatenate(self.vorticity_samples)
-            if self.vorticity_samples else np.array([])
+            if self.vorticity_samples else np.array([], dtype=float)
         )
 
-        vel_x = comm.allgather(vel_x_local)
-        vel_y = comm.allgather(vel_y_local)
-        vort = comm.allgather(vort_local)
+        vel_x = comm.gather(vel_x_local, root=0)
+        vel_y = comm.gather(vel_y_local, root=0)
+        vort  = comm.gather(vort_local,  root=0)
 
-        vel_x = np.concatenate(vel_x)
-        vel_y = np.concatenate(vel_y)
-        vort = np.concatenate(vort)
-
-        return vel_x, vel_y, vort
+        if rank == 0:
+            vel_x = np.concatenate(vel_x) if vel_x else np.array([])
+            vel_y = np.concatenate(vel_y) if vel_y else np.array([])
+            vort  = np.concatenate(vort)  if vort  else np.array([])
+            return vel_x, vel_y, vort
+        else:
+            return None, None, None
