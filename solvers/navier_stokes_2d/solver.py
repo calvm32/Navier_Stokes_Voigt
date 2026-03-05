@@ -380,9 +380,9 @@ def main(save_dir):
         plt.loglog(k_plot, E_plot, label="Energy spectrum")
 
         # Reference slope
-        if len(k) > 6:
-            C = E_k[5] * k[5]**(5/3)
-            plt.loglog(k, C * k**(-5/3), '--', label=r"$k^{-5/3}$")
+        if len(k_plot) > 6:
+            C = E_plot[5] * k_plot[5]**(5/3)
+            plt.loglog(k_plot, C * k_plot**(-5/3), '--', label=r"$k^{-5/3}$")
 
         plot_data["energy_spec_probe"] = (k, E_k)
         plt.xlabel("Wavenumber k")
