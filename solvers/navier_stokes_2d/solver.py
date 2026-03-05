@@ -373,11 +373,16 @@ def main(save_dir):
         E_k = E_f * U_mean / (2*np.pi)
 
         plt.figure()
-        plt.loglog(k, E_k, 'r-', label="Spectrum at probe")
+
+        mask = (k > 0) & (E_k > 0) & np.isfinite(E_k)
+        k_plot = k[mask]
+        E_plot = E_k[mask]
+        plt.loglog(k_plot, E_plot, label="Energy spectrum")
 
         # Reference slope
-        C = E_k[5] * k[5]**(5/3)
-        plt.loglog(k, C * k**(-5/3), '--', label=r"$k^{-5/3}$")
+        if len(k) > 6:
+            C = E_k[5] * k[5]**(5/3)
+            plt.loglog(k, C * k**(-5/3), '--', label=r"$k^{-5/3}$")
 
         plot_data["energy_spec_probe"] = (k, E_k)
         plt.xlabel("Wavenumber k")
