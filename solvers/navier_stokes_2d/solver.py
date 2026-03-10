@@ -93,7 +93,7 @@ def main(save_dir):
     HERE = os.path.dirname(os.path.abspath(__file__))
     MESH_PATH = os.path.join(HERE, "meshes", "step_big_h0.9.msh")
 
-    #print(f"[solver.py] Loading mesh from: {MESH_PATH}")
+    # print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
     # ------------
     # Setup spaces
@@ -147,6 +147,9 @@ def main(save_dir):
     # Configure functions
     # -------------------
 
+    # initialize t for later
+    t = t0
+
     namespace = {
         "as_vector": as_vector,
         "Constant": Constant,
@@ -156,9 +159,12 @@ def main(save_dir):
         "L": L,
         "G": G,
         "P": P,
+        "Re": Re,
+        "pi": pi,
         "sin": sin,
         "cos": cos,
-        "pi": pi,
+        "exp": exp,
+        "t": t,
     }
 
     ufl_cfg = load_run_ufls(save_dir, namespace)

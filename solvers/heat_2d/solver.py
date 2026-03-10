@@ -70,6 +70,9 @@ def main(save_dir):
     # Configure functions
     # -------------------
 
+    # initialize t for later
+    t = t0
+
     namespace = {
         "as_vector": as_vector,
         "Constant": Constant,
@@ -79,6 +82,7 @@ def main(save_dir):
         "sin": sin,
         "cos": cos,
         "exp": exp,
+        "t": t,
     }
 
     ufl_cfg = load_run_ufls(save_dir, namespace)

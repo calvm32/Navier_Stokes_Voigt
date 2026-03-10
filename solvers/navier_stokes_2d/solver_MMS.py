@@ -5,8 +5,8 @@ from pathlib import Path
 import shutil
 import sys
 
-from solvers.timesteppers import timestepper_BDF2
-from .make_weak_form import make_weak_form_BDF2
+from solvers.timesteppers import *
+from .make_weak_form import *
 from solvers.processing.printoff import blue, green
 from solvers.processing.config_setup import *
 import matplotlib.pyplot as plt
@@ -44,8 +44,6 @@ def main(save_dir):
     T = cfg["T"]
     theta = cfg["theta"]
     gamma = cfg["gamma"]
-    H = cfg["H"]
-    L = cfg["L"]
     Re = cfg["Re"]
     G = cfg["G"]
     P = cfg["P"]
@@ -87,6 +85,9 @@ def main(save_dir):
         # Setup spaces
         # ------------
 
+        H = 10.0
+        L = 40.0
+
         mesh = RectangleMesh(int(L*N), int(H*N), L, H)
         x, y = SpatialCoordinate(mesh)
 
@@ -100,6 +101,9 @@ def main(save_dir):
         # -------------------
         # Configure functions
         # -------------------
+
+        # initialize t for later
+        t = t0
 
         namespace = {
             "as_vector": as_vector,
@@ -115,6 +119,7 @@ def main(save_dir):
             "sin": sin,
             "cos": cos,
             "exp": exp,
+            "t": t,
         }
 
         ufl_cfg = load_run_ufls(save_dir, namespace)

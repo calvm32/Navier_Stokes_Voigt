@@ -27,13 +27,13 @@ def load_ufl_expressions(path, *, namespace=None):
     with open(path, "r") as f:
         data = yaml.safe_load(f)
 
-    namespace = dict(namespace or {})   # copy
+    namespace = dict(namespace or {})
     results = {}
 
     for key, value in data.items():
         if isinstance(value, str):
             results[key] = eval(value, {}, namespace)
-            namespace[key] = results[key]   # <-- important
+            namespace[key] = results[key]
         else:
             results[key] = value
             namespace[key] = value
