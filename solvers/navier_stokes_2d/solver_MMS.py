@@ -70,7 +70,7 @@ def main(save_dir):
 
     for N in N_list:
 
-        dt = 1/(N*10) # CFL
+        dt = 1/(N) # CFL
 
         blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
         new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
@@ -85,8 +85,8 @@ def main(save_dir):
         # Setup spaces
         # ------------
 
-        H = 10.0
-        L = 40.0
+        H = 1.0
+        L = 4.0
 
         mesh = RectangleMesh(int(L*N), int(H*N), L, H)
         x, y = SpatialCoordinate(mesh)
