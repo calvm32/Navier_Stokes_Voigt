@@ -1,6 +1,7 @@
 import numpy as np
 from solvers.statistics.spatial_sampler import spatial_sampler
 from mpi4py import MPI
+from firedrake import COMM_WORLD
 
 class pdf_sampler:
     """
@@ -70,8 +71,8 @@ class pdf_sampler:
 
     def finalize(self):
 
-        comm = MPI.COMM_WORLD
-        rank = comm.rank
+        from firedrake import COMM_WORLD
+        comm = COMM_WORLD
 
         vel_x_local = (
             np.concatenate(self.velocity_x_samples)

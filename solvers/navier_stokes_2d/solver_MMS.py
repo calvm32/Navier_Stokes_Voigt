@@ -70,7 +70,7 @@ def main(save_dir):
 
     for N in N_list:
 
-        dt = 1/N # CFL
+        dt = 1/(N*10) # CFL
 
         blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
         new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
