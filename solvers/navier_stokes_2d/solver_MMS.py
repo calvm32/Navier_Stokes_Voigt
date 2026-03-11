@@ -71,10 +71,11 @@ def main(save_dir):
 
     for n in range (1,6):
 
+        # Build appctx
         appctx = {
-            "Re": Re, 
+            "Re": Re,
             "gamma": gamma,
-            "velocity_space": 0
+            "velocity_x_space": 0
         }
 
         # --------------
