@@ -93,9 +93,15 @@ def main(save_dir):
         dx = Measure("dx", domain=mesh)
         ds = Measure("ds", domain=mesh)
 
-        V = VectorFunctionSpace(mesh, "CG", 2)
-        W = FunctionSpace(mesh, "CG", 1)
-        Z = V * W
+        if elements == "SV":
+            k = 3  # or higher for stability on arbitrary triangles
+            V = VectorFunctionSpace(mesh, "CG", k)
+            W = FunctionSpace(mesh, "DG", k-1)
+            Z = V * W
+        elif elements == "TH":
+            V = VectorFunctionSpace(mesh, "CG", 2)
+            W = FunctionSpace(mesh, "CG", 1)
+            Z = V * W
 
         # ---------------------
         # Compute mesh spacing
