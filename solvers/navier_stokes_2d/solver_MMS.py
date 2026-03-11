@@ -86,6 +86,17 @@ def main(save_dir):
         mesh = Mesh(MESH_PATH)
         x, y = SpatialCoordinate(mesh)
 
+        # ------------
+        # Setup spaces
+        # ------------
+
+        dx = Measure("dx", domain=mesh)
+        ds = Measure("ds", domain=mesh)
+
+        V = VectorFunctionSpace(mesh, "CG", 2)
+        W = FunctionSpace(mesh, "CG", 1)
+        Z = V * W
+
         # ---------------------
         # Compute mesh spacing
         # ---------------------
@@ -131,17 +142,6 @@ def main(save_dir):
 
         CFL = 0.4
         dt = CFL * h
-
-        # ------------
-        # Setup spaces
-        # ------------
-
-        dx = Measure("dx", domain=mesh)
-        ds = Measure("ds", domain=mesh)
-
-        V = VectorFunctionSpace(mesh, "CG", 2)
-        W = FunctionSpace(mesh, "CG", 1)
-        Z = V * W
 
         # -------------------
         # Configure functions
