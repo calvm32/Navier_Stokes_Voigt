@@ -83,6 +83,7 @@ def main(save_dir):
         # --------------
 
         MESH_PATH = os.path.join(HERE, f"meshes/mms/channel_bary{n}.msh")
+        #MESH_PATH = os.path.join(HERE, f"meshes/step1.msh")
 
         mesh = Mesh(MESH_PATH)
         x, y = SpatialCoordinate(mesh)
@@ -144,7 +145,7 @@ def main(save_dir):
         N = int(L / h)
         N_list.append(N)
 
-        blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
+        blue(f"\n*** Mesh size N = {N:0d} ***", spaced=True) # report mesh size
         new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
 
         dt = 1/N

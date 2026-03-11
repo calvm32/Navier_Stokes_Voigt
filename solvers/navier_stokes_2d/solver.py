@@ -101,7 +101,7 @@ def main(save_dir):
     # Setup spaces
     # ------------
 
-    blue(f"\n*** Starting solve ***\n", spaced=True)
+    blue(f"\n*** Starting solve ***", spaced=True)
 
     # Load the mesh
     mesh = Mesh(MESH_PATH)
