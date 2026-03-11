@@ -1,7 +1,10 @@
 import numpy as np
 from solvers.statistics.spatial_sampler import spatial_sampler
-from mpi4py import MPI
 from firedrake import COMM_WORLD
+
+from mpi4py import MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
 
 class pdf_sampler:
     """
@@ -70,9 +73,6 @@ class pdf_sampler:
         self.vorticity_samples.append(np.array(vals).flatten())
 
     def finalize(self):
-
-        from firedrake import COMM_WORLD
-        comm = COMM_WORLD
 
         vel_x_local = (
             np.concatenate(self.velocity_x_samples)

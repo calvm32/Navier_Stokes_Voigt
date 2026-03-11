@@ -14,8 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from mpi4py import MPI
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
 
 # ---------
 # Get paths
@@ -40,6 +38,10 @@ def load_run_ufls(save_dir, namespace):
     return ufl_cfg
 
 def main(save_dir):
+
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+
     cfg, solver_parameters = load_run_configs(save_dir)
 
     # ------------------

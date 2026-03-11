@@ -34,6 +34,10 @@ def load_run_ufls(save_dir, namespace):
     return ufl_cfg
 
 def main(save_dir):
+    
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+
     cfg, solver_parameters = load_run_configs(save_dir)
 
     # -----------------
@@ -72,6 +76,9 @@ def main(save_dir):
         # ------------
 
         # mesh and measures
+        H = 1
+        L = 1
+
         mesh = UnitSquareMesh(N, N)
         x, y = SpatialCoordinate(mesh)
 
@@ -114,8 +121,7 @@ def main(save_dir):
             })
 
             return {
-                "ufl_v0": ufl_cfg["ufl_v0"],
-                "ufl_p0": ufl_cfg["ufl_p0"],
+                "ufl_u0": ufl_cfg["ufl_u0"],
                 "ufl_f": ufl_cfg["ufl_f"],
                 "ufl_g": ufl_cfg["ufl_g"]
             }
@@ -128,6 +134,7 @@ def main(save_dir):
             u_error_list, energy_list, all_time_list = timestepper_CN(get_data, 
                 V, dx, ds, 
                 t0, T, dt, theta=theta,
+                sample_length=L, sample_height=H,
                 make_weak_form=make_weak_form_CN,
                 solver_parameters=solver_parameters,
                 vtkfile_name=vtkfile_name)
@@ -135,7 +142,9 @@ def main(save_dir):
             u_error_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
                 V, dx, ds, 
                 t0, T, dt,
-                make_weak_form=make_weak_form_BDF2,
+                sample_length=L, sample_height=H,
+                make_weak_form_BDF2=make_weak_form_BDF2,
+                make_weak_form_CN=make_weak_form_CN,
                 solver_parameters=solver_parameters,
                 vtkfile_name=vtkfile_name)
 
@@ -151,8 +160,11 @@ def main(save_dir):
     # Heat error plot
     # ---------------
 
+    plot_path = Path(save_dir) / "plots"
+    plot_path.mkdir(exist_ok=True)
+
     plt.figure()
-    plt.semilogy(N_list, v_final_error_list, "-o")
+    plt.semilogy(N_list, final_error_list, "-o")
     plt.xlabel("mesh size")
     plt.ylabel("heat error")
     plt.grid(True)

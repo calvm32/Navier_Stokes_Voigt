@@ -42,8 +42,8 @@ class TemplateResolver:
             }
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/heat_MMS.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_MMS.yaml",
             "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_expr.yaml",
             "solver_path": "solvers.heat_2d.solver",
         }
@@ -83,7 +83,6 @@ class SaveManager:
             raise FileExistsError(f"Save already exists: {save_path}")
 
         os.makedirs(save_path)
-        os.makedirs(f"{save_path}/data")
         os.makedirs(f"{save_path}/vis")
 
         dump_txt(load_txt(templates["settings"]),
