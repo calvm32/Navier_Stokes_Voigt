@@ -65,7 +65,7 @@ def main(save_dir):
     appctx = {
         "Re": Re,
         "gamma": gamma,
-        "velocity_x_space": 0
+        "velocity_space": 0
     }
 
     # views = news for solver param debugging
