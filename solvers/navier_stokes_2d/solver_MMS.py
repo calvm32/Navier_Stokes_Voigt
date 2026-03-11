@@ -86,9 +86,6 @@ def main(save_dir):
         mesh = Mesh(MESH_PATH)
         x, y = SpatialCoordinate(mesh)
 
-        blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
-        new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
-
         # ---------------------
         # Compute mesh spacing
         # ---------------------
@@ -128,6 +125,9 @@ def main(save_dir):
         # subdivisions per unit length
         N = int(L / h)
         N_list.append(N)
+
+        blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
+        new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
 
         CFL = 0.4
         dt = CFL * h
