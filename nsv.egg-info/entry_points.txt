@@ -1,3 +1,0 @@
-[console_scripts]
-nsvrun = scripts.nsvrun:main
-nsvsave = scripts.nsvsave:main
