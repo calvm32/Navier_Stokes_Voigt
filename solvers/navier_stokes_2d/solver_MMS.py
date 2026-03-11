@@ -58,6 +58,24 @@ def main(save_dir):
 
     vtkfile_name = "Soln"
 
+    # views = news for solver param debugging
+    if views == "Full":
+        solver_parameters.update({
+            'ksp_view': None, 
+            'pc_view': None,
+            'snes_view': None, 
+            'pc_fieldsplit_view': None,
+            'firedrake_ksp_view': None,
+            'firedrake_pc_view': None,
+            'firedrake_ksp_view': None,
+            'firedrake_pc_view': None,
+        })
+    elif views == "Some":
+        solver_parameters.update({
+            'ksp_monitor_true_residual': None, 
+            'snes_monitor': None,
+        })
+
     # -------------
     # Start solving
     # -------------
