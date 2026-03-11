@@ -53,7 +53,7 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/NS_MMS.yaml",
+                "settings": f"{TemplateResolver.BASE}/settings/NS_{cfg.elements.upper()}.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_MMS.yaml",
                 "solver_path": "solvers.navier_stokes_2d.solver_MMS",
@@ -64,7 +64,7 @@ class TemplateResolver:
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}/settings/NS_MMS.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/NS_{cfg.elements.upper()}.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_{cfg.elements.upper()}.yaml",
             "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_expr.yaml",
             "solver_path": "solvers.navier_stokes_2d.solver",
@@ -102,7 +102,7 @@ class SaveManager:
 
 def build_parser():
     parser = argparse.ArgumentParser(
-        description="Create a Navier–Stokes–Voigt save directory"
+        description="Create a save directory"
     )
 
     parser.add_argument(
@@ -120,7 +120,7 @@ def build_parser():
     parser.add_argument(
         "--mms",
         action="store_true",
-        help="Use manufactured solution setup"
+        help="Use method of manufactured solutions"
     )
 
     parser.add_argument(

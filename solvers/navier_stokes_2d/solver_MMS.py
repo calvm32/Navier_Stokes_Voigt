@@ -62,22 +62,14 @@ def main(save_dir):
     # Start solving
     # -------------
 
-    # Loop over mesh resolutions
-    N_list = []
-    for n in range(4, 9):
-        N = 2**n
-        N_list.append(N)
+    HERE = os.path.dirname(os.path.abspath(__file__))
 
     # calculate error as mesh size increases
     v_final_error_list = []
     p_final_error_list = []
+    N_list = []
 
-    for N in N_list:
-
-        dt = 1/(N) # CFL
-
-        blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
-        new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
+    for n in range (1,6):
 
         appctx = {
             "Re": Re, 
@@ -85,15 +77,64 @@ def main(save_dir):
             "velocity_space": 0
         }
 
+        # --------------
+        # Configure mesh
+        # --------------
+
+        MESH_PATH = os.path.join(HERE, "meshes/mms", "channel_bary{n}.msh")
+
+        mesh = Mesh(MESH_PATH)
+        x, y = SpatialCoordinate(mesh)
+
+        blue(f"\n*** Mesh size N = {N:0d} ***\n", spaced=True) # report mesh size
+        new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
+
+        # ---------------------
+        # Compute mesh spacing
+        # ---------------------
+
+        # get height H
+        y_coords = mesh.coordinates.dat.data[:, 1]
+
+        local_ymin = y_coords.min()
+        local_ymax = y_coords.max()
+
+        global_ymin = comm.allreduce(local_ymin, op=MPI.MIN)
+        global_ymax = comm.allreduce(local_ymax, op=MPI.MAX)
+
+        H = global_ymax - global_ymin
+
+        # get length L
+        x_coords = mesh.coordinates.dat.data[:, 0]
+
+        local_xmin = x_coords.min()
+        local_xmax = x_coords.max()
+
+        global_xmin = comm.allreduce(local_xmin, op=MPI.MIN)
+        global_xmax = comm.allreduce(local_xmax, op=MPI.MAX)
+
+        L = global_xmax - global_xmin
+
+        # approximate h
+        num_cells_local = mesh.num_cells()
+        num_cells = comm.allreduce(num_cells_local, op=MPI.SUM)
+
+        area_local = assemble(Constant(1.0) * dx)
+        area = comm.allreduce(area_local, op=MPI.SUM)
+
+        # characteristic element size
+        h = (2 * area / num_cells) ** 0.5
+
+        # subdivisions per unit length
+        N = int(L / h)
+        N_list.append(N)
+
+        CFL = 0.4
+        dt = CFL * h
+
         # ------------
         # Setup spaces
         # ------------
-
-        H = 1.0
-        L = 4.0
-
-        mesh = RectangleMesh(int(L*N), int(H*N), L, H)
-        x, y = SpatialCoordinate(mesh)
 
         dx = Measure("dx", domain=mesh)
         ds = Measure("ds", domain=mesh)
