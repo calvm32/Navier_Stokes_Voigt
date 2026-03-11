@@ -148,7 +148,7 @@ def main(save_dir):
         new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
 
         CFL = 0.4
-        dt = CFL * h
+        dt = 0.001 #CFL * h
 
         # -------------------
         # Configure functions
@@ -217,7 +217,7 @@ def main(save_dir):
                     make_weak_form=make_weak_form_CN, 
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
-                    appctx=appctx, vtkfile_name=vtkfile_name)
+                    appctx=appctx, vtkfile_name=new_vtkfile_name)
 
         elif solver == "BDF2":
             v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe = timestepper_BDF2(get_data, 
@@ -228,7 +228,7 @@ def main(save_dir):
                     make_weak_form_CN=make_weak_form_CN,
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
-                    appctx=appctx, vtkfile_name=vtkfile_name)
+                    appctx=appctx, vtkfile_name=new_vtkfile_name)
 
         v_final_error = 0
         for err in v_error_list:

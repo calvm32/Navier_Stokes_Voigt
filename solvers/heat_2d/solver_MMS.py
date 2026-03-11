@@ -137,7 +137,7 @@ def main(save_dir):
                 sample_length=L, sample_height=H,
                 make_weak_form=make_weak_form_CN,
                 solver_parameters=solver_parameters,
-                vtkfile_name=vtkfile_name)
+                vtkfile_name=new_vtkfile_name)
         elif solver == "BDF2":
             u_error_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
                 V, dx, ds, 
@@ -146,7 +146,7 @@ def main(save_dir):
                 make_weak_form_BDF2=make_weak_form_BDF2,
                 make_weak_form_CN=make_weak_form_CN,
                 solver_parameters=solver_parameters,
-                vtkfile_name=vtkfile_name)
+                vtkfile_name=new_vtkfile_name)
 
         final_error = 0
         for err in u_error_list:
