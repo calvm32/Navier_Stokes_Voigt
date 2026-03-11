@@ -81,7 +81,7 @@ def main(save_dir):
         # Configure mesh
         # --------------
 
-        MESH_PATH = os.path.join(HERE, "meshes/mms", "channel_bary{n}.msh")
+        MESH_PATH = os.path.join(HERE, f"meshes/mms/channel_bary{n}.msh")
 
         mesh = Mesh(MESH_PATH)
         x, y = SpatialCoordinate(mesh)
