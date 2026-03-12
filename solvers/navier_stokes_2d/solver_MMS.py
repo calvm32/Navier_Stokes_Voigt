@@ -123,9 +123,9 @@ def main(save_dir):
             W = FunctionSpace(mesh, "CG", 1)
             Z = V * W
 
-        # ---------------------
+        # --------------------
         # Compute mesh spacing
-        # ---------------------
+        # --------------------
 
         # get height H
         y_coords = mesh.coordinates.dat.data[:, 1]
@@ -153,8 +153,7 @@ def main(save_dir):
         num_cells_local = mesh.num_cells()
         num_cells = comm.allreduce(num_cells_local, op=MPI.SUM)
 
-        area_local = assemble(Constant(1.0) * dx)
-        area = comm.allreduce(area_local, op=MPI.SUM)
+        area = assemble(Constant(1.0) * dx)
 
         # characteristic element size
         h = (2 * area / num_cells) ** 0.5
