@@ -13,4 +13,4 @@ ufl_p0: "scale*(P*x + G)"
 ufl_f: "as_vector([0.0,0.0])"
 
 # boundary term
-ufl_g: "as_vector([(L-x)*G/L - x*(P*L-G)/L, 0.0])"
+ufl_g: "scale*as_vector([(L-x)*G/L - x*(P*L+G)/L, 0.0])"
