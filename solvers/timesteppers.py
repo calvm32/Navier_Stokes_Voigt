@@ -179,8 +179,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     # Perform timestepping
     # --------------------
 
-    iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
-    text(f"*** Beginning solve with step size {dt} ***", spaced=True)
+    iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy:.16f}", i=0, spaced=True)
+    text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
 
     while t < T:
 
@@ -477,7 +477,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         visfile.write(u, time=t)
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
-    text(f"*** Beginning solve with step size {dt} ***", spaced=True)
+    text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
 
     # --------------------
     # Perform timestepping
