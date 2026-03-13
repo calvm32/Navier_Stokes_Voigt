@@ -114,9 +114,9 @@ def main(save_dir):
         # ------------------
 
         # time dependant
-        def get_data(t):
+        def get_data(t_curr):
 
-            t.assign(t)
+            t.assign(t_curr)
 
             return {
                 "ufl_u0": ufl_cfg["ufl_u0"],

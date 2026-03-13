@@ -209,9 +209,9 @@ def main(save_dir):
         # Allocate functions
         # ------------------
 
-        def get_data(t):
+        def get_data(t_curr):
             
-            t.assign(t)
+            t.assign(t_curr)
 
             return {
                 "ufl_v0": ufl_cfg["ufl_v0"],
