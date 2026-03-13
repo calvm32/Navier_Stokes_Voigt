@@ -91,7 +91,6 @@ def main(save_dir):
     N_list = []
     for n in range(4, 9):
         N = 2**n
-        N_list.append(N)
 
         # Build appctx
         appctx = {
@@ -176,7 +175,7 @@ def main(save_dir):
         # -------------------
 
         # initialize t for later
-        t = t0
+        t = Constant(t0)
 
         namespace = {
             "as_vector": as_vector,
@@ -212,9 +211,7 @@ def main(save_dir):
 
         def get_data(t):
             
-            namespace.update({
-                "t": t,
-            })
+            t.assign(t)
 
             return {
                 "ufl_v0": ufl_cfg["ufl_v0"],

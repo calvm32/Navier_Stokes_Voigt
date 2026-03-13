@@ -92,8 +92,8 @@ def main(save_dir):
         # Configure functions
         # -------------------
 
-         # initialize t for later
-        t = t0
+        # initialize t for later
+        t = Constant(t0)
 
         namespace = {
             "as_vector": as_vector,
@@ -116,9 +116,7 @@ def main(save_dir):
         # time dependant
         def get_data(t):
 
-            namespace.update({
-                "t": t,
-            })
+            t.assign(t)
 
             return {
                 "ufl_u0": ufl_cfg["ufl_u0"],

@@ -11,6 +11,6 @@ solver: "BDF2"      # valid:  "BDF2" (Backward Differentiation) or
                     #         "CN" (Crank-Nicolson)
 elements: "SV"      # valid:  "SV" (Scott Vogelius - requires barycentric refinement) or 
                     #         "TH" (Taylor Hood)
-views: "None"       # valid:  "Full" for debugging by viewing ALL solver parameters, 
+views: "Some"       # valid:  "Full" for debugging by viewing ALL solver parameters, 
                     #         "Some" for debugging by monitoring subprocesses like KSP, 
                     #         "None" for no debugging
