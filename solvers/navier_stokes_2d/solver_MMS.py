@@ -88,6 +88,8 @@ def main(save_dir):
 
     # Loop over mesh resolutions
     N_list = []
+    cpu_times = []
+
     for n in range(1, 6):
         N = 2**(1+3)
 
@@ -232,7 +234,7 @@ def main(save_dir):
         # ----------
 
         if solver == "CN":
-            v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe = timestepper_CN(get_data, 
+            v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time = timestepper_CN(get_data, 
                     Z, dx, ds, 
                     t0, T, dt,
                     sample_length=L, sample_height=H,
@@ -242,7 +244,7 @@ def main(save_dir):
                     appctx=appctx, vtkfile_name=new_vtkfile_name)
 
         elif solver == "BDF2":
-            v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe = timestepper_BDF2(get_data, 
+            v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time = timestepper_BDF2(get_data, 
                     Z, dx, ds, 
                     t0, T, dt, 
                     sample_length=L, sample_height=H,
@@ -251,6 +253,8 @@ def main(save_dir):
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
                     appctx=appctx, vtkfile_name=new_vtkfile_name)
+
+        cpu_times.append(cpu_time)
 
         v_final_error = 0
         for err in v_error_list:
