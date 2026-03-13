@@ -1,5 +1,6 @@
 from firedrake import *
 from mpi4py import MPI
+import time
 
 from .create_timestep_solvers import *
 from .processing.printoff import iter_info_verbose, text, green
