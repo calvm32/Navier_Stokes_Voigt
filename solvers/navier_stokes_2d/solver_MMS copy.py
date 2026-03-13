@@ -87,11 +87,7 @@ def main(save_dir):
     p_final_error_list = []
     N_list = []
 
-    # Loop over mesh resolutions
-    N_list = []
-    for n in range(4, 9):
-        N = 2**n
-        N_list.append(N)
+    for n in range (1,6):
 
         # Build appctx
         appctx = {
@@ -104,10 +100,10 @@ def main(save_dir):
         # Configure mesh
         # --------------
 
-        H = 1.0
-        L = 4.0
+        MESH_PATH = os.path.join(HERE, f"meshes/mms/channel_bary{n}.msh")
+        #MESH_PATH = os.path.join(HERE, f"meshes/step1.msh")
 
-        mesh = RectangleMesh(int(L*N), int(H*N), L, H)
+        mesh = Mesh(MESH_PATH)
         x, y = SpatialCoordinate(mesh)
 
         # ------------
