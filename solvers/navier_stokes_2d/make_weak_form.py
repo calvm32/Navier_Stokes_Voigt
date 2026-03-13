@@ -20,8 +20,8 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma=
     """
 
     # Extrapolated forcing
-    f_bdf2 = 2.0*f - f_old
-    g_bdf2 = 2.0*g - g_old
+    f_bdf2 = 2.0*f.sub(0) - f_old.sub(0)
+    g_bdf2 = 2.0*g.sub(0) - g_old.sub(0)
 
     # Old velocities
     u_old,  _ = split(U_old)
@@ -89,8 +89,8 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma=0.0,
     """
 
     # Midpoints
-    f_mid = theta*f + (1.0 - theta)*f_old
-    g_mid = theta*g + (1.0 - theta)*g_old
+    f_mid = theta*f.sub(0) + (1.0 - theta)*f_old.sub(0)
+    g_mid = theta*g.sub(0) + (1.0 - theta)*g_old.sub(0)
 
     u_old = U_old.sub(0)
     p_old = U_old.sub(1)
