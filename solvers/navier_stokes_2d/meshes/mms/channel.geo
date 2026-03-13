@@ -9,7 +9,7 @@
 L = 40.0;   // length
 H = 10.0;   // height
 
-lc = 1.0;	// mesh size
+lc = 2.0;	// mesh size
 
 // ------------------
 // Points (CCW order)
