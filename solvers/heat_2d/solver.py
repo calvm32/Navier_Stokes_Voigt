@@ -116,7 +116,7 @@ def main(save_dir):
     # ----------
 
     if solver == "CN":
-        u_error_list, energy_list, all_time_list = timestepper_CN(get_data, 
+        u_error_list, energy_list, all_time_list, cpu_time = timestepper_CN(get_data, 
             V, dx, ds, 
             t0, T, dt, theta=theta,
             sample_length=L, sample_height=H,
@@ -124,7 +124,7 @@ def main(save_dir):
             solver_parameters=solver_parameters,
             vtkfile_name=vtkfile_name)
     elif solver == "BDF2":
-        u_error_list, energy_list, all_time_list = timestepper_BDF2(get_data, 
+        u_error_list, energy_list, all_time_list, cpu_time = timestepper_BDF2(get_data, 
             V, dx, ds, 
             t0, T, dt,
             sample_length=L, sample_height=H,

@@ -181,6 +181,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy:.16f}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
+    start = time.process_time()
 
     while t < T:
 
@@ -268,6 +269,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     # finish computing stats
     # ----------------------
 
+    end = time.process_time()
     velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
     r_vals, S2 = struct_func.compute()
 
@@ -276,17 +278,17 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     # ----------------------------------
 
     # report completed
-    # print(f"\n")
-    green(f"Completed", spaced=True)
+    cpu_time = (end - start) / 60
+    green(f"\nCompleted after {cpu_time} minutes", spaced=True)
 
     # Return everything
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
-        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe)
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time)
 
     else:
-        return(u_error_list, energy_list, all_time_list)
+        return(u_error_list, energy_list, all_time_list, cpu_time)
 
 
 # ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
@@ -328,6 +330,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     every_time_list = []
     all_time_list = []
     energy_spec_probe = []
+    cpu_time = 0
 
     if is_mixed:
         v_error_list = []
@@ -478,6 +481,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
+    start = time.process_time()
 
     # --------------------
     # Perform timestepping
@@ -573,6 +577,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # finish computing stats
     # ----------------------
 
+    end = time.process_time()
     velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
     r_vals, S2 = struct_func.compute()
 
@@ -581,14 +586,14 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # ----------------------------------
 
     # report completed
-    # print(f"\n")
-    green(f"Completed", spaced=True)
+    cpu_time = (end - start) / 60
+    green(f"\nCompleted after {cpu_time} minutes", spaced=True)
 
     # Return everything
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
-        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe)
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time)
 
     else:
-        return(u_error_list, energy_list, all_time_list)
+        return(u_error_list, energy_list, all_time_list, cpu_time)

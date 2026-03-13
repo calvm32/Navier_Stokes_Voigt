@@ -85,12 +85,11 @@ def main(save_dir):
     # calculate error as mesh size increases
     v_final_error_list = []
     p_final_error_list = []
-    N_list = []
 
     # Loop over mesh resolutions
     N_list = []
-    for n in range(4, 9):
-        N = 2**n
+    for n in range(1, 6):
+        N = 2**(1+3)
 
         # Build appctx
         appctx = {
@@ -106,7 +105,12 @@ def main(save_dir):
         H = 1.0
         L = 4.0
 
-        mesh = RectangleMesh(int(L*N), int(H*N), L, H)
+        if elements == "SV":
+            MESH_PATH = os.path.join(HERE, f"meshes/mms/channel_bary{n}.msh")
+            mesh = Mesh(MESH_PATH)
+        elif elements == "TH":
+            mesh = RectangleMesh(int(L*N), int(H*N), L, H)
+
         x, y = SpatialCoordinate(mesh)
 
         # ------------
