@@ -499,8 +499,11 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         u_older.assign(u_old)
         u_old.assign(u)
 
-        print(f"L2 norm of grad of v: {sqrt(assemble(inner(grad(u.sub(0)), grad(u.sub(0))) * dx))}")
-
+        print(
+            "L2 norm of div(u):",
+            sqrt(assemble(div(u.sub(0))**2 * dx))
+        )
+        
         # count steps to print
         step += 1
 
