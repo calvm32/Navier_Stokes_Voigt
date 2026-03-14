@@ -499,6 +499,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         u_older.assign(u_old)
         u_old.assign(u)
 
+        print(f"grad of v: {grad(u.sub(0))}")
+
         # count steps to print
         step += 1
 

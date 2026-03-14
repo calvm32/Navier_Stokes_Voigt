@@ -61,7 +61,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma=
         # ------
         L = (
             # BDF2 history
-            0.5 * idt * inner(4.0 * u_old - u_older, v) * dx
+            0.5 * idt * inner(4.0*u_old - u_older, v) * dx
 
             # Forcing
             + inner(f_bdf2, v) * dx
