@@ -235,8 +235,11 @@ def main(save_dir):
         # Plot divergence
         # ---------------
 
-        plot_data["divergence"] = (all_time_list, div_list)
-        plt.semilogy(all_time_list, div_list, "-o")
+        # pop first values 
+        all_time_list_del = all_time_list[1:]
+
+        plot_data["divergence"] = (all_time_list_del, div_list)
+        plt.semilogy(all_time_list_del, div_list, "-o")
         plt.xlabel("time")
         plt.ylabel("L2 of divergence")
         plt.title('Divergence vs. Time')
@@ -292,7 +295,6 @@ def main(save_dir):
         # -----------
 
         # pop first values 
-        all_time_list_del = all_time_list[1:]
         energy_list_del = energy_list[1:]
 
         plot_data["energy"] = (all_time_list, energy_list)
