@@ -34,6 +34,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     every_time_list = []
     all_time_list = []
     energy_spec_probe = []
+    div_list = []
+    cpu_time = 0
 
     if is_mixed:
         v_error_list = []
@@ -191,6 +193,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
         t += dt
         u_old.assign(u)
 
+        div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
+
         # count steps to print
         step += 1
 
@@ -286,10 +290,10 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
-        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time)
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time, div_list)
 
     else:
-        return(u_error_list, energy_list, all_time_list, cpu_time)
+        return(u_error_list, energy_list, all_time_list, cpu_time, div_list)
 
 
 # ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
@@ -331,6 +335,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     every_time_list = []
     all_time_list = []
     energy_spec_probe = []
+    div_list = []
     cpu_time = 0
 
     if is_mixed:
@@ -499,11 +504,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         u_older.assign(u_old)
         u_old.assign(u)
 
-        print(
-            "L2 norm of div(u):",
-            sqrt(assemble(div(u.sub(0))**2 * dx))
-        )
-        
+        div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
+
         # count steps to print
         step += 1
 
@@ -599,7 +601,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     if is_mixed:
         return(v_error_list, p_error_list, palinstrophy_list, stream_func_list, 
         enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals,
-        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time)
+        velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time, div_list)
 
     else:
-        return(u_error_list, energy_list, all_time_list, cpu_time)
+        return(u_error_list, energy_list, all_time_list, cpu_time, div_list)

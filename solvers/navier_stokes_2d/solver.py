@@ -203,7 +203,7 @@ def main(save_dir):
     # ----------
 
     if solver == "CN":
-        v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time = timestepper_CN(get_data, 
+        v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time, div_list = timestepper_CN(get_data, 
                 Z, dx, ds, 
                 t0, T, dt,
                 sample_length=L, sample_height=H,
@@ -213,7 +213,7 @@ def main(save_dir):
                 appctx=appctx, vtkfile_name=vtkfile_name)
 
     elif solver == "BDF2":
-        v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time = timestepper_BDF2(get_data, 
+        v_error_list, p_error_list, palinstrophy_list, stream_func_list, enstrophy_list, every_time_list, energy_list, all_time_list, velocity_x_vals, velocity_y_vals, omega_vals, r_vals, S2, energy_spec_probe, cpu_time, div_list = timestepper_BDF2(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
                 sample_length=L, sample_height=H,
@@ -231,6 +231,20 @@ def main(save_dir):
 
     if rank == 0:
 
+        # ---------------
+        # Plot divergence
+        # ---------------
+
+        plot_data["divergence"] = (every_time_list, div_list)
+        plt.semilogy(every_time_list, div_list, "-o")
+        plt.xlabel("time")
+        plt.ylabel("L2 of divergence")
+        plt.title('Divergence vs. Time')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig(plot_path / "div_plot.png", dpi=200, bbox_inches='tight')
+        plt.close()
+
         # -----------------
         # Plot palinstrophy
         # -----------------
@@ -239,7 +253,7 @@ def main(save_dir):
         plt.semilogy(every_time_list, palinstrophy_list, "-o")
         plt.xlabel("time")
         plt.ylabel("palinstrophy")
-        plt.title('Palinstrophy')
+        plt.title('Palinstrophy vs. Time')
         plt.grid(True)
         plt.tight_layout()
         plt.savefig(plot_path / "palinstrophy_plot.png", dpi=200, bbox_inches='tight')
@@ -253,7 +267,7 @@ def main(save_dir):
         plt.semilogy(every_time_list, stream_func_list, "-o")
         plt.xlabel("time")
         plt.ylabel("stream function")
-        plt.title('Stream Function')
+        plt.title('Stream Function vs. Time')
         plt.grid(True)
         plt.tight_layout()
         plt.savefig(plot_path / "stream_func_plot.png", dpi=200, bbox_inches='tight')
@@ -267,7 +281,7 @@ def main(save_dir):
         plt.semilogy(every_time_list, enstrophy_list, "-o")
         plt.xlabel("time")
         plt.ylabel("enstrophy")
-        plt.title('Enstrophy')
+        plt.title('Enstrophy vs. Time')
         plt.grid(True)
         plt.tight_layout()
         plt.savefig(plot_path / "enstrophy_plot.png", dpi=200, bbox_inches='tight')
@@ -285,7 +299,7 @@ def main(save_dir):
         plt.semilogy(all_time_list_del, energy_list_del, "-o")
         plt.xlabel("time")
         plt.ylabel("energy")
-        plt.title('Total Kinetic Energy')
+        plt.title('Total Kinetic Energy vs. Time')
         plt.grid(True)
         plt.tight_layout()
         plt.savefig(plot_path / "energy_plot.png", dpi=200, bbox_inches='tight')
