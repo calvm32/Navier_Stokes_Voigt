@@ -235,7 +235,7 @@ def main(save_dir):
         # Plot divergence
         # ---------------
 
-        plot_data["divergence"] = (every_time_list, div_list)
+        plot_data["divergence"] = (all_time_list, div_list)
         plt.semilogy(every_time_list, div_list, "-o")
         plt.xlabel("time")
         plt.ylabel("L2 of divergence")
