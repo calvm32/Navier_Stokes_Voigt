@@ -43,9 +43,9 @@ def main(save_dir):
     gamma_list = []
     cpu_times = []
 
-    for gamma in range(50):
+    for gamma in range(5):
 
-        gamma_list.append(gamma)
+        gamma_list.append(3*gamma)
 
         comm = MPI.COMM_WORLD
         rank = comm.Get_rank()
