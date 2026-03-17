@@ -232,7 +232,7 @@ def main(save_dir):
                     solver_parameters=solver_parameters,
                     appctx=appctx, vtkfile_name=vtkfile_name)
 
-        endstart = time.process_time()
+        end = time.process_time()
         cpu_time = (end - start) / 60
         cpu_times.append(cpu_time)
 
