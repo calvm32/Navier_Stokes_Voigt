@@ -93,7 +93,7 @@ def main(save_dir):
     # --------------
 
     HERE = os.path.dirname(os.path.abspath(__file__))
-    MESH_PATH = os.path.join(HERE, "meshes/mms", "channel_bary2.msh")
+    MESH_PATH = os.path.join(HERE, "meshes/mms", "channel_bary1.msh")
 
     # print(f"[solver.py] Loading mesh from: {MESH_PATH}")
 
@@ -295,7 +295,8 @@ def main(save_dir):
         # -----------
 
         # pop first values 
-        energy_list_del = energy_list[1:]
+        all_time_list_del = all_time_list[10:]
+        energy_list_del = energy_list[10:]
 
         plot_data["energy"] = (all_time_list, energy_list)
         plt.semilogy(all_time_list_del, energy_list_del, "-o")
