@@ -467,6 +467,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     all_time_list.append(t0)
     energy_list.append(energy)
+    div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
 
     # initialize VTK
     visfile = VTKFile(f"vis/{vtkfile_name}.pvd", comm=Z.mesh().comm)
