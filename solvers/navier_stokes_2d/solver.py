@@ -235,11 +235,8 @@ def main(save_dir):
         # Plot divergence
         # ---------------
 
-        # pop first values 
-        all_time_list_del = all_time_list[1:]
-
-        plot_data["divergence"] = (all_time_list_del, div_list)
-        plt.semilogy(all_time_list_del, div_list, "-o")
+        plot_data["divergence"] = (all_time_list, div_list)
+        plt.semilogy(all_time_list, div_list, "-o")
         plt.xlabel("time")
         plt.ylabel("L2 of divergence")
         plt.title('Divergence vs. Time')
@@ -441,6 +438,11 @@ def main(save_dir):
                 writer.writerow([])
 
         #print("[solver.py] All plot data saved to 'all_plot_data.csv'")
+
+
+    # gamma_list = [0, 0.1, 1.0, 10.0, 100.0]
+    # original gamma_times = [4.5036, 4.5477, 4.5370, 4.5119, 4.5255]
+    # original gamma_times = [, 8.0605, 8.1203, , ]
 
 if __name__ == "__main__":
     import sys
