@@ -253,7 +253,7 @@ def main(save_dir):
         # Plot divergence
         # ---------------
 
-        plt.semilogy(gamma_list, cpu_time_list, "-o")
+        plt.semilogy(gamma_list, cpu_times, "-o")
         plt.xlabel("gamma")
         plt.ylabel("CPU time to simulate")
         plt.title('Gamma vs. CPU Time')
