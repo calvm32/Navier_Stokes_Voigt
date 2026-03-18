@@ -83,13 +83,10 @@ def main(save_dir):
 
     blue(f"\n*** Starting solve ***", spaced=True)
 
-    # Load the mesh
     mesh = Mesh(MESH_PATH)
-    
-    # Perturb mesh
     h = perturb_mesh(mesh, eps)
 
-    # Compute quality metrics
+    # measure changes
     mean_dist, max_dist = mesh_distortion(mesh)
     mean_ar, max_ar = mesh_aspect_ratio(mesh)
 
@@ -143,8 +140,8 @@ def main(save_dir):
 
     if rank == 0:
         print("\n--- Degrees of Freedom ---")
-        print(f"// V Total DoFs: {V.dof_dset.size}")
-        print(f"// W Total DoFs: {W.dof_dset.size}\n")
+        print(f"// V Total DoFs: {V.vector().size()}")
+        print(f"// W Total DoFs: {W.vector().size()}\n")
 
     # -------------------
     # Configure functions
