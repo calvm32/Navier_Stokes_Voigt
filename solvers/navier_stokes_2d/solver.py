@@ -344,7 +344,6 @@ def main(save_dir):
         # --------------------
 
         # based on Taylor's frozen flow hypothesis (at point, vary times)
-
         probe_values = np.array(energy_spec_probe)
         time_values = np.array(every_time_list)
 
