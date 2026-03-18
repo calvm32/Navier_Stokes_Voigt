@@ -85,8 +85,13 @@ def main(save_dir):
 
     # Load the mesh
     mesh = Mesh(MESH_PATH)
-    h = perturb_mesh(mesh, eps, comm)
-    distortion = barycentric_distortion(mesh, comm)
+    bary_nodes, h = perturb_bary(mesh, eps, comm)
+    bary_error = bary_error(mesh, bary_nodes, comm)
+
+    if rank == 0:
+        print(f"eps = {eps}")
+        print(f"barycentric error = {bary_error}")
+        print(f"normalized error = {bary_error / h}")
 
     x, y = SpatialCoordinate(mesh)
     dx = Measure("dx", domain=mesh)
@@ -417,8 +422,6 @@ def main(save_dir):
                         writer.writerow([v])
 
                 writer.writerow([])
-
-        print(f"[solver.py] Distortion is {distortion}")
 
 if __name__ == "__main__":
     import sys

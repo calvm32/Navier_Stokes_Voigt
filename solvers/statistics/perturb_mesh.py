@@ -5,50 +5,78 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-def perturb_mesh(mesh, eps, comm):
-    coords = mesh.coordinates.dat.data
+def find_bary_nodes(mesh, tol=1e-10):
+    coords = mesh.coordinates.dat.data_with_halos
+    cell_node_map = mesh.coordinates.cell_node_map().values
 
-    # global mesh size
-    local_min = coords.min(axis=0)
-    local_max = coords.max(axis=0)
+    bary_nodes = set()
 
-    global_min = comm.allreduce(local_min, op=MPI.MIN)
-    global_max = comm.allreduce(local_max, op=MPI.MAX)
+    for cell in cell_node_map:
+        verts = coords[cell]
 
-    h = np.linalg.norm(global_max - global_min)
+        centroid = np.mean(verts, axis=0)
 
-    # Generate random perturbation
-    np.random.seed(0)
-    perturb = np.random.randn(*coords.shape)
+        # find node closest to centroid
+        dists = np.linalg.norm(verts - centroid, axis=1)
+        idx = np.argmin(dists)
 
-    # normalize perturbations
-    norms = np.linalg.norm(perturb, axis=1)
-    norms[norms == 0] = 1.0
-    perturb = perturb / norms[:, None]
+        if dists[idx] < tol:
+            bary_nodes.add(cell[idx])
 
-    coords[:] += eps * h * perturb # max displacement = eps * h
+    return np.array(list(bary_nodes), dtype=int)
 
-    return h
+def perturb_bary(mesh, eps, comm):
+    coords = mesh.coordinates.dat.data_with_halos
 
-def barycentric_distortion(mesh, comm):
-    coords = mesh.coordinates.dat.data
+    bary_nodes = find_bary_nodes(mesh)
+
+    # compute global length scale h
+    local_xmin = coords[:, 0].min()
+    local_ymin = coords[:, 1].min()
+    local_xmax = coords[:, 0].max()
+    local_ymax = coords[:, 1].max()
+
+    global_xmin = comm.allreduce(local_xmin, op=MPI.MIN)
+    global_ymin = comm.allreduce(local_ymin, op=MPI.MIN)
+    global_xmax = comm.allreduce(local_xmax, op=MPI.MAX)
+    global_ymax = comm.allreduce(local_ymax, op=MPI.MAX)
+
+    h = np.sqrt((global_xmax - global_xmin)**2 +
+                (global_ymax - global_ymin)**2)
+
+    # perturb only barycentric nodes
+    for i in bary_nodes:
+        x, y = coords[i]
+
+        dx = np.sin(10 * y)
+        dy = np.cos(10 * x)
+
+        norm = np.sqrt(dx**2 + dy**2)
+        if norm == 0:
+            continue
+
+        dx /= norm
+        dy /= norm
+
+        coords[i, 0] += eps * h * dx
+        coords[i, 1] += eps * h * dy
+
+    return bary_nodes, h
+
+def bary_error(mesh, bary_nodes, comm):
+    coords = mesh.coordinates.dat.data_with_halos
     cell_node_map = mesh.coordinates.cell_node_map().values
 
     local_max = 0.0
 
     for cell in cell_node_map:
         verts = coords[cell]
-
-        # centroid
         centroid = np.mean(verts, axis=0)
 
-        # measure distance from centroid
-        dists = np.linalg.norm(verts - centroid, axis=1)
-
-        # normalized variation
-        if np.max(dists) > 0:
-            val = (np.max(dists) - np.min(dists)) / np.max(dists)
-            local_max = max(local_max, val)
+        for node in cell:
+            if node in bary_nodes:
+                dist = np.linalg.norm(coords[node] - centroid)
+                local_max = max(local_max, dist)
 
     global_max = comm.allreduce(local_max, op=MPI.MAX)
     return global_max
