@@ -103,7 +103,7 @@ def main(save_dir):
 
         print("\n--- Aspect Ratio ---")
         print(f"mean AR = {mean_ar:.6e}")
-    print(f"max AR  = {max_ar:.6e}")
+        print(f"max AR  = {max_ar:.6e}")
 
     x, y = SpatialCoordinate(mesh)
     dx = Measure("dx", domain=mesh)
