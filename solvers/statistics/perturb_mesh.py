@@ -1,36 +1,13 @@
 import numpy as np
-from firedrake import COMM_WORLD
-
 from mpi4py import MPI
+
 comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
 
-def find_bary_nodes(mesh, tol=1e-10):
-    coords = mesh.coordinates.dat.data_with_halos
-    cell_node_map = mesh.coordinates.cell_node_map().values
+# ------------------------
+# Global mesh length scale
+# ------------------------
 
-    bary_nodes = set()
-
-    for cell in cell_node_map:
-        verts = coords[cell]
-
-        centroid = np.mean(verts, axis=0)
-
-        # find node closest to centroid
-        dists = np.linalg.norm(verts - centroid, axis=1)
-        idx = np.argmin(dists)
-
-        if dists[idx] < tol:
-            bary_nodes.add(cell[idx])
-
-    return np.array(list(bary_nodes), dtype=int)
-
-def perturb_bary(mesh, eps, comm):
-    coords = mesh.coordinates.dat.data_with_halos
-
-    bary_nodes = find_bary_nodes(mesh)
-
-    # compute global length scale h
+def compute_global_h(coords):
     local_xmin = coords[:, 0].min()
     local_ymin = coords[:, 1].min()
     local_xmax = coords[:, 0].max()
@@ -44,39 +21,122 @@ def perturb_bary(mesh, eps, comm):
     h = np.sqrt((global_xmax - global_xmin)**2 +
                 (global_ymax - global_ymin)**2)
 
-    # perturb only barycentric nodes
-    for i in bary_nodes:
-        x, y = coords[i]
+    return h
 
-        dx = np.sin(10 * y)
-        dy = np.cos(10 * x)
+# ------------------------
+# Deterministic perturbation
+# ------------------------
 
-        norm = np.sqrt(dx**2 + dy**2)
-        if norm == 0:
-            continue
+def deterministic_perturbation(coords, eps, h):
+    perturb = np.zeros_like(coords)
 
-        dx /= norm
-        dy /= norm
+    perturb[:, 0] = np.sin(10 * coords[:, 1])
+    perturb[:, 1] = np.cos(10 * coords[:, 0])
 
-        coords[i, 0] += eps * h * dx
-        coords[i, 1] += eps * h * dy
+    norms = np.linalg.norm(perturb, axis=1)
+    norms[norms == 0] = 1.0
 
-    return bary_nodes, h
+    perturb = perturb / norms[:, None]
 
-def perturb_error(mesh, bary_nodes, comm):
-    coords = mesh.coordinates.dat.data_with_halos
+    return eps * h * perturb
+
+
+def perturb_mesh(mesh, eps):
+    coords = mesh.coordinates.dat.data
+    h = compute_global_h(coords)
+
+    coords[:] += deterministic_perturbation(coords, eps, h)
+
+    return h
+
+# ------------------------
+# Distortion metric
+# ------------------------
+
+def triangle_distortion(verts):
+    centroid = np.mean(verts, axis=0)
+    dists = np.linalg.norm(verts - centroid, axis=1)
+
+    if np.mean(dists) == 0:
+        return 0.0
+
+    return np.std(dists) / np.mean(dists)
+
+
+def mesh_distortion(mesh):
+    coords = mesh.coordinates.dat.data
     cell_node_map = mesh.coordinates.cell_node_map().values
 
+    local_sum = 0.0
     local_max = 0.0
+    local_count = 0
 
     for cell in cell_node_map:
         verts = coords[cell]
-        centroid = np.mean(verts, axis=0)
 
-        for node in cell:
-            if node in bary_nodes:
-                dist = np.linalg.norm(coords[node] - centroid)
-                local_max = max(local_max, dist)
+        val = triangle_distortion(verts)
+
+        local_sum += val
+        local_max = max(local_max, val)
+        local_count += 1
+
+    global_sum = comm.allreduce(local_sum, op=MPI.SUM)
+    global_max = comm.allreduce(local_max, op=MPI.MAX)
+    global_count = comm.allreduce(local_count, op=MPI.SUM)
+
+    mean_dist = global_sum / global_count
+
+    return mean_dist, global_max
+
+# ------------------------
+# Aspect ratio (FEM critical)
+# ------------------------
+
+def triangle_aspect_ratio(verts):
+    a = np.linalg.norm(verts[1] - verts[0])
+    b = np.linalg.norm(verts[2] - verts[1])
+    c = np.linalg.norm(verts[0] - verts[2])
+
+    longest = max(a, b, c)
+
+    # Heron's formula for area
+    s = 0.5 * (a + b + c)
+    area = max(s * (s - a) * (s - b) * (s - c), 0.0)
+    area = np.sqrt(area)
+
+    if area == 0:
+        return np.inf
+
+    # altitude ~ 2A / base
+    min_altitude = 2 * area / longest
+
+    if min_altitude == 0:
+        return np.inf
+
+    return longest / min_altitude
+
+
+def mesh_aspect_ratio(mesh):
+    coords = mesh.coordinates.dat.data
+    cell_node_map = mesh.coordinates.cell_node_map().values
+
+    local_max = 0.0
+    local_sum = 0.0
+    local_count = 0
+
+    for cell in cell_node_map:
+        verts = coords[cell]
+
+        val = triangle_aspect_ratio(verts)
+
+        local_max = max(local_max, val)
+        local_sum += val
+        local_count += 1
 
     global_max = comm.allreduce(local_max, op=MPI.MAX)
-    return global_max
+    global_sum = comm.allreduce(local_sum, op=MPI.SUM)
+    global_count = comm.allreduce(local_count, op=MPI.SUM)
+
+    mean_ar = global_sum / global_count
+
+    return mean_ar, global_max

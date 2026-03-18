@@ -85,13 +85,25 @@ def main(save_dir):
 
     # Load the mesh
     mesh = Mesh(MESH_PATH)
-    bary_nodes, h = perturb_bary(mesh, eps, comm)
-    bary_error = perturb_error(mesh, bary_nodes, comm)
+    
+    # Perturb mesh
+    h = perturb_mesh(mesh, eps)
+
+    # Compute quality metrics
+    mean_dist, max_dist = mesh_distortion(mesh)
+    mean_ar, max_ar = mesh_aspect_ratio(mesh)
 
     if rank == 0:
-        print(f"eps = {eps}")
-        print(f"barycentric error = {bary_error}")
-        print(f"normalized error = {bary_error / h}")
+        print(f"\neps = {eps}")
+        print(f"h = {h:.6e}")
+
+        print("\n--- Distortion ---")
+        print(f"mean distortion = {mean_dist:.6e}")
+        print(f"max distortion  = {max_dist:.6e}")
+
+        print("\n--- Aspect Ratio ---")
+        print(f"mean AR = {mean_ar:.6e}")
+    print(f"max AR  = {max_ar:.6e}")
 
     x, y = SpatialCoordinate(mesh)
     dx = Measure("dx", domain=mesh)
