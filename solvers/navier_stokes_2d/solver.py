@@ -43,7 +43,7 @@ def main(save_dir):
     gamma_list = []
     cpu_times = []
 
-    for gamma in range(5):
+    for gamma in range(30):
 
         gamma_list.append(3*gamma)
 
