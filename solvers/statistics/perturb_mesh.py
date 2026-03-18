@@ -1,6 +1,5 @@
 import numpy as np
 from firedrake import COMM_WORLD
-from firedrake import cells
 
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
