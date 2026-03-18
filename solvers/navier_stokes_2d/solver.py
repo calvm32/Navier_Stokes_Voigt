@@ -141,14 +141,10 @@ def main(save_dir):
         W = FunctionSpace(mesh, "CG", 1)
         Z = V * W
 
-    local_VDOF = V.dof_count
-    local_WDOF = W.dof_count
-
-    global_VDOF = comm.allreduce(local_VDOF, op=MPI.MIN)
-    global_WDOF = comm.allreduce(local_WDOF, op=MPI.MAX)
-
-    print(f"// V Total DoFs: {global_VDOF}")
-    print(f"// W Total DoFs: {global_WDOF}")
+    if rank == 0:
+        print("\n--- Degrees of Freedom ---")
+        print(f"// V Total DoFs: {V.dof_dset.size}")
+        print(f"// W Total DoFs: {W.dof_dset.size}\n")
 
     # -------------------
     # Configure functions

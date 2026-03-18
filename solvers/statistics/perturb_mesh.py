@@ -3,9 +3,9 @@ from mpi4py import MPI
 
 comm = MPI.COMM_WORLD
 
-# ------------------------
-# Global mesh length scale
-# ------------------------
+# -------------
+# length scales
+# -------------
 
 def compute_global_h(coords):
     local_xmin = coords[:, 0].min()
@@ -23,22 +23,41 @@ def compute_global_h(coords):
 
     return h
 
-# ------------------------
+def compute_local_h(mesh):
+    coords = mesh.coordinates.dat.data_with_halos
+    cell_node_map = mesh.coordinates.cell_node_map().values
+
+    edge_lengths = []
+
+    for cell in cell_node_map:
+        verts = coords[cell]
+        a = np.linalg.norm(verts[1] - verts[0])
+        b = np.linalg.norm(verts[2] - verts[1])
+        c = np.linalg.norm(verts[0] - verts[2])
+        edge_lengths.extend([a, b, c])
+
+    local_mean_h = np.mean(edge_lengths)
+    global_mean_h = comm.allreduce(local_mean_h, op=MPI.SUM) / comm.allreduce(1, op=MPI.SUM)
+
+    return global_mean_h
+
+# --------------------------
 # Deterministic perturbation
-# ------------------------
+# --------------------------
+
+    return eps * h * perturb
 
 def deterministic_perturbation(coords, eps, h):
     perturb = np.zeros_like(coords)
 
-    perturb[:, 0] = np.sin(10 * coords[:, 1])
-    perturb[:, 1] = np.cos(10 * coords[:, 0])
+    perturb[:, 0] = np.sin(2 * np.pi * coords[:, 1] / h)
+    perturb[:, 1] = np.cos(2 * np.pi * coords[:, 0] / h)
 
     norms = np.linalg.norm(perturb, axis=1)
     norms[norms == 0] = 1.0
-
     perturb = perturb / norms[:, None]
 
-    return eps * h * perturb
+    return eps*h*perturb
 
 
 def perturb_mesh(mesh, eps):
@@ -49,9 +68,9 @@ def perturb_mesh(mesh, eps):
 
     return h
 
-# ------------------------
-# Distortion metric
-# ------------------------
+# --------------
+# measure change
+# --------------
 
 def triangle_distortion(verts):
     centroid = np.mean(verts, axis=0)
@@ -88,9 +107,9 @@ def mesh_distortion(mesh):
 
     return mean_dist, global_max
 
-# ------------------------
-# Aspect ratio (FEM critical)
-# ------------------------
+# ------------
+# Aspect ratio
+# ------------
 
 def triangle_aspect_ratio(verts):
     a = np.linalg.norm(verts[1] - verts[0])
