@@ -63,7 +63,7 @@ def perturb_bary(mesh, eps, comm):
 
     return bary_nodes, h
 
-def bary_error(mesh, bary_nodes, comm):
+def perturb_error(mesh, bary_nodes, comm):
     coords = mesh.coordinates.dat.data_with_halos
     cell_node_map = mesh.coordinates.cell_node_map().values
 

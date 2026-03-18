@@ -86,7 +86,7 @@ def main(save_dir):
     # Load the mesh
     mesh = Mesh(MESH_PATH)
     bary_nodes, h = perturb_bary(mesh, eps, comm)
-    bary_error = bary_error(mesh, bary_nodes, comm)
+    bary_error = perturb_error(mesh, bary_nodes, comm)
 
     if rank == 0:
         print(f"eps = {eps}")
