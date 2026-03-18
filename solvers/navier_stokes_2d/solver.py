@@ -140,8 +140,8 @@ def main(save_dir):
 
     if rank == 0:
         print("\n--- Degrees of Freedom ---")
-        print(f"// V Total DoFs: {V.vector().size()}")
-        print(f"// W Total DoFs: {W.vector().size()}\n")
+        print(f"// V Total DoFs: {V.dof_dset.size}")
+        print(f"// W Total DoFs: {W.dof_dset.size}\n")
 
     # -------------------
     # Configure functions
