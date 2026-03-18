@@ -45,8 +45,6 @@ def compute_local_h(mesh):
 # Deterministic perturbation
 # --------------------------
 
-    return eps * h * perturb
-
 def deterministic_perturbation(coords, eps, h):
     perturb = np.zeros_like(coords)
 
@@ -159,3 +157,27 @@ def mesh_aspect_ratio(mesh):
     mean_ar = global_sum / global_count
 
     return mean_ar, global_max
+
+# --------------------
+# add this code in !!!
+# --------------------
+
+"""
+    h = perturb_mesh(mesh, eps)
+
+    # measure changes
+    mean_dist, max_dist = mesh_distortion(mesh)
+    mean_ar, max_ar = mesh_aspect_ratio(mesh)
+
+    if rank == 0:
+        print(f"\neps = {eps}")
+        print(f"h = {h:.6e}")
+
+        print("\n--- Distortion ---")
+        print(f"mean distortion = {mean_dist:.6e}")
+        print(f"max distortion  = {max_dist:.6e}")
+
+        print("\n--- Aspect Ratio ---")
+        print(f"mean AR = {mean_ar:.6e}")
+        print(f"max AR  = {max_ar:.6e}")
+"""

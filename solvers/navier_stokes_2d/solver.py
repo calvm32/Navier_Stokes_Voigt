@@ -73,9 +73,7 @@ def main(save_dir):
     # --------------
 
     HERE = os.path.dirname(os.path.abspath(__file__))
-    MESH_PATH = os.path.join(HERE, "meshes/mms", "channel_bary1.msh")
-
-    # print(f"[solver.py] Loading mesh from: {MESH_PATH}")
+    MESH_PATH = os.path.join(HERE, "meshes/mms", "channel.msh")
 
     # ------------
     # Setup spaces
@@ -84,25 +82,8 @@ def main(save_dir):
     blue(f"\n*** Starting solve ***", spaced=True)
 
     mesh = Mesh(MESH_PATH)
-    h = perturb_mesh(mesh, eps)
-
-    # measure changes
-    mean_dist, max_dist = mesh_distortion(mesh)
-    mean_ar, max_ar = mesh_aspect_ratio(mesh)
-
-    if rank == 0:
-        print(f"\neps = {eps}")
-        print(f"h = {h:.6e}")
-
-        print("\n--- Distortion ---")
-        print(f"mean distortion = {mean_dist:.6e}")
-        print(f"max distortion  = {max_dist:.6e}")
-
-        print("\n--- Aspect Ratio ---")
-        print(f"mean AR = {mean_ar:.6e}")
-        print(f"max AR  = {max_ar:.6e}")
-
     x, y = SpatialCoordinate(mesh)
+
     dx = Measure("dx", domain=mesh)
     ds = Measure("ds", domain=mesh)
 
@@ -140,8 +121,8 @@ def main(save_dir):
 
     if rank == 0:
         print("\n--- Degrees of Freedom ---")
-        print(f"// V Total DoFs: {V.dof_dset.size}")
-        print(f"// W Total DoFs: {W.dof_dset.size}\n")
+        print(f"// V Total DoFs: {V.dof_count}")
+        print(f"// W Total DoFs: {W.dof_count}\n")
 
     # -------------------
     # Configure functions
