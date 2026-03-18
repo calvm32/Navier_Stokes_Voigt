@@ -42,7 +42,7 @@ def deterministic_perturbation(coords, eps, h):
 
 
 def perturb_mesh(mesh, eps):
-    coords = mesh.coordinates.dat.data
+    coords = mesh.coordinates.dat.data_with_halos
     h = compute_global_h(coords)
 
     coords[:] += deterministic_perturbation(coords, eps, h)
@@ -64,7 +64,7 @@ def triangle_distortion(verts):
 
 
 def mesh_distortion(mesh):
-    coords = mesh.coordinates.dat.data
+    coords = mesh.coordinates.dat.data_with_halos
     cell_node_map = mesh.coordinates.cell_node_map().values
 
     local_sum = 0.0
@@ -117,7 +117,7 @@ def triangle_aspect_ratio(verts):
 
 
 def mesh_aspect_ratio(mesh):
-    coords = mesh.coordinates.dat.data
+    coords = mesh.coordinates.dat.data_with_halos
     cell_node_map = mesh.coordinates.cell_node_map().values
 
     local_max = 0.0
