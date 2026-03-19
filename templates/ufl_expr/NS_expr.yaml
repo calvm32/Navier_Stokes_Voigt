@@ -14,8 +14,3 @@ ufl_f: "as_vector([0.0, 0.0])"
 
 # boundary term
 ufl_g: "as_vector([0.0, 0.0])"
-
-# for noise:
-# eps: "0.02"
-# noise: "eps*(sin(13*pi*x/L) + cos(17*pi*y/H))"
-# u_inflow: "as_vector([4*y*(H-y)/(H**2)*(1 + noise), noise])"

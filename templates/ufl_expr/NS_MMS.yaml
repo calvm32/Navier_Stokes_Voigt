@@ -6,6 +6,8 @@ ufl_v0: "scale*as_vector([
     0.0
   ])"
 
+ufl_inflow: "ufl_v0"
+
 # pressure exact
 ufl_p0: "scale*(P*x + G)"
 

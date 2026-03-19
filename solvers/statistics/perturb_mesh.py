@@ -110,27 +110,22 @@ def mesh_distortion(mesh):
 # ------------
 
 def triangle_aspect_ratio(verts):
+    # using formula for area given vertices
     a = np.linalg.norm(verts[1] - verts[0])
     b = np.linalg.norm(verts[2] - verts[1])
     c = np.linalg.norm(verts[0] - verts[2])
 
     longest = max(a, b, c)
+    s = 0.5*(a + b + c)
+    area = np.sqrt(max(s*(s - a)*(s - b)*(s - c), 0.0))
 
-    # Heron's formula for area
-    s = 0.5 * (a + b + c)
-    area = max(s * (s - a) * (s - b) * (s - c), 0.0)
-    area = np.sqrt(area)
+    # height = 2*area/length
+    min_height = 2*area/longest
 
-    if area == 0:
+    if min_height == 0:
         return np.inf
 
-    # altitude ~ 2A / base
-    min_altitude = 2 * area / longest
-
-    if min_altitude == 0:
-        return np.inf
-
-    return longest / min_altitude
+    return longest/min_height
 
 
 def mesh_aspect_ratio(mesh):
