@@ -1,7 +1,7 @@
 scale: 5.0
 
 # velocity boundary inflow
-u_inflow: "as_vector([scale*4*y*(H-y)/(H**2), 0.0])"
+ufl_inflow: "as_vector([scale*4*y*(H-y)/(H**2), 0.0])"
 
 # velocity initial guess
 ufl_v0: "as_vector([scale*4*y*(H-y)/(H**2), 0.0])"

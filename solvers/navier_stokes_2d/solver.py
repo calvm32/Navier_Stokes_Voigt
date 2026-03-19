@@ -154,9 +154,9 @@ def main(save_dir):
     # Boundary conditions
     # -------------------
 
-    u_inflow = ufl_cfg["u_inflow"]
+    ufl_inflow = ufl_cfg["ufl_inflow"]
 
-    bc_inflow = DirichletBC(Z.sub(0), u_inflow, (1,2))
+    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
     bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
     bcs = [bc_walls, bc_inflow]
