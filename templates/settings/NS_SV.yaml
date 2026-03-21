@@ -6,7 +6,6 @@ gamma: 0.0          # grad-div stabilization constant
 Re: 600.0           # Reynold's num: 1/viscostiy
 G: 0.0              # initial pressure gauge
 P: -1.0             # pressure strength (P*x + G)
-eps: 0.0            # slightly perturb interior mesh coordinates
 
 solver: "BDF2"      # valid:  "BDF2" (Backward Differentiation) or 
                     #         "CN" (Crank-Nicolson)

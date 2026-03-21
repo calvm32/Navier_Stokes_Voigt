@@ -39,7 +39,6 @@ def main(save_dir):
     solver = cfg["solver"]
     elements = cfg["elements"]
     views = cfg["views"]
-    eps = cfg["eps"]
 
     # Build appctx
     appctx = {
@@ -73,7 +72,7 @@ def main(save_dir):
     # --------------
 
     HERE = os.path.dirname(os.path.abspath(__file__))
-    MESH_PATH = os.path.join(HERE, "meshes/mms", "channel_bary1.msh")
+    MESH_PATH = os.path.join(HERE, "meshes/mms", "channel.msh")
 
     # ------------
     # Setup spaces
