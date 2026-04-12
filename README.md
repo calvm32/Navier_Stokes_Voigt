@@ -2,34 +2,18 @@
 
 ## Description
 
-Crank-Nicolson solver for:
-- 2D Heat equation
-- 3D Heat equation
+Crank-Nicolson and BDF2 solver for:
+- 2D heat equation
 - 2D Navier-Stokes equations
 
-## How to run
-This repository uses Firedrake, which currently requires a lot of luck to install. 
+## Set up on your device
+This repository uses Firedrake, which currently requires a lot of luck to install. Once you have it in a virtual environment, activate it and run **pip install -e .**
 
-### For local runs,
+## Run on your device
+To create a directory, use **nsvsave <directory_name>** followed by the options:
+    1. **--problem** then **h2** for 2D heat equation or **ns2** for 2D Navier-Stokes equations
+    2. **--elements** then **sv** for Scott Vogelius or **th** for Taylor Hood elements
+    3. **--mms** for testing the method of manufactured solutions
 
-Start with *https://www.firedrakeproject.org/install.html*, then run `source /path-to/venv-firedrake/bin/activate`.
-
-Alternatively, copy the code into something like Google CoLab and include
-```
-try:
-    import firedrake
-except ImportError:
-    !wget "https://fem-on-colab.github.io/releases/firedrake-install-release-real.sh" -O "/tmp/firedrake-install.sh" && bash "/tmp/firedrake-install.sh"
-    import firedrake
-```
-
-To see solutions, run the output folder and corresponding .pvd file in Paraview.
-
-### For cluster runs,
-
-tmux
-cd /data/$USER
-. venv-firedrake/bin/activate
-cd Fluid_Mechanics
-
-python -m solvers.heat.heat_eqn
+Now to run the problem, use **nsvrun <relative_path_to_directory>** followed by
+    1. **--np <N>** to run using MPI parallel processing on N processors

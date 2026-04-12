@@ -285,7 +285,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
                 visfile.write(u, time=t)
             
         if step % write_every == 0:
-            
+
             last_every = write_every//compute_every
             plot_data["energy"] += energy_list[-last_every:]
             plot_data["palinstrophy"] += palinstrophy_list[-last_every:]
@@ -348,6 +348,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     compute_every = 5
     start_sampling = 10
     write_every = compute_every*20
+    plot_data = {}
 
     if num_steps <= start_sampling:
         start_sampling = 0
