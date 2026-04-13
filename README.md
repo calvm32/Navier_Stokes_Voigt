@@ -1,13 +1,11 @@
 # Fluid Mechanics Solvers
 
-## Description
-
-Crank-Nicolson and BDF2 solver for:
+This repository provides a Crank-Nicolson and BDF2 solver for:
 - 2D heat equation
 - 2D Navier-Stokes equations
 
 ## Set up on your device
-This repository uses Firedrake, which currently requires a lot of luck to install. Once you have it in a virtual environment, activate it and run **pip install -e .**
+This repository uses Firedrake, which currently requires a lot of luck to install. See the bottom of this page for my recommended workflow. Once you have Firedrake in a virtual environment, activate it and run **pip install -e .**
 
 ## Run on your device
 To create a directory, use **nsvsave <directory_name>** followed by the options:
@@ -17,3 +15,21 @@ To create a directory, use **nsvsave <directory_name>** followed by the options:
 
 Now to run the problem, use **nsvrun <relative_path_to_directory>** followed by
     1. **--np <N>** to run using MPI parallel processing on N processors
+
+## Firedrake install
+
+Please run the following, exchanging the directory **~** for your desired directory:
+
+**wget https://raw.githubusercontent.com/firedrakeproject/firedrake/master/scripts/firedrake-configure**
+**python3 firedrake-configure --show-petsc-version --no-package-manager**
+**git clone --branch $(python3 firedrake-configure --show-petsc-version --no-package-manager) https://gitlab.com/petsc/petsc.git**
+
+**python3 ~/firedrake-configure --no-package-manager --show-petsc-configure-options | xargs -L1 ./configure**
+
+OR if that last line doesn't work, something like
+
+**python3 ~/firedrake-configure --no-package-manager --show-petsc-configure-options | xargs -L1 -I {} ./configure {} --with-bison=0 --download-fblaslapack=1**
+
+continuing, PETSC will provide some sort of instructions that you should follow exactly, which look like this:
+
+**make PETSC_DIR=~/petsc PETSC_ARCH=arch-firedrake-default all**
