@@ -571,8 +571,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
 
                 # -------- compute stats!!! --------
-                pdfs.sample_velocity_x(u_old.sub(0))
-                pdfs.sample_velocity_y(u_old.sub(0))
+                pdfs.sample_velocity(u_old.sub)
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples_per_bin=20)
