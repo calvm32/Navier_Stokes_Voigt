@@ -27,6 +27,8 @@ class TemplateResolver:
             return TemplateResolver._resolve_heat(cfg)
         elif cfg.problem == "ns2":
             return TemplateResolver._resolve_ns(cfg)
+        elif cfg.problem == "nsv2":
+            return TemplateResolver._resolve_nsv(cfg)
         else:
             raise ValueError("Unknown problem type")
 
@@ -35,16 +37,16 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/heat_MMS.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_MMS.yaml",
+                "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
                 "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_MMS.yaml",
                 "solver_path": "solvers.heat_2d.solver_MMS",
             }
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/heat_MMS.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_MMS.yaml",
-            "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_expr.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
+            "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat.yaml",
             "solver_path": "solvers.heat_2d.solver",
         }
 
@@ -53,21 +55,41 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/NS_{cfg.elements.upper()}.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_{cfg.elements.upper()}.yaml",
-                "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_MMS.yaml",
+                "settings": f"{TemplateResolver.BASE}/settings/ns_{cfg.elements.upper()}.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_MMS.yaml",
                 "solver_path": "solvers.navier_stokes_2d.solver_MMS",
             }
         
         if cfg.elements is None:
-            raise ValueError("NS requires element type")
+            raise ValueError("This problem requires element type")
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}/settings/NS_{cfg.elements.upper()}.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/NS_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}/ufl_expr/NS_expr.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/ns_{cfg.elements.upper()}.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
+            "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns.yaml",
             "solver_path": "solvers.navier_stokes_2d.solver",
+        }
+    def _resolve_nsv(cfg: RunConfig):
+
+        if cfg.mms:
+            return {
+                "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_MMS.yaml",
+                "solver_path": "solvers.navier_stokes_voigt_2d.solver_MMS",
+            }
+        
+        if cfg.elements is None:
+            raise ValueError("This problem requires element type")
+
+        return {
+
+            "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
+            "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns.yaml",
+            "solver_path": "solvers.navier_stokes_voigt_2d.solver",
         }
 
 # ------------
@@ -113,7 +135,7 @@ def build_parser():
     parser.add_argument(
         "--problem",
         required=True,
-        choices=["h2", "ns2"],
+        choices=["h2", "ns2", "nsv2"],
         help="Problem type"
     )
 
@@ -126,7 +148,7 @@ def build_parser():
     parser.add_argument(
         "--elements",
         choices=["sv", "th"],
-        help="Element type (required for ns2)"
+        help="Element type"
     )
 
     return parser

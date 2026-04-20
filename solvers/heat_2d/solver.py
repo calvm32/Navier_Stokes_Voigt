@@ -20,6 +20,9 @@ def main(save_dir):
 
     cfg, solver_parameters = load_run_configs(save_dir)
 
+    plot_path = Path(save_dir) / "plots"
+    plot_path.mkdir(exist_ok=True)
+
     # ------------------
     # Configure settings
     # ------------------
@@ -94,7 +97,7 @@ def main(save_dir):
     # ----------
 
     if solver == "CN":
-        u_error_list, energy_list, all_time_list, cpu_time, div_list = timestepper_CN(get_data, 
+        u_error_list = timestepper_CN(get_data, 
             V, dx, ds, 
             t0, T, dt, theta=theta,
             sample_length=L, sample_height=H,
@@ -102,7 +105,7 @@ def main(save_dir):
             solver_parameters=solver_parameters,
             vtkfile_name=vtkfile_name)
     elif solver == "BDF2":
-        u_error_list, energy_list, all_time_list, cpu_time, div_list = timestepper_BDF2(get_data, 
+        u_error_list = timestepper_BDF2(get_data, 
             V, dx, ds, 
             t0, T, dt,
             sample_length=L, sample_height=H,
@@ -110,31 +113,6 @@ def main(save_dir):
             make_weak_form_CN=make_weak_form_CN,
             solver_parameters=solver_parameters,
             vtkfile_name=vtkfile_name)
-
-    # Data logging dict
-    plot_data = {}
-
-    plot_path = Path(save_dir) / "plots"
-    plot_path.mkdir(exist_ok=True)
-
-    # -----------
-    # Plot Energy
-    # -----------
-
-    # pop first values 
-    all_time_list_del = all_time_list[1:]
-    energy_list_del = energy_list[1:]
-
-    plot_data["energy"] = (all_time_list, energy_list)
-    plt.semilogy(all_time_list_del, energy_list_del, "-o")
-    plt.xlabel("time")
-    plt.ylabel("energy")
-    plt.title('Total Kinetic Energy')
-    plt.grid(True)
-    plt.tight_layout()
-    if rank == 0:
-        plt.savefig(plot_path / "energy_plot.png", dpi=200, bbox_inches='tight')
-    plt.close()
 
 if __name__ == "__main__":
 

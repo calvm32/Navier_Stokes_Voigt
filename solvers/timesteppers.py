@@ -19,7 +19,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     compute_every = 5
     start_sampling = 10
     write_every = compute_every*20
-    plot_data = {}
 
     if num_steps <= start_sampling:
         start_sampling = 0
@@ -37,24 +36,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
     energy_spec_probe = []
     div_list = []
     cpu_time = 0
-
-    plot_data["energy"] = energy_list
-    plot_data["palinstrophy"] = palinstrophy_list
-    plot_data["stream_func"] = stream_func_list
-    plot_data["enstrophy"] = enstrophy_list
-    plot_data["energy_spec_probe"] = energy_spec_probe
-    plot_data["divergence"] = div_list
-    plot_data["every_N_times"] = every_time_list
-    plot_data["all_N_times"] = all_time_list
-
-    if is_mixed:
-        v_error_list = []
-        p_error_list = []
-        plot_data["v_error"] = v_error_list
-        plot_data["p_error"] = p_error_list
-    else:
-        u_error_list = []
-        plot_data["u_error"] = u_error_list
+    
+    output_file = Path("plot_data.npz")
 
     # -------------
     # Setup problem
@@ -284,32 +267,32 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
             else:
                 visfile.write(u, time=t)
             
-        if step % write_every == 0:
+        if (step % write_every == 0) and step > 0:
+            if mesh.comm.rank == 0:
+                np.savez(
+                    output_file,
 
-            last_every = write_every//compute_every
-            plot_data["energy"] += energy_list[-last_every:]
-            plot_data["palinstrophy"] += palinstrophy_list[-last_every:]
-            plot_data["stream_func"] += stream_func_list[-last_every:]
-            plot_data["enstrophy"] += enstrophy_list[-last_every:]
-            plot_data["energy_spec_probe"] += energy_spec_probe[-last_every:]
-            plot_data["divergence"] += div_list[-last_every:]
-            plot_data["every_N_times"] += every_time_list[-last_every:]
-            plot_data["all_N_times"] += all_time_list[-last_every:]
+                    # time series
+                    all_time=np.array(all_time_list),
+                    energy=np.array(energy_list),
+                    divergence=np.array(div_list),
 
-            if is_mixed:
-                velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
-                r_vals, S2 = struct_func.compute()
+                    every_time=np.array(every_time_list),
+                    palinstrophy=np.array(palinstrophy_list),
+                    stream_func=np.array(stream_func_list),
+                    enstrophy=np.array(enstrophy_list),
 
-                plot_data["velocity_x_vals"] = velocity_x_vals
-                plot_data["velocity_y_vals"] = velocity_y_vals
-                plot_data["omega_vals"] = omega_vals
-                plot_data["r_vals"] = r_vals
-                plot_data["S2"] = S2
-                plot_data["v_error"] += v_error_list[-last_every:]
-                plot_data["p_error"] += p_error_list[-last_every:]
-            else:
-                u_error_list = []
-                plot_data["u_error"] += u_error_list[-last_every:]
+                    # PDFs + structure
+                    velocity_x=np.array(pdfs.velocity_x_vals),
+                    velocity_y=np.array(pdfs.velocity_y_vals),
+                    omega=np.array(pdfs.omega_vals),
+
+                    r_vals=np.array(struct_func.r_vals),
+                    S2=np.array(struct_func.S2),
+
+                    # probe
+                    probe=np.array(energy_spec_probe)
+                )
 
     # ----------------------------------
     # Report done; find and return error
@@ -319,9 +302,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_leng
 
     # report completed
     green(f"\nCompleted after {cpu_time} minutes", spaced=True)
-
-    # Return everything
-    return(plot_data, cpu_time)
 
 
 # ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
@@ -366,24 +346,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     energy_spec_probe = []
     div_list = []
     cpu_time = 0
-
-    plot_data["energy"] = energy_list
-    plot_data["palinstrophy"] = palinstrophy_list
-    plot_data["stream_func"] = stream_func_list
-    plot_data["enstrophy"] = enstrophy_list
-    plot_data["energy_spec_probe"] = energy_spec_probe
-    plot_data["divergence"] = div_list
-    plot_data["every_N_times"] = every_time_list
-    plot_data["all_N_times"] = all_time_list
-
-    if is_mixed:
-        v_error_list = []
-        p_error_list = []
-        plot_data["v_error"] = v_error_list
-        plot_data["p_error"] = p_error_list
-    else:
-        u_error_list = []
-        plot_data["u_error"] = u_error_list
+    
+    output_file = Path("plot_data.npz")
 
     # -------------
     # Setup problem
@@ -623,32 +587,32 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             else:
                 visfile.write(u, time=t)
 
-        if step % write_every == 0:
-            last_every = write_every//compute_every
+        if (step % write_every == 0) and step > 0:
+            if mesh.comm.rank == 0:
+                np.savez(
+                    output_file,
 
-            plot_data["energy"] += energy_list[-last_every:]
-            plot_data["palinstrophy"] += palinstrophy_list[-last_every:]
-            plot_data["stream_func"] += stream_func_list[-last_every:]
-            plot_data["enstrophy"] += enstrophy_list[-last_every:]
-            plot_data["energy_spec_probe"] += energy_spec_probe[-last_every:]
-            plot_data["divergence"] += div_list[-last_every:]
-            plot_data["every_N_times"] += every_time_list[-last_every:]
-            plot_data["all_N_times"] += all_time_list[-last_every:]
+                    # time series
+                    all_time=np.array(all_time_list),
+                    energy=np.array(energy_list),
+                    divergence=np.array(div_list),
 
-            if is_mixed:
-                velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
-                r_vals, S2 = struct_func.compute()
+                    every_time=np.array(every_time_list),
+                    palinstrophy=np.array(palinstrophy_list),
+                    stream_func=np.array(stream_func_list),
+                    enstrophy=np.array(enstrophy_list),
 
-                plot_data["velocity_x_vals"] = velocity_x_vals
-                plot_data["velocity_y_vals"] = velocity_y_vals
-                plot_data["omega_vals"] = omega_vals
-                plot_data["r_vals"] = r_vals
-                plot_data["S2"] = S2
-                plot_data["v_error"] += v_error_list[-last_every:]
-                plot_data["p_error"] += p_error_list[-last_every:]
-            else:
-                u_error_list = []
-                plot_data["u_error"] += u_error_list[-last_every:]
+                    # PDFs + structure
+                    velocity_x=np.array(pdfs.velocity_x_vals),
+                    velocity_y=np.array(pdfs.velocity_y_vals),
+                    omega=np.array(pdfs.omega_vals),
+
+                    r_vals=np.array(struct_func.r_vals),
+                    S2=np.array(struct_func.S2),
+
+                    # probe
+                    probe=np.array(energy_spec_probe)
+                )
 
     # ----------------------------------
     # Report done; find and return error
@@ -658,6 +622,3 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     # report completed
     green(f"\nCompleted after {cpu_time} minutes", spaced=True)
-
-    # Return everything
-    return(plot_data, cpu_time)

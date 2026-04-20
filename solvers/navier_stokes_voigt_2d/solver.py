@@ -42,11 +42,13 @@ def main(save_dir):
     solver = cfg["solver"]
     elements = cfg["elements"]
     views = cfg["views"]
+    alpha = cfg["alpha"]
 
     # Build appctx
     appctx = {
         "Re": Re,
         "gamma": gamma,
+        "alpha": alpha,
         "velocity_space": 0
     }
 
@@ -203,15 +205,10 @@ def main(save_dir):
                 bcs=bcs, nullspace=nullspace,
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name)
+                
 
 if __name__ == "__main__":
     import sys
     if len(sys.argv) < 2:
         raise RuntimeError("Must provide save_dir as argument")
     main(sys.argv[1])
-
-
-# x_list = [0, 0.1, 1.0, 10.0, 100.0]
-# original gamma_times = [4.5036, 4.5477, 4.5370, 4.5119, 4.5255]
-# u0 = [x,y] gamma_times = [9.7168, 8.0605, 8.1203, 8.0842, 8.0802]
-# f = [x,y] gamma_times = [6.1373, 6.1222, 6.1946, 6.1460, 6.1618]

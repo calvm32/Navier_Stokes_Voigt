@@ -54,6 +54,7 @@ def main(save_dir):
     Re = cfg["Re"]
     G = cfg["G"]
     P = cfg["P"]
+    alpha = cfg["alpha"]
 
     solver = cfg["solver"]
     elements = cfg["elements"]
@@ -100,6 +101,7 @@ def main(save_dir):
         appctx = {
             "Re": Re,
             "gamma": gamma,
+            "alpha": alpha,
             "velocity_space": 0
         }
 
