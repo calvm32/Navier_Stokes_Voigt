@@ -622,3 +622,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     # report completed
     green(f"\nCompleted after {cpu_time} minutes", spaced=True)
+
+    if is_mixed:
+        return v_error_list, p_error_list
+    else:
+        return u_error_list
