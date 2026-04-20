@@ -7,6 +7,7 @@ from .create_timestep_solvers import *
 from .processing.printoff import iter_info_verbose, text, green
 from solvers.processing.statistics.pdf_sampler import pdf_sampler
 from solvers.processing.statistics.structure_funcs import structure_funcs
+from solvers.processing.post_processing import *
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamma, Re, sample_length, sample_height, alpha=None,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):
@@ -190,7 +191,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
     text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
     start = time.process_time()
 
-    while t <= num_steps:
+    while step <= num_steps:
 
         # Perform time step
         solver(t, dt)
@@ -292,9 +293,19 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
                     probe=np.array(energy_spec_probe)
                 )
 
+    # ---------------
+    # plot everything
+    # ---------------
+
+    if is_mixed:
+        plot_ns()
+    else:
+        plot_heat()
+
     # ----------------------------------
     # Report done; find and return error
     # ----------------------------------
+
     end = time.process_time()
     cpu_time = (end - start) / 60
 
@@ -528,7 +539,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # Perform timestepping
     # --------------------
 
-    while t <= num_steps:
+    while step <= num_steps:
 
         # Perform time step
         if step == 0:
