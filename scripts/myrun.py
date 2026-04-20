@@ -32,7 +32,9 @@ def main():
     # Build command
     cmd = [sys.executable, "-m", solver_module, str(save_dir)]
 
-    if args.np:
+    if args.np and "OMPI_COMM_WORLD_SIZE" not in os.environ:
+        cmd = ["mpirun", "-np", str(args.np)] + cmd
+    elif args.np:
         cmd = ["mpirun", "-np", str(args.np)] + cmd
 
     subprocess.run(cmd)

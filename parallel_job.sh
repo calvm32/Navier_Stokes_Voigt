@@ -1,13 +1,16 @@
 #!/bin/bash
-#SBATCH --job-name=python_parallel
-#SBATCH --output=/work/larios/alarios/res.out
+#SBATCH --job-name=nsv2_firedrake
+#SBATCH --output=job.out
+#SBATCH --error=job.err
 #SBATCH --nodes=1
-#SBATCH --ntasks=8
+#SBATCH --ntasks=14
 #SBATCH --time=00:01:00
 
-# --- Environment Setup ---
-module purge                # Optional: Clears existing modules to avoid conflicts
-module load python/3.9
+module purge
+module load apptainer compiler/gcc/11 openmpi/4.1
 
-# --- Execution ---
-python3 parallel_hello.py
+cd test_run || exit 1
+
+mpirun -np $SLURM_NTASKS \
+    apptainer exec --bind $PWD:$PWD docker://firedrakeproject/firedrake:2025.10.4 \
+    myrun .
