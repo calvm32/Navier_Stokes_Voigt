@@ -12,6 +12,7 @@ class pdf_sampler:
     """
 
     def __init__(self, mesh):
+        self.comm = mesh.comm
         self.nbins = 100
         self.range = (-5, 5) # may need to change? # should b fine
         

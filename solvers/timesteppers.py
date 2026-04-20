@@ -313,17 +313,16 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
     comm = mesh.comm
     comm.Barrier()
 
-    if is_mixed and mesh.comm.rank == 0:
+    if is_mixed:
         velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
-        
+        r_vals, S2 = struct_func.compute()
+
+    if is_mixed and mesh.comm.rank == 0:
         np.savez(
             output_file2,
-
-            # PDFs + structure
             velocity_x=np.array(velocity_x_vals),
             velocity_y=np.array(velocity_y_vals),
             omega=np.array(omega_vals),
-
             r_vals=np.array(struct_func.r_vals),
             S2=np.array(struct_func.S2),
         )
@@ -656,17 +655,16 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm = mesh.comm
     comm.Barrier()
 
-    if is_mixed and mesh.comm.rank == 0:
+    if is_mixed:
         velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
-        
+        r_vals, S2 = struct_func.compute()
+
+    if is_mixed and mesh.comm.rank == 0:
         np.savez(
             output_file2,
-
-            # PDFs + structure
             velocity_x=np.array(velocity_x_vals),
             velocity_y=np.array(velocity_y_vals),
             omega=np.array(omega_vals),
-
             r_vals=np.array(struct_func.r_vals),
             S2=np.array(struct_func.S2),
         )
