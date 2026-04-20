@@ -323,8 +323,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
             velocity_x=np.array(velocity_x_vals),
             velocity_y=np.array(velocity_y_vals),
             omega=np.array(omega_vals),
-            r_vals=np.array(struct_func.r_vals),
-            S2=np.array(struct_func.S2),
+            r_vals=np.array(r_vals),
+            S2=np.array(S2),
         )
 
     # report completed
@@ -387,7 +387,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     
     output_file1 = Path("plot_data.npz")
     output_file2 = Path("plot_final_data.npz")
-    
+
     # -------------
     # Setup problem
     # -------------
@@ -665,8 +665,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             velocity_x=np.array(velocity_x_vals),
             velocity_y=np.array(velocity_y_vals),
             omega=np.array(omega_vals),
-            r_vals=np.array(struct_func.r_vals),
-            S2=np.array(struct_func.S2),
+            r_vals=np.array(r_vals),
+            S2=np.array(S2),
         )
 
     # report completed
