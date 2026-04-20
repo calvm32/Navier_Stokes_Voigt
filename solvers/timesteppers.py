@@ -36,6 +36,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
     energy_spec_probe = []
     div_list = []
     cpu_time = 0
+
+    if is_mixed:
+        v_error_list = []
+        p_error_list = []
+    else:
+        u_error_list = []
     
     output_file = Path("plot_data.npz")
 
