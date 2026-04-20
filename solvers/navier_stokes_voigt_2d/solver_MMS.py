@@ -11,28 +11,6 @@ from solvers.processing.printoff import blue, green
 from solvers.processing.config_setup import *
 import matplotlib.pyplot as plt
 
-# ---------
-# Get paths
-# ---------
-
-def load_run_configs(save_dir):
-    save_dir = Path(save_dir)
-    cfg_path = save_dir / "settings.yaml"
-    solver_params_path = save_dir / "solver_params.yaml"
-
-    cfg = load_config(cfg_path)
-    solver_parameters = load_solver_parameters(solver_params_path)
-
-    return cfg, solver_parameters
-
-def load_run_ufls(save_dir, namespace):
-    save_dir = Path(save_dir)
-    ufl_path = save_dir / "ufl_expr.yaml"
-    
-    ufl_cfg = load_ufl_expressions(ufl_path, namespace=namespace)
-
-    return ufl_cfg
-
 def main(save_dir):
 
     comm = MPI.COMM_WORLD
@@ -52,9 +30,9 @@ def main(save_dir):
     theta = cfg["theta"]
     gamma = cfg["gamma"]
     Re = cfg["Re"]
+    alpha = cfg["alpha"]
     G = cfg["G"]
     P = cfg["P"]
-    alpha = cfg["alpha"]
 
     solver = cfg["solver"]
     elements = cfg["elements"]
@@ -101,7 +79,6 @@ def main(save_dir):
         appctx = {
             "Re": Re,
             "gamma": gamma,
-            "alpha": alpha,
             "velocity_space": 0
         }
 

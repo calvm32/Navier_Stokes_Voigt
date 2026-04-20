@@ -8,7 +8,7 @@ This repository provides a Crank-Nicolson and BDF2 solver for:
 This repository uses Firedrake, which currently requires a lot of luck to install. See the bottom of this page for my recommended workflow. Once you have Firedrake in a virtual environment, activate it and run `pip install -e .`
 
 ## Run on your device
-To create a directory, use `nsvsave <directory_name>` followed by the options:
+To create a directory, use `save <directory_name>` followed by the options:
 
 1. `--problem` then `h2` for 2D heat equation, `ns2` for 2D Navier-Stokes equations, or `nsv2` for 2D Navier-Stokes-Voigt equations
 
@@ -16,7 +16,7 @@ To create a directory, use `nsvsave <directory_name>` followed by the options:
 
 3. `--mms` for testing the method of manufactured solutions
 
-Now to run the problem, use `nsvrun <relative_path_to_directory>` followed by `--np <N>` to run using MPI parallel processing on N processors
+Now to run the problem, use `run <relative_path_to_directory>` followed by `--np <N>` to run using MPI parallel processing on N processors
 
 ## Firedrake install
 

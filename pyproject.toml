@@ -8,8 +8,8 @@ version = "0.1.0"
 requires-python = ">=3.10"
 
 [project.scripts]
-nsvsave = "scripts.nsvsave:main"
-nsvrun  = "scripts.nsvrun:main"
+save = "scripts.save:main"
+run  = "scripts.run:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -12,7 +12,6 @@ from solvers.processing.printoff import blue
 from solvers.processing.config_setup import *
 import matplotlib.pyplot as plt
 import numpy as np
-from solvers.processing.statistics.perturb_mesh import *
 
 from mpi4py import MPI
 
@@ -37,18 +36,17 @@ def main(save_dir):
     theta = cfg["theta"]
     gamma = cfg["gamma"]
     Re = cfg["Re"]
+    alpha = cfg["alpha"]
     G = cfg["G"]
     P = cfg["P"]
     solver = cfg["solver"]
     elements = cfg["elements"]
     views = cfg["views"]
-    alpha = cfg["alpha"]
 
     # Build appctx
     appctx = {
         "Re": Re,
         "gamma": gamma,
-        "alpha": alpha,
         "velocity_space": 0
     }
 
@@ -188,7 +186,8 @@ def main(save_dir):
     if solver == "CN":
             v_error_list, p_error_list = timestepper_CN(get_data, 
                 Z, dx, ds, 
-                t0, T, dt,
+                t0, T, dt, 
+                theta=theta, gamma=gamma, Re=Re, alpha=alpha,
                 sample_length=L, sample_height=H,
                 make_weak_form=make_weak_form_CN, 
                 bcs=bcs, nullspace=nullspace,
@@ -199,13 +198,13 @@ def main(save_dir):
             v_error_list, p_error_list = timestepper_BDF2(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
+                gamma=gamma, Re=Re, alpha=alpha,
                 sample_length=L, sample_height=H,
                 make_weak_form_BDF2=make_weak_form_BDF2,
                 make_weak_form_CN=make_weak_form_CN,
                 bcs=bcs, nullspace=nullspace,
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name)
-                
 
 if __name__ == "__main__":
     import sys
