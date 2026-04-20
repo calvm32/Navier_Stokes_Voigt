@@ -385,9 +385,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     else:
         u_error_list = []
     
-    
     output_file1 = Path("plot_data.npz")
-
+    output_file2 = Path("plot_final_data.npz")
+    
     # -------------
     # Setup problem
     # -------------
