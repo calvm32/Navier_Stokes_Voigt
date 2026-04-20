@@ -20,7 +20,7 @@ Modules:
 from .timesteppers import timestepper_CN, timestepper_BDF2
 
 # folder w/ statistics helper functions to use in timesteppers.py
-from .statistics import *
+from .processing/statistics import *
 
 # folder w/ processing helper functions to use throughout
 from .processing import *
