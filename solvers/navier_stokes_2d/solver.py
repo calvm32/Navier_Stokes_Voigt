@@ -12,7 +12,7 @@ from solvers.processing.printoff import blue
 from solvers.processing.config_setup import *
 import matplotlib.pyplot as plt
 import numpy as np
-from solvers.statistics.perturb_mesh import *
+from solvers.processing.statistics.perturb_mesh import *
 
 from mpi4py import MPI
 

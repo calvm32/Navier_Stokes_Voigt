@@ -5,8 +5,8 @@ import time
 from .create_timestep_solvers import *
 from .processing.printoff import iter_info_verbose, text, green
 
-from solvers.statistics.pdf_sampler import pdf_sampler
-from solvers.statistics.structure_funcs import structure_funcs
+from solvers.processing.statistics.pdf_sampler import pdf_sampler
+from solvers.processing.statistics.structure_funcs import structure_funcs
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, sample_length=40, sample_height=10, theta=0.5, gamma=0.0, Re=1.0,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):
