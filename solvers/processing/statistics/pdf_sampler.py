@@ -71,4 +71,4 @@ class pdf_sampler:
 
             return pdf_x, pdf_y, pdf_v
         else:
-            return None, None, None, None
+            return None, None, None
