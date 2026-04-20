@@ -275,6 +275,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
             
         if (step % write_every == 0) and step > 0:
             if mesh.comm.rank == 0:
+                velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+                
                 np.savez(
                     output_file,
 
@@ -289,9 +291,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
                     enstrophy=np.array(enstrophy_list),
 
                     # PDFs + structure
-                    velocity_x=np.array(pdfs.velocity_x_vals),
-                    velocity_y=np.array(pdfs.velocity_y_vals),
-                    omega=np.array(pdfs.omega_vals),
+                    velocity_x=np.array(velocity_x_vals),
+                    velocity_y=np.array(velocity_y_vals),
+                    omega=np.array(omega_vals),
 
                     r_vals=np.array(struct_func.r_vals),
                     S2=np.array(struct_func.S2),
@@ -602,6 +604,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
         if (step % write_every == 0) and step > 0:
             if mesh.comm.rank == 0:
+                velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+
                 np.savez(
                     output_file,
 
@@ -616,9 +620,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     enstrophy=np.array(enstrophy_list),
 
                     # PDFs + structure
-                    velocity_x=np.array(pdfs.velocity_x_vals),
-                    velocity_y=np.array(pdfs.velocity_y_vals),
-                    omega=np.array(pdfs.omega_vals),
+                    velocity_x=np.array(velocity_x_vals),
+                    velocity_y=np.array(velocity_y_vals),
+                    omega=np.array(omega_vals),
 
                     r_vals=np.array(struct_func.r_vals),
                     S2=np.array(struct_func.S2),
