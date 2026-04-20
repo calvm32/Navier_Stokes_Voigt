@@ -352,6 +352,13 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     energy_spec_probe = []
     div_list = []
     cpu_time = 0
+
+    if is_mixed:
+        v_error_list = []
+        p_error_list = []
+    else:
+        u_error_list = []
+    
     
     output_file = Path("plot_data.npz")
 
