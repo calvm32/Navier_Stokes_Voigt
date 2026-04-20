@@ -67,8 +67,8 @@ class pdf_sampler:
             pdf_y = global_vel_y / np.sum(global_vel_y) / dx
             pdf_v = global_vort  / np.sum(global_vort)  / dx
 
-            centers = 0.5 * (self.bin_edges[:-1] + self.bin_edges[1:])
+            #centers = 0.5 * (self.bin_edges[:-1] + self.bin_edges[1:])
 
-            return centers, pdf_x, pdf_y, pdf_v
+            return pdf_x, pdf_y, pdf_v
         else:
             return None, None, None, None
