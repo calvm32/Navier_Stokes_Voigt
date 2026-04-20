@@ -13,7 +13,7 @@ class pdf_sampler:
 
     def __init__(self, mesh):
         self.nbins = 100
-        self.x_range = (-5, 5) # may need to change? # should b fine
+        self.range = (-5, 5) # may need to change? # should b fine
         
         self.sampler = spatial_sampler(mesh)
 
