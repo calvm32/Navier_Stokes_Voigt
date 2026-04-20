@@ -12,89 +12,62 @@ class pdf_sampler:
     """
 
     def __init__(self, mesh):
+        self.nbins = 100
+        self.x_range = (-5, 5) # may need to change? # should b fine
+        
         self.sampler = spatial_sampler(mesh)
 
-        self.velocity_x_samples = []
-        self.velocity_y_samples = []
-        self.velocity_z_samples = []
-        self.vorticity_samples = []
+        self.vel_x_hist = np.zeros(self.nbins)
+        self.vel_y_hist = np.zeros(self.nbins)
+        self.vort_hist  = np.zeros(self.nbins)
 
-    def sample_velocity_x(self, u, npoints=2000):
+        self.bin_edges = np.linspace(self.range[0], self.range[1], self.nbins + 1)
+
+    def sample_velocity(self, u, npoints=2000):
         """
-        samples velocity x-component
+        samples velocity values, breaks into x and y components
         """
         vals = self.sampler.sample_function(u, npoints)
-
         if len(vals) == 0:
             return
 
-        vals = np.array(vals) # velocities
-        vals_x = vals[:, 0] # extract x-component
+        vals = np.array(vals)
 
-        self.velocity_x_samples.append(vals_x)
+        hist_x, _ = np.histogram(vals[:, 0], bins=self.bin_edges)
+        hist_y, _ = np.histogram(vals[:, 1], bins=self.bin_edges)
 
-    def sample_velocity_y(self, u, npoints=2000):
-        """
-        samples velocity y-component
-        """
-        vals = self.sampler.sample_function(u, npoints)
-
-        if len(vals) == 0:
-            return
-
-        vals = np.array(vals) # velocities
-        vals_y = vals[:, 1] # extract y-component
-
-        self.velocity_y_samples.append(vals_y)
-
-    def sample_velocity_z(self, u, npoints=2000):
-        """
-        samples velocity z-component
-        """
-        vals = self.sampler.sample_function(u, npoints)
-
-        if len(vals) == 0:
-            return
-
-        vals = np.array(vals) # velocities
-        vals_z = vals[:, 2] # extract z-component
-
-        self.velocity_z_samples.append(vals_z)
+        self.vel_x_hist += hist_x
+        self.vel_y_hist += hist_y
 
     def sample_vorticity(self, omega, npoints=2000):
         """
         samples vorticity (omega)
         """
         vals = self.sampler.sample_function(omega, npoints)
-
         if len(vals) == 0:
             return
 
-        self.vorticity_samples.append(np.array(vals).flatten())
+        vals = np.array(vals).flatten()
+        hist, _ = np.histogram(vals, bins=self.bin_edges)
+        self.vort_hist += hist
 
     def finalize(self):
 
-        vel_x_local = (
-            np.concatenate(self.velocity_x_samples)
-            if self.velocity_x_samples else np.array([], dtype=float)
-        )
-        vel_y_local = (
-            np.concatenate(self.velocity_y_samples)
-            if self.velocity_y_samples else np.array([], dtype=float)
-        )
-        vort_local = (
-            np.concatenate(self.vorticity_samples)
-            if self.vorticity_samples else np.array([], dtype=float)
-        )
-
-        vel_x = comm.gather(vel_x_local, root=0)
-        vel_y = comm.gather(vel_y_local, root=0)
-        vort  = comm.gather(vort_local,  root=0)
+        # sum histograms across MPI ranks
+        global_vel_x = comm.reduce(self.vel_x_hist, op=MPI.SUM, root=0)
+        global_vel_y = comm.reduce(self.vel_y_hist, op=MPI.SUM, root=0)
+        global_vort  = comm.reduce(self.vort_hist,  op=MPI.SUM, root=0)
 
         if rank == 0:
-            vel_x = np.concatenate(vel_x) if vel_x else np.array([])
-            vel_y = np.concatenate(vel_y) if vel_y else np.array([])
-            vort  = np.concatenate(vort)  if vort  else np.array([])
-            return vel_x, vel_y, vort
+            # normalize to PDF
+            dx = self.bin_edges[1] - self.bin_edges[0]
+
+            pdf_x = global_vel_x / np.sum(global_vel_x) / dx
+            pdf_y = global_vel_y / np.sum(global_vel_y) / dx
+            pdf_v = global_vort  / np.sum(global_vort)  / dx
+
+            centers = 0.5 * (self.bin_edges[:-1] + self.bin_edges[1:])
+
+            return centers, pdf_x, pdf_y, pdf_v
         else:
-            return None, None, None
+            return None, None, None, None

@@ -43,7 +43,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
     else:
         u_error_list = []
     
-    output_file = Path("plot_data.npz")
+    output_file1 = Path("plot_data.npz")
+    output_file2 = Path("plot_final_data.npz")
 
     # -------------
     # Setup problem
@@ -275,10 +276,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
             
         if (step % write_every == 0) and step > 0:
             if mesh.comm.rank == 0:
-                velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
-                
                 np.savez(
-                    output_file,
+                    output_file1,
 
                     # time series
                     all_time=np.array(all_time_list),
@@ -290,14 +289,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
 
-                    # PDFs + structure
-                    velocity_x=np.array(velocity_x_vals),
-                    velocity_y=np.array(velocity_y_vals),
-                    omega=np.array(omega_vals),
-
-                    r_vals=np.array(struct_func.r_vals),
-                    S2=np.array(struct_func.S2),
-
                     # probe
                     probe=np.array(energy_spec_probe)
                 )
@@ -308,8 +299,28 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
     end = time.process_time()
     cpu_time = (end - start) / 60
 
+    if is_mixed and mesh.comm.rank == 0:
+        velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+        
+        np.savez(
+            output_file2,
+
+            # PDFs + structure
+            velocity_x=np.array(velocity_x_vals),
+            velocity_y=np.array(velocity_y_vals),
+            omega=np.array(omega_vals),
+
+            r_vals=np.array(struct_func.r_vals),
+            S2=np.array(struct_func.S2),
+        )
+
     # report completed
     green(f"\nCompleted after {cpu_time} minutes", spaced=True)
+
+    if is_mixed:
+        return v_error_list, p_error_list
+    else:
+        return u_error_list
 
 
 # ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
@@ -362,7 +373,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         u_error_list = []
     
     
-    output_file = Path("plot_data.npz")
+    output_file1 = Path("plot_data.npz")
 
     # -------------
     # Setup problem
@@ -607,7 +618,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
 
                 np.savez(
-                    output_file,
+                    output_file1,
 
                     # time series
                     all_time=np.array(all_time_list),
@@ -619,14 +630,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
 
-                    # PDFs + structure
-                    velocity_x=np.array(velocity_x_vals),
-                    velocity_y=np.array(velocity_y_vals),
-                    omega=np.array(omega_vals),
-
-                    r_vals=np.array(struct_func.r_vals),
-                    S2=np.array(struct_func.S2),
-
                     # probe
                     probe=np.array(energy_spec_probe)
                 )
@@ -636,6 +639,21 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # ----------------------------------
     end = time.process_time()
     cpu_time = (end - start) / 60
+
+    if is_mixed and mesh.comm.rank == 0:
+        velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+        
+        np.savez(
+            output_file2,
+
+            # PDFs + structure
+            velocity_x=np.array(velocity_x_vals),
+            velocity_y=np.array(velocity_y_vals),
+            omega=np.array(omega_vals),
+
+            r_vals=np.array(struct_func.r_vals),
+            S2=np.array(struct_func.S2),
+        )
 
     # report completed
     green(f"\nCompleted after {cpu_time} minutes", spaced=True)
