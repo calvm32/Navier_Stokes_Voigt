@@ -190,7 +190,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
     text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
     start = time.process_time()
 
-    while t < T:
+    while t <= num_steps:
 
         # Perform time step
         solver(t, dt)
@@ -297,6 +297,10 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamm
     # ----------------------------------
     end = time.process_time()
     cpu_time = (end - start) / 60
+
+    # synchronize for finalization process
+    comm = mesh.comm
+    comm.Barrier()
 
     if is_mixed and mesh.comm.rank == 0:
         velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
@@ -524,7 +528,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # Perform timestepping
     # --------------------
 
-    while t < T:
+    while t <= num_steps:
 
         # Perform time step
         if step == 0:
@@ -613,7 +617,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
         if (step % write_every == 0) and step > 0:
             if mesh.comm.rank == 0:
-                velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
 
                 np.savez(
                     output_file1,
@@ -637,6 +640,10 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # ----------------------------------
     end = time.process_time()
     cpu_time = (end - start) / 60
+
+    # synchronize for finalization process
+    comm = mesh.comm
+    comm.Barrier()
 
     if is_mixed and mesh.comm.rank == 0:
         velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
