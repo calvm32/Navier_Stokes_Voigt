@@ -65,7 +65,7 @@ class TemplateResolver:
                 "solver_path": "solvers_FEM.navier_stokes_2d.solver_MMS",
             }
         
-        if cfg.elements is None:
+        if cfg.elements is None and (not cfg.spec):
             raise ValueError("This problem requires element type")
 
         return {
@@ -100,7 +100,7 @@ class TemplateResolver:
                 "solver_path": "solvers_spectral.navier_stokes_voigt_2d.solver",
             }
         
-        if cfg.elements is None:
+        if cfg.elements is None and (not cfg.spec):
             raise ValueError("This problem requires element type")
 
         return {
