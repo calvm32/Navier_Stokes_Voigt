@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 from dataclasses import dataclass
-from solvers.processing.load_dump import load_txt, dump_txt
+from solvers_FEM.processing.load_dump import load_txt, dump_txt
 from pathlib import Path
 import yaml
 
@@ -40,14 +40,14 @@ class TemplateResolver:
                 "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
                 "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_MMS.yaml",
-                "solver_path": "solvers.heat_2d.solver_MMS",
+                "solver_path": "solvers_FEM.heat_2d.solver_MMS",
             }
 
         return {
             "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
             "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat.yaml",
-            "solver_path": "solvers.heat_2d.solver",
+            "solver_path": "solvers_FEM.heat_2d.solver",
         }
 
     @staticmethod
@@ -58,7 +58,7 @@ class TemplateResolver:
                 "settings": f"{TemplateResolver.BASE}/settings/ns_{cfg.elements.upper()}.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_MMS.yaml",
-                "solver_path": "solvers.navier_stokes_2d.solver_MMS",
+                "solver_path": "solvers_FEM.navier_stokes_2d.solver_MMS",
             }
         
         if cfg.elements is None:
@@ -69,7 +69,7 @@ class TemplateResolver:
             "settings": f"{TemplateResolver.BASE}/settings/ns_{cfg.elements.upper()}.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
             "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns.yaml",
-            "solver_path": "solvers.navier_stokes_2d.solver",
+            "solver_path": "solvers_FEM.navier_stokes_2d.solver",
         }
     def _resolve_nsv(cfg: RunConfig):
 
@@ -78,7 +78,7 @@ class TemplateResolver:
                 "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_MMS.yaml",
-                "solver_path": "solvers.navier_stokes_voigt_2d.solver_MMS",
+                "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
             }
         
         if cfg.elements is None:
@@ -89,7 +89,7 @@ class TemplateResolver:
             "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
             "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns.yaml",
-            "solver_path": "solvers.navier_stokes_voigt_2d.solver",
+            "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver",
         }
 
 # ------------

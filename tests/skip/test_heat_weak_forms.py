@@ -1,7 +1,7 @@
 from firedrake import *
 import pytest
 
-from solvers.heat_2d.make_weak_form import *
+from solvers_FEM.heat_2d.make_weak_form import *
 
 def _setup_heat_problem():
     mesh = UnitSquareMesh(4, 4)

@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 from firedrake import *
 
-from solvers.processing.statistics.pdf_sampler import pdf_sampler
-from solvers.processing.statistics.structure_funcs import structure_funcs
+from solvers_FEM.processing.statistics.pdf_sampler import pdf_sampler
+from solvers_FEM.processing.statistics.structure_funcs import structure_funcs
 
 @pytest.fixture
 def mesh():

@@ -2,7 +2,7 @@ from firedrake import *
 import yaml
 from pathlib import Path
 
-from solvers.processing.config_setup import *
+from solvers_FEM.processing.config_setup import *
 
 # --------------
 # BDF2 Weak form
@@ -11,7 +11,7 @@ from solvers.processing.config_setup import *
 def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, dsN, gamma=0.0, Re=1.0):
     """
     Bilinear and linear forms for heat equation
-      -> BDF2 time stepping
+      -> BDF2 time-stepping
       -> bilinear, linear
     """
 

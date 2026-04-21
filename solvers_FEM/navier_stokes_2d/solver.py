@@ -6,10 +6,10 @@ import shutil
 import csv
 import sys
 
-from solvers.timesteppers import *
+from solvers_FEM.timesteppers import *
 from .make_weak_form import *
-from solvers.processing.printoff import blue
-from solvers.processing.config_setup import *
+from solvers_FEM.processing.printoff import blue
+from solvers_FEM.processing.config_setup import *
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -36,7 +36,6 @@ def main(save_dir):
     theta = cfg["theta"]
     gamma = cfg["gamma"]
     Re = cfg["Re"]
-    alpha = cfg["alpha"]
     G = cfg["G"]
     P = cfg["P"]
     solver = cfg["solver"]
@@ -187,7 +186,7 @@ def main(save_dir):
             v_error_list, p_error_list = timestepper_CN(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
-                theta=theta, gamma=gamma, Re=Re, alpha=alpha,
+                theta=theta, gamma=gamma, Re=Re,
                 sample_length=L, sample_height=H,
                 make_weak_form=make_weak_form_CN, 
                 bcs=bcs, nullspace=nullspace,
@@ -198,7 +197,7 @@ def main(save_dir):
             v_error_list, p_error_list = timestepper_BDF2(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
-                gamma=gamma, Re=Re, alpha=alpha,
+                gamma=gamma, Re=Re, 
                 sample_length=L, sample_height=H,
                 make_weak_form_BDF2=make_weak_form_BDF2,
                 make_weak_form_CN=make_weak_form_CN,

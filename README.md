@@ -5,7 +5,7 @@ This repository provides a Crank-Nicolson and BDF2 solver for:
 - 2D Navier-Stokes equations
 
 ## Set up on your device
-This repository uses Firedrake, which currently requires a lot of luck to install. See the bottom of this page for my recommended workflow. Once you have Firedrake in a virtual environment, activate it and run `pip install -e .`
+This repository uses Firedrake, which currently requires a lot of luck to install. See [the bottom of this page](#firedrake-install) for my recommended workflow. Once you have Firedrake in a virtual environment, activate it and run `pip install -e .` to get all of my pre-defined commands.
 
 ## Run on your device
 To create a directory, use `mysave <directory_name>` followed by the options:

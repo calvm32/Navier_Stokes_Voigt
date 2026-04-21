@@ -6,10 +6,10 @@ import shutil
 import sys
 
 import matplotlib.pyplot as plt
-from solvers.timesteppers import *
+from solvers_FEM.timesteppers import *
 from .make_weak_form import *
-from solvers.processing.printoff import blue, green
-from solvers.processing.config_setup import *
+from solvers_FEM.processing.printoff import blue, green
+from solvers_FEM.processing.config_setup import *
 
 def main(save_dir):
     
