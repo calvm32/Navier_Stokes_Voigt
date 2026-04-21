@@ -1,4 +1,3 @@
-from firedrake import *
 import yaml
 from pathlib import Path
 import os
@@ -6,14 +5,10 @@ import shutil
 import csv
 import sys
 
-from solvers_FEM.timesteppers import *
-from .make_weak_form import *
-from solvers_FEM.processing.printoff import blue
-from solvers_FEM.processing.config_setup import *
+from processing.printoff import blue
+from processing.config_setup import *
 import matplotlib.pyplot as plt
 import numpy as np
-
-from mpi4py import MPI
 
 def main(save_dir):
 
@@ -41,32 +36,6 @@ def main(save_dir):
     P = cfg["P"]
     solver = cfg["solver"]
     elements = cfg["elements"]
-    views = cfg["views"]
-
-    # Build appctx
-    appctx = {
-        "Re": Re,
-        "gamma": gamma,
-        "velocity_space": 0
-    }
-
-    # views = news for solver param debugging
-    if views == "Full":
-        solver_parameters.update({
-            'ksp_view': None, 
-            'pc_view': None,
-            'snes_view': None, 
-            'pc_fieldsplit_view': None,
-            'firedrake_ksp_view': None,
-            'firedrake_pc_view': None,
-            'firedrake_ksp_view': None,
-            'firedrake_pc_view': None,
-        })
-    elif views == "Some":
-        solver_parameters.update({
-            'ksp_monitor_true_residual': None, 
-            'snes_monitor': None,
-        })
 
     vtkfile_name = "Soln"
 
@@ -76,18 +45,6 @@ def main(save_dir):
 
     HERE = os.path.dirname(os.path.abspath(__file__))
     MESH_PATH = os.path.join(HERE, "meshes/mms", "channel.msh")
-
-    # ------------
-    # Setup spaces
-    # ------------
-
-    blue(f"\n*** Starting solve ***", spaced=True)
-
-    mesh = Mesh(MESH_PATH)
-    x, y = SpatialCoordinate(mesh)
-
-    dx = Measure("dx", domain=mesh)
-    ds = Measure("ds", domain=mesh)
 
     # get height H
     y_coords = mesh.coordinates.dat.data[:, 1]
@@ -111,15 +68,11 @@ def main(save_dir):
 
     L = global_xmax - global_xmin
 
-    if elements == "SV":
-        k = 3  # or higher for stability on arbitrary triangles
-        V = VectorFunctionSpace(mesh, "CG", k)
-        W = FunctionSpace(mesh, "DG", k-1)
-        Z = V * W
-    elif elements == "TH":
-        V = VectorFunctionSpace(mesh, "CG", 2)
-        W = FunctionSpace(mesh, "CG", 1)
-        Z = V * W
+    # ------------
+    # Setup spaces
+    # ------------
+
+    blue(f"\n*** Starting solve ***", spaced=True)
 
     if rank == 0:
         print("\n--- Degrees of Freedom ---")
@@ -158,12 +111,6 @@ def main(save_dir):
 
     ufl_inflow = ufl_cfg["ufl_inflow"]
 
-    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
-    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-
-    bcs = [bc_walls, bc_inflow]
-    nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
-
     # ------------------
     # Allocate functions
     # ------------------
@@ -183,28 +130,15 @@ def main(save_dir):
     # Run solver
     # ----------
 
-    if solver == "CN":
-            v_error_list, p_error_list = timestepper_CN(get_data, 
-                Z, dx, ds, 
-                t0, T, dt, 
-                theta=theta, gamma=gamma, Re=Re, alpha=alpha,
-                sample_length=L, sample_height=H,
-                make_weak_form=make_weak_form_CN, 
-                bcs=bcs, nullspace=nullspace,
-                solver_parameters=solver_parameters,
-                appctx=appctx, vtkfile_name=vtkfile_name)
-
-    elif solver == "BDF2":
-            v_error_list, p_error_list = timestepper_BDF2(get_data, 
-                Z, dx, ds, 
-                t0, T, dt, 
-                gamma=gamma, Re=Re, alpha=alpha,
-                sample_length=L, sample_height=H,
-                make_weak_form_BDF2=make_weak_form_BDF2,
-                make_weak_form_CN=make_weak_form_CN,
-                bcs=bcs, nullspace=nullspace,
-                solver_parameters=solver_parameters,
-                appctx=appctx, vtkfile_name=vtkfile_name)
+    v_error_list, p_error_list = timestepper_RK4(get_data, 
+        Z, dx, ds, 
+        t0, T, dt, 
+        theta=theta, gamma=gamma, Re=Re, alpha=alpha,
+        sample_length=L, sample_height=H,
+        make_weak_form=make_weak_form_CN, 
+        bcs=bcs, nullspace=nullspace,
+        solver_parameters=solver_parameters,
+        appctx=appctx, vtkfile_name=vtkfile_name)
 
 if __name__ == "__main__":
     import sys

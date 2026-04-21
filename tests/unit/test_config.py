@@ -2,7 +2,7 @@ from firedrake import *
 import pytest
 
 from pathlib import Path
-from solvers_FEM.processing.config_setup import *
+from processing.config_setup import *
 
 def test_settings_yaml_loads():
     cfg = load_config(

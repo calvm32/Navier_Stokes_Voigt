@@ -7,8 +7,8 @@ import sys
 
 from solvers_FEM.timesteppers import *
 from .make_weak_form import *
-from solvers_FEM.processing.printoff import blue, green
-from solvers_FEM.processing.config_setup import *
+from processing.printoff import blue, green
+from processing.config_setup import *
 import matplotlib.pyplot as plt
 
 def main(save_dir):

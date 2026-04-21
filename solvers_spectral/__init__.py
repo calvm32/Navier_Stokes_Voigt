@@ -12,4 +12,4 @@ Modules: timestepper_RK.py:  BDF2 time-step solver
 from .timesteppers import timestepper_CN, timestepper_BDF2
 
 # folder w/ processing helper functions to use throughout
-from .processing import *
+from processing import *

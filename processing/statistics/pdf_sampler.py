@@ -1,5 +1,5 @@
 import numpy as np
-from solvers_FEM.processing.statistics.spatial_sampler import spatial_sampler
+from processing.statistics.spatial_sampler import spatial_sampler
 from firedrake import COMM_WORLD
 
 from mpi4py import MPI

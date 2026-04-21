@@ -4,10 +4,10 @@ import time
 from pathlib import Path
 
 from .create_timestep_solvers import *
-from .processing.printoff import iter_info_verbose, text, green
-from solvers_FEM.processing.statistics.pdf_sampler import pdf_sampler
-from solvers_FEM.processing.statistics.structure_funcs import structure_funcs
-from solvers_FEM.processing.post_processing import *
+from processing.printoff import iter_info_verbose, text, green
+from processing.statistics.pdf_sampler import pdf_sampler
+from processing.statistics.structure_funcs import structure_funcs
+from processing.post_processing import *
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, gamma, Re, sample_length, sample_height, alpha=None,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):

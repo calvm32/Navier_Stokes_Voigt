@@ -2,7 +2,7 @@ from firedrake import *
 import yaml
 from pathlib import Path
 
-from solvers_FEM.processing.config_setup import *
+from processing.config_setup import *
 
 # --------------
 # BDF2 Weak form

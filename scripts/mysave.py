@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 from dataclasses import dataclass
-from solvers_FEM.processing.load_dump import load_txt, dump_txt
+from processing.load_dump import load_txt, dump_txt
 from pathlib import Path
 import yaml
 
