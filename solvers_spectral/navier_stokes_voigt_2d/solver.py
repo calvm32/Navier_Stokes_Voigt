@@ -30,7 +30,6 @@ def main(save_dir):
     T = cfg["T"]
     dt = cfg["dt"]
     theta = cfg["theta"]
-    gamma = cfg["gamma"]
     Re = cfg["Re"]
     alpha = cfg["alpha"]
     G = cfg["G"]

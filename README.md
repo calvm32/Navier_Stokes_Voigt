@@ -20,6 +20,8 @@ To create a directory, use `mysave <directory_name>` followed by the options:
 
 3. `--mms` for testing the method of manufactured solutions
 
+4. `--spec` for implementing spectral methods instead of FEM (for now: only works on NSV)
+
 Now to run the problem, use `myrun <relative_path_to_directory>` followed by `--np <N>` to run using MPI parallel processing on N processors
 
 ## Firedrake install

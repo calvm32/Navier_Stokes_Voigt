@@ -1,0 +1,8 @@
+t0: 0.0             # initial time
+T: 5.0              # final time
+dt: 0.001           # time-step
+theta: 0.5          # theta constant
+Re: 600.0           # Reynold's num: 1/viscostiy
+G: 0.0              # initial pressure gauge
+P: -1.0             # pressure strength (P*x + G)
+alpha: 1.0          # Voigt constant alpha

@@ -11,6 +11,7 @@ class RunConfig:
     problem: str
     mms: bool
     elements: str | None
+    spec: bool
 
 # -----------------
 # template resolver
@@ -50,6 +51,9 @@ class TemplateResolver:
             "solver_path": "solvers_FEM.heat_2d.solver",
         }
 
+        if cfg.spec:
+            raise ValueError("Spectral methods do not work for this problem yet")
+
     @staticmethod
     def _resolve_ns(cfg: RunConfig):
 
@@ -71,6 +75,10 @@ class TemplateResolver:
             "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns.yaml",
             "solver_path": "solvers_FEM.navier_stokes_2d.solver",
         }
+
+        if cfg.spec:
+            raise ValueError("Spectral methods do not work for this problem yet")
+
     def _resolve_nsv(cfg: RunConfig):
 
         if cfg.mms:
@@ -79,6 +87,17 @@ class TemplateResolver:
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_MMS.yaml",
                 "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
+            }
+
+        if cfg.spec and cfg.mms:
+            raise ValueError("Method of manufactured solutions (MMS) does not work with spectral methods. Only select one")
+
+        if cfg.spec:
+            return {
+                "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_spec.yaml",
+                "solver_path": "solvers_spectral.navier_stokes_voigt_2d.solver",
             }
         
         if cfg.elements is None:
@@ -135,7 +154,7 @@ def build_parser():
     parser.add_argument(
         "--problem",
         required=True,
-        choices=["h2", "ns2", "nsv2"],
+        choices=["h2", "ns2", "nsv2", "nsv2spec"],
         help="Problem type"
     )
 
@@ -151,6 +170,12 @@ def build_parser():
         help="Element type"
     )
 
+    parser.add_argument(
+        "--spec",
+        action="store_true",
+        help="Use spectral method instead of FEM"
+    )
+
     return parser
 
 def main():
@@ -161,6 +186,7 @@ def main():
         problem=args.problem,
         mms=args.mms,
         elements=args.elements,
+        spec=args.spec,
     )
 
     templates = TemplateResolver.resolve(cfg)
