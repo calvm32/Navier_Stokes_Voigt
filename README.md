@@ -1,8 +1,12 @@
 # Fluid Mechanics Solvers
 
-This repository provides a Crank-Nicolson and BDF2 solver for:
+This repository provides a FEM Crank-Nicolson and BDF2 solver for:
 - 2D heat equation
 - 2D Navier-Stokes equations
+- 2D Navier-Stokes-Voigt equations
+
+Aditionally, this repository provides a spectral RK4 solver for:
+- 2D Navier-Stokes-Voigt equations
 
 ## Set up on your device
 This repository uses Firedrake, which currently requires a lot of luck to install. See [the bottom of this page](#firedrake-install) for my recommended workflow. Once you have Firedrake in a virtual environment, activate it and run `pip install -e .` to get all of my pre-defined commands.

@@ -1,0 +1,16 @@
+scale: 5.0
+
+# psi boundary inflow
+numpy_inflow: "scale*(2*y**2 / H - 4*y**3 / (3*H**2))" # from integrating
+
+# psi initial guess
+numpy_psi0: "scale*(2*y**2 / H - 4*y**3 / (3*H**2))" # from integrating
+
+# pressure initial guess
+numpy_p0: "0"
+
+# source term
+numpy_f: "[0.0, 0.0]"
+
+# boundary term
+numpy_g: "[0.0, 0.0]"
