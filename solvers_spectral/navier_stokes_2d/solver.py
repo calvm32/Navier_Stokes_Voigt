@@ -8,6 +8,8 @@ import sys
 from mpi4py import MPI
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.animation import PillowWriter
+from matplotlib.colors import TwoSlopeNorm
 
 from processing.printoff import blue
 from processing.config_setup import *
@@ -33,7 +35,6 @@ def main(save_dir):
     dt = cfg["dt"]
     theta = cfg["theta"]
     Re = cfg["Re"]
-    alpha = cfg["alpha"]
     G = cfg["G"]
     P = cfg["P"]
 
@@ -118,7 +119,7 @@ def main(save_dir):
     # make RHS
     # --------
 
-    def rhs(psi_hat, f_hat, ksq, alpha):
+    def rhs(psi_hat, f_hat, ksq):
         # laplacian
         lap_psi_hat = -ksq*psi_hat
 
@@ -145,8 +146,7 @@ def main(save_dir):
         curl_f_hat = 1j*kx[:,None]*f_y_hat - 1j*ky[None,:]*f_x_hat
         forcing_hat = inv_lap*curl_f_hat
 
-        # finally sum everything and divide by voigt b/c (1 + alpha^2k^2) = RHS
-        return (viscous_hat + nonlinear_hat + forcing_hat) / (1.0 + alpha**2*ksq)
+        return viscous_hat + nonlinear_hat + forcing_hat
 
     # initial value
     numpy_psi0 = numpy_cfg["numpy_psi0"]
@@ -169,7 +169,7 @@ def main(save_dir):
     f_y_hat = np.fft.fftn(f_y)
     f_hat = (f_x_hat, f_y_hat)
 
-    psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat, t0, T, dt, ksq, Re, alpha)
+    psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat, t0, T, dt, ksq, Re)
 
     # ----------------
     # now plot things!
@@ -212,6 +212,9 @@ def main(save_dir):
 
         omega_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi_hat_n
         omega = np.fft.ifftn(omega_hat).real
+
+        print(np.max(np.abs(omega[0,:] - omega[-1,:])))
+        print(np.max(np.abs(omega[:,0] - omega[:,-1])))
 
         im.set_data(omega) # update normalization
         ax.set_title(f"t = {times[n]:.3f}")

@@ -1,1 +1,2 @@
-# blank document b/c spectral methods don't require any preconditioning
+solver_parameters:
+  # blank b/c spectral methods don't require any preconditioning

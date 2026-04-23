@@ -9,7 +9,19 @@ Aditionally, this repository provides a spectral RK4 solver for:
 - 2D Navier-Stokes-Voigt equations
 
 ## Set up on your device
-This repository uses Firedrake, which currently requires a lot of luck to install. See [the bottom of this page](#firedrake-install) for my recommended workflow. Once you have Firedrake in a virtual environment, activate it and run `pip install -e .` to get all of my pre-defined commands.
+
+This repository uses Firedrake, which currently requires a lot of luck to install. See [the bottom of this page](#firedrake-install) for my recommended workflow. Once you have Firedrake in a virtual environment, activate it and run the following to get all my personal commands and some required libraries:
+```
+pip install -e .
+pip install -r requirements.txt
+```
+
+**NOTE** if running in VSCODE or a similar program, you need to make sure that the Python interpreter points to the correct location. For VSCODE users, press `Ctrl+Shift+P` and then select the virtual environment you just installed for Firedrake.
+
+Finally, all users should run the following:
+```
+export PYTHONPATH=/path/to/project/Navier_Stokes_Voigt:$PYTHONPATH
+```
 
 ## Run on your device
 To create a directory, use `mysave <directory_name>` followed by the options:

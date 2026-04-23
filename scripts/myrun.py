@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 def build_parser():
-    parser = argparse.ArgumentParser(description="Run NSV solver")
+    parser = argparse.ArgumentParser(description="Run solver")
     parser.add_argument("path", help="Save directory")
     parser.add_argument("--np", type=int, help="MPI processes")
     return parser

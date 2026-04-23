@@ -13,4 +13,4 @@ myrun  = "scripts.myrun:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["solvers*", "scripts*"]
+include = ["solvers_FEM*", "solvers_spectral*", "scripts*"]

@@ -64,6 +64,17 @@ class TemplateResolver:
                 "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_MMS.yaml",
                 "solver_path": "solvers_FEM.navier_stokes_2d.solver_MMS",
             }
+
+        if cfg.spec and cfg.mms:
+            raise ValueError("Method of manufactured solutions (MMS) does not work with spectral methods. Only select one")
+
+        if cfg.spec:
+            return {
+                "settings": f"{TemplateResolver.BASE}/settings/ns_spec.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_spec.yaml",
+                "solver_path": "solvers_spectral.navier_stokes_2d.solver",
+            }
         
         if cfg.elements is None and (not cfg.spec):
             raise ValueError("This problem requires element type")

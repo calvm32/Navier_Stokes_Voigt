@@ -31,9 +31,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         u, p = split(U)
         v, q = split(V)
 
-        # ------
-        # LHS
-        # ------
+        # Bilinear form a(U,V)
         a = (
             # BDF2 mass
             (3.0 / 2.0) * idt * inner(u, v) * dx
@@ -56,9 +54,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         if gamma != 0.0:
             a += gamma * inner(div(u), div(v)) * dx
 
-        # ------
-        # RHS
-        # ------
+        # Linear form L(V)
         L = (
             # BDF2 history
             0.5 * idt * inner(4.0*u_old - u_older, v) * dx
