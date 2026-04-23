@@ -30,7 +30,7 @@ def timestepper_RK4(rhs, u_hat_0, f_hat, t0, T, dt, ksq):
     return u_hat, t
 
 
-def timestepper_intfactor_RK4(rhs, u_hat_0, f_hat, t0, T, dt, ksq, Re):
+def timestepper_intfactor_RK4(rhs, u_hat_0, f_hat, t0, T, dt, ksq, Re, alpha):
     """
     Solve the ODE y' = f(t,y) on the interval [t0,T] with y(t0) = y0
     using the Runge-Kutta-4 approximation method,
@@ -47,10 +47,16 @@ def timestepper_intfactor_RK4(rhs, u_hat_0, f_hat, t0, T, dt, ksq, Re):
     E = np.exp(-1*(ksq/Re)*dt)
 
     for n in range(0, N - 1):
-        k1 = rhs(u_hat[...,n], f_hat, ksq)
-        k2 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k1), f_hat, ksq)
-        k3 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k2), f_hat, ksq)
-        k4 = rhs(np.sqrt(E)*(u_hat[...,n] + dt * k3), f_hat, ksq)
+        if alpha == 0:
+            k1 = rhs(u_hat[...,n], f_hat, ksq)
+            k2 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k1), f_hat, ksq)
+            k3 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k2), f_hat, ksq)
+            k4 = rhs(np.sqrt(E)*(u_hat[...,n] + dt * k3), f_hat, ksq)
+        else:
+            k1 = rhs(u_hat[...,n], f_hat, ksq, alpha)
+            k2 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k1), f_hat, ksq, alpha)
+            k3 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k2), f_hat, ksq, alpha)
+            k4 = rhs(np.sqrt(E)*(u_hat[...,n] + dt * k3), f_hat, ksq, alpha)
 
         u_hat[...,n + 1] = E*u_hat[...,n] + E*(dt/6)*(k1 + 2*k2 + 2*k3 + k4)
 

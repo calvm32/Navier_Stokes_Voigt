@@ -1,7 +1,0 @@
-scale: 5.0
-
-# psi initial guess
-numpy_psi0: "scale*sin(2*pi*x / L) * sin(2*pi*y / H)"
-
-# source term
-numpy_f: "[0.0, 0.0]"

@@ -40,14 +40,14 @@ class TemplateResolver:
             return {
                 "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
-                "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/heat_MMS.yaml",
                 "solver_path": "solvers_FEM.heat_2d.solver_MMS",
             }
 
         return {
             "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
-            "ufl": f"{TemplateResolver.BASE}/ufl_expr/heat.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/heat.yaml",
             "solver_path": "solvers_FEM.heat_2d.solver",
         }
 
@@ -61,7 +61,7 @@ class TemplateResolver:
             return {
                 "settings": f"{TemplateResolver.BASE}/settings/ns_{cfg.elements.upper()}.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-                "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_MMS.yaml",
                 "solver_path": "solvers_FEM.navier_stokes_2d.solver_MMS",
             }
 
@@ -72,7 +72,7 @@ class TemplateResolver:
             return {
                 "settings": f"{TemplateResolver.BASE}/settings/ns_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
-                "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
                 "solver_path": "solvers_spectral.navier_stokes_2d.solver",
             }
         
@@ -83,7 +83,7 @@ class TemplateResolver:
 
             "settings": f"{TemplateResolver.BASE}/settings/ns_{cfg.elements.upper()}.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/ns.yaml",
             "solver_path": "solvers_FEM.navier_stokes_2d.solver",
         }
 
@@ -96,7 +96,7 @@ class TemplateResolver:
             return {
                 "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-                "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_MMS.yaml",
                 "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
             }
 
@@ -107,7 +107,7 @@ class TemplateResolver:
             return {
                 "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
-                "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
                 "solver_path": "solvers_spectral.navier_stokes_voigt_2d.solver",
             }
         
@@ -118,7 +118,7 @@ class TemplateResolver:
 
             "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}/ufl_expr/ns.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/ns.yaml",
             "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver",
         }
 
@@ -144,7 +144,7 @@ class SaveManager:
                  f"{save_path}/solver_params.yaml")
 
         dump_txt(load_txt(templates["ufl"]),
-                 f"{save_path}/ufl_expr.yaml")
+                 f"{save_path}/user_expr.yaml")
 
         with open(f"{save_path}/run_info.yaml", "w") as f:
             yaml.dump({"solver_module": templates["solver_path"]}, f)

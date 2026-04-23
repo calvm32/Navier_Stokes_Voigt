@@ -9,6 +9,9 @@ from mpi4py import MPI
 import matplotlib.pyplot as plt
 import numpy as np
 
+from matplotlib.animation import PillowWriter
+from matplotlib.colors import TwoSlopeNorm
+
 from processing.printoff import blue
 from processing.config_setup import *
 from solvers_spectral import *
@@ -86,21 +89,13 @@ def main(save_dir):
     t = Constant(t0)
 
     namespace = {
-        "x": x,
-        "y": y,
-        "H": H,
+        "x": X,
+        "y": Y,
         "L": L,
-        "G": G,
-        "P": P,
-        "Re": Re,
-        "pi": pi,
-        "sin": sin,
-        "cos": cos,
-        "exp": exp,
-        "t": t,
+        "H": H,
     }
 
-    numpy_cfg = load_run_ufls(save_dir, namespace)
+    numpy_cfg = load_run_numpy(save_dir, namespace)
 
     # 2/3 dealiasing
     def dealias(u_hat):
@@ -118,7 +113,7 @@ def main(save_dir):
     # make RHS
     # --------
 
-    def rhs(psi_hat, f_hat, ksq, alpha):
+    def rhs(psi_hat, f_hat, ksq, alpha=0):
         # laplacian
         lap_psi_hat = -ksq*psi_hat
 
@@ -208,6 +203,7 @@ def main(save_dir):
 
     # animation loop
     for n in range(len(times) - 1):
+        print(f"{n}/{len(times) - 1}")
         psi_hat_n = psi_hat[..., n]
 
         omega_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi_hat_n

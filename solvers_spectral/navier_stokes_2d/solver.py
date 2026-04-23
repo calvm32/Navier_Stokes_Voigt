@@ -8,6 +8,7 @@ import sys
 from mpi4py import MPI
 import matplotlib.pyplot as plt
 import numpy as np
+
 from matplotlib.animation import PillowWriter
 from matplotlib.colors import TwoSlopeNorm
 
@@ -87,29 +88,21 @@ def main(save_dir):
     t = Constant(t0)
 
     namespace = {
-        "x": x,
-        "y": y,
-        "H": H,
+        "x": X,
+        "y": Y,
         "L": L,
-        "G": G,
-        "P": P,
-        "Re": Re,
-        "pi": pi,
-        "sin": sin,
-        "cos": cos,
-        "exp": exp,
-        "t": t,
+        "H": H,
     }
 
-    numpy_cfg = load_run_ufls(save_dir, namespace)
+    numpy_cfg = load_run_numpy(save_dir, namespace)
+
+    mask = np.ones((Nx, Ny))
 
     # 2/3 dealiasing
     def dealias(u_hat):
         Nx, Ny = u_hat.shape
         kx_cut = Nx // 3
         ky_cut = Ny // 3
-
-        mask = np.ones((Nx, Ny))
         mask[kx_cut:-kx_cut, :] = 0
         mask[:, ky_cut:-ky_cut] = 0
 
@@ -120,6 +113,7 @@ def main(save_dir):
     # --------
 
     def rhs(psi_hat, f_hat, ksq):
+
         # laplacian
         lap_psi_hat = -ksq*psi_hat
 
@@ -146,7 +140,7 @@ def main(save_dir):
         curl_f_hat = 1j*kx[:,None]*f_y_hat - 1j*ky[None,:]*f_x_hat
         forcing_hat = inv_lap*curl_f_hat
 
-        return viscous_hat + nonlinear_hat + forcing_hat
+        return (viscous_hat + nonlinear_hat + forcing_hat) 
 
     # initial value
     numpy_psi0 = numpy_cfg["numpy_psi0"]
@@ -174,6 +168,8 @@ def main(save_dir):
     # ----------------
     # now plot things!
     # ----------------
+
+    print("done")
  
     fig, ax = plt.subplots(figsize=(7, 5))
 
@@ -208,13 +204,11 @@ def main(save_dir):
 
     # animation loop
     for n in range(len(times) - 1):
+        print(f"{n}/{len(times) - 1}")
         psi_hat_n = psi_hat[..., n]
 
         omega_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi_hat_n
         omega = np.fft.ifftn(omega_hat).real
-
-        print(np.max(np.abs(omega[0,:] - omega[-1,:])))
-        print(np.max(np.abs(omega[:,0] - omega[:,-1])))
 
         im.set_data(omega) # update normalization
         ax.set_title(f"t = {times[n]:.3f}")
