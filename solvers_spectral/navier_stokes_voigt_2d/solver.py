@@ -15,6 +15,7 @@ from matplotlib.colors import TwoSlopeNorm
 from processing.printoff import blue
 from processing.config_setup import *
 from solvers_spectral import *
+from .make_rhs import *
 
 def main(save_dir):
 
@@ -34,11 +35,8 @@ def main(save_dir):
     t0 = cfg["t0"]
     T = cfg["T"]
     dt = cfg["dt"]
-    theta = cfg["theta"]
     Re = cfg["Re"]
     alpha = cfg["alpha"]
-    G = cfg["G"]
-    P = cfg["P"]
 
     vtkfile_name = "Soln"
 
@@ -81,6 +79,7 @@ def main(save_dir):
             if ksq[i, j] != 0:
                 inv_lap[i, j] = -1.0 / ksq[i, j]
 
+
     # -------------------
     # Configure functions
     # -------------------
@@ -97,60 +96,27 @@ def main(save_dir):
 
     numpy_cfg = load_run_numpy(save_dir, namespace)
 
-    # 2/3 dealiasing
-    def dealias(u_hat):
-        Nx, Ny = u_hat.shape
-        kx_cut = Nx // 3
-        ky_cut = Ny // 3
-
-        mask = np.ones((Nx, Ny))
-        mask[kx_cut:-kx_cut, :] = 0
-        mask[:, ky_cut:-ky_cut] = 0
-
-        return u_hat * mask
-    
-    # --------
-    # make RHS
-    # --------
-
-    def rhs(psi_hat, f_hat, ksq, alpha=0):
-        # laplacian
-        lap_psi_hat = -ksq*psi_hat
-
-        # gradients
-        psi_x = np.fft.ifftn(1j*kx[:,None]*psi_hat)
-        psi_y = np.fft.ifftn(1j*ky[None,:]*psi_hat)
-
-        lap_psi_x = np.fft.ifftn(1j*kx[:,None]*lap_psi_hat)
-        lap_psi_y = np.fft.ifftn(1j*ky[None,:]*lap_psi_hat)
-
-        # nonlinear Jacobian
-        J = psi_x*lap_psi_y - psi_y*lap_psi_x
-        J_hat = np.fft.fftn(J)
-        J_hat = dealias(J_hat)
-
-        nonlinear_hat = -inv_lap * J_hat
-
-        # viscous term
-        viscous_hat = (1.0/Re)* lap_psi_hat
-
-        # forcing term
-        f_x_hat, f_y_hat = f_hat
-
-        curl_f_hat = 1j*kx[:,None]*f_y_hat - 1j*ky[None,:]*f_x_hat
-        forcing_hat = inv_lap*curl_f_hat
-
-        # finally sum everything and divide by voigt b/c (1 + alpha^2k^2) = RHS
-        return (viscous_hat + nonlinear_hat + forcing_hat) / (1.0 + alpha**2*ksq)
-
     # initial value
     numpy_psi0 = numpy_cfg["numpy_psi0"]
     psi0_func = numpy_psi0*np.ones_like(X) 
     psi_hat_0 = np.fft.fftn(psi0_func)
 
+    # 2/3 dealiasing
+    mask = np.ones((Nx, Ny))
+    def dealias(u_hat):
+        Nx, Ny = u_hat.shape
+        kx_cut = Nx // 3
+        ky_cut = Ny // 3
+        mask[kx_cut:-kx_cut, :] = 0
+        mask[:, ky_cut:-ky_cut] = 0
+
+        return u_hat * mask
+        
     # ----------
     # Run solver
     # ----------
+
+    rhs = make_rhs(kx, ky, dealias, Re, inv_lap)
 
     # setup forcing func
     numpy_f = numpy_cfg["numpy_f"]
@@ -204,9 +170,8 @@ def main(save_dir):
     # animation loop
     for n in range(len(times) - 1):
         print(f"{n}/{len(times) - 1}")
-        psi_hat_n = psi_hat[..., n]
 
-        omega_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi_hat_n
+        omega_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi_hat[..., n]
         omega = np.fft.ifftn(omega_hat).real
 
         im.set_data(omega) # update normalization

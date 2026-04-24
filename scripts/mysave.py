@@ -30,6 +30,8 @@ class TemplateResolver:
             return TemplateResolver._resolve_ns(cfg)
         elif cfg.problem == "nsv2":
             return TemplateResolver._resolve_nsv(cfg)
+        elif cfg.problem == "compare":
+            return TemplateResolver._resolve_compare(cfg)
         else:
             raise ValueError("Unknown problem type")
 
@@ -122,6 +124,38 @@ class TemplateResolver:
             "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver",
         }
 
+    def _resolve_compare(cfg: RunConfig):
+
+        # if cfg.mms:
+        #     return {
+        #         "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
+        #         "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
+        #         "ufl": f"{TemplateResolver.BASE}/user_expr/ns_MMS.yaml",
+        #         "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
+        #     }
+
+        # if cfg.spec and cfg.mms:
+        #     raise ValueError("Method of manufactured solutions (MMS) does not work with spectral methods. Only select one")
+
+        if cfg.spec:
+            return {
+                "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
+                "solver_path": "solvers_spectral.compare_2d.solver",
+            }
+        
+        # if cfg.elements is None and (not cfg.spec):
+        #     raise ValueError("This problem requires element type")
+
+        # return {
+
+        #     "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
+        #     "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
+        #     "ufl": f"{TemplateResolver.BASE}/user_expr/ns.yaml",
+        #     "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver",
+        # }
+
 # ------------
 # save builder
 # ------------
@@ -165,7 +199,7 @@ def build_parser():
     parser.add_argument(
         "--problem",
         required=True,
-        choices=["h2", "ns2", "nsv2", "nsv2spec"],
+        choices=["h2", "ns2", "nsv2", "compare"],
         help="Problem type"
     )
 
