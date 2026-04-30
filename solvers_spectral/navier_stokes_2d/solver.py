@@ -136,7 +136,7 @@ def main(save_dir):
 
     print("done")
  
-    fig, ax = plt.subplots(figsize=(7, 5))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     writer = PillowWriter(fps=20)
     writer.setup(fig, "navier_stokes_vorticity.gif", dpi=120)
@@ -146,10 +146,36 @@ def main(save_dir):
     omega0_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi0_hat
     omega0 = np.fft.ifftn(omega0_hat).real
 
+    # --------------------------------
+    # compute stats for final project:
+    # --------------------------------
+
+    enstrophy = (1/2)*np.sum(omega0**2)*dx*dy
+    grad_omega_sq_hat = (kx[:, None]**2 + ky[None, :]**2)* np.abs(omega0_hat)**2
+    dissipation = (1/Re)*(1/(Nx * Ny))*np.sum(grad_omega_sq_hat)
+
+    enstrophy_prev = enstrophy
+
+    times_list = []
+    dE_list = []
+    diss_list = []
+
+    line1, = ax2.plot([], [], linestyle='--', label=r"dE/dt")
+    line2, = ax2.plot([], [], linewidth=3.0, label=r"-nu int(nabla w)^2 dx")
+
+    ax2.set_xlim(t0, T)
+    ax2.set_ylim(-1, 1)
+    ax2.legend()
+    ax2.set_title("Enstrophy Balance")
+
+    # -----------------
+    # continue plotting
+    # -----------------
+
     # center color map at zero ig
     norm = TwoSlopeNorm(vmin=omega0.min(), vcenter=0.0, vmax=omega0.max())
 
-    im = ax.imshow(
+    im = ax1.imshow(
         omega0, 
         extent=[0, L, 0, H],
         origin="lower",
@@ -159,23 +185,51 @@ def main(save_dir):
         aspect="auto"
     )
 
-    cbar = fig.colorbar(im, ax=ax, label="Vorticity ω")
+    cbar = fig.colorbar(im, ax=ax1, label="Vorticity ω")
 
-    ax.set_xlim(0, L)
-    ax.set_ylim(0, H)
-    ax.set_title(f"t = {t0:.3f}")
+    ax1.set_xlim(0, L)
+    ax1.set_ylim(0, H)
+    ax1.set_title(f"t = {t0:.3f}")
 
     writer.grab_frame()
 
     # animation loop
     for n in range(len(times) - 1):
         print(f"{n}/{len(times) - 1}")
-        
+
+        # -----------------
+        # actual sol'n plot
+        # -----------------
         omega_hat = -(kx[:, None]**2 + ky[None, :]**2) *psi_hat[..., n]
         omega = np.fft.ifftn(omega_hat).real
 
         im.set_data(omega) # update normalization
-        ax.set_title(f"t = {times[n]:.3f}")
+        ax1.set_title(f"t = {times[n]:.3f}")
+
+        # -------------------
+        # energy balance plot   
+        # -------------------
+        enstrophy = (1/2)*np.sum(omega**2)*dx*dy
+        grad_omega_sq_hat = (kx[:, None]**2 + ky[None, :]**2)*np.abs(omega_hat)**2
+        dissipation = (1/Re)*np.sum(grad_omega_sq_hat) *dx*dy / (Nx*Ny)
+
+        # v simple derivative approx
+        if n > 0:
+            dE_dt = (enstrophy - enstrophy_prev)/dt
+        else:
+            dE_dt = 0.0
+
+        enstrophy_prev = enstrophy
+
+        times_list.append(times[n])
+        dE_list.append(dE_dt)
+        diss_list.append(-dissipation)
+
+        line1.set_data(times_list, dE_list)
+        line2.set_data(times_list, diss_list)
+
+        ax2.relim()
+        ax2.autoscale_view()
 
         writer.grab_frame()
 

@@ -45,20 +45,21 @@ def timestepper_intfactor_RK4(rhs, u_hat_0, f_hat, t0, T, dt, ksq, Re, alpha=0):
 
     # integrating factor
     E = np.exp(-1*(ksq/Re)*dt)
+    E2 = np.exp(-1*(ksq/Re)*dt / 2)
 
     for n in range(0, N - 1):
         if alpha == 0:
             k1 = rhs(u_hat[...,n], f_hat, ksq)
-            k2 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k1), f_hat, ksq)
-            k3 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k2), f_hat, ksq)
-            k4 = rhs(np.sqrt(E)*(u_hat[...,n] + dt * k3), f_hat, ksq)
+            k2 = rhs(E2*(u_hat[...,n] + dt/2 * k1), f_hat, ksq)
+            k3 = rhs(E2*(u_hat[...,n]) + dt/2 * k2, f_hat, ksq)
+            k4 = rhs(E*(u_hat[...,n] + dt * k3), f_hat, ksq)
         else:
             k1 = rhs(u_hat[...,n], f_hat, ksq, alpha)
-            k2 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k1), f_hat, ksq, alpha)
-            k3 = rhs(np.sqrt(E)*(u_hat[...,n] + dt/2 * k2), f_hat, ksq, alpha)
-            k4 = rhs(np.sqrt(E)*(u_hat[...,n] + dt * k3), f_hat, ksq, alpha)
+            k2 = rhs(E2*(u_hat[...,n] + dt/2 * k1), f_hat, ksq, alpha)
+            k3 = rhs(E2*(u_hat[...,n]) + dt/2 * k2, f_hat, ksq, alpha)
+            k4 = rhs(E*(u_hat[...,n] + dt * k3), f_hat, ksq, alpha)
 
-        u_hat[...,n + 1] = E*u_hat[...,n] + E*(dt/6)*(k1 + 2*k2 + 2*k3 + k4)
+        u_hat[...,n + 1] = E*u_hat[...,n] + (dt/6)*(E*k1 + E2*2*(k2 + k3) + k4)
 
     return u_hat, t
 
@@ -81,22 +82,23 @@ def timestepper_intfactor_compare_RK4(rhs1, rhs2, u_hat_0, f_hat, t0, T, dt, ksq
 
     # integrating factor
     E = np.exp(-1*(ksq/Re)*dt)
+    E2 = np.exp(-1*(ksq/Re)*dt / 2)
 
     for n in range(0, N - 1):
     
         k1 = rhs1(u_hat1[...,n], f_hat, ksq, alpha)
-        k2 = rhs1(np.sqrt(E)*(u_hat1[...,n] + dt/2 * k1), f_hat, ksq, alpha)
-        k3 = rhs1(np.sqrt(E)*(u_hat1[...,n] + dt/2 * k2), f_hat, ksq, alpha)
-        k4 = rhs1(np.sqrt(E)*(u_hat1[...,n] + dt * k3), f_hat, ksq, alpha)
+        k2 = rhs1(E2*(u_hat1[...,n] + dt/2 * k1), f_hat, ksq, alpha)
+        k3 = rhs1(E2*(u_hat1[...,n]) + dt/2 * k2, f_hat, ksq, alpha)
+        k4 = rhs1(E*(u_hat1[...,n] + dt * k3), f_hat, ksq, alpha)
 
-        u_hat1[...,n + 1] = E*u_hat1[...,n] + E*(dt/6)*(k1 + 2*k2 + 2*k3 + k4)
+        u_hat1[...,n + 1] = E*u_hat1[...,n] + (dt/6)*(E*k1 + E*2*(k2 + k3) + k4)
 
         k1 = rhs2(u_hat2[...,n], f_hat, ksq, alpha)
-        k2 = rhs2(np.sqrt(E)*(u_hat2[...,n] + dt/2 * k1), f_hat, ksq, alpha)
-        k3 = rhs2(np.sqrt(E)*(u_hat2[...,n] + dt/2 * k2), f_hat, ksq, alpha)
-        k4 = rhs2(np.sqrt(E)*(u_hat2[...,n] + dt * k3), f_hat, ksq, alpha)
+        k2 = rhs2(E2*(u_hat2[...,n] + dt/2 * k1), f_hat, ksq, alpha)
+        k3 = rhs2(E2*(u_hat2[...,n]) + dt/2 * k2, f_hat, ksq, alpha)
+        k4 = rhs2(E*(u_hat2[...,n] + dt * k3), f_hat, ksq, alpha)
 
-        u_hat2[...,n + 1] = E*u_hat2[...,n] + E*(dt/6)*(k1 + 2*k2 + 2*k3 + k4)
+        u_hat2[...,n + 1] = E*u_hat2[...,n] + (dt/6)*(E*k1 + E*2*(k2 + k3) + k4)
 
         u_hat_diff[...,n + 1] = u_hat1[...,n + 1] - u_hat2[...,n + 1]
 

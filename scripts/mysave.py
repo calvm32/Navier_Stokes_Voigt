@@ -11,7 +11,6 @@ class RunConfig:
     problem: str
     mms: bool
     elements: str | None
-    spec: bool
 
 # -----------------
 # template resolver
@@ -24,137 +23,152 @@ class TemplateResolver:
     @staticmethod
     def resolve(cfg: RunConfig):
 
-        if cfg.problem == "h2":
-            return TemplateResolver._resolve_heat(cfg)
-        elif cfg.problem == "ns2":
-            return TemplateResolver._resolve_ns(cfg)
-        elif cfg.problem == "nsv2":
-            return TemplateResolver._resolve_nsv(cfg)
-        elif cfg.problem == "compare":
-            return TemplateResolver._resolve_compare(cfg)
+        if cfg.problem == "h2_FEM":
+            return TemplateResolver._resolve_heat_FEM(cfg)
+        elif cfg.problem == "ns2_FEM":
+            return TemplateResolver._resolve_ns_FEM(cfg)
+        elif cfg.problem == "nsv2_FEM":
+            return TemplateResolver._resolve_nsv_FEM(cfg)
+        if cfg.problem == "h2_spec":
+            return TemplateResolver._resolve_heat_spec(cfg)
+        elif cfg.problem == "ns2_spec":
+            return TemplateResolver._resolve_ns_spec(cfg)
+        elif cfg.problem == "nsv2_spec":
+            return TemplateResolver._resolve_nsv_spec(cfg)
+        elif cfg.problem == "compare_spec":
+            return TemplateResolver._resolve_compare_spec(cfg)
         else:
             raise ValueError("Unknown problem type")
 
+
     @staticmethod
-    def _resolve_heat(cfg: RunConfig):
+    def _resolve_heat_FEM(cfg: RunConfig):
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
+                "settings": f"{TemplateResolver.BASE}/settings/heat_FEM.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_FEM.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/heat_MMS.yaml",
                 "solver_path": "solvers_FEM.heat_2d.solver_MMS",
             }
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/heat.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/heat.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/heat_FEM.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_FEM.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM.yaml",
             "solver_path": "solvers_FEM.heat_2d.solver",
         }
 
-        if cfg.spec:
-            raise ValueError("Spectral methods do not work for this problem yet")
 
     @staticmethod
-    def _resolve_ns(cfg: RunConfig):
+    def _resolve_heat_spec(cfg: RunConfig):
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/ns_{cfg.elements.upper()}.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_MMS.yaml",
+                "settings": f"{TemplateResolver.BASE}/settings/heat_spec.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/heat_spec_MMS.yaml",
+                "solver_path": "solvers_spectral.heat_2d.solver_MMS",
+            }
+
+        return {
+            "settings": f"{TemplateResolver.BASE}/settings/heat_spec.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/heat_spec.yaml",
+            "solver_path": "solvers_spectral.heat_2d.solver",
+        }
+
+
+    @staticmethod
+    def _resolve_ns_FEM(cfg: RunConfig):
+
+        if cfg.mms:
+            return {
+                "settings": f"{TemplateResolver.BASE}/settings/ns_FEM_{cfg.elements.upper()}.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM_MMS.yaml",
                 "solver_path": "solvers_FEM.navier_stokes_2d.solver_MMS",
             }
-
-        if cfg.spec and cfg.mms:
-            raise ValueError("Method of manufactured solutions (MMS) does not work with spectral methods. Only select one")
-
-        if cfg.spec:
-            return {
-                "settings": f"{TemplateResolver.BASE}/settings/ns_spec.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
-                "solver_path": "solvers_spectral.navier_stokes_2d.solver",
-            }
         
-        if cfg.elements is None and (not cfg.spec):
+        if cfg.elements is None:
             raise ValueError("This problem requires element type")
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}/settings/ns_{cfg.elements.upper()}.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/ns.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/ns_FEM_{cfg.elements.upper()}.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM.yaml",
             "solver_path": "solvers_FEM.navier_stokes_2d.solver",
         }
 
-        if cfg.spec:
-            raise ValueError("Spectral methods do not work for this problem yet")
 
-    def _resolve_nsv(cfg: RunConfig):
+    @staticmethod
+    def _resolve_ns_spec(cfg: RunConfig):
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_MMS.yaml",
+                "settings": f"{TemplateResolver.BASE}/settings/ns_spec.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec_MMS.yaml",
+                "solver_path": "solvers_spectral.navier_stokes_2d.solver_MMS",
+            }
+
+        return {
+            "settings": f"{TemplateResolver.BASE}/settings/ns_spec.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
+            "solver_path": "solvers_spectral.navier_stokes_2d.solver",
+        }
+
+
+    def _resolve_nsv_FEM(cfg: RunConfig):
+
+        if cfg.mms:
+            return {
+                "settings": f"{TemplateResolver.BASE}/settings/nsv_FEM_{cfg.elements.upper()}.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM_MMS.yaml",
                 "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
             }
-
-        if cfg.spec and cfg.mms:
-            raise ValueError("Method of manufactured solutions (MMS) does not work with spectral methods. Only select one")
-
-        if cfg.spec:
-            return {
-                "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
-                "solver_path": "solvers_spectral.navier_stokes_voigt_2d.solver",
-            }
         
-        if cfg.elements is None and (not cfg.spec):
+        if cfg.elements is None:
             raise ValueError("This problem requires element type")
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/ns.yaml",
+            "settings": f"{TemplateResolver.BASE}/settings/nsv_FEM_{cfg.elements.upper()}.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM.yaml",
             "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver",
         }
 
-    def _resolve_compare(cfg: RunConfig):
 
-        # if cfg.mms:
-        #     return {
-        #         "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
-        #         "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-        #         "ufl": f"{TemplateResolver.BASE}/user_expr/ns_MMS.yaml",
-        #         "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
-        #     }
+    def _resolve_nsv_spec(cfg: RunConfig):
 
-        # if cfg.spec and cfg.mms:
-        #     raise ValueError("Method of manufactured solutions (MMS) does not work with spectral methods. Only select one")
-
-        if cfg.spec:
+        if cfg.mms:
             return {
                 "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
-                "solver_path": "solvers_spectral.compare_2d.solver",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec_MMS.yaml",
+                "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
             }
-        
-        # if cfg.elements is None and (not cfg.spec):
-        #     raise ValueError("This problem requires element type")
 
-        # return {
+        return {
+            "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec.yaml",
+            "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver",
+        }
 
-        #     "settings": f"{TemplateResolver.BASE}/settings/nsv_{cfg.elements.upper()}.yaml",
-        #     "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_{cfg.elements.upper()}.yaml",
-        #     "ufl": f"{TemplateResolver.BASE}/user_expr/ns.yaml",
-        #     "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver",
-        # }
+
+    def _resolve_compare_spec(cfg: RunConfig):
+
+        return {
+            "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_spec.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/any_spec.yaml",
+            "solver_path": "solvers_spectral.compare_2d.solver",
+        }
 
 # ------------
 # save builder
@@ -199,7 +213,7 @@ def build_parser():
     parser.add_argument(
         "--problem",
         required=True,
-        choices=["h2", "ns2", "nsv2", "compare"],
+        choices=["h2_FEM", "ns2_FEM", "nsv2_FEM", "h2_spec", "ns2_spec", "nsv2_spec", "compare_spec"],
         help="Problem type"
     )
 
@@ -215,12 +229,6 @@ def build_parser():
         help="Element type"
     )
 
-    parser.add_argument(
-        "--spec",
-        action="store_true",
-        help="Use spectral method instead of FEM"
-    )
-
     return parser
 
 def main():
@@ -231,7 +239,6 @@ def main():
         problem=args.problem,
         mms=args.mms,
         elements=args.elements,
-        spec=args.spec,
     )
 
     templates = TemplateResolver.resolve(cfg)
