@@ -936,11 +936,11 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
                     # time series
                     all_time=np.array(all_time_list),
-                    energy=np.array(energy_list),
+                    energy=np.array(energy_diff_list),
 
                     every_time=np.array(every_time_list),
-                    palinstrophy=np.array(palinstrophy_list),
-                    enstrophy=np.array(enstrophy_list),
+                    palinstrophy=np.array(palinstrophy_diff_list),
+                    enstrophy=np.array(enstrophy_diff_list),
                 )
 
     # ----------------------------------
