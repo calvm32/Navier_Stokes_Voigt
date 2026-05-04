@@ -198,7 +198,7 @@ def main(save_dir):
         omega_diff_list, v_diff_list = timestepper_BDF2_compare(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
-                gamma=gamma, Re=Re, 
+                gamma=gamma, Re=Re, alpha,
                 sample_length=L, sample_height=H,
                 make_weak_form_NSV_BDF2=make_weak_form_NSV_BDF2,
                 make_weak_form_NSE_BDF2=make_weak_form_NSE_BDF2,

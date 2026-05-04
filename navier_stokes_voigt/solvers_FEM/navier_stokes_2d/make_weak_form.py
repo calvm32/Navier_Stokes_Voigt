@@ -4,7 +4,7 @@ from firedrake import *
 # BDF2 weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, Re, alpha):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, Re):
     """
     BDF2 Navier-Stokes
     - Oseen linearization
@@ -73,7 +73,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
 # CN weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re, alpha):
+def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re):
     """
     Crank-Nicolson Navier-Stokes-Voigt
       -> Oseen linearization
