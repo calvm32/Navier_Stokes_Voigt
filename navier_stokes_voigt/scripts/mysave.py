@@ -173,10 +173,13 @@ class TemplateResolver:
         }
 
     def _resolve_compare_FEM(cfg: RunConfig):
+        if cfg.elements is None:
+            raise ValueError("This problem requires element type")
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/ns_FEM.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM.yaml",
+
+            "settings": f"{TemplateResolver.BASE}/settings/nsv_FEM_{cfg.elements.upper()}.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM.yaml",
             "solver_path": "navier_stokes_voigt.solvers_FEM.compare_2d.solver",
         }
