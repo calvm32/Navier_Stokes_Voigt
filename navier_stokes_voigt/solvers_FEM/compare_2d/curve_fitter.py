@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 
-def curve_fitter(x_list, y_list, comparison_type):
+def curve_fitter(x_list, y_list, comparison_type, yaxislabel):
 
 
     fig, (ax1, ax2) = plt.subplots(
@@ -14,7 +14,7 @@ def curve_fitter(x_list, y_list, comparison_type):
     # regular L2 norm
     ax1.plot(x_list, y_list)
     ax1.set_xlabel(r"$\alpha$ value")
-    ax1.set_ylabel(r"$||\omega||_{L^2}$")
+    ax1.set_ylabel(f"{yaxislabel}")
     ax1.grid()
 
     if comparison_type == "power":
@@ -27,7 +27,7 @@ def curve_fitter(x_list, y_list, comparison_type):
         ax2.loglog(x_list, y_list, 'o', label='Data')
         ax2.loglog(x_list, fit_line, 'b-', label='Fitted line', color='orange')
         ax2.set_xlabel(r"log($\alpha$ value)")
-        ax2.set_ylabel(r"log($||\omega||_{L^2}$)")
+        ax2.set_ylabel(f"log(yaxislabel)")
         ax2.grid()
         ax2.legend()
 
@@ -50,7 +50,7 @@ def curve_fitter(x_list, y_list, comparison_type):
         ax2.loglog(x_list, y_list, 'o', label='Data')
         ax2.loglog(x_list, fit_line, 'b-', label='Fitted line', color='orange')
         ax2.set_xlabel(r"log($\alpha$ value)")
-        ax2.set_ylabel(r"log($||\omega||_{L^2}$)")
+        ax2.set_ylabel(f"log({yaxislabel})")
         ax2.grid()
         ax2.legend()
 
@@ -83,7 +83,7 @@ def curve_fitter(x_list, y_list, comparison_type):
         ax2.loglog(x_list, fit_line, '-', label='Fitted line', color='orange')
 
         ax2.set_xlabel(r"log($\alpha$ value)")
-        ax2.set_ylabel(r"log($||\omega||_{L^2}$)")
+        ax2.set_ylabel(f"log({yaxislabel})")
         ax2.grid()
         ax2.legend()
 
@@ -114,7 +114,7 @@ def curve_fitter(x_list, y_list, comparison_type):
         ax2.loglog(x_list, fit_line, '-', label='Fitted line', color='orange')
 
         ax2.set_xlabel(r"log($\alpha$ value)")
-        ax2.set_ylabel(r"log($||\omega||_{L^2}$)")
+        ax2.set_ylabel(f"log({yaxislabel})")
         ax2.grid()
         ax2.legend()
 
@@ -147,7 +147,7 @@ def curve_fitter(x_list, y_list, comparison_type):
         ax2.loglog(x_list, fit_line, '-', label='Fitted line', color='orange')
 
         ax2.set_xlabel(r"log($\alpha$ value)")
-        ax2.set_ylabel(r"log($||\omega||_{L^2}$)")
+        ax2.set_ylabel(f"log({yaxislabel})")
         ax2.grid()
         ax2.legend()
 
@@ -177,7 +177,7 @@ def curve_fitter(x_list, y_list, comparison_type):
         ax2.loglog(x_list, fit_line, '-', label='Fitted line', color='orange')
 
         ax2.set_xlabel(r"$\alpha$")
-        ax2.set_ylabel(r"log($||\omega||_{L^2}$)")
+        ax2.set_ylabel(f"log({yaxislabel})")
         ax2.grid()
         ax2.legend()
 
@@ -208,7 +208,7 @@ def curve_fitter(x_list, y_list, comparison_type):
         ax2.loglog(x_list, fit_line, '-', label='Fitted line', color='orange')
 
         ax2.set_xlabel(r"$\alpha$")
-        ax2.set_ylabel(r"log($||\omega||_{L^2}$)")
+        ax2.set_ylabel(f"log({yaxislabel})")
         ax2.grid()
         ax2.legend()
 
@@ -250,7 +250,7 @@ def curve_fitter(x_list, y_list, comparison_type):
         ax2.loglog(x_list, fit_line, '-', label='Fitted line', color='orange')
 
         ax2.set_xlabel(r"$\alpha$")
-        ax2.set_ylabel(r"log($||\omega||_{L^2}$)")
+        ax2.set_ylabel(f"log({yaxislabel})")
         ax2.grid()
         ax2.legend()
 

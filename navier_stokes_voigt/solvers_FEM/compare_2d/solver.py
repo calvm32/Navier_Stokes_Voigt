@@ -17,7 +17,7 @@ from mpi4py import MPI
 
 def main(save_dir):
 
-    num_comparisons = 100
+    num_comparisons = 20
     comparison_type = "logistic" #valid: power, exp, iter, sat_exp, log, log_sat, log_power, logistic
 
     comm = MPI.COMM_WORLD
@@ -188,12 +188,14 @@ def main(save_dir):
     alpha_list = np.linspace(-5,4,num_comparisons)
     for i in range(len(alpha_list)):
         alpha_list[i] = exp(alpha_list[i])
+
     omega_l2_list = np.zeros_like(alpha_list)
+    velocity_l2_list = np.zeros_like(alpha_list)
 
     for i in range(len(alpha_list)):
         alpha = alpha_list[i]
 
-        v_diff_list, p_diff_list = timestepper_BDF2(get_data, 
+        omega_diff_list, v_diff_list = timestepper_BDF2_compare(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
                 gamma=gamma, Re=Re, 
@@ -206,30 +208,17 @@ def main(save_dir):
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name)
 
-        # initial vorticity
-        psi0_hat = psi_hat_diff[..., 0]
-        omega0_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi0_hat
-        omega0 = np.fft.ifftn(omega0_hat).real
+        omega_l2_list[i] = omega_diff_list[-1]
+        velocity_l2_list[i] = v_diff_list[-1]
 
-        omega_intime = []
-
-        # convert to vorticity
-        for n in range(len(times) - 1):
-            #print(f"{n}/{len(times) - 1}")
-
-            omega_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi_hat_diff[..., n]
-            omega = np.fft.ifftn(omega_hat).real
-
-            omega_intime.append(omega)
-
-        omega_l2_list[i] = np.linalg.norm(omega_intime)
         print(f"solved {i+1}/{len(alpha_list)}")
 
     # ----------------
     # now plot things!
     # ----------------
 
-    curve_fitter(alpha_list, omega_l2_list, comparison_type)
+    curve_fitter(alpha_list, omega_l2_list, comparison_type, yaxislabel=r"$||vorticity diff||_{L^2}$")
+    curve_fitter(alpha_list, velocity_l2_list, comparison_type, yaxislabel=r"$||velocity diff||_{L^2}$")
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ from .curve_fitter import *
 
 def main(save_dir):
 
-    num_comparisons = 100
+    num_comparisons = 20
     comparison_type = "logistic" #valid: power, exp, iter, sat_exp, log, log_sat, log_power, logistic
 
     comm = MPI.COMM_WORLD

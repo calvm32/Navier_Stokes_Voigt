@@ -722,7 +722,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     cpu_time = 0
 
     v_diff_list = []
-    p_diff_list = []
+    omega_diff_list = []
     
     output_file1 = Path("plot_data.npz")
     output_file2 = Path("plot_final_data.npz")
@@ -755,10 +755,6 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     u_old_NSV.sub(1).interpolate(data_new0["ufl_p0"])  # pressure
     u_older_NSV.assign(u_old)
 
-    # for L2 error
-    v_error = 0
-    p_error = 0
-
     # create timestep solvers
     solver_NSE_CN = create_timestep_solver_NSE_CN(get_data, Z, dx , dsN, u_old_NSE, u_NSE,
                                 make_weak_form_NSE_CN, is_mixed, 1.0, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
@@ -774,8 +770,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                                 solver_parameters=solver_parameters, appctx=appctx)
 
     # get energy + report run starting
-    energy_diff = abs(sqrt(assemble(inner(u_old_NSE.sub(0), u_old_NSE.sub(0)) * dx)) 
-                        - sqrt(assemble(inner(u_old_NSV.sub(0), u_old_NSV.sub(0)) * dx)))
+    energy_diff = abs(sqrt(assemble(inner(u_old_NSE.sub(0) - u_old_NSV.sub(0), u_old_NSE.sub(0) - u_old_NSV.sub(0)) * dx)))
     
     # ---------------------
     # setup stream function
@@ -896,8 +891,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
         # -------
 
         # -------- energy --------
-        energy_diff = abs(sqrt(assemble(inner(u_old_NSE.sub(0), u_old_NSE.sub(0)) * dx)) 
-                        - sqrt(assemble(inner(u_old_NSV.sub(0), u_old_NSV.sub(0)) * dx)))
+        energy_diff = abs(sqrt(assemble(inner(u_old_NSE.sub(0) - u_old_NSV.sub(0), u_old_NSE.sub(0) - u_old_NSV.sub(0)) * dx)))
         energy_diff_list.append(energy_diff)
         all_time_list.append(t)
 
@@ -913,33 +907,25 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                 omega_f_NSE.interpolate(omega_NSE)
                 omega_NSV = curl(u_old_NSV.sub(0))
                 omega_f_NSV.interpolate(omega_NSV)
+                omega_diff_list.append(sqrt(assemble((omega_NSE - omega_NSV)**2 * dx)))
 
                 # -------- stream --------
                 solver_psi_NSE.solve()
                 solver_psi_NSV.solve()
-                stream_func_list.append(abs(sqrt(assemble(inner(psi_NSE, psi_NSE) * dx)) 
-                                            - sqrt(assemble(inner(psi_NSV, psi_NSV) * dx))))
+                stream_func_diff_list.append(sqrt(assemble(inner(psi_NSE - psi_NSV, psi_NSE - psi_NSV) * dx)))
 
                 # -------- palinstrophy --------
-                palinstrophy_diff_list.append(abs(sqrt(assemble(inner(grad(omega_f_NSE), grad(omega_f_NSE)) * dx)) 
-                                                - sqrt(assemble(inner(grad(omega_f_NSV), grad(omega_f_NSV)) * dx))))
+                palinstrophy_diff_list.append(sqrt(assemble(inner(grad(omega_f_NSE) - grad(omega_f_NSV), grad(omega_f_NSE) - grad(omega_f_NSV)) * dx)))
 
                 # -------- enstrophy --------
-                enstrophy_diff_list.append(abs(sqrt(assemble(inner(omega_f_NSE, omega_f_NSE) * dx)) 
-                                            - sqrt(assemble(inner(omega_f_NSV, omega_f_NSV) * dx))))
+                enstrophy_diff_list.append(sqrt(assemble(inner(omega_f_NSE - omega_f_NSV, omega_f_NSE - omega_f_NSV) * dx)))
 
                 
             # -------- solution difference --------
             # get data at current time
             data_new = get_data(t)
 
-            v_diff_list.append(abs(assemble(inner(u_exact_NSE.sub(0) - u_NSE.sub(0), u_exact_NSE.sub(0) - u_NSE.sub(0))*dx)*dt)
-                                - assemble(inner(u_exact_NSV.sub(0) - u_NSV.sub(0), u_exact_NSV.sub(0) - u_NSV.sub(0))*dx)*dt)
-            p_diff_list.append(abs(assemble(inner(grad(u_exact_NSE.sub(1)) - grad(u_NSE.sub(1)), 
-                                grad(u_exact_NSE.sub(1)) - grad(u_NSE.sub(1)))*dx)*dt
-                                - assemble(inner(grad(u_exact_NSV.sub(1)) - grad(u_NSV.sub(1)), 
-                                grad(u_exact_NSV.sub(1)) - grad(u_NSV.sub(1)))*dx)*dt))
-
+            v_diff_list.append(sqrt(assemble(inner(u_NSE.sub(0) - u_NSV.sub(0), u_NSE.sub(0) - u_NSV.sub(0))*dx)*dt))
 
             # -------- solution --------
             visfile.write(u_NSE.sub(0), u_NSE.sub(1), time=t)
@@ -973,4 +959,4 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     # report completed
     green(f"\nCompleted after {cpu_time} minutes", spaced=True)
 
-    return v_diff_list, p_diff_list
+    return omega_diff_list, v_diff_list
