@@ -756,16 +756,16 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     u_older_NSV.assign(u_old_NSV)
 
     # create timestep solvers
-    solver_NSE_CN = create_timestep_solver_NSE_CN(get_data, Z, dx , dsN, u_old_NSE, u_NSE,
+    solver_NSE_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old_NSE, u_NSE,
                                 make_weak_form_NSE_CN, is_mixed, 1.0, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
                                 solver_parameters=solver_parameters, appctx=appctx)
-    solver_NSE = create_timestep_solver_NSE_BDF2(get_data, Z, dx , dsN, u_older_NSE, u_old_NSE, u_NSE,
+    solver_NSE = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older_NSE, u_old_NSE, u_NSE,
                                 make_weak_form_NSE_BDF2, is_mixed, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
                                 solver_parameters=solver_parameters, appctx=appctx)
-    solver_NSV_CN = create_timestep_solver_NSV_CN(get_data, Z, dx , dsN, u_old_NSV, u_NSV,
+    solver_NSV_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old_NSV, u_NSV,
                                 make_weak_form_NSV_CN, is_mixed, 1.0, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
                                 solver_parameters=solver_parameters, appctx=appctx)
-    solver_NSV = create_timestep_solver_NSV_BDF2(get_data, Z, dx , dsN, u_older_NSV, u_old_NSV, u_NSV,
+    solver_NSV = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older_NSV, u_old_NSV, u_NSV,
                                 make_weak_form_NSV_BDF2, is_mixed, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
                                 solver_parameters=solver_parameters, appctx=appctx)
 
