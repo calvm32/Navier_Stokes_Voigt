@@ -150,14 +150,14 @@ class TemplateResolver:
                 "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec_MMS.yaml",
-                "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
+                "solver_path": "solvers_spectral.navier_stokes_voigt_2d.solver_MMS",
             }
 
         return {
             "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec.yaml",
-            "solver_path": "solvers_FEM.navier_stokes_voigt_2d.solver",
+            "solver_path": "solvers_spectral.navier_stokes_voigt_2d.solver",
         }
 
 
