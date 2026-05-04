@@ -780,9 +780,9 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
     # FIRST NSE
     Vpsi_NSE = FunctionSpace(domain, "CG", 1)
-    psi_NSE = Function(Vpsi)
-    phi_NSE = TestFunction(Vpsi)
-    psi_trial_NSE = TrialFunction(Vpsi)
+    psi_NSE = Function(Vpsi_NSE)
+    phi_NSE = TestFunction(Vpsi_NSE)
+    psi_trial_NSE = TrialFunction(Vpsi_NSE)
 
     omega_f_NSE = Function(Vpsi_NSE, name="vorticity")
 
