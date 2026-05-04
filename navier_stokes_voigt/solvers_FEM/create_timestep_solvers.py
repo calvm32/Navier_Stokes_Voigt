@@ -24,14 +24,9 @@ def create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u, make_weak_form, i
 
     # Create the problem + solver once
     if is_mixed:
-        if alpha == None:
-            a, L = make_weak_form(
-                idt, f, f_old, g, g_old, u_old, dx, dsN, theta, gamma, Re
-            )(u, TestFunction(Z))
-        else: 
-            a, L = make_weak_form(
-                idt, f, f_old, g, g_old, u_old, dx, dsN, theta, gamma, Re, alpha
-            )(u, TestFunction(Z))
+        a, L = make_weak_form(
+            idt, f, f_old, g, g_old, u_old, dx, dsN, theta, gamma, Re, alpha
+        )(u, TestFunction(Z))
         F = a - L
         problem_var = NonlinearVariationalProblem(F, u, bcs=bcs)
         solver = NonlinearVariationalSolver(
@@ -118,14 +113,9 @@ def create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u, make_w
 
     # Create the problem + solver once
     if is_mixed:
-        if alpha == None:
-            a, L = make_weak_form(
-                idt, f, f_old, g, g_old, u_older, u_old, dx, dsN, gamma, Re
-            )(u, TestFunction(Z))
-        else: 
-            a, L = make_weak_form(
-                idt, f, f_old, g, g_old, u_older, u_old, dx, dsN, gamma, Re, alpha
-            )(u, TestFunction(Z))
+        a, L = make_weak_form(
+            idt, f, f_old, g, g_old, u_older, u_old, dx, dsN, gamma, Re, alpha
+        )(u, TestFunction(Z))
         F = a - L
         problem_var = NonlinearVariationalProblem(F, u, bcs=bcs)
         solver = NonlinearVariationalSolver(
