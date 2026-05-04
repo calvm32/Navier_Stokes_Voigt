@@ -748,12 +748,12 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     # FIRST NSE
     u_old_NSE.sub(0).interpolate(data_new0["ufl_v0"])  # velocity
     u_old_NSE.sub(1).interpolate(data_new0["ufl_p0"])  # pressure
-    u_older_NSE.assign(u_old)
+    u_older_NSE.assign(u_old_NSE)
 
     # NEXT NSV
     u_old_NSV.sub(0).interpolate(data_new0["ufl_v0"])  # velocity
     u_old_NSV.sub(1).interpolate(data_new0["ufl_p0"])  # pressure
-    u_older_NSV.assign(u_old)
+    u_older_NSV.assign(u_old_NSV)
 
     # create timestep solvers
     solver_NSE_CN = create_timestep_solver_NSE_CN(get_data, Z, dx , dsN, u_old_NSE, u_NSE,
