@@ -1,8 +1,8 @@
 from firedrake import *
 import pytest
 
-from solvers_FEM.navier_stokes_2d.make_weak_form import *
-from solvers_FEM.timesteppers import *
+from navier_stokes_voigt.solvers_FEM.navier_stokes_2d.make_weak_form import *
+from navier_stokes_voigt.solvers_FEM.timesteppers import *
 
 def _setup_ns_timestepper():
     mesh = UnitSquareMesh(4, 4)

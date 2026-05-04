@@ -1,0 +1,105 @@
+import time
+from pathlib import Path
+import numpy as np
+
+from navier_stokes_voigt.processing.printoff import iter_info_verbose, text, green
+from navier_stokes_voigt.processing.statistics.pdf_sampler import pdf_sampler
+from navier_stokes_voigt.processing.statistics.structure_funcs import structure_funcs
+from navier_stokes_voigt.processing.post_processing import *
+
+def timestepper_RK4(rhs, u_hat_0, f_hat, t0, T, dt, ksq):
+    """
+    Solve the ODE y' = f(t,y) on the interval [t0,T] with y(t0) = y0
+    using the Runge-Kutta-4 approximation method 
+    """
+    
+    N = int(np.floor((T - t0) / dt) + 1) # fixed number of steps
+    t = t0+dt*np.arange(N)
+
+    u_hat = np.zeros(u_hat_0.shape + (N,), dtype=complex) # append time axis N
+    u_hat[..., 0] = u_hat_0  # Set initial Fourier coefficients
+
+    for n in range(0, N - 1):
+        k1 = rhs(u_hat[...,n], f_hat, ksq)
+        k2 = rhs(u_hat[...,n] + dt/2 * k1, f_hat, ksq)
+        k3 = rhs(u_hat[...,n] + dt/2 * k2, f_hat, ksq)
+        k4 = rhs(u_hat[...,n] + dt * k3, f_hat, ksq)
+
+        u_hat[...,n + 1] = u_hat[...,n] + (dt/6)*(k1 + 2*k2 + 2*k3 + k4)
+
+    return u_hat, t
+
+
+def timestepper_intfactor_RK4(rhs, u_hat_0, f_hat, t0, T, dt, ksq, Re, alpha=0):
+    """
+    Solve the ODE y' = f(t,y) on the interval [t0,T] with y(t0) = y0
+    using the Runge-Kutta-4 approximation method,
+    specifically with integrating factor of e^power applied
+    """
+    
+    N = int(np.floor((T - t0) / dt) + 1) # fixed number of steps
+    t = t0+dt*np.arange(N)
+
+    u_hat = np.zeros(u_hat_0.shape + (N,), dtype=complex) # append time axis N
+    u_hat[..., 0] = u_hat_0  # Set initial Fourier coefficients
+
+    # integrating factor
+    E = np.exp(-1*(ksq/Re)*dt)
+    E2 = np.exp(-1*(ksq/Re)*dt / 2)
+
+    for n in range(0, N - 1):
+        if alpha == 0:
+            k1 = rhs(u_hat[...,n], f_hat, ksq)
+            k2 = rhs(E2*(u_hat[...,n] + dt/2 * k1), f_hat, ksq)
+            k3 = rhs(E2*(u_hat[...,n]) + dt/2 * k2, f_hat, ksq)
+            k4 = rhs(E*(u_hat[...,n] + dt * k3), f_hat, ksq)
+        else:
+            k1 = rhs(u_hat[...,n], f_hat, ksq, alpha)
+            k2 = rhs(E2*(u_hat[...,n] + dt/2 * k1), f_hat, ksq, alpha)
+            k3 = rhs(E2*(u_hat[...,n]) + dt/2 * k2, f_hat, ksq, alpha)
+            k4 = rhs(E*(u_hat[...,n] + dt * k3), f_hat, ksq, alpha)
+
+        u_hat[...,n + 1] = E*u_hat[...,n] + (dt/6)*(E*k1 + E2*2*(k2 + k3) + k4)
+
+    return u_hat, t
+
+def timestepper_intfactor_compare_RK4(rhs1, rhs2, u_hat_0, f_hat, t0, T, dt, ksq, Re, alpha):
+    """
+    Solve the ODE y' = f(t,y) on the interval [t0,T] with y(t0) = y0
+    using the Runge-Kutta-4 approximation method,
+    specifically with integrating factor of e^power applied
+    """
+    
+    N = int(np.floor((T - t0) / dt) + 1) # fixed number of steps
+    t = t0+dt*np.arange(N)
+
+    u_hat_diff = np.zeros(u_hat_0.shape + (N,), dtype=complex) # append time axis N
+    u_hat1 = np.zeros(u_hat_0.shape + (N,), dtype=complex) # append time axis N
+    u_hat2 = np.zeros(u_hat_0.shape + (N,), dtype=complex) # append time axis N
+
+    u_hat1[..., 0] = u_hat_0  # Set initial Fourier coefficients
+    u_hat2[..., 0] = u_hat_0  # Set initial Fourier coefficients
+
+    # integrating factor
+    E = np.exp(-1*(ksq/Re)*dt)
+    E2 = np.exp(-1*(ksq/Re)*dt / 2)
+
+    for n in range(0, N - 1):
+    
+        k1 = rhs1(u_hat1[...,n], f_hat, ksq, alpha)
+        k2 = rhs1(E2*(u_hat1[...,n] + dt/2 * k1), f_hat, ksq, alpha)
+        k3 = rhs1(E2*(u_hat1[...,n]) + dt/2 * k2, f_hat, ksq, alpha)
+        k4 = rhs1(E*(u_hat1[...,n] + dt * k3), f_hat, ksq, alpha)
+
+        u_hat1[...,n + 1] = E*u_hat1[...,n] + (dt/6)*(E*k1 + E*2*(k2 + k3) + k4)
+
+        k1 = rhs2(u_hat2[...,n], f_hat, ksq, alpha)
+        k2 = rhs2(E2*(u_hat2[...,n] + dt/2 * k1), f_hat, ksq, alpha)
+        k3 = rhs2(E2*(u_hat2[...,n]) + dt/2 * k2, f_hat, ksq, alpha)
+        k4 = rhs2(E*(u_hat2[...,n] + dt * k3), f_hat, ksq, alpha)
+
+        u_hat2[...,n + 1] = E*u_hat2[...,n] + (dt/6)*(E*k1 + E*2*(k2 + k3) + k4)
+
+        u_hat_diff[...,n + 1] = u_hat1[...,n + 1] - u_hat2[...,n + 1]
+
+    return u_hat_diff, t
