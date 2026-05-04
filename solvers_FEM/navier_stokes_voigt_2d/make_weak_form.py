@@ -4,7 +4,7 @@ from pathlib import Path
 
 from processing.config_setup import *
 
-def voigt_inner(u, v):
+def voigt_inner(u, v, alpha):
     return inner(u, v) + alpha**2 * inner(grad(u), grad(v))
 
 # --------------
@@ -35,7 +35,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         # Bilinear form a(U,V)
         a = (
             # BDF2 mass
-            (3.0 / 2.0) * idt * voigt_inner(u, v) * dx # CHANGED THIS FOR VOIGT
+            (3.0 / 2.0) * idt * voigt_inner(u, v, alpha) * dx # CHANGED THIS FOR VOIGT
 
             # Skew-symmetric Oseen advection
             + 0.5 * (
@@ -99,7 +99,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re,
         # Bilinear form a(U,V)
         a = (
             # Time derivative
-            idt * voigt_inner(u, v) * dx # CHANGED THIS FOR VOIGT
+            idt * voigt_inner(u, v, alpha) * dx # CHANGED THIS FOR VOIGT
 
             # Skew-symmetric Oseen advection
             + 0.5 * (
