@@ -786,7 +786,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
     omega_f_NSE = Function(Vpsi_NSE, name="vorticity")
 
-    a_psi_NSE = inner(grad(psi_trial), grad(phi)) * dx
+    a_psi_NSE = inner(grad(psi_trial_NSE), grad(phi_NSE)) * dx
     L_psi_NSE = omega_f_NSE * phi_NSE * dx
 
     bcs_psi_NSE = DirichletBC(Vpsi_NSE, 0.0, "on_boundary")
@@ -811,7 +811,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
     omega_f_NSV = Function(Vpsi_NSV, name="vorticity")
 
-    a_psi_NSV = inner(grad(psi_trial), grad(phi)) * dx
+    a_psi_NSV = inner(grad(psi_trial_NSV), grad(phi_NSV)) * dx
     L_psi_NSV = omega_f_NSV * phi_NSV * dx
 
     bcs_psi_NSV = DirichletBC(Vpsi_NSV, 0.0, "on_boundary")
