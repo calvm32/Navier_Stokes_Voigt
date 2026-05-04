@@ -849,8 +849,6 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     u_NSE.sub(0).assign(u_old_NSE.sub(0))
     u_NSE.sub(1).assign(u_old_NSE.sub(1))
 
-    visfile.write(u_NSE.sub(0), u_NSE.sub(1), time=t)
-
     # rename NEXT NSV
     u_NSV.sub(0).rename("velocity_NSV")
     u_NSV.sub(1).rename("pressure_NSV")
@@ -858,7 +856,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     u_NSV.sub(0).assign(u_old_NSV.sub(0))
     u_NSV.sub(1).assign(u_old_NSV.sub(1))
 
-    visfile.write(u_NSV.sub(0), u_NSV.sub(1), time=t)
+    visfile.write(u_NSE.sub(0), u_NSE.sub(1), u_NSV.sub(0), u_NSV.sub(1), time=t)
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy diff = {energy_diff}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
@@ -928,8 +926,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
             v_diff_list.append(sqrt(assemble(inner(u_NSE.sub(0) - u_NSV.sub(0), u_NSE.sub(0) - u_NSV.sub(0))*dx)*dt))
 
             # -------- solution --------
-            visfile.write(u_NSE.sub(0), u_NSE.sub(1), time=t)
-            visfile.write(u_NSV.sub(0), u_NSV.sub(1), time=t)
+            visfile.write(u_NSE.sub(0), u_NSE.sub(1), u_NSV.sub(0), u_NSV.sub(1), time=t)
 
         if (step % write_every == 0) and step > 0:
             if mesh.comm.rank == 0:
