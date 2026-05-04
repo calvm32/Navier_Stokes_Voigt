@@ -2,11 +2,11 @@ from firedrake import *
 import pytest
 
 from pathlib import Path
-from processing.config_setup import *
+from navier_stokes_voigt.processing.config_setup import *
 
 def test_settings_yaml_loads():
     cfg = load_config(
-        Path("templates/settings/heat_MMS.yaml")
+        Path("navier_stokes_voigt/templatessettings/heat_MMS.yaml")
     )
 
     required_keys = ["t0", "T", "dt", "theta"]
@@ -15,7 +15,7 @@ def test_settings_yaml_loads():
 
 def test_solver_params_yaml_loads():
     params = load_solver_parameters(
-        Path("templates/solver_parameters/heat_MMS.yaml")
+        Path("navier_stokes_voigt/templatessolver_parameters/heat_MMS.yaml")
     )
 
     assert isinstance(params, dict)

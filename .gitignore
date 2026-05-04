@@ -1,7 +1,8 @@
 **/__pycache__
 **/.pytest_cache
 **/.venv
-
+__pycache__/
+*.pyc
 solutions/
-
 nsv.egg-info/
+

@@ -1,0 +1,239 @@
+from firedrake import *
+import yaml
+from pathlib import Path
+import os
+import shutil
+import csv
+import sys
+
+from navier_stokes_voigt.solvers_FEM.timesteppers import *
+from .make_weak_form import *
+from navier_stokes_voigt.processing.printoff import blue
+from navier_stokes_voigt.processing.config_setup import *
+import matplotlib.pyplot as plt
+import numpy as np
+
+from mpi4py import MPI
+
+def main(save_dir):
+
+    num_comparisons = 100
+    comparison_type = "logistic" #valid: power, exp, iter, sat_exp, log, log_sat, log_power, logistic
+
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+
+    cfg, solver_parameters = load_run_configs(save_dir)
+
+    plot_path = Path(save_dir) / "plots"
+    plot_path.mkdir(exist_ok=True)
+
+    # ------------------
+    # Configure settings
+    # ------------------
+
+    # Extract settings
+    t0 = cfg["t0"]
+    T = cfg["T"]
+    dt = cfg["dt"]
+    theta = cfg["theta"]
+    gamma = cfg["gamma"]
+    Re = cfg["Re"]
+    G = cfg["G"]
+    P = cfg["P"]
+    solver = cfg["solver"]
+    elements = cfg["elements"]
+    views = cfg["views"]
+
+    # Build appctx
+    appctx = {
+        "Re": Re,
+        "gamma": gamma,
+        "velocity_space": 0
+    }
+
+    # views = news for solver param debugging
+    if views == "Full":
+        solver_parameters.update({
+            'ksp_view': None, 
+            'pc_view': None,
+            'snes_view': None, 
+            'pc_fieldsplit_view': None,
+            'firedrake_ksp_view': None,
+            'firedrake_pc_view': None,
+            'firedrake_ksp_view': None,
+            'firedrake_pc_view': None,
+        })
+    elif views == "Some":
+        solver_parameters.update({
+            'ksp_monitor_true_residual': None, 
+            'snes_monitor': None,
+        })
+
+    vtkfile_name = "Soln"
+
+    # --------------
+    # Configure mesh
+    # --------------
+
+    HERE = os.path.dirname(os.path.abspath(__file__))
+    MESH_PATH = os.path.join(HERE, "meshes/mms", "channel.msh")
+
+    # ------------
+    # Setup spaces
+    # ------------
+
+    blue(f"\n*** Starting solve ***", spaced=True)
+
+    mesh = Mesh(MESH_PATH)
+    x, y = SpatialCoordinate(mesh)
+
+    dx = Measure("dx", domain=mesh)
+    ds = Measure("ds", domain=mesh)
+
+    # get height H
+    y_coords = mesh.coordinates.dat.data[:, 1]
+
+    local_ymin = y_coords.min()
+    local_ymax = y_coords.max()
+
+    global_ymin = comm.allreduce(local_ymin, op=MPI.MIN)
+    global_ymax = comm.allreduce(local_ymax, op=MPI.MAX)
+
+    H = global_ymax - global_ymin
+
+    # get length L
+    x_coords = mesh.coordinates.dat.data[:, 0]
+
+    local_xmin = x_coords.min()
+    local_xmax = x_coords.max()
+
+    global_xmin = comm.allreduce(local_xmin, op=MPI.MIN)
+    global_xmax = comm.allreduce(local_xmax, op=MPI.MAX)
+
+    L = global_xmax - global_xmin
+
+    if elements == "SV":
+        k = 3  # or higher for stability on arbitrary triangles
+        V = VectorFunctionSpace(mesh, "CG", k)
+        W = FunctionSpace(mesh, "DG", k-1)
+        Z = V * W
+    elif elements == "TH":
+        V = VectorFunctionSpace(mesh, "CG", 2)
+        W = FunctionSpace(mesh, "CG", 1)
+        Z = V * W
+
+    if rank == 0:
+        print("\n--- Degrees of Freedom ---")
+        print(f"// V Total DoFs: {V.dof_count}")
+        print(f"// W Total DoFs: {W.dof_count}\n")
+
+    # -------------------
+    # Configure functions
+    # -------------------
+
+    # initialize t for later
+    t = Constant(t0)
+
+    namespace = {
+        "as_vector": as_vector,
+        "Constant": Constant,
+        "x": x,
+        "y": y,
+        "H": H,
+        "L": L,
+        "G": G,
+        "P": P,
+        "Re": Re,
+        "pi": pi,
+        "sin": sin,
+        "cos": cos,
+        "exp": exp,
+        "t": t,
+    }
+
+    ufl_cfg = load_run_ufls(save_dir, namespace)
+
+    # -------------------
+    # Boundary conditions
+    # -------------------
+
+    ufl_inflow = ufl_cfg["ufl_inflow"]
+
+    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
+    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
+
+    bcs = [bc_walls, bc_inflow]
+    nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
+
+    # ------------------
+    # Allocate functions
+    # ------------------
+
+    def get_data(t_curr):
+
+        t.assign(t_curr)
+
+        return {
+            "ufl_v0": ufl_cfg["ufl_v0"],
+            "ufl_p0": ufl_cfg["ufl_p0"],
+            "ufl_f": ufl_cfg["ufl_f"],
+            "ufl_g": ufl_cfg["ufl_g"]
+        }
+
+    # ----------
+    # Run solver
+    # ----------
+
+    alpha_list = np.linspace(-5,4,num_comparisons)
+    for i in range(len(alpha_list)):
+        alpha_list[i] = exp(alpha_list[i])
+    omega_l2_list = np.zeros_like(alpha_list)
+
+    for i in range(len(alpha_list)):
+        alpha = alpha_list[i]
+
+        v_diff_list, p_diff_list = timestepper_BDF2(get_data, 
+                Z, dx, ds, 
+                t0, T, dt, 
+                gamma=gamma, Re=Re, 
+                sample_length=L, sample_height=H,
+                make_weak_form_NSV_BDF2=make_weak_form_NSV_BDF2,
+                make_weak_form_NSE_BDF2=make_weak_form_NSE_BDF2,
+                make_weak_form_NSV_CN=make_weak_form_NSV_CN,
+                make_weak_form_NSE_CN=make_weak_form_NSE_CN,
+                bcs=bcs, nullspace=nullspace,
+                solver_parameters=solver_parameters,
+                appctx=appctx, vtkfile_name=vtkfile_name)
+
+        # initial vorticity
+        psi0_hat = psi_hat_diff[..., 0]
+        omega0_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi0_hat
+        omega0 = np.fft.ifftn(omega0_hat).real
+
+        omega_intime = []
+
+        # convert to vorticity
+        for n in range(len(times) - 1):
+            #print(f"{n}/{len(times) - 1}")
+
+            omega_hat = -(kx[:, None]**2 + ky[None, :]**2) * psi_hat_diff[..., n]
+            omega = np.fft.ifftn(omega_hat).real
+
+            omega_intime.append(omega)
+
+        omega_l2_list[i] = np.linalg.norm(omega_intime)
+        print(f"solved {i+1}/{len(alpha_list)}")
+
+    # ----------------
+    # now plot things!
+    # ----------------
+
+    curve_fitter(alpha_list, omega_l2_list, comparison_type)
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) < 2:
+        raise RuntimeError("Must provide save_dir as argument")
+    main(sys.argv[1])
