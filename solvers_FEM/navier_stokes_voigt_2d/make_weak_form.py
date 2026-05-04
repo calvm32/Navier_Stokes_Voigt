@@ -4,11 +4,12 @@ from pathlib import Path
 
 from processing.config_setup import *
 
+def voigt_inner(u, v):
+    return inner(u, v) + alpha**2 * inner(grad(u), grad(v))
+
 # --------------
 # BDF2 Weak form
 # --------------
-
-from firedrake import *
 
 def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, Re, alpha):
     """
@@ -34,7 +35,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         # Bilinear form a(U,V)
         a = (
             # BDF2 mass
-            (3.0 / 2.0) * idt * inner(u, v) * dx
+            (3.0 / 2.0) * idt * voigt_inner(u, v) * dx # CHANGED THIS FOR VOIGT
 
             # Skew-symmetric Oseen advection
             + 0.5 * (
@@ -98,7 +99,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re,
         # Bilinear form a(U,V)
         a = (
             # Time derivative
-            idt * inner(u, v) * dx
+            idt * voigt_inner(u, v) * dx # CHANGED THIS FOR VOIGT
 
             # Skew-symmetric Oseen advection
             + 0.5 * (

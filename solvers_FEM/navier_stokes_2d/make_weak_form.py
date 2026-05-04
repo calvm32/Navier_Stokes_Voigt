@@ -8,8 +8,6 @@ from processing.config_setup import *
 # BDF2 Weak form
 # --------------
 
-from firedrake import *
-
 def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, Re):
     """
     BDF2 Navier-Stokes
