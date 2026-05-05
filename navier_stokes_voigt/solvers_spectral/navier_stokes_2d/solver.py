@@ -69,13 +69,6 @@ def main(save_dir):
     ky = 2.0*np.pi*np.fft.fftfreq(Ny,d = dy)
     ksq = kx[:,None]**2 + ky[None,:]**2
 
-    # setup for Laplacian terms
-    inv_lap = np.zeros_like(ksq) # array of zeroes, then keep 0 node = 0
-    for i in range(ksq.shape[0]): # go through and set stuff, but avoid dividing by 0
-        for j in range(ksq.shape[1]):
-            if ksq[i, j] != 0:
-                inv_lap[i, j] = -1.0 / ksq[i, j]
-
     # -------------------
     # Configure functions
     # -------------------
@@ -112,7 +105,7 @@ def main(save_dir):
     # Run solver
     # ----------
 
-    rhs = make_rhs(kx, ky, ksq, inv_lap, Re)
+    rhs = make_rhs(kx, ky, Re)
 
     # setup forcing func
     def f_func(t):

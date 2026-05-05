@@ -1,4 +1,7 @@
+import numpy as np
+
 def make_rhs(kx, ky, Re): 
+
     # setup for Laplacian terms 
     ksq = kx[:,None]**2 + ky[None,:]**2 
     inv_lap = np.zeros_like(ksq) # array of zeroes, then keep 0 node = 0 
