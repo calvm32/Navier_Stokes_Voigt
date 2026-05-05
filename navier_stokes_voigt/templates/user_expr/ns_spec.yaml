@@ -4,4 +4,4 @@ scale: 5.0
 numpy_psi0: "np.sin(2*pi*x / L) * np.sin(2*pi*y / H) + np.sin(2*pi*x / L)"
 
 # source term
-numpy_f: "[0.0, 0.0]"
+numpy_f: "0.0"

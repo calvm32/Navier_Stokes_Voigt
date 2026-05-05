@@ -70,7 +70,6 @@ def main(save_dir):
     # fftfreq gives cycles per unit length; multiply by 2*pi for angular wavenumbers.
     kx = 2.0*np.pi*np.fft.fftfreq(Nx,d = dx)
     ky = 2.0*np.pi*np.fft.fftfreq(Ny,d = dy)
-    Laplacian_k = -kx[:,None]**2 - ky[None,:]**2
 
     # setup for Laplacian terms
     ksq = kx[:,None]**2 + ky[None,:]**2
@@ -141,7 +140,7 @@ def main(save_dir):
         alpha = alpha_list[i]
         psi_hat_diff, times = timestepper_intfactor_compare_RK4(rhs_NSE, rhs_NSV, 
                                                                 psi_hat_0, f_hat, t0, T, 
-                                                                dt, ksq, Re, alpha)
+                                                                dt, Re, alpha)
 
         # initial vorticity
         psi0_hat = psi_hat_diff[..., 0]

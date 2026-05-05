@@ -140,7 +140,7 @@ def main(save_dir):
     # ----------------
 
     plt.figure()
-    plt.semilogy(N_list, u_final_error_list, "-o")
+    plt.semilogy(N_list, final_error_list, "-o")
     plt.xlabel("mesh size")
     plt.ylabel("temperature error")
     plt.grid(True)

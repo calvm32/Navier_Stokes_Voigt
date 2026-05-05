@@ -1,7 +1,7 @@
 scale: 5.0
 
 # psi initial guess
-numpy_psi0: "np.sin(2*pi*x / L) * np.sin(2*pi*y / H) + np.sin(2*pi*x / L)"
+numpy_psi0: "np.sin(2*pi*x / L)*np.sin(2*pi*y / H)*np.exp(-t)"
 
 # source term
-numpy_f: "[0.0, 0.0]"
+numpy_f: "(-1 + (1/Re)*( (2*pi/L)**2 + (2*pi/H)**2 ))*( np.sin(2*pi*x / L)*np.sin(2*pi*y / H)*np.exp(-t) )"

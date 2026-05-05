@@ -2,7 +2,7 @@ import numpy as np
 
 def make_rhs(kx, ky, dealias, Re, inv_lap):
 
-    def rhs_NSE(psi_hat, f_hat, ksq, alpha=0):
+    def rhs_NSE(psi_hat, f_hat, alpha=0):
 
         # laplacian
         lap_psi_hat = -ksq*psi_hat
@@ -32,7 +32,7 @@ def make_rhs(kx, ky, dealias, Re, inv_lap):
 
         return (viscous_hat + nonlinear_hat + forcing_hat)
 
-    def rhs_NSV(psi_hat, f_hat, ksq, alpha=0):
+    def rhs_NSV(psi_hat, f_hat, alpha=0):
         # laplacian
         lap_psi_hat = -ksq*psi_hat
 
