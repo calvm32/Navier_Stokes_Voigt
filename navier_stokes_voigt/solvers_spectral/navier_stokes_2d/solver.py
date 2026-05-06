@@ -56,8 +56,7 @@ def main(save_dir):
     dy = H/Ny
 
     # enforce CFL
-    if dt > Re*min(dx, dy)**2:
-        dt = 0.5*Re*min(dx, dy)**2
+    dt = min(cfg["dt"], 0.5*Re*min(dx, dy)**2)
 
     # Grid (periodic, endpoint excluded)
     x = np.linspace(0,L,Nx,endpoint = False)
@@ -90,21 +89,6 @@ def main(save_dir):
     psi0 = numpy_cfg["numpy_psi0"](X, Y, t0)
     psi_hat_0 = np.fft.fftn(psi0)
 
-    # 2/3 dealiasing
-    mask = np.ones((Nx, Ny))
-    def dealias(u_hat):
-        Nx, Ny = u_hat.shape
-        kx_cut = Nx // 3
-        ky_cut = Ny // 3
-        mask[kx_cut:-kx_cut, :] = 0
-        mask[:, ky_cut:-ky_cut] = 0
-
-        return u_hat * mask
-        
-    # ----------
-    # Run solver
-    # ----------
-
     rhs = make_rhs(kx, ky, Re)
 
     # setup forcing func
@@ -115,7 +99,14 @@ def main(save_dir):
         f = numpy_cfg["numpy_f"](X, Y, t)
         return np.fft.fftn(f)
 
-    psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat_func, t0, T, dt, Re, ksq)
+    # linear term for intfactor
+    L_hat = -ksq/Re
+        
+    # ----------
+    # Run solver
+    # ----------
+
+    psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat_func, t0, T, dt, L_hat)
 
     # ----------------
     # now plot things!

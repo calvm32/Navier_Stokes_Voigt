@@ -57,26 +57,17 @@ def main(save_dir):
     dy = H/Ny
 
     # enforce CFL
-    if dt > Re*min(dx, dy)**2:
-        dt = 0.5*Re*min(dx, dy)**2
+    dt = min(cfg["dt"], 0.5*Re*min(dx, dy)**2)
 
     # Grid (periodic, endpoint excluded)
     x = np.linspace(0,L,Nx,endpoint = False)
     y = np.linspace(0,H,Ny,endpoint = False)
     X,Y = np.meshgrid(x,y,indexing = "ij")
 
-    # Standard NumPy wavenumbers:
-    # fftfreq gives cycles per unit length; multiply by 2*pi for angular wavenumbers.
+    # wavenumbers
     kx = 2.0*np.pi*np.fft.fftfreq(Nx,d = dx)
     ky = 2.0*np.pi*np.fft.fftfreq(Ny,d = dy)
-
-    # setup for Laplacian terms
     ksq = kx[:,None]**2 + ky[None,:]**2
-    inv_lap = np.zeros_like(ksq) # array of zeroes, then keep 0 node = 0
-    for i in range(ksq.shape[0]): # go through and set stuff, but avoid dividing by 0
-        for j in range(ksq.shape[1]):
-            if ksq[i, j] != 0:
-                inv_lap[i, j] = -1.0 / ksq[i, j]
 
     # -------------------
     # Configure functions
@@ -90,6 +81,8 @@ def main(save_dir):
         "y": Y,
         "L": L,
         "H": H,
+        "Re": Re,
+        "alpha": alpha,
     }
 
     numpy_cfg = load_run_numpy(save_dir, namespace)
@@ -98,22 +91,7 @@ def main(save_dir):
     psi0 = numpy_cfg["numpy_psi0"](X, Y, t0)
     psi_hat_0 = np.fft.fftn(psi0)
 
-    # 2/3 dealiasing
-    mask = np.ones((Nx, Ny))
-    def dealias(u_hat):
-        Nx, Ny = u_hat.shape
-        kx_cut = Nx // 3
-        ky_cut = Ny // 3
-        mask[kx_cut:-kx_cut, :] = 0
-        mask[:, ky_cut:-ky_cut] = 0
-
-        return u_hat * mask
-        
-    # ----------
-    # Run solver
-    # ----------
-
-    rhs = make_rhs(kx, ky, dealias, Re, inv_lap)
+    rhs = make_rhs(kx, ky, Re, alpha)
 
     # setup forcing func
     def f_func(t):
@@ -123,7 +101,14 @@ def main(save_dir):
         f = numpy_cfg["numpy_f"](X, Y, t)
         return np.fft.fftn(f)
 
-    psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat_func, t0, T, dt, Re, alpha)
+    # linear term for intfactor
+    L_hat = -ksq/Re
+        
+    # ----------
+    # Run solver
+    # ----------
+
+    psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat_func, t0, T, dt, L_hat)
 
     # ----------------
     # now plot things!

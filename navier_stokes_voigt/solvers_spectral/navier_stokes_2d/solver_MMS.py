@@ -66,9 +66,7 @@ def main(save_dir):
         dy = H/Ny
 
         # enforce CFL
-        dt = cfg["dt"]
-        if dt > Re*min(dx, dy)**2:
-            dt = 0.5*Re*min(dx, dy)**2
+        dt = min(cfg["dt"], 0.5*Re*min(dx, dy)**2)
 
         # Grid (periodic, endpoint excluded)
         x = np.linspace(0,L,Nx,endpoint = False)
@@ -101,38 +99,62 @@ def main(save_dir):
         psi0 = numpy_cfg["numpy_psi0"](X, Y, t0)
         psi_hat_0 = np.fft.fftn(psi0)
 
-        # 2/3 dealiasing
-        mask = np.ones((Nx, Ny))
-        def dealias(u_hat):
-            Nx, Ny = u_hat.shape
-            kx_cut = Nx // 3
-            ky_cut = Ny // 3
-            mask[kx_cut:-kx_cut, :] = 0
-            mask[:, ky_cut:-ky_cut] = 0
+        rhs = make_rhs(kx, ky, Re)
 
-            return u_hat * mask
-            
+        # linear term for intfactor
+        L_hat = -ksq/Re
+
+        # -------------------------------------
+        # compute actual forcing based on exact
+        # -------------------------------------
+
+        # setup forcing func
+        # def f_func(t):
+        #     f = numpy_cfg["numpy_f"](X, Y, t)
+        #     return f
+        # def f_hat_func(t):
+        #     f = numpy_cfg["numpy_f"](X, Y, t)
+        #     return np.fft.fftn(f)
+
+        def f_hat_func(t):
+            psi_exact = numpy_cfg["numpy_psi0"](X, Y, t)
+            psi_hat = np.fft.fftn(psi_exact)
+
+            psi_t = numpy_cfg["numpy_psi_t"](X, Y, t)
+            psi_t_hat = np.fft.fftn(psi_t)
+
+            f = numpy_cfg["numpy_f"](X, Y, t)
+            f_hat = np.fft.fftn(f)
+            zero_hat = np.zeros_like(f_hat)
+
+            rhs_eval = rhs(psi_hat, zero_hat)
+            f_hat = psi_t_hat - rhs_eval
+
+            return f_hat
+
         # ----------
         # Run solver
         # ----------
 
-        rhs = make_rhs(kx, ky, Re)
-
-        # setup forcing func
-        def f_func(t):
-            f = numpy_cfg["numpy_f"](X, Y, t)
-            return f
-        def f_hat_func(t):
-            f = numpy_cfg["numpy_f"](X, Y, t)
-            return np.fft.fftn(f)
-
-        psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat_func, t0, T, dt, Re, ksq)
+        #psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat_func, t0, T, dt, L_hat)
+        psi_hat, times = timestepper_RK4(rhs, psi_hat_0, f_hat_func, t0, T, dt)
+        for i in range(len(times)):
+            psi_num_now = np.real(np.fft.ifftn(psi_hat[..., i]))
+            psi_exact_now = numpy_cfg["numpy_psi0"](X, Y, times[i])
+            diff = np.sqrt(np.mean((psi_num_now - psi_exact_now)**2))
+            # print(f"RMS diff at {i} = {diff}")
 
         psi_num_final = np.real(np.fft.ifftn(psi_hat[..., -1]))
         psi_exact_final = numpy_cfg["numpy_psi0"](X, Y, T)
 
-        final_error = np.sqrt(np.mean((psi_num_final - psi_exact_final)**2))
+        error_sq = (psi_num_final - psi_exact_final)**2
+        final_error = np.sqrt(np.sum(error_sq) * dx * dy)
         final_error_list.append(final_error)
+
+        # print("RMS final =", np.sqrt(np.mean(error_sq)))
+        # print("L2 final =", np.sqrt(np.sum(error_sq) * dx * dy))
+        # print("sum(error_sq) =", np.sum(error_sq))
+        # print("dx*dy =", dx*dy)
         
         green(f"Final L2 Error (vorticity) = {final_error:0.8e}", spaced=True)
 

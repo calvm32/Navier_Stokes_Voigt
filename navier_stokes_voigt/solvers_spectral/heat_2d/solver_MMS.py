@@ -65,7 +65,7 @@ def main(save_dir):
 
         # enforce CFL
         dt = cfg["dt"]
-        dt = min(dt, 0.1 * min(dx, dy)**2)
+        dt = min(dt, 0.1 * min(dx, dy)**2 / Re)
 
         # Grid (periodic, endpoint excluded)
         x = np.linspace(0,L,Nx,endpoint = False)
@@ -75,6 +75,7 @@ def main(save_dir):
         # wavenumbers
         kx = 2.0*np.pi*np.fft.fftfreq(Nx,d = dx)
         ky = 2.0*np.pi*np.fft.fftfreq(Ny,d = dy)
+        ksq = kx[:,None]**2 + ky[None,:]**2
 
         # -------------------
         # Configure functions

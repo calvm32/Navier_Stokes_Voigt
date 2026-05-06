@@ -50,7 +50,7 @@ class TemplateResolver:
             return {
                 "settings": f"{TemplateResolver.BASE}/settings/heat_FEM.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_FEM.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/heat_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM_MMS.yaml",
                 "solver_path": "navier_stokes_voigt.solvers_FEM.heat_2d.solver_MMS",
             }
 

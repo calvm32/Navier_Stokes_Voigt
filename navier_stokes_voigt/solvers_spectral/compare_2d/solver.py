@@ -18,8 +18,9 @@ from .curve_fitter import *
 
 def main(save_dir):
 
-    num_comparisons = 20
-    comparison_type = "logistic" #valid: power, exp, iter, sat_exp, log, log_sat, log_power, logistic
+    num_comparisons = 20 
+    comparison_type = "sat_exp" #valid: power, exp, iter, sat_exp, log, log_sat, log_power, logistic
+    # iter
 
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
@@ -38,6 +39,7 @@ def main(save_dir):
     T = cfg["T"]
     dt = cfg["dt"]
     Re = cfg["Re"]
+    alpha = cfg["alpha"]
 
     vtkfile_name = "Soln"
 
@@ -58,26 +60,17 @@ def main(save_dir):
     dy = H/Ny
 
     # enforce CFL
-    if dt > Re*min(dx, dy)**2:
-        dt = 0.5*Re*min(dx, dy)**2
+    dt = min(cfg["dt"], 0.5*Re*min(dx, dy)**2)
 
     # Grid (periodic, endpoint excluded)
     x = np.linspace(0,L,Nx,endpoint = False)
     y = np.linspace(0,H,Ny,endpoint = False)
     X,Y = np.meshgrid(x,y,indexing = "ij")
 
-    # Standard NumPy wavenumbers:
-    # fftfreq gives cycles per unit length; multiply by 2*pi for angular wavenumbers.
+    # wavenumbers
     kx = 2.0*np.pi*np.fft.fftfreq(Nx,d = dx)
     ky = 2.0*np.pi*np.fft.fftfreq(Ny,d = dy)
-
-    # setup for Laplacian terms
     ksq = kx[:,None]**2 + ky[None,:]**2
-    inv_lap = np.zeros_like(ksq) # array of zeroes, then keep 0 node = 0
-    for i in range(ksq.shape[0]): # go through and set stuff, but avoid dividing by 0
-        for j in range(ksq.shape[1]):
-            if ksq[i, j] != 0:
-                inv_lap[i, j] = -1.0 / ksq[i, j]
 
     # -------------------
     # Configure functions
@@ -91,43 +84,29 @@ def main(save_dir):
         "y": Y,
         "L": L,
         "H": H,
+        "Re": Re,
     }
 
     numpy_cfg = load_run_numpy(save_dir, namespace)
 
     # initial value
-    numpy_psi0 = numpy_cfg["numpy_psi0"]
-    psi0_func = numpy_psi0*np.ones_like(X) 
-    psi_hat_0 = np.fft.fftn(psi0_func)
+    psi0 = numpy_cfg["numpy_psi0"](X, Y, t0)
+    psi_hat_0 = np.fft.fftn(psi0)
 
-    # 2/3 dealiasing
-    mask = np.ones((Nx, Ny))
-    def dealias(u_hat):
-        Nx, Ny = u_hat.shape
-        kx_cut = Nx // 3
-        ky_cut = Ny // 3
-        mask[kx_cut:-kx_cut, :] = 0
-        mask[:, ky_cut:-ky_cut] = 0
+    # setup forcing func
+    def f_func(t):
+        f = numpy_cfg["numpy_f"](X, Y, t)
+        return f
+    def f_hat_func(t):
+        f = numpy_cfg["numpy_f"](X, Y, t)
+        return np.fft.fftn(f)
 
-        return u_hat * mask
+    # linear term for intfactor
+    L_hat = -ksq/Re
 
     # ----------
     # Run solver
     # ----------
-
-    rhs_NSE, rhs_NSV = make_rhs(kx, ky, dealias, Re, inv_lap)
-
-    # setup forcing func
-    numpy_f = numpy_cfg["numpy_f"]
-    f_x_func, f_y_func = numpy_f
-
-    f_x = f_x_func * np.ones_like(X)
-    f_y = f_y_func * np.ones_like(X)
-
-    # FFT each component and put back
-    f_x_hat = np.fft.fftn(f_x)
-    f_y_hat = np.fft.fftn(f_y)
-    f_hat = (f_x_hat, f_y_hat)
 
     alpha_list = np.linspace(-5,4,num_comparisons)
     for i in range(len(alpha_list)):
@@ -138,9 +117,10 @@ def main(save_dir):
 
     for i in range(len(alpha_list)):
         alpha = alpha_list[i]
-        psi_hat_diff, times = timestepper_intfactor_compare_RK4(rhs_NSE, rhs_NSV, 
-                                                                psi_hat_0, f_hat, t0, T, 
-                                                                dt, Re, alpha)
+
+
+        rhs_NSE, rhs_NSV = make_rhs(kx, ky, Re, alpha)
+        psi_hat_diff, times = timestepper_compare_RK4(rhs_NSE, rhs_NSV, psi_hat_0, f_hat_func, t0, T, dt)
 
         # initial vorticity
         psi0_hat = psi_hat_diff[..., 0]
