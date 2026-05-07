@@ -35,7 +35,7 @@ def main(save_dir):
 
     solver = cfg["solver"]
     elements = cfg["elements"]
-    views = cfg["views"]
+    views = "Some" #cfg["views"]
 
     vtkfile_name = "Soln"
 
@@ -193,8 +193,8 @@ def main(save_dir):
         bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
         bcs = [bc_walls, bc_inflow]
-        nullspace = None
-        #nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
+        #nullspace = None
+        nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
 
         # ------------------
         # Allocate functions
@@ -230,7 +230,7 @@ def main(save_dir):
                 v_error_list, p_error_list = timestepper_BDF2(get_data, 
                     Z, dx, ds, 
                     t0, T, dt, 
-                    gamma=gamma, Re=Re, 
+                    gamma=0, Re=Re, 
                     sample_length=L, sample_height=H,
                     make_weak_form_BDF2=make_weak_form_BDF2,
                     make_weak_form_CN=make_weak_form_CN,

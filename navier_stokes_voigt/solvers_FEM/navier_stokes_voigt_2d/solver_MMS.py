@@ -230,7 +230,7 @@ def main(save_dir):
                 v_error_list, p_error_list = timestepper_BDF2(get_data, 
                     Z, dx, ds, 
                     t0, T, dt, 
-                    gamma=gamma, Re=Re, alpha=alpha,
+                    gamma=0, Re=Re, alpha=alpha,
                     sample_length=L, sample_height=H,
                     make_weak_form_BDF2=make_weak_form_BDF2,
                     make_weak_form_CN=make_weak_form_CN,
