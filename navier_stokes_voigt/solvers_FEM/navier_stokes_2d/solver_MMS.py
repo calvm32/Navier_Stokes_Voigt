@@ -193,7 +193,8 @@ def main(save_dir):
         bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
         bcs = [bc_walls, bc_inflow]
-        nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
+        nullspace = None
+        #nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
 
         # ------------------
         # Allocate functions
