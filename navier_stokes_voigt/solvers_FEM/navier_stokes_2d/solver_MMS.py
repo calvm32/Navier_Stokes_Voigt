@@ -215,25 +215,27 @@ def main(save_dir):
         # ----------
 
         if solver == "CN":
-            v_error_list, p_error_list = timestepper_CN(get_data, 
+                v_error_list, p_error_list = timestepper_CN(get_data, 
                     Z, dx, ds, 
-                    t0, T, dt,
+                    t0, T, dt, 
+                    theta=theta, gamma=gamma, Re=Re,
                     sample_length=L, sample_height=H,
                     make_weak_form=make_weak_form_CN, 
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
-                    appctx=appctx, vtkfile_name=new_vtkfile_name)
+                    appctx=appctx, vtkfile_name=vtkfile_name)
 
         elif solver == "BDF2":
-            v_error_list, p_error_list = timestepper_BDF2(get_data, 
+                v_error_list, p_error_list = timestepper_BDF2(get_data, 
                     Z, dx, ds, 
                     t0, T, dt, 
+                    gamma=gamma, Re=Re, 
                     sample_length=L, sample_height=H,
                     make_weak_form_BDF2=make_weak_form_BDF2,
                     make_weak_form_CN=make_weak_form_CN,
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
-                    appctx=appctx, vtkfile_name=new_vtkfile_name)
+                    appctx=appctx, vtkfile_name=vtkfile_name)
 
         cpu_times.append(cpu_time)
 
