@@ -35,7 +35,7 @@ def main(save_dir):
 
     solver = cfg["solver"]
     elements = cfg["elements"]
-    views = "Some" #cfg["views"]
+    views = cfg["views"]
 
     vtkfile_name = "Soln"
 
