@@ -155,7 +155,8 @@ def main(save_dir):
         blue(f"\n*** Mesh size N = {N:0d} ***", spaced=True) # report mesh size
         new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
 
-        dt = 1/N
+        #dt = 1/N
+        dt = 0.1/N
 
         # -------------------
         # Configure functions

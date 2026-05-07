@@ -14,10 +14,8 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
     """
 
     # Extrapolated forcing
-    # f_bdf2 = 2.0*f.sub(0) - f_old.sub(0)
-    # g_bdf2 = 2.0*g.sub(0) - g_old.sub(0)
-    f_bdf2 = f.sub(0)
-    g_bdf2 = g.sub(0)
+    f_bdf2 = 2.0*f.sub(0) - f_old.sub(0)
+    g_bdf2 = 2.0*g.sub(0) - g_old.sub(0)
 
     # Old velocities
     u_old,  _ = split(U_old)
