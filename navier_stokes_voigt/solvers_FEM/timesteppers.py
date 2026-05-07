@@ -35,12 +35,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     every_time_list = []
     all_time_list = []
     energy_spec_probe = []
-    div_list = []
     cpu_time = 0
 
     if is_mixed:
         v_error_list = []
         p_error_list = []
+        div_list = []
     else:
         u_error_list = []
     
@@ -163,7 +163,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
     all_time_list.append(t0)
     energy_list.append(energy)
-    div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
+    if is_mixed:
+        div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
 
     # initialize VTK
     visfile = VTKFile(f"vis/{vtkfile_name}.pvd", comm=Z.mesh().comm)
@@ -198,7 +199,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
         t += dt
         u_old.assign(u)
 
-        div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
+        if is_mixed:
+            div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
 
         # count steps to print
         step += 1
@@ -275,7 +277,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 visfile.write(u, time=t)
             
         if (step % write_every == 0) and step > 0:
-            if mesh.comm.rank == 0:
+            if mesh.comm.rank == 0 and is_mixed:
                 np.savez(
                     output_file1,
 
@@ -283,6 +285,23 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                     all_time=np.array(all_time_list),
                     energy=np.array(energy_list),
                     divergence=np.array(div_list),
+
+                    every_time=np.array(every_time_list),
+                    palinstrophy=np.array(palinstrophy_list),
+                    stream_func=np.array(stream_func_list),
+                    enstrophy=np.array(enstrophy_list),
+
+                    # probe
+                    probe=np.array(energy_spec_probe)
+                )
+
+            elif mesh.comm.rank == 0:
+                np.savez(
+                    output_file1,
+
+                    # time series
+                    all_time=np.array(all_time_list),
+                    energy=np.array(energy_list),
 
                     every_time=np.array(every_time_list),
                     palinstrophy=np.array(palinstrophy_list),
@@ -376,12 +395,12 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     every_time_list = []
     all_time_list = []
     energy_spec_probe = []
-    div_list = []
     cpu_time = 0
 
     if is_mixed:
         v_error_list = []
         p_error_list = []
+        div_list = []
     else:
         u_error_list = []
     
@@ -510,7 +529,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     all_time_list.append(t0)
     energy_list.append(energy)
-    div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
+    if is_mixed:
+        div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
 
     # initialize VTK
     visfile = VTKFile(f"vis/{vtkfile_name}.pvd", comm=Z.mesh().comm)
@@ -549,7 +569,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         u_older.assign(u_old)
         u_old.assign(u)
 
-        div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
+        if is_mixed:
+            div_list.append(sqrt(assemble(div(u.sub(0))**2 * dx)))
 
         # count steps to print
         step += 1
@@ -626,8 +647,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 visfile.write(u, time=t)
 
         if (step % write_every == 0) and step > 0:
-            if mesh.comm.rank == 0:
-
+            if mesh.comm.rank == 0 and is_mixed:
                 np.savez(
                     output_file1,
 
@@ -635,6 +655,23 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     all_time=np.array(all_time_list),
                     energy=np.array(energy_list),
                     divergence=np.array(div_list),
+
+                    every_time=np.array(every_time_list),
+                    palinstrophy=np.array(palinstrophy_list),
+                    stream_func=np.array(stream_func_list),
+                    enstrophy=np.array(enstrophy_list),
+
+                    # probe
+                    probe=np.array(energy_spec_probe)
+                )
+
+            elif mesh.comm.rank == 0:
+                np.savez(
+                    output_file1,
+
+                    # time series
+                    all_time=np.array(all_time_list),
+                    energy=np.array(energy_list),
 
                     every_time=np.array(every_time_list),
                     palinstrophy=np.array(palinstrophy_list),
