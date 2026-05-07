@@ -28,6 +28,12 @@ def load_solver_parameters(path, *, dt=dt):
 # ------------------
 
 def load_expressions(path, *, namespace=None, backend="ufl"):
+
+    # used for numpy funcs
+    def make_callable(expr, env):
+        return lambda x, y, t: eval(expr, {"__builtins__": {}}, env | {"x": x, "y": y, "t": t})
+
+
     if namespace is None:
         raise ValueError("namespace must be provided explicitly")
 
@@ -65,8 +71,21 @@ def load_expressions(path, *, namespace=None, backend="ufl"):
     # evaluate expressions
     results = dict(env)
 
-    for key, code in compiled.items():
-        results[key] = eval(code, {"__builtins__": {}}, results)
+    if backend == "numpy":
+        def make_callable(expr):
+            return lambda x, y, t: eval(expr, {"__builtins__": {}}, {
+                **env,
+                "x": x,
+                "y": y,
+                "t": t
+            })
+
+        for key, code in compiled.items():
+            expr_str = data[key]
+            results[key] = make_callable(expr_str)
+    elif backend == "ufl":
+        for key, code in compiled.items():
+            results[key] = eval(code, {"__builtins__": {}}, results)
 
     return results
 

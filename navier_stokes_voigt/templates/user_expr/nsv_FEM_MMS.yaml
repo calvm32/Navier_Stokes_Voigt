@@ -1,0 +1,18 @@
+scale: 0.001
+
+# velocity exact
+ufl_v0: "scale*as_vector([
+    Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
+    0.0
+  ])"
+
+ufl_inflow: "ufl_v0"
+
+# pressure exact
+ufl_p0: "scale*(P*x + G)"
+
+# source termexact
+ufl_f: "-((alpha**2)*(pi**4) / (H**4))* as_vector([0.0, sin(y*pi/H) *exp((-1*pi**2*t)/(H**2*Re))])"
+
+# boundary term
+ufl_g: "scale*as_vector([(L-x)*G/L - x*(P*L+G)/L, 0.0])"

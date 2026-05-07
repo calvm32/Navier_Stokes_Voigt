@@ -56,79 +56,57 @@ def main(save_dir):
     dy = H/Ny
 
     # enforce CFL
-    if dt > Re*min(dx, dy)**2:
-        dt = 0.5*Re*min(dx, dy)**2
+    dt = min(cfg["dt"], 0.5*Re*min(dx, dy)**2)
 
     # Grid (periodic, endpoint excluded)
     x = np.linspace(0,L,Nx,endpoint = False)
     y = np.linspace(0,H,Ny,endpoint = False)
     X,Y = np.meshgrid(x,y,indexing = "ij")
 
-    # Standard NumPy wavenumbers:
-    # fftfreq gives cycles per unit length; multiply by 2*pi for angular wavenumbers.
+    # wavenumbers
     kx = 2.0*np.pi*np.fft.fftfreq(Nx,d = dx)
     ky = 2.0*np.pi*np.fft.fftfreq(Ny,d = dy)
-    Laplacian_k = -kx[:,None]**2 - ky[None,:]**2
-
-    # setup for Laplacian terms
     ksq = kx[:,None]**2 + ky[None,:]**2
-    inv_lap = np.zeros_like(ksq) # array of zeroes, then keep 0 node = 0
-    for i in range(ksq.shape[0]): # go through and set stuff, but avoid dividing by 0
-        for j in range(ksq.shape[1]):
-            if ksq[i, j] != 0:
-                inv_lap[i, j] = -1.0 / ksq[i, j]
 
     # -------------------
     # Configure functions
     # -------------------
 
     # initialize t for later
-    t = Constant(t0)
+    t = t0
 
     namespace = {
         "x": X,
         "y": Y,
         "L": L,
         "H": H,
+        "Re": Re,
     }
 
     numpy_cfg = load_run_numpy(save_dir, namespace)
 
     # initial value
-    numpy_psi0 = numpy_cfg["numpy_psi0"]
-    psi0_func = numpy_psi0*np.ones_like(X) 
-    psi_hat_0 = np.fft.fftn(psi0_func)
+    psi0 = numpy_cfg["numpy_psi0"](X, Y, t0)
+    psi_hat_0 = np.fft.fftn(psi0)
 
-    # 2/3 dealiasing
-    mask = np.ones((Nx, Ny))
-    def dealias(u_hat):
-        Nx, Ny = u_hat.shape
-        kx_cut = Nx // 3
-        ky_cut = Ny // 3
-        mask[kx_cut:-kx_cut, :] = 0
-        mask[:, ky_cut:-ky_cut] = 0
+    rhs = make_rhs(kx, ky, Re)
 
-        return u_hat * mask
+    # setup forcing func
+    def f_func(t):
+        f = numpy_cfg["numpy_f"](X, Y, t)
+        return f
+    def f_hat_func(t):
+        f = numpy_cfg["numpy_f"](X, Y, t)
+        return np.fft.fftn(f)
+
+    # linear term for intfactor
+    L_hat = -ksq/Re
         
     # ----------
     # Run solver
     # ----------
 
-    rhs = make_rhs(kx, ky, dealias, Re, inv_lap)
-
-    # setup forcing func
-    numpy_f = numpy_cfg["numpy_f"]
-    f_x_func, f_y_func = numpy_f
-
-    f_x = f_x_func * np.ones_like(X)
-    f_y = f_y_func * np.ones_like(X)
-
-    # FFT each component and put back
-    f_x_hat = np.fft.fftn(f_x)
-    f_y_hat = np.fft.fftn(f_y)
-    f_hat = (f_x_hat, f_y_hat)
-
-    psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat, t0, T, dt, ksq, Re)
+    psi_hat, times = timestepper_intfactor_RK4(rhs, psi_hat_0, f_hat_func, t0, T, dt, L_hat)
 
     # ----------------
     # now plot things!
