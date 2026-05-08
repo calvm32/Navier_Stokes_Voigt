@@ -238,7 +238,7 @@ def main(save_dir):
                     solver_parameters=solver_parameters,
                     appctx=appctx, vtkfile_name=vtkfile_name)
 
-        cpu_times.append(cpu_time)
+        #cpu_times.append(cpu_time)
 
         v_final_error = 0
         for err in v_error_list:
