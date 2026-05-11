@@ -156,7 +156,7 @@ def main(save_dir):
         new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
 
         #dt = 1/N
-        dt = 0.1/N
+        dt = 0.05/N
 
         # -------------------
         # Configure functions
