@@ -72,7 +72,15 @@ def main(save_dir):
     cpu_times = []
 
     for n in range(2, 6):
+
         N = 2**n
+        N_list.append(N)
+
+        blue(f"\n*** Mesh size N = {N:0d} ***", spaced=True) # report mesh size
+        new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
+
+        #dt = 1/N
+        dt = 1/N
 
         # Build appctx
         appctx = {
@@ -138,25 +146,6 @@ def main(save_dir):
         global_xmax = comm.allreduce(local_xmax, op=MPI.MAX)
 
         L = global_xmax - global_xmin
-
-        # approximate h
-        num_cells_local = mesh.num_cells()
-        num_cells = comm.allreduce(num_cells_local, op=MPI.SUM)
-
-        area = assemble(Constant(1.0) * dx)
-
-        # characteristic element size
-        h = (2 * area / num_cells) ** 0.5
-
-        # subdivisions per unit length
-        N = int(L / h)
-        N_list.append(N)
-
-        blue(f"\n*** Mesh size N = {N:0d} ***", spaced=True) # report mesh size
-        new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
-
-        #dt = 1/N
-        dt = 0.05/N
 
         # -------------------
         # Configure functions
