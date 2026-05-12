@@ -169,6 +169,7 @@ def main(save_dir):
             "cos": cos,
             "exp": exp,
             "t": t,
+            "alpha": alpha
         }
 
         ufl_cfg = load_run_ufls(save_dir, namespace)
