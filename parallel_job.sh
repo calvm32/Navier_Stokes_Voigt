@@ -5,7 +5,6 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=14
 #SBATCH --time=01:00:00
-#SBATCH --partition=compute
 
 module purge
 module load apptainer compiler/gcc/11 openmpi/4.1
@@ -68,14 +67,7 @@ if [ ! -d "$RUN_DIR" ]; then
         --bind $PROJECT_DIR:$PROJECT_DIR \
         --pwd $PROJECT_DIR \
         docker://firedrakeproject/firedrake:2025.10.4 \
-        bash -lc "$CREATE_CMD"
-
-    echo "After mysave:"
-    ls -lah "$SOLUTIONS_DIR"
-
-    if [ ! -d "$RUN_DIR" ]; then
-        echo "ERROR: Run directory was not created."
-        exit 1
+        bash -c "$CREATE_CMD"
 fi
 
 # --------------
