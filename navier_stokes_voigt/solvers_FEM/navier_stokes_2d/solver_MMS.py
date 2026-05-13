@@ -27,7 +27,7 @@ def main(save_dir):
 
     t0 = cfg["t0"]
     T = cfg["T"]
-    theta = cfg["theta"]
+    theta = 0.5
     gamma = cfg["gamma"]
     Re = cfg["Re"]
     G = cfg["G"]
@@ -242,7 +242,7 @@ def main(save_dir):
         p_final_error_list.append(sqrt(p_final_error))
 
         green(f"Final L2 Error (velocity) = {v_final_error:0.8e}", spaced=True)
-        green(f"Final L2 Error (pressure) = {p_final_error:0.8e}", spaced=True)
+        green(f"Final H1 Error (pressure) = {p_final_error:0.8e}", spaced=True)
 
     plot_path = Path(save_dir) / "plots"
     plot_path.mkdir(exist_ok=True)

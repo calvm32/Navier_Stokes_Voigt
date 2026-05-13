@@ -29,7 +29,7 @@ def main(save_dir):
     t0 = cfg["t0"]
     T = cfg["T"]
     dt = cfg["dt"]
-    theta = cfg["theta"]
+    theta = 0.5
     solver = cfg["solver"]
 
     vtkfile_name = "Soln"

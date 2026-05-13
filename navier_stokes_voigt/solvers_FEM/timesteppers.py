@@ -15,7 +15,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
     """
 
-    num_steps = int((float(T)-float(t0)) / float(dt)) 
+    num_steps = int(np.rint((T-t0)/dt))
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
     start_sampling = 10
@@ -192,7 +192,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
     start = time.process_time()
 
-    while step <= num_steps:
+    while step < num_steps:
 
         # Perform time-step
         solver(t, dt)
@@ -214,7 +214,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
         energy_list.append(energy)
         all_time_list.append(t)
 
-        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
+        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=(num_steps-1))
 
         if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
@@ -261,14 +261,14 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
                 u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
 
-                v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt) 
+                v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)) 
                 p_error_list.append(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
-                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)*dt)
+                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx))
 
             else:
                 u_exact.interpolate(data_new["ufl_u0"])  # just velocity
 
-                u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx)*dt)
+                u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx))
 
             # -------- solution --------
             if is_mixed:
@@ -374,7 +374,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     BDF2 timestepper for velocity or velocity x pressure function spaces
     """
 
-    num_steps = int((float(T)-float(t0)) / float(dt)) 
+    num_steps = int(np.rint((T-t0)/dt))
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
     start_sampling = 10
@@ -426,19 +426,21 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         nbins=30
     )
 
-    data_new0 = get_data(t0) # get the functions at initial time
-
+    data_old = get_data(t0)
+    data_older = get_data(t0 - dt)
     if is_mixed:
-        u_old.sub(0).interpolate(data_new0["ufl_v0"])  # velocity
-        u_old.sub(1).interpolate(data_new0["ufl_p0"])  # pressure
-        u_older.assign(u_old)
+        u_old.sub(0).interpolate(data_old["ufl_v0"])  # velocity
+        u_old.sub(1).interpolate(data_old["ufl_p0"])  # pressure
+
+        u_older.sub(0).interpolate(data_older["ufl_v0"])  # velocity
+        u_older.sub(1).interpolate(data_older["ufl_p0"])  # pressure
 
         # for L2 error
         v_error = 0
         p_error = 0
 
     else:
-        u_old.interpolate(data_new0["ufl_u0"])  # just velocity
+        u_old.interpolate(data_old["ufl_u0"])  # just velocity
         u_older.assign(u_old)
 
         # for L2 error
@@ -446,7 +448,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     # create timestep solvers
     solver_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
-                                make_weak_form_CN, is_mixed, 1.0, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
+                                make_weak_form_CN, is_mixed, 0.5, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
                                 solver_parameters=solver_parameters, appctx=appctx)
     solver = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u,
                                 make_weak_form_BDF2, is_mixed, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
@@ -558,7 +560,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # Perform timestepping
     # --------------------
 
-    while step <= num_steps:
+    while step < num_steps:
 
         # Perform time-step
         if step == 0:
@@ -584,7 +586,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         energy_list.append(energy)
         all_time_list.append(t)
 
-        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=num_steps)
+        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=(num_steps-1))
 
         if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
@@ -631,14 +633,14 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
                 u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
 
-                v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)*dt) 
+                v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)) 
                 p_error_list.append(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
-                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)*dt)
+                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx))
 
             else:
                 u_exact.interpolate(data_new["ufl_u0"])  # just velocity
 
-                u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx)*dt)
+                u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx))
 
             # -------- solution --------
             if is_mixed:
@@ -736,7 +738,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     BDF2 timestepper for velocity or velocity x pressure function spaces
     """
 
-    num_steps = int((float(T)-float(t0)) / float(dt)) 
+    num_steps = int(np.rint((T-t0)/dt))
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
     start_sampling = 10
@@ -780,17 +782,21 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     u_exact_NSV = Function(Z)
 
     mesh = Z.mesh()
-    data_new0 = get_data(t0) # get the functions at initial time
+
+    data_old = get_data(t0)
+    data_older = get_data(t0 - dt)
 
     # FIRST NSE
-    u_old_NSE.sub(0).interpolate(data_new0["ufl_v0"])  # velocity
-    u_old_NSE.sub(1).interpolate(data_new0["ufl_p0"])  # pressure
-    u_older_NSE.assign(u_old_NSE)
+    u_old_NSE.sub(0).interpolate(data_old["ufl_v0"])  # velocity
+    u_old_NSE.sub(1).interpolate(data_old["ufl_p0"])  # pressure
+    u_older_NSE.sub(0).interpolate(data_older["ufl_v0"])  # velocity
+    u_older_NSE.sub(1).interpolate(data_older["ufl_p0"])  # pressure
 
     # NEXT NSV
-    u_old_NSV.sub(0).interpolate(data_new0["ufl_v0"])  # velocity
-    u_old_NSV.sub(1).interpolate(data_new0["ufl_p0"])  # pressure
-    u_older_NSV.assign(u_old_NSV)
+    u_old_NSV.sub(0).interpolate(data_old["ufl_v0"])  # velocity
+    u_old_NSV.sub(1).interpolate(data_old["ufl_p0"])  # pressure
+    u_older_NSV.sub(0).interpolate(data_older["ufl_v0"])  # velocity
+    u_older_NSV.sub(1).interpolate(data_older["ufl_p0"])  # pressure
 
     # create timestep solvers
     solver_NSE_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old_NSE, u_NSE,
@@ -903,7 +909,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     # Perform timestepping
     # --------------------
 
-    while step <= num_steps:
+    while step < num_steps:
 
         # Perform time-step
         if step == 0:
@@ -930,7 +936,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
         energy_diff_list.append(energy_diff)
         all_time_list.append(t)
 
-        iter_info_verbose("TIME STEP COMPLETED", f"energy diff = {energy_diff}", i=step, n=num_steps)
+        iter_info_verbose("TIME STEP COMPLETED", f"energy diff = {energy_diff}", i=step, n=(num_steps-1))
 
         if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
@@ -960,7 +966,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
             # get data at current time
             data_new = get_data(t)
 
-            v_diff_list.append(sqrt(assemble(inner(u_NSE.sub(0) - u_NSV.sub(0), u_NSE.sub(0) - u_NSV.sub(0))*dx)*dt))
+            v_diff_list.append(sqrt(assemble(inner(u_NSE.sub(0) - u_NSV.sub(0), u_NSE.sub(0) - u_NSV.sub(0))*dx)))
 
             # -------- solution --------
             visfile.write(u_NSE.sub(0), u_NSE.sub(1), u_NSV.sub(0), u_NSV.sub(1), time=t)
