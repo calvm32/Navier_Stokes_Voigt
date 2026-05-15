@@ -227,7 +227,8 @@ def build_parser():
     parser.add_argument(
         "--problem",
         required=True,
-        choices=["h2_FEM", "ns2_FEM", "nsv2_FEM", "h2_spec", "ns2_spec", "nsv2_spec", "comp_spec", "comp_FEM"],
+        choices=["h2_FEM", "h3_FEM", "ns2_FEM", "ns3_FEM", "nsv2_FEM", "nsv3_FEM",
+                 "h2_spec", "ns2_spec", "nsv2_spec", "comp_spec", "comp_FEM"],
         help="Problem type"
     )
 

@@ -26,7 +26,7 @@ export PYTHONPATH=/path/to/project/Navier_Stokes_Voigt:$PYTHONPATH
 ## Run on your device
 To create a directory, use `mysave <directory_name>` followed by the options:
 
-1. `--problem` then `h2_FEM` or `h2_spec` for 2D heat equation, `ns2_FEM` or `ns2_spec` for 2D Navier-Stokes equations, or `nsv2_FEM` or `nsv2_spec` for 2D Navier-Stokes-Voigt equations
+1. `--problem` then a string with (1.1) `h`, `ns`, or `nsv` for the problem type, (1.2) `2` or  `3` for dimension, and finally (1.3) `_FEM` or `_spec` for solver type
 
 2. `--elements` then `sv` for Scott Vogelius or `th` for Taylor Hood elements (only viable for ns or nsv problems)
 

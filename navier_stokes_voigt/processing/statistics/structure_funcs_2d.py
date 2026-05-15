@@ -20,8 +20,8 @@ class structure_funcs_2d:
         # (only needed to define r bins)
 
         coords = mesh.coordinates.dat.data_ro
-        xmin, ymin, zmin = coords.min(axis=0)
-        xmax, ymax, zmin = coords.max(axis=0)
+        xmin, ymin = coords.min(axis=0)
+        xmax, ymax = coords.max(axis=0)
 
         # we need to avoid the boundaries, so only sample a small radial distance (r) #
         #  this only accounts for small eddies, altho can get an even smaller length scale if wanted
