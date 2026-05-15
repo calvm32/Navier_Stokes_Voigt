@@ -199,7 +199,7 @@ def main(save_dir):
                 Z, dx, ds, 
                 t0, T, dt, 
                 gamma=gamma, Re=Re, alpha=alpha,
-                sample_length=L, sample_height=H,
+                sample_xmax=L, sample_ymax=H,
                 make_weak_form_NSV_BDF2=make_weak_form_NSV_BDF2,
                 make_weak_form_NSE_BDF2=make_weak_form_NSE_BDF2,
                 make_weak_form_NSV_CN=make_weak_form_NSV_CN,

@@ -2,8 +2,10 @@ import numpy as np
 import pytest
 from firedrake import *
 
-from navier_stokes_voigt.processing.statistics.pdf_sampler import pdf_sampler
-from navier_stokes_voigt.processing.statistics.structure_funcs import structure_funcs
+from navier_stokes_voigt.processing.statistics.pdf_sampler_2d import pdf_sampler_2d
+from navier_stokes_voigt.processing.statistics.structure_funcs_2d import structure_funcs_2d
+from navier_stokes_voigt.processing.statistics.pdf_sampler_2d import pdf_sampler_2d
+from navier_stokes_voigt.processing.statistics.structure_funcs_2d import structure_funcs_2d
 
 @pytest.fixture
 def mesh():
@@ -12,13 +14,13 @@ def mesh():
 def test_constant_field(mesh):
     """
     test contant velocity field to find the 
-    accuracy of pdf_sampler (probability distribution function sampler)
+    accuracy of pdf_sampler_2d (probability distribution function sampler)
     """
     V = VectorFunctionSpace(mesh, "CG", 2)
 
     u = Function(V).interpolate(as_vector((1.0, 0.0)))
 
-    sampler = pdf_sampler(mesh)
+    sampler = pdf_sampler_2d(mesh)
     sampler.sample_velocity_y(u, npoints=1000)
 
     vel, vort = sampler.finalize()
@@ -39,7 +41,7 @@ def test_vorticity_sampling(mesh):
     u = Function(V).interpolate(as_vector((y, 0)))
     omega = Function(Q).interpolate(curl(u))
 
-    sampler = pdf_sampler(mesh)
+    sampler = pdf_sampler_2d(mesh)
     sampler.sample_vorticity(omega, npoints=1000)
 
     vel, vort = sampler.finalize()
@@ -55,7 +57,7 @@ def test_structure_constant(mesh):
     V = VectorFunctionSpace(mesh, "CG", 2)
     u = Function(V).interpolate(as_vector((2.0, 0.0)))
 
-    struct = structure_funcs(u, mesh, nbins=10)
+    struct = structure_funcs_2d(u, mesh, nbins=10)
     struct.sample(nsamples_per_bin=20)
 
     r, S2 = struct.compute()

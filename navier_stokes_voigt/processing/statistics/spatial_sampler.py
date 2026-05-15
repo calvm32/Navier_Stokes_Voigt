@@ -4,7 +4,8 @@ from mpi4py import MPI
 class spatial_sampler:
     """
     Samples a Firedrake Function using DOF nodes
-    assumes non-adaptive mesh to avoid bias (can do purely spatial, but that's quite slow)
+    assumes non-adaptive mesh to avoid bias 
+    (can do purely spatial, but that's quite slow)
     """
 
     def __init__(self, mesh):

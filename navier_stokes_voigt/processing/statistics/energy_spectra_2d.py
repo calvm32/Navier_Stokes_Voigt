@@ -2,8 +2,7 @@ import numpy as np
 from mpi4py import MPI
 from firedrake import *
 
-
-class energy_spectra:
+class energy_spectra_2d:
     """
     2D isotropic shell-averaged kinetic energy spectrum
     computed by direct Fourier projection on unstructured meshes.
@@ -19,26 +18,22 @@ class energy_spectra:
 
         comm = self.mesh.comm
         dxm = Measure("dx", domain=self.mesh)
-
-        # ------------------------------------
-        # Domain area
-        # ------------------------------------
         area = assemble(1.0 * dxm)
 
-        # ------------------------------------
+        # --------------------
         # Remove mean velocity
-        # ------------------------------------
-        mean_u0 = assemble(self.u[0] * dxm) / area
-        mean_u1 = assemble(self.u[1] * dxm) / area
+        # --------------------
+        mean_ux = assemble(self.u[0] * dxm) / area
+        mean_uy = assemble(self.u[1] * dxm) / area
 
         u_fluct = as_vector([
-            self.u[0] - mean_u0,
-            self.u[1] - mean_u1
+            self.u[0] - mean_ux,
+            self.u[1] - mean_uy
         ])
 
-        # ------------------------------------
+        # ------------------
         # Global domain size
-        # ------------------------------------
+        # ------------------
         coords = self.mesh.coordinates.dat.data_ro
 
         xmin = comm.allreduce(coords[:, 0].min(), op=MPI.MIN)
@@ -49,9 +44,9 @@ class energy_spectra:
         Lx = xmax - xmin
         Ly = ymax - ymin
 
-        # ------------------------------------
+        # ---------------
         # Wavenumber grid
-        # ------------------------------------
+        # ---------------
         kx_vals = np.arange(-self.kmax, self.kmax + 1)
         ky_vals = np.arange(-self.kmax, self.kmax + 1)
 
@@ -96,9 +91,9 @@ class energy_spectra:
         if comm.rank != 0:
             return None, None
 
-        # ------------------------------------
+        # ---------------
         # Shell averaging
-        # ------------------------------------
+        # ---------------
         k_bins = np.linspace(0, kmags.max(), self.nbins + 1)
 
         E = np.zeros(self.nbins)

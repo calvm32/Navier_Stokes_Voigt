@@ -1,7 +1,7 @@
 import numpy as np
 from mpi4py import MPI
 
-class structure_funcs:
+class structure_funcs_3d:
     """
     2nd-order longitudinal structure function S^2(r) using DOF sampling
     """
@@ -20,15 +20,16 @@ class structure_funcs:
         # (only needed to define r bins)
 
         coords = mesh.coordinates.dat.data_ro
-        xmin, ymin = coords.min(axis=0)
-        xmax, ymax = coords.max(axis=0)
+        xmin, ymin, zmin = coords.min(axis=0)
+        xmax, ymax, zmax = coords.max(axis=0)
 
         # we need to avoid the boundaries, so only sample a small radial distance (r) #
         #  this only accounts for small eddies, altho can get an even smaller length scale if wanted
         if r_max is None:
             Lx = xmax - xmin
             Ly = ymax - ymin
-            r_max = 0.25 * min(Lx, Ly)
+            Lz = zmax - zmin
+            r_max = 0.25 * min(Lx, Ly, Lz)
 
         self.r_edges = np.linspace(0.0, r_max, nbins + 1)
         self.r_centers = 0.5 * (self.r_edges[:-1] + self.r_edges[1:])
@@ -45,15 +46,17 @@ class structure_funcs:
 
         i = np.random.randint(0, self.ndofs)
         j = np.random.randint(0, self.ndofs)
+        k = np.random.randint(0, self.ndofs)
 
-        u1 = self.values[i]
-        u2 = self.values[j]
+        ux = self.values[i]
+        uy = self.values[j]
+        uz = self.values[k]
 
-        diff = u2 - u1
+        diff = ux - uy
 
         # random direction (isotropic projection)
         theta = 2.0 * np.pi * np.random.rand()
-        r_hat = np.array([np.cos(theta), np.sin(theta)])
+        r_hat = np.array([np.cos(theta), np.sin(theta), np.sin(theta)])
 
         return np.dot(diff, r_hat)
 

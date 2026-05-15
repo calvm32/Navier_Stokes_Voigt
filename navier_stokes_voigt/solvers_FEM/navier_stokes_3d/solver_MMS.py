@@ -30,7 +30,6 @@ def main(save_dir):
     theta = 0.5
     gamma = cfg["gamma"]
     Re = cfg["Re"]
-    alpha = cfg["alpha"]
     G = cfg["G"]
     P = cfg["P"]
 
@@ -72,7 +71,7 @@ def main(save_dir):
     N_list = []
     cpu_times = []
 
-    for n in range(2, 5):
+    for n in range(2, 6):
 
         N = 2**n
         N_list.append(N)
@@ -95,14 +94,15 @@ def main(save_dir):
 
         H = 1.0
         L = 4.0
+        W = 4.0
 
         if elements == "SV":
             MESH_PATH = os.path.join(HERE, f"meshes/mms/channel_bary{n}.msh")
             mesh = Mesh(MESH_PATH)
         elif elements == "TH":
-            mesh = RectangleMesh(int(L*N), int(H*N), L, H)
+            mesh = BoxMesh(int(L*N), int(H*N), int(W*H), L, H, W)
 
-        x, y = SpatialCoordinate(mesh)
+        x, y, z = SpatialCoordinate(mesh)
 
         # ------------
         # Setup spaces
@@ -147,6 +147,17 @@ def main(save_dir):
 
         L = global_xmax - global_xmin
 
+        # get width W
+        z_coords = mesh.coordinates.dat.data[:, 2]
+
+        local_xmin = z_coords.min()
+        local_xmax = z_coords.max()
+
+        global_zmin = comm.allreduce(local_zmin, op=MPI.MIN)
+        global_zmax = comm.allreduce(local_zmax, op=MPI.MAX)
+
+        W = global_zmax - global_zmin
+
         # -------------------
         # Configure functions
         # -------------------
@@ -159,6 +170,7 @@ def main(save_dir):
             "Constant": Constant,
             "x": x,
             "y": y,
+            "z": z,
             "H": H,
             "L": L,
             "G": G,
@@ -169,7 +181,6 @@ def main(save_dir):
             "cos": cos,
             "exp": exp,
             "t": t,
-            "alpha": alpha
         }
 
         ufl_cfg = load_run_ufls(save_dir, namespace)
@@ -181,7 +192,7 @@ def main(save_dir):
         ufl_inflow = ufl_cfg["ufl_v0"]
 
         bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
-        bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
+        bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0, 0.0)), (3,4))
 
         bcs = [bc_walls, bc_inflow]
         nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
@@ -209,8 +220,8 @@ def main(save_dir):
                 v_error_list, p_error_list = timestepper_CN(get_data, 
                     Z, dx, ds, 
                     t0, T, dt, 
-                    theta=theta, gamma=gamma, Re=Re, alpha=alpha,
-                    sample_xmax=L, sample_ymax=H,
+                    theta=theta, gamma=gamma, Re=Re,
+                    sample_xmax=L, sample_ymax=H, sample_zmax=W,
                     make_weak_form=make_weak_form_CN, 
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
@@ -220,8 +231,8 @@ def main(save_dir):
                 v_error_list, p_error_list = timestepper_BDF2(get_data, 
                     Z, dx, ds, 
                     t0, T, dt, 
-                    gamma=0, Re=Re, alpha=alpha,
-                    sample_xmax=L, sample_ymax=H,
+                    gamma=0, Re=Re, 
+                    sample_xmax=L, sample_ymax=H, sample_zmax=W,
                     make_weak_form_BDF2=make_weak_form_BDF2,
                     make_weak_form_CN=make_weak_form_CN,
                     bcs=bcs, nullspace=nullspace,

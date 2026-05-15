@@ -59,9 +59,10 @@ def main(save_dir):
         # mesh and measures
         H = 1
         L = 1
+        W = 1
 
-        mesh = UnitSquareMesh(N, N)
-        x, y = SpatialCoordinate(mesh)
+        mesh = UnitCubeMesh(N, N, N)
+        x, y, z = SpatialCoordinate(mesh)
 
         dx = Measure("dx", domain=mesh)
         ds = Measure("ds", domain=mesh)
@@ -81,6 +82,7 @@ def main(save_dir):
             "Constant": Constant,
             "x": x,
             "y": y,
+            "z": z,
             "pi": pi,
             "sin": sin,
             "cos": cos,
@@ -113,7 +115,7 @@ def main(save_dir):
             u_error_list = timestepper_CN(get_data, 
                 V, dx, ds, 
                 t0, T, dt, theta=theta,
-                sample_xmax=L, sample_ymax=H,
+                sample_xmax=L, sample_ymax=H, sample_zmax=W,
                 make_weak_form=make_weak_form_CN,
                 solver_parameters=solver_parameters,
                 vtkfile_name=new_vtkfile_name)
@@ -121,7 +123,7 @@ def main(save_dir):
             u_error_list = timestepper_BDF2(get_data, 
                 V, dx, ds, 
                 t0, T, dt,
-                sample_xmax=L, sample_ymax=H,
+                sample_xmax=L, sample_ymax=H, sample_zmax=W,
                 make_weak_form_BDF2=make_weak_form_BDF2,
                 make_weak_form_CN=make_weak_form_CN,
                 solver_parameters=solver_parameters,

@@ -157,7 +157,8 @@ def mesh_aspect_ratio(mesh):
 # add this code in !!!
 # --------------------
 
-"""
+if __name__ == "__main__":
+
     h = perturb_mesh(mesh, eps)
 
     # measure changes
@@ -175,4 +176,3 @@ def mesh_aspect_ratio(mesh):
         print("\n--- Aspect Ratio ---")
         print(f"mean AR = {mean_ar:.6e}")
         print(f"max AR  = {max_ar:.6e}")
-"""

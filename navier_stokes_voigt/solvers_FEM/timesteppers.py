@@ -5,12 +5,14 @@ from pathlib import Path
 
 from .create_timestep_solvers import *
 from navier_stokes_voigt.processing.printoff import iter_info_verbose, text, green
-from navier_stokes_voigt.processing.statistics.pdf_sampler import pdf_sampler
-from navier_stokes_voigt.processing.statistics.structure_funcs import structure_funcs
+from navier_stokes_voigt.processing.statistics.pdf_sampler_2d import pdf_sampler_2d
+from navier_stokes_voigt.processing.statistics.structure_funcs_2d import structure_funcs_2d
+from navier_stokes_voigt.processing.statistics.pdf_sampler_3d import pdf_sampler_3d
+from navier_stokes_voigt.processing.statistics.structure_funcs_3d import structure_funcs_3d
 from navier_stokes_voigt.processing.post_processing import *
 
-def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, sample_length, sample_height, gamma=None, Re=None, alpha=None,
-                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):
+def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None, alpha=None,
+                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0]):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
     """
@@ -57,13 +59,25 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     u_exact = Function(Z)
 
     mesh = Z.mesh()
-    pdfs = pdf_sampler(mesh)
-    struct_func = structure_funcs(
-        u_old.sub(0),
-        mesh,
-        r_max=0.25*min(sample_length,sample_height),
-        nbins=30
-    )
+    cell = mesh.ufl_cell()
+    dim = cell.topological_dimension()
+
+    if dim == 2:
+        pdfs = pdf_sampler_2d(mesh)
+        struct_func = structure_funcs_2d(
+            u_old.sub(0),
+            mesh,
+            r_max=0.25*min(sample_xmax,sample_ymax),
+            nbins=30
+        )
+    elif dim == 3:
+        pdfs = pdf_sampler_3d(mesh)
+        struct_func = structure_funcs_3d(
+            u_old.sub(0),
+            mesh,
+            r_max=0.25*min(sample_xmax,sample_ymax),
+            nbins=30
+        )
 
     data_new0 = get_data(t0) # get the functions at initial time
 
@@ -102,7 +116,10 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     coords = mesh.coordinates.dat.data_ro.copy()  # shape (num_local_nodes, 2)
 
     # target location for probe
-    target = np.array(energy_spec_target)
+    if dim == 2:
+        target = np.array([energy_spec_target[0], energy_spec_target[1]])
+    elif dim ==3:
+        target = np.array(energy_spec_target)
 
     # compute distance locally
     local_distances = np.linalg.norm(coords - target, axis=1)
@@ -333,7 +350,10 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     comm.Barrier()
 
     if is_mixed:
-        velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+        if dim == 2:
+            velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+        elif dim == 3:
+            velocity_x_vals, velocity_y_vals, velocity_z_vals, omega_vals = pdfs.finalize()
         r_vals, S2 = struct_func.compute()
 
     if is_mixed and mesh.comm.rank == 0:
@@ -368,8 +388,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 # ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
 
 
-def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_length, sample_height, gamma=None, Re=None,
-                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.5,2.0]):
+def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
+                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0]):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
     """
@@ -418,13 +438,25 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     u_exact = Function(Z)
 
     mesh = Z.mesh()
-    pdfs = pdf_sampler(mesh)
-    struct_func = structure_funcs(
-        u_old.sub(0),
-        mesh,
-        r_max=0.25*min(sample_length,sample_height),
-        nbins=30
-    )
+    cell = mesh.ufl_cell()
+    dim = cell.topological_dimension()
+
+    if dim == 2:
+        pdfs = pdf_sampler_2d(mesh)
+        struct_func = structure_funcs_2d(
+            u_old.sub(0),
+            mesh,
+            r_max=0.25*min(sample_xmax,sample_ymax),
+            nbins=30
+        )
+    elif dim == 3:
+        pdfs = pdf_sampler_3d(mesh)
+        struct_func = structure_funcs_3d(
+            u_old.sub(0),
+            mesh,
+            r_max=0.25*min(sample_xmax,sample_ymax),
+            nbins=30
+        )
 
     data_old = get_data(t0)
     data_older = get_data(t0 - dt)
@@ -470,7 +502,10 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     coords = mesh.coordinates.dat.data_ro.copy()  # shape (num_local_nodes, 2)
 
     # target location for probe
-    target = np.array(energy_spec_target)
+    if dim == 2:
+        target = np.array([energy_spec_target[0], energy_spec_target[1]])
+    elif dim ==3:
+        target = np.array(energy_spec_target)
 
     # compute distance locally
     local_distances = np.linalg.norm(coords - target, axis=1)
@@ -695,7 +730,10 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm.Barrier()
 
     if is_mixed:
-        velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+        if dim == 2:
+            velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+        elif dim == 3:
+            velocity_x_vals, velocity_y_vals, velocity_z_vals, omega_vals = pdfs.finalize()
         r_vals, S2 = struct_func.compute()
 
     if is_mixed and mesh.comm.rank == 0:
@@ -732,7 +770,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
 
 def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NSE_BDF2, make_weak_form_NSV_BDF2, 
-                make_weak_form_NSE_CN, make_weak_form_NSV_CN, sample_length, sample_height, gamma, Re,
+                make_weak_form_NSE_CN, make_weak_form_NSV_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
                 alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces

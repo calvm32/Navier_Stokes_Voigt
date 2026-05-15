@@ -2,7 +2,7 @@ import numpy as np
 from firedrake import *
 from mpi4py import MPI
 
-class mean_profiles:
+class mean_profiles_3d:
     """
     Used for Log Law of the Wall, which does't exist in 2D,
     so this isn't currently used
@@ -30,7 +30,9 @@ class mean_profiles:
         u_mean = Function(self.V)
         u_mean.assign(self.u_sum / self.num_samples)
 
-        # ---- wall shear stress ----
+        # -----------------
+        # wall shear stress
+        # -----------------
         nu = 1.0 / self.Re
         tau_w = nu * assemble(
             grad(u_mean)[0, 1] * self.dsN(self.wall_id)
@@ -40,7 +42,9 @@ class mean_profiles:
 
         u_tau = np.sqrt(abs(tau_w))
 
-        # ---- wall-normal binning ----
+        # -------------------
+        # wall-normal binning
+        # -------------------
         coords = self.mesh.coordinates.dat.data_ro
         yvals = coords[:, 1]
         uvals = u_mean.dat.data[:, 0]

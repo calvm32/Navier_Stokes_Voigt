@@ -36,7 +36,6 @@ def main(save_dir):
     theta = cfg["theta"]
     gamma = cfg["gamma"]
     Re = cfg["Re"]
-    alpha = cfg["alpha"]
     G = cfg["G"]
     P = cfg["P"]
     solver = cfg["solver"]
@@ -84,7 +83,7 @@ def main(save_dir):
     blue(f"\n*** Starting solve ***", spaced=True)
 
     mesh = Mesh(MESH_PATH)
-    x, y = SpatialCoordinate(mesh)
+    x, y, z = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
     ds = Measure("ds", domain=mesh)
@@ -110,6 +109,17 @@ def main(save_dir):
     global_xmax = comm.allreduce(local_xmax, op=MPI.MAX)
 
     L = global_xmax - global_xmin
+
+    # get width W
+    z_coords = mesh.coordinates.dat.data[:, 2]
+
+    local_xmin = z_coords.min()
+    local_xmax = z_coords.max()
+
+    global_zmin = comm.allreduce(local_zmin, op=MPI.MIN)
+    global_zmax = comm.allreduce(local_zmax, op=MPI.MAX)
+
+    W = global_zmax - global_zmin
 
     if elements == "SV":
         k = 3  # or higher for stability on arbitrary triangles
@@ -138,6 +148,7 @@ def main(save_dir):
         "Constant": Constant,
         "x": x,
         "y": y,
+        "z": z,
         "H": H,
         "L": L,
         "G": G,
@@ -159,7 +170,7 @@ def main(save_dir):
     ufl_inflow = ufl_cfg["ufl_inflow"]
 
     bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
-    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
+    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0, 0.0)), (3,4))
 
     bcs = [bc_walls, bc_inflow]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
@@ -187,8 +198,8 @@ def main(save_dir):
             v_error_list, p_error_list = timestepper_CN(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
-                theta=theta, gamma=gamma, Re=Re, alpha=alpha,
-                sample_xmax=L, sample_ymax=H,
+                theta=theta, gamma=gamma, Re=Re,
+                sample_xmax=L, sample_ymax=H, sample_zmax=W,
                 make_weak_form=make_weak_form_CN, 
                 bcs=bcs, nullspace=nullspace,
                 solver_parameters=solver_parameters,
@@ -198,8 +209,8 @@ def main(save_dir):
             v_error_list, p_error_list = timestepper_BDF2(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
-                gamma=gamma, Re=Re, alpha=alpha,
-                sample_xmax=L, sample_ymax=H,
+                gamma=gamma, Re=Re, 
+                sample_xmax=L, sample_ymax=H, sample_zmax=W,
                 make_weak_form_BDF2=make_weak_form_BDF2,
                 make_weak_form_CN=make_weak_form_CN,
                 bcs=bcs, nullspace=nullspace,
