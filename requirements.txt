@@ -1,1 +1,4 @@
-yaml
+PyYAML
+matplotlib
+numpy
+mpi4py
