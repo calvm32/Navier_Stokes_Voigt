@@ -20,7 +20,7 @@ pip install -r requirements.txt
 
 Finally, all users should run the following:
 ```
-export PYTHONPATH=/path/to/project/Navier_Stokes_Voigt:$PYTHONPATH
+export PYTHONPATH=/path/to/project/modules:$PYTHONPATH
 ```
 
 ## Run on your device

@@ -2,10 +2,10 @@ import numpy as np
 import pytest
 from firedrake import *
 
-from navier_stokes_voigt.processing.statistics.pdf_sampler_2d import pdf_sampler_2d
-from navier_stokes_voigt.processing.statistics.structure_funcs_2d import structure_funcs_2d
-from navier_stokes_voigt.processing.statistics.pdf_sampler_2d import pdf_sampler_2d
-from navier_stokes_voigt.processing.statistics.structure_funcs_2d import structure_funcs_2d
+from modules.processing.statistics.pdf_sampler_2d import pdf_sampler_2d
+from modules.processing.statistics.structure_funcs_2d import structure_funcs_2d
+from modules.processing.statistics.pdf_sampler_2d import pdf_sampler_2d
+from modules.processing.statistics.structure_funcs_2d import structure_funcs_2d
 
 @pytest.fixture
 def mesh():

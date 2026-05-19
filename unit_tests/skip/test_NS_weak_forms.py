@@ -1,7 +1,7 @@
 from firedrake import *
 import pytest
 
-from navier_stokes_voigt.solvers_FEM.navier_stokes_2d.make_weak_form import *
+from modules.solvers_FEM.navier_stokes_2d.make_weak_form import *
 
 def _setup_ns_problem():
     mesh = UnitSquareMesh(4, 4)

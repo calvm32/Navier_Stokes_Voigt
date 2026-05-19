@@ -8,9 +8,9 @@ version = "0.1.0"
 requires-python = ">=3.10"
 
 [project.scripts]
-mysave = "navier_stokes_voigt.scripts.mysave:main"
-myrun  = "navier_stokes_voigt.scripts.myrun:main"
+mysave = "modules.scripts.mysave:main"
+myrun  = "modules.scripts.myrun:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["navier_stokes_voigt*"]
+include = ["modules*"]

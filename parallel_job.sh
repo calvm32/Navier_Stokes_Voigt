@@ -15,7 +15,7 @@ set -e
 # USER SETTINGS
 # -------------
 
-PROJECT_DIR=$HOME/projects/Navier_Stokes_Voigt
+PROJECT_DIR=$HOME/projects/modules
 
 RUN_NAME=test_run
 PROBLEM=nsv2_FEM
