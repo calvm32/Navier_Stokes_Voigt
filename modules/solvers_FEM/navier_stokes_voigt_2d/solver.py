@@ -159,9 +159,14 @@ def main(save_dir):
     # -------------------
 
     ufl_inflow = ufl_cfg["ufl_inflow"]
+<<<<<<< HEAD:modules/solvers_FEM/navier_stokes_voigt_2d/solver.py
 
     bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
     bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3)) #### OR 4 DEPENDING ON THE MESH CHECK THE MESH
+=======
+    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (2,4))
+    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1,3))
+>>>>>>> e2d108b48432233c0da4bf0073c29a23b720e1a1:navier_stokes_voigt/solvers_FEM/navier_stokes_voigt_2d/solver.py
 
     bcs = [bc_walls, bc_inflow]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
