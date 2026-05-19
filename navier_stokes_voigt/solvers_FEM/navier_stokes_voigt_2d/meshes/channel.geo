@@ -41,10 +41,10 @@ Plane Surface(1) = {1};
 // Physical lines
 // --------------
 
-Physical Line("Left") = {1};		    // left wall (id 1)
+Physical Line("Left") = {4};		    // left wall (id 1)
 Physical Line("Right") = {2};		    // right wall (id 2)
-Physical Line("Bottom") = {3};	        // bottom wall (id 3)
-Physical Line("Top") = {4};		        // top wall (id 4)
+Physical Line("Bottom") = {1};	        // bottom wall (id 3)
+Physical Line("Top") = {3};		        // top wall (id 4)
 
 // ----------------
 // Physical surface

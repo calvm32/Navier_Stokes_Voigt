@@ -178,8 +178,8 @@ def main(save_dir):
 
         ufl_inflow = ufl_cfg["ufl_v0"]
 
-        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
-        bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
+        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,3))
+        bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (2,4))
 
         bcs = [bc_walls, bc_inflow]
         #nullspace = None
