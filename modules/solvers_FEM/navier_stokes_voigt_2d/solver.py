@@ -83,7 +83,7 @@ def main(save_dir):
 
     blue(f"\n*** Starting solve ***", spaced=True)
 
-    mesh = Mesh(MESH_PATH, dim=2)
+    mesh = Mesh(MESH_PATH)
     x, y = SpatialCoordinate(mesh)
 
     dx = Measure("dx", domain=mesh)
