@@ -3,3 +3,4 @@ matplotlib
 numpy
 mpi4py
 meshio
+vtk

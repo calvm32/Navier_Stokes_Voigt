@@ -2,6 +2,7 @@ from firedrake import *
 from mpi4py import MPI
 import time
 from pathlib import Path
+import numpy as np
 
 from .create_timestep_solvers import *
 from modules.processing.printoff import iter_info_verbose, text, green
@@ -60,8 +61,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
     mesh = Z.mesh()
     cell = mesh.ufl_cell()
-    dim = cell.topological_dimension()
-
+    dim = cell.topological_dimension() if callable(cell.topological_dimension) else cell.topological_dimension
     if dim == 2:
         pdfs = pdf_sampler_2d(mesh)
         struct_func = structure_funcs_2d(
@@ -113,7 +113,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     comm = mesh.comm
 
     # mesh coordinates (nodal positions)
-    coords = mesh.coordinates.dat.data_ro.copy()  # shape (num_local_nodes, 2)
+    if hasattr(mesh, 'coordinates'):
+        coords = mesh.coordinates.dat.data_ro
+    elif hasattr(mesh, 'meshes'):
+        coords = mesh.meshes[0].coordinates.dat.data_ro
+    else:
+        raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}").copy()  # shape (num_local_nodes, 2)
 
     # target location for probe
     if dim == 2:
@@ -439,8 +444,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     mesh = Z.mesh()
     cell = mesh.ufl_cell()
-    dim = cell.topological_dimension()
-
+    dim = cell.topological_dimension() if callable(cell.topological_dimension) else cell.topological_dimension
     if dim == 2:
         pdfs = pdf_sampler_2d(mesh)
         struct_func = structure_funcs_2d(
@@ -499,7 +503,12 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm = mesh.comm
 
     # mesh coordinates (nodal positions)
-    coords = mesh.coordinates.dat.data_ro.copy()  # shape (num_local_nodes, 2)
+    if hasattr(mesh, 'coordinates'):
+        coords = mesh.coordinates.dat.data_ro
+    elif hasattr(mesh, 'meshes'):
+        coords = mesh.meshes[0].coordinates.dat.data_ro
+    else:
+        raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}").copy()  # shape (num_local_nodes, 2)
 
     # target location for probe
     if dim == 2:

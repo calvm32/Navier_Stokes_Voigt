@@ -45,7 +45,12 @@ class mean_profiles_3d:
         # -------------------
         # wall-normal binning
         # -------------------
-        coords = self.mesh.coordinates.dat.data_ro
+        if hasattr(mesh, 'coordinates'):
+            coords = mesh.coordinates.dat.data_ro
+        elif hasattr(mesh, 'meshes'):
+            coords = mesh.meshes[0].coordinates.dat.data_ro
+        else:
+            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
         yvals = coords[:, 1]
         uvals = u_mean.dat.data[:, 0]
 

@@ -19,7 +19,13 @@ class structure_funcs_2d:
         # Fake geometric scale from mesh bounding box
         # (only needed to define r bins)
 
-        coords = mesh.coordinates.dat.data_ro
+        if hasattr(mesh, 'coordinates'):
+            coords = mesh.coordinates.dat.data_ro
+        elif hasattr(mesh, 'meshes'):
+            coords = mesh.meshes[0].coordinates.dat.data_ro
+        else:
+            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
+            
         xmin, ymin = coords.min(axis=0)
         xmax, ymax = coords.max(axis=0)
 

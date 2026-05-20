@@ -5,7 +5,6 @@ import os
 import shutil
 import csv
 import sys
-import meshio
 
 from modules.solvers_FEM.timesteppers import *
 from .make_weak_form import *
@@ -76,9 +75,7 @@ def main(save_dir):
     # --------------
 
     HERE = os.path.dirname(os.path.abspath(__file__))
-    MESH_PATH = os.path.join(HERE, "meshes", "mesh_airfoil_0012.h5")
-
-    print("done")
+    MESH_PATH = os.path.join(HERE, "meshes", "bary_naca_airfoil_0012.msh")
 
     # ------------
     # Setup spaces
