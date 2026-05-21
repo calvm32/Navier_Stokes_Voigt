@@ -18,7 +18,7 @@ class RunConfig:
 
 class TemplateResolver:
 
-    BASE = Path(__file__).resolve().parents[1] / "templates"
+    BASE = Path(__file__).resolve().parents[1] / "user_settings"
 
     @staticmethod
     def resolve(cfg: RunConfig):
@@ -191,7 +191,7 @@ class TemplateResolver:
 class SaveManager:
 
     @staticmethod
-    def create(save_path: str, templates: dict):
+    def create(save_path: str, user_settings: dict):
 
         if os.path.exists(save_path):
             raise FileExistsError(f"Save already exists: {save_path}")
@@ -199,20 +199,20 @@ class SaveManager:
         os.makedirs(save_path)
         os.makedirs(f"{save_path}/vis")
 
-        dump_txt(load_txt(templates["settings"]),
+        dump_txt(load_txt(user_settings["settings"]),
                  f"{save_path}/settings.yaml")
 
-        dump_txt(load_txt(templates["solver"]),
+        dump_txt(load_txt(user_settings["solver"]),
                  f"{save_path}/solver_params.yaml")
 
-        dump_txt(load_txt(templates["ufl"]),
+        dump_txt(load_txt(user_settings["ufl"]),
                  f"{save_path}/user_expr.yaml")
 
         with open(f"{save_path}/run_info.yaml", "w") as f:
-            yaml.dump({"solver_module": templates["solver_path"]}, f)
+            yaml.dump({"solver_module": user_settings["solver_path"]}, f)
 
         print(f"Created save at: {save_path}")
-        print(f"Solver path: {templates['solver_path']}")
+        print(f"Solver path: {user_settings['solver_path']}")
 
 def build_parser():
     parser = argparse.ArgumentParser(
@@ -256,8 +256,8 @@ def main():
         elements=args.elements,
     )
 
-    templates = TemplateResolver.resolve(cfg)
-    SaveManager.create(args.save_path, templates)
+    user_settings = TemplateResolver.resolve(cfg)
+    SaveManager.create(args.save_path, user_settings)
 
 if __name__ == "__main__":
     main()

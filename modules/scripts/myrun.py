@@ -3,6 +3,7 @@ import sys
 import yaml
 import os
 from pathlib import Path
+import mpi4py
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Run solver")

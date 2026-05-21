@@ -261,4 +261,4 @@ def curve_fitter(x_list, y_list, comparison_type, yaxislabel):
 
     plt.tight_layout()
     plt.savefig("compare_spectral_NSVvsNSE.png", dpi=200, bbox_inches='tight')
-    plt.show()
+    #plt.show()
