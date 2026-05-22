@@ -59,6 +59,8 @@ class pdf_sampler_2d:
         global_vel_y = comm.reduce(self.vel_y_hist, op=MPI.SUM, root=0)
         global_vort  = comm.reduce(self.vort_hist,  op=MPI.SUM, root=0)
 
+        print("done summing hist")
+
         if rank == 0:
             # normalize to PDF
             dx = self.bin_edges[1] - self.bin_edges[0]
@@ -66,8 +68,6 @@ class pdf_sampler_2d:
             pdf_x = global_vel_x / np.sum(global_vel_x) / dx
             pdf_y = global_vel_y / np.sum(global_vel_y) / dx
             pdf_v = global_vort  / np.sum(global_vort)  / dx
-
-            #centers = 0.5 * (self.bin_edges[:-1] + self.bin_edges[1:])
 
             return pdf_x, pdf_y, pdf_v
         else:
