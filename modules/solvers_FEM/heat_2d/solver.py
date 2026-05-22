@@ -115,8 +115,9 @@ def main(save_dir):
             solver_parameters=solver_parameters,
             vtkfile_name=vtkfile_name)
 
-    data_path = Path("plot_final_data.npz") 
-    plot_heat(data_path)
+    if mesh.rank.comm == 0:
+        data_path = Path("plot_final_data.npz") 
+        plot_heat(data_path)
 
 if __name__ == "__main__":
 
