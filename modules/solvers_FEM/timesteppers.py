@@ -771,6 +771,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm.Barrier()
 
     if mesh.comm.rank == 0 and is_mixed:
+        print("about to compute stats")
 
         if dim == 2:
             velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
