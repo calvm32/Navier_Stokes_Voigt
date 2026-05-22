@@ -206,6 +206,10 @@ def main(save_dir):
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name)
 
+    # synchronize for finalization process
+    comm = mesh.comm
+    comm.Barrier()
+
     if mesh.rank.comm == 0:
         data_path = Path("plot_final_data.npz") 
         plot_ns(data_path)
