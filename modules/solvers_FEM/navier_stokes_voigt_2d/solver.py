@@ -5,15 +5,15 @@ import os
 import shutil
 import csv
 import sys
+import numpy as np
+from mpi4py import MPI
 
 from modules.solvers_FEM.timesteppers import *
 from .make_weak_form import *
 from modules.processing.printoff import blue
 from modules.processing.config_setup import *
 import matplotlib.pyplot as plt
-import numpy as np
-
-from mpi4py import MPI
+from modules.processing.post_processing.ns import plot_ns
 
 def main(save_dir):
 
@@ -205,6 +205,8 @@ def main(save_dir):
                 bcs=bcs, nullspace=nullspace,
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name)
+
+    plot_ns()
 
 if __name__ == "__main__":
     import sys

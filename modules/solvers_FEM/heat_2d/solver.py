@@ -3,16 +3,17 @@ import yaml
 from pathlib import Path
 import os
 import shutil
+import csv
 import sys
+import numpy as np
+from mpi4py import MPI
 
 from modules.solvers_FEM.timesteppers import *
 from .make_weak_form import *
 from modules.processing.printoff import blue
 from modules.processing.config_setup import *
 import matplotlib.pyplot as plt
-import numpy as np
-
-from mpi4py import MPI
+from modules.processing.post_processing.heat import plot_heat
 
 def main(save_dir):
     comm = MPI.COMM_WORLD
@@ -113,6 +114,8 @@ def main(save_dir):
             make_weak_form_CN=make_weak_form_CN,
             solver_parameters=solver_parameters,
             vtkfile_name=vtkfile_name)
+
+    plot_heat()
 
 if __name__ == "__main__":
 
