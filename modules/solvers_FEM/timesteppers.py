@@ -771,15 +771,15 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm.Barrier()
 
     if mesh.comm.rank == 0 and is_mixed:
-        print(velocity_x_vals.shape)
-        print(velocity_y_vals.shape)
-        print(omega_vals.shape)
 
         if dim == 2:
             velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
         elif dim == 3:
             velocity_x_vals, velocity_y_vals, velocity_z_vals, omega_vals = pdfs.finalize()
         r_vals, S2 = struct_func.compute()
+        print(velocity_x_vals.shape)
+        print(velocity_y_vals.shape)
+        print(omega_vals.shape)
         
         np.savez(
             output_file2,
