@@ -156,8 +156,9 @@ def main(save_dir):
     # -------------------
 
     ufl_inflow = ufl_cfg["ufl_inflow"]
-    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (2,4))
-    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1,3))
+
+    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
+    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3)) #### OR 4 DEPENDING ON THE MESH CHECK THE MESH
 
     bcs = [bc_walls, bc_inflow]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
@@ -196,7 +197,7 @@ def main(save_dir):
             v_error_list, p_error_list = timestepper_BDF2(get_data, 
                 Z, dx, ds, 
                 t0, T, dt, 
-                gamma=gamma, Re=Re, 
+                gamma=gamma, Re=Re,
                 sample_xmax=L, sample_ymax=H,
                 make_weak_form_BDF2=make_weak_form_BDF2,
                 make_weak_form_CN=make_weak_form_CN,
