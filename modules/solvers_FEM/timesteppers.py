@@ -236,7 +236,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
         energy_list.append(energy)
         all_time_list.append(t)
 
-        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=(num_steps-1))
+        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=(num_steps))
 
         if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
@@ -662,7 +662,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         energy_list.append(energy)
         all_time_list.append(t)
 
-        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=(num_steps-1))
+        iter_info_verbose("TIME STEP COMPLETED", f"energy = {energy}", i=step, n=(num_steps))
 
         if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
@@ -771,7 +771,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm.Barrier()
 
     if mesh.comm.rank == 0 and is_mixed:
-        print("donedonedone")
         if dim == 2:
             velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
         elif dim == 3:
@@ -801,6 +800,11 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             r_vals=np.array(r_vals),
             S2=np.array(S2),
         )
+
+        print("done saving to file")
+        print(velocity_x.shape)
+        print(velocity_y.shape)
+        print(omega.shape)
 
     elif mesh.comm.rank == 0 and not mixed:
         np.savez(
@@ -1046,7 +1050,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
         energy_diff_list.append(energy_diff)
         all_time_list.append(t)
 
-        iter_info_verbose("TIME STEP COMPLETED", f"energy diff = {energy_diff}", i=step, n=(num_steps-1))
+        iter_info_verbose("TIME STEP COMPLETED", f"energy diff = {energy_diff}", i=step, n=(num_steps))
 
         if (step % compute_every == 0) and (step >= start_sampling):
             every_time_list.append(t)
