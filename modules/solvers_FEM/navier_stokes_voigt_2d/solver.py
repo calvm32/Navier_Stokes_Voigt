@@ -159,7 +159,7 @@ def main(save_dir):
     ufl_inflow = ufl_cfg["ufl_inflow"]
 
     bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
-    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3)) #### OR 4 DEPENDING ON THE MESH CHECK THE MESH
+    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4)) #### OR 4 DEPENDING ON THE MESH CHECK THE MESH
 
     bcs = [bc_walls, bc_inflow]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
@@ -206,7 +206,8 @@ def main(save_dir):
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name)
 
-    plot_ns()
+    data_path = Path("plot_final_data.npz") 
+    plot_ns(data_path)
 
 if __name__ == "__main__":
     import sys

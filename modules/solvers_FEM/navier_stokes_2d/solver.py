@@ -205,7 +205,9 @@ def main(save_dir):
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name)
 
-    plot_ns()
+
+    data_path = Path("plot_final_data.npz") 
+    plot_ns(data_path)
 
 if __name__ == "__main__":
     import sys

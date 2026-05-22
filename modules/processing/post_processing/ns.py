@@ -2,17 +2,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-def plot_ns():
+def plot_ns(data_path):
 
     # ---------
     # Load data
     # ---------
 
-    data_path = Path("plot_data.npz") 
     out_dir = Path("plots")
     out_dir.mkdir(exist_ok=True)
 
     data = np.load(data_path)
+    print(data.files)
 
     # unpack
     all_time = data["all_time"]

@@ -38,7 +38,7 @@ def main():
     else:
         cmd = python_cmd
 
-    print(f"DEBUG cmd: {cmd}", flush=True)
+    #print(f"DEBUG cmd: {cmd}", flush=True)
 
     result = subprocess.run(cmd, env=os.environ.copy())
     sys.exit(result.returncode)
