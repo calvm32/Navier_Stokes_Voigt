@@ -2,8 +2,8 @@ import argparse
 import sys
 import yaml
 import os
+import subprocess
 from pathlib import Path
-import shutil
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Run solver")
@@ -29,25 +29,19 @@ def main():
     print(f"Launching solver module: {solver_module}")
     print(f"Save directory: {save_dir}")
 
-    # Build command
-    python_cmd = [sys.executable, "-m", solver_module, str(save_dir)]
+    python_exe = sys.executable  # absolute path to venv python
+    python_cmd = [python_exe, "-m", solver_module, str(save_dir)]
 
     if args.np:
-        mpirun = shutil.which("mpirun")
-        if mpirun is None:
-            print("ERROR: mpirun not found on PATH", file=sys.stderr)
-            sys.exit(1)
-        cmd = [mpirun, "-np", str(args.np)] + python_cmd
+        mpirun = "/usr/bin/mpirun"  # absolute path — no PATH lookup ambiguity
+        cmd = [mpirun, "-np", str(args.np), "--bind-to", "none"] + python_cmd
     else:
         cmd = python_cmd
 
     print(f"DEBUG cmd: {cmd}", flush=True)
-    try:
-        os.execvp(cmd[0], cmd)
-    except OSError as e:
-        print(f"execvp failed: {e}", file=sys.stderr)
-        print(f"cmd was: {cmd}", file=sys.stderr)
-        sys.exit(1)
+
+    result = subprocess.run(cmd, env=os.environ.copy())
+    sys.exit(result.returncode)
 
 if __name__ == "__main__":
     main()
