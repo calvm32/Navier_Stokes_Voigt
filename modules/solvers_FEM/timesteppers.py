@@ -738,21 +738,52 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm = mesh.comm
     comm.Barrier()
 
-    if is_mixed:
+    if mesh.comm.rank == 0 and is_mixed:
         if dim == 2:
             velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
         elif dim == 3:
             velocity_x_vals, velocity_y_vals, velocity_z_vals, omega_vals = pdfs.finalize()
         r_vals, S2 = struct_func.compute()
-
-    if is_mixed and mesh.comm.rank == 0:
+        
         np.savez(
             output_file2,
+
+            # time series
+            all_time=np.array(all_time_list),
+            energy=np.array(energy_list),
+            divergence=np.array(div_list),
+
+            every_time=np.array(every_time_list),
+            palinstrophy=np.array(palinstrophy_list),
+            stream_func=np.array(stream_func_list),
+            enstrophy=np.array(enstrophy_list),
+
+            # probe
+            probe=np.array(energy_spec_probe)
+
+            # rest of stats
             velocity_x=np.array(velocity_x_vals),
             velocity_y=np.array(velocity_y_vals),
             omega=np.array(omega_vals),
             r_vals=np.array(r_vals),
             S2=np.array(S2),
+        )
+
+    elif mesh.comm.rank == 0:
+        np.savez(
+            output_file2,
+
+            # time series
+            all_time=np.array(all_time_list),
+            energy=np.array(energy_list),
+
+            every_time=np.array(every_time_list),
+            palinstrophy=np.array(palinstrophy_list),
+            stream_func=np.array(stream_func_list),
+            enstrophy=np.array(enstrophy_list),
+
+            # probe
+            probe=np.array(energy_spec_probe)
         )
 
     # report completed
