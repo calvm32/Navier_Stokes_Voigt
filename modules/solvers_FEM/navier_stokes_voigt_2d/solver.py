@@ -207,6 +207,7 @@ def main(save_dir):
                 appctx=appctx, vtkfile_name=vtkfile_name)
 
     # synchronize for finalization process
+    mesh = Z.mesh()
     comm = mesh.comm
     comm.Barrier()
 
