@@ -759,7 +759,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             enstrophy=np.array(enstrophy_list),
 
             # probe
-            probe=np.array(energy_spec_probe)
+            probe=np.array(energy_spec_probe),
 
             # rest of stats
             velocity_x=np.array(velocity_x_vals),
@@ -783,7 +783,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             enstrophy=np.array(enstrophy_list),
 
             # probe
-            probe=np.array(energy_spec_probe)
+            probe=np.array(energy_spec_probe),
         )
 
     # report completed
