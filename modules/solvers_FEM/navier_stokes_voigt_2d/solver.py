@@ -207,11 +207,10 @@ def main(save_dir):
                 appctx=appctx, vtkfile_name=vtkfile_name)
 
     # synchronize for finalization process
-    mesh = Z.mesh()
     comm = mesh.comm
     comm.Barrier()
 
-    if mesh.rank.comm == 0:
+    if mesh.comm.rank == 0:
         data_path = Path("plot_final_data.npz") 
         plot_ns(data_path)
 
