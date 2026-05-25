@@ -66,6 +66,8 @@ class structure_funcs_2d:
         self.S2_accum = np.zeros(nbins, dtype=np.float64)
         self.counts = np.zeros(nbins, dtype=np.int64)
 
+        print("DONE INIT")
+
     def sample(self, nsamples=10000):
         """
         Draw random DOF pairs and accumulate longitudinal increments.
@@ -74,7 +76,8 @@ class structure_funcs_2d:
         coords = self.coords
         values = self.values
 
-        for _ in range(nsamples):
+        for I in range(nsamples):
+            print(F"DONE {I}/{len(nsamples)} SAMPLE")
 
             # random pair
             i = self.rng.integers(0, self.ndofs)
