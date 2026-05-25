@@ -130,17 +130,24 @@ class structure_funcs_2d:
         Must be called on ALL ranks.
         """
 
+        print("line1")
+
         S2_global = self.comm.allreduce(
             self.S2_accum,
             op=MPI.SUM
         )
+
+        print("line2")
 
         counts_global = self.comm.allreduce(
             self.counts,
             op=MPI.SUM
         )
 
+        print("line3")
+
         S2 = np.zeros_like(S2_global)
+        print("line4")
 
         mask = counts_global > 0
 
@@ -148,6 +155,8 @@ class structure_funcs_2d:
             S2_global[mask]
             / counts_global[mask]
         )
+
+        print("line5")
 
         return (
             self.r_centers.copy(),
