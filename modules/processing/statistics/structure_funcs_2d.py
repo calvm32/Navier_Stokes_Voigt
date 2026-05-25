@@ -1,91 +1,153 @@
 import numpy as np
 from mpi4py import MPI
 
-class structure_funcs_2d:
+
+class StructureFunctions2D:
     """
-    2nd-order longitudinal structure function S^2(r) using DOF sampling
+    Monte-Carlo estimate of the longitudinal 2nd-order
+    structure function:
+
+        S2(r) = < ((u(x+r)-u(x)) · rhat)^2 >
+
+    for homogeneous/isotropic turbulence.
+
+    MPI-safe and scalable.
     """
 
-    def __init__(self, u, mesh, r_max=None, nbins=30):
+    def __init__(
+        self,
+        u,
+        mesh,
+        r_max=None,
+        nbins=40,
+        seed=None,
+    ):
 
         self.u = u
         self.mesh = mesh
+        self.comm = mesh.comm
 
-        # DOF values (view updates automatically)
-        self.values = u.dat.data_ro
+        rng = np.random.default_rng(seed)
+        self.rng = rng
 
-        ndofs = self.values.shape[0]
+        # --------------------------------
+        # coordinates + local velocity DOFs
+        # --------------------------------
 
-        # Fake geometric scale from mesh bounding box
-        # (only needed to define r bins)
+        coords = mesh.coordinates.dat.data_ro
+        values = u.dat.data_ro
 
-        if hasattr(mesh, 'coordinates'):
-            coords = mesh.coordinates.dat.data_ro
-        elif hasattr(mesh, 'meshes'):
-            coords = mesh.meshes[0].coordinates.dat.data_ro
-        else:
-            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
-            
+        self.coords = coords
+        self.values = values
+
+        self.ndofs = coords.shape[0]
+
+        # ------------------------
+        # radial domain
+        # ------------------------
+
         xmin, ymin = coords.min(axis=0)
         xmax, ymax = coords.max(axis=0)
 
-        # we need to avoid the boundaries, so only sample a small radial distance (r) #
-        #  this only accounts for small eddies, altho can get an even smaller length scale if wanted
+        Lx = xmax - xmin
+        Ly = ymax - ymin
+
         if r_max is None:
-            Lx = xmax - xmin
-            Ly = ymax - ymin
             r_max = 0.25 * min(Lx, Ly)
 
+        self.r_max = r_max
+
         self.r_edges = np.linspace(0.0, r_max, nbins + 1)
-        self.r_centers = 0.5 * (self.r_edges[:-1] + self.r_edges[1:])
+        self.r_centers = 0.5 * (
+            self.r_edges[:-1] + self.r_edges[1:]
+        )
 
-        self.S2_accum = np.zeros(nbins) # sum of squared velocity differences for bin i, will be averaged 
-        self.counts = np.zeros(nbins, dtype=int) # count successful samples (denominator for avg)
+        # accumulators
+        self.S2_accum = np.zeros(nbins, dtype=np.float64)
+        self.counts = np.zeros(nbins, dtype=np.int64)
 
-        self.ndofs = ndofs
-
-    def sample_increment(self):
+    def sample(self, nsamples=10000):
         """
-        longitudinal velocity increment
-        """
-
-        i = np.random.randint(0, self.ndofs)
-        j = np.random.randint(0, self.ndofs)
-
-        u1 = self.values[i]
-        u2 = self.values[j]
-
-        diff = u2 - u1
-
-        # random direction (isotropic projection)
-        theta = 2.0 * np.pi * np.random.rand()
-        r_hat = np.array([np.cos(theta), np.sin(theta)])
-
-        return np.dot(diff, r_hat)
-
-    def sample(self, nsamples_per_bin=50):
-        """
-        actually sample now
+        Draw random DOF pairs and accumulate longitudinal increments.
         """
 
-        for i in range(len(self.r_centers)):
+        coords = self.coords
+        values = self.values
 
-            for _ in range(nsamples_per_bin):
+        for _ in range(nsamples):
 
-                inc = self.sample_increment()
+            # random pair
+            i = self.rng.integers(0, self.ndofs)
+            j = self.rng.integers(0, self.ndofs)
 
-                self.S2_accum[i] += inc ** 2
-                self.counts[i] += 1
+            if i == j:
+                continue
 
-    def compute(self):
+            xi = coords[i]
+            xj = coords[j]
 
-        comm = MPI.COMM_WORLD
+            dx = xj - xi
 
-        S2_global = comm.allreduce(self.S2_accum, op=MPI.SUM)
-        counts_global = comm.allreduce(self.counts, op=MPI.SUM)
+            r = np.linalg.norm(dx)
+
+            # avoid singular pair
+            if r <= 1e-14:
+                continue
+
+            # outside target range
+            if r >= self.r_max:
+                continue
+
+            # longitudinal direction
+            rhat = dx / r
+
+            ui = values[i]
+            uj = values[j]
+
+            du = uj - ui
+
+            # longitudinal increment
+            du_long = np.dot(du, rhat)
+
+            # radial bin
+            bin_idx = np.searchsorted(
+                self.r_edges,
+                r,
+                side="right"
+            ) - 1
+
+            if 0 <= bin_idx < len(self.S2_accum):
+
+                self.S2_accum[bin_idx] += du_long**2
+                self.counts[bin_idx] += 1
+
+    def finalize(self):
+        """
+        MPI-safe reduction and averaging.
+        Must be called on ALL ranks.
+        """
+
+        S2_global = self.comm.allreduce(
+            self.S2_accum,
+            op=MPI.SUM
+        )
+
+        counts_global = self.comm.allreduce(
+            self.counts,
+            op=MPI.SUM
+        )
+
+        S2 = np.zeros_like(S2_global)
 
         mask = counts_global > 0
-        S2 = np.zeros_like(S2_global)
-        S2[mask] = S2_global[mask] / counts_global[mask]
 
-        return self.r_centers, S2
+        S2[mask] = (
+            S2_global[mask]
+            / counts_global[mask]
+        )
+
+        return (
+            self.r_centers.copy(),
+            S2,
+            counts_global.copy(),
+        )
