@@ -1,93 +1,158 @@
 import numpy as np
 from mpi4py import MPI
 
+
 class structure_funcs_3d:
-    """
-    2nd-order longitudinal structure function S^2(r) using DOF sampling
-    """
 
-    def __init__(self, u, mesh, r_max=None, nbins=30):
+    def __init__(
+        self,
+        u,
+        mesh,
+        r_max,
+        nbins=32,
+        seed=0,
+    ):
 
-        self.u = u
-        self.mesh = mesh
+        self.comm = mesh.comm
 
-        # DOF values (view updates automatically)
+        self.coords = mesh.coordinates.dat.data_ro
         self.values = u.dat.data_ro
 
-        ndofs = self.values.shape[0]
+        self.ndofs = self.coords.shape[0]
 
-        # Fake geometric scale from mesh bounding box
-        # (only needed to define r bins)
+        self.r_max = r_max
 
-        if hasattr(mesh, 'coordinates'):
-            coords = mesh.coordinates.dat.data_ro
-        elif hasattr(mesh, 'meshes'):
-            coords = mesh.meshes[0].coordinates.dat.data_ro
-        else:
-            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
-        xmin, ymin, zmin = coords.min(axis=0)
-        xmax, ymax, zmax = coords.max(axis=0)
+        self.r_edges = np.geomspace(
+            r_max / 500.0,
+            r_max,
+            nbins + 1
+        )
 
-        # we need to avoid the boundaries, so only sample a small radial distance (r) #
-        #  this only accounts for small eddies, altho can get an even smaller length scale if wanted
-        if r_max is None:
-            Lx = xmax - xmin
-            Ly = ymax - ymin
-            Lz = zmax - zmin
-            r_max = 0.25 * min(Lx, Ly, Lz)
+        self.r_centers = np.sqrt(
+            self.r_edges[:-1]
+            * self.r_edges[1:]
+        )
 
-        self.r_edges = np.linspace(0.0, r_max, nbins + 1)
-        self.r_centers = 0.5 * (self.r_edges[:-1] + self.r_edges[1:])
+        # GLOBAL synchronized accumulators
+        self.S2 = np.zeros(nbins)
+        self.counts = np.zeros(nbins)
 
-        self.S2_accum = np.zeros(nbins) # sum of squared velocity differences for bin i, will be averaged 
-        self.counts = np.zeros(nbins, dtype=int) # count successful samples (denominator for avg)
+        self.rng = np.random.default_rng(
+            seed + self.comm.rank
+        )
 
-        self.ndofs = ndofs
+    def sample(self, nsamples=20000):
 
-    def sample_increment(self):
-        """
-        longitudinal velocity increment
-        """
+        rng = self.rng
 
-        i = np.random.randint(0, self.ndofs)
-        j = np.random.randint(0, self.ndofs)
-        k = np.random.randint(0, self.ndofs)
+        # -------------------------
+        # local vectorized sampling
+        # -------------------------
 
-        ux = self.values[i]
-        uy = self.values[j]
-        uz = self.values[k]
+        i = rng.integers(
+            0,
+            self.ndofs,
+            size=nsamples
+        )
 
-        diff = ux - uy
+        j = rng.integers(
+            0,
+            self.ndofs,
+            size=nsamples
+        )
 
-        # random direction (isotropic projection)
-        theta = 2.0 * np.pi * np.random.rand()
-        r_hat = np.array([np.cos(theta), np.sin(theta), np.sin(theta)])
+        mask = i != j
 
-        return np.dot(diff, r_hat)
+        i = i[mask]
+        j = j[mask]
 
-    def sample(self, nsamples_per_bin=50):
-        """
-        actually sample now
-        """
+        xi = self.coords[i]
+        xj = self.coords[j]
 
-        for i in range(len(self.r_centers)):
+        dx = xj - xi
 
-            for _ in range(nsamples_per_bin):
+        r = np.linalg.norm(dx, axis=1)
 
-                inc = self.sample_increment()
+        mask = (
+            (r > 1e-14)
+            & (r < self.r_max)
+        )
 
-                self.S2_accum[i] += inc ** 2
-                self.counts[i] += 1
+        if not np.any(mask):
+            return
+
+        i = i[mask]
+        j = j[mask]
+        dx = dx[mask]
+        r = r[mask]
+
+        rhat = dx / r[:, None]
+
+        ui = self.values[i]
+        uj = self.values[j]
+
+        du = uj - ui
+
+        du_long = np.sum(
+            du * rhat,
+            axis=1
+        )
+
+        vals = du_long**2
+
+        bins = np.searchsorted(
+            self.r_edges,
+            r,
+            side="right"
+        ) - 1
+
+        valid = (
+            (bins >= 0)
+            & (bins < len(self.S2))
+        )
+
+        bins = bins[valid]
+        vals = vals[valid]
+
+        # ----------------------
+        # local temporary arrays
+        # ----------------------
+
+        local_S2 = np.zeros_like(self.S2)
+        local_counts = np.zeros_like(self.counts)
+
+        np.add.at(local_S2, bins, vals)
+        np.add.at(local_counts, bins, 1)
+
+        # immediate synchronization
+        global_S2 = np.zeros_like(local_S2)
+        global_counts = np.zeros_like(local_counts)
+
+        self.comm.Allreduce(
+            local_S2,
+            global_S2,
+            op=MPI.SUM
+        )
+
+        self.comm.Allreduce(
+            local_counts,
+            global_counts,
+            op=MPI.SUM
+        )
+
+        # accumulate globally synchronized values
+        self.S2 += global_S2
+        self.counts += global_counts
 
     def compute(self):
 
-        comm = MPI.COMM_WORLD
+        out = np.zeros_like(self.S2)
 
-        S2_global = comm.allreduce(self.S2_accum, op=MPI.SUM)
-        counts_global = comm.allreduce(self.counts, op=MPI.SUM)
+        mask = self.counts > 0
 
-        mask = counts_global > 0
-        S2 = np.zeros_like(S2_global)
-        S2[mask] = S2_global[mask] / counts_global[mask]
+        out[mask] = (
+            self.S2[mask]
+            / self.counts[mask]
+        )
 
-        return self.r_centers, S2
+        return self.r_centers, out

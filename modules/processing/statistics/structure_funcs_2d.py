@@ -114,9 +114,9 @@ class structure_funcs_2d:
         bins = bins[valid]
         vals = vals[valid]
 
-        # -------------------------
+        # ----------------------
         # local temporary arrays
-        # -------------------------
+        # ----------------------
 
         local_S2 = np.zeros_like(self.S2)
         local_counts = np.zeros_like(self.counts)
@@ -124,10 +124,7 @@ class structure_funcs_2d:
         np.add.at(local_S2, bins, vals)
         np.add.at(local_counts, bins, 1)
 
-        # -------------------------
         # immediate synchronization
-        # -------------------------
-
         global_S2 = np.zeros_like(local_S2)
         global_counts = np.zeros_like(local_counts)
 
