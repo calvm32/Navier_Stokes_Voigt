@@ -261,7 +261,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 pdfs.sample_velocity(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
                 
-                struct_func.sample(nsamples_per_bin=20)
+                struct_func.sample(nsamples=20000)
 
                 # -------- energy spec probe --------
                 comm = u.sub(0).function_space().mesh().comm
@@ -687,7 +687,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 pdfs.sample_velocity(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
                 
-                struct_func.sample(nsamples_per_bin=20)
+                struct_func.sample(nsamples=20000)
 
                 # -------- energy spec probe --------
                 comm = u.sub(0).function_space().mesh().comm
