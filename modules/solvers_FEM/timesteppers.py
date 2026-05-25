@@ -773,7 +773,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     if mesh.comm.rank == 0 and is_mixed:
         print("about to compute stats")
 
-        r_vals, S2 = struct_func.compute()
+        r_vals, S2, counts = struct_func.finalize()
         print("donestructs")
         
         if dim == 2:
