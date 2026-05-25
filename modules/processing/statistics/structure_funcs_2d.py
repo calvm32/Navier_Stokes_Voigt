@@ -3,163 +3,159 @@ from mpi4py import MPI
 
 
 class structure_funcs_2d:
-    """
-    Monte-Carlo estimate of the longitudinal 2nd-order
-    structure function:
-
-        S2(r) = < ((u(x+r)-u(x)) · rhat)^2 >
-
-    for homogeneous/isotropic turbulence.
-
-    MPI-safe and scalable.
-    """
 
     def __init__(
         self,
         u,
         mesh,
-        r_max=None,
-        nbins=40,
-        seed=None,
+        r_max,
+        nbins=32,
+        seed=0,
     ):
 
-        self.u = u
-        self.mesh = mesh
         self.comm = mesh.comm
 
-        rng = np.random.default_rng(seed)
-        self.rng = rng
+        self.coords = mesh.coordinates.dat.data_ro
+        self.values = u.dat.data_ro
 
-        # --------------------------------
-        # coordinates + local velocity DOFs
-        # --------------------------------
-
-        coords = mesh.coordinates.dat.data_ro
-        values = u.dat.data_ro
-
-        self.coords = coords
-        self.values = values
-
-        self.ndofs = coords.shape[0]
-
-        # ------------------------
-        # radial domain
-        # ------------------------
-
-        xmin, ymin = coords.min(axis=0)
-        xmax, ymax = coords.max(axis=0)
-
-        Lx = xmax - xmin
-        Ly = ymax - ymin
-
-        if r_max is None:
-            r_max = 0.25 * min(Lx, Ly)
+        self.ndofs = self.coords.shape[0]
 
         self.r_max = r_max
 
-        self.r_edges = np.linspace(0.0, r_max, nbins + 1)
-        self.r_centers = 0.5 * (
-            self.r_edges[:-1] + self.r_edges[1:]
+        self.r_edges = np.geomspace(
+            r_max / 500.0,
+            r_max,
+            nbins + 1
         )
 
-        # accumulators
-        self.S2_accum = np.zeros(nbins, dtype=np.float64)
-        self.counts = np.zeros(nbins, dtype=np.int64)
+        self.r_centers = np.sqrt(
+            self.r_edges[:-1]
+            * self.r_edges[1:]
+        )
 
-        print("DONE INIT")
+        # GLOBAL synchronized accumulators
+        self.S2 = np.zeros(nbins)
+        self.counts = np.zeros(nbins)
 
-    def sample(self, nsamples=10000):
-        """
-        Draw random DOF pairs and accumulate longitudinal increments.
-        """
+        self.rng = np.random.default_rng(
+            seed + self.comm.rank
+        )
 
-        coords = self.coords
-        values = self.values
+    def sample(self, nsamples=20000):
 
-        for I in range(nsamples):
-            print(F"DONE {I}/{nsamples} SAMPLE")
+        rng = self.rng
 
-            # random pair
-            i = self.rng.integers(0, self.ndofs)
-            j = self.rng.integers(0, self.ndofs)
+        # -------------------------
+        # local vectorized sampling
+        # -------------------------
 
-            if i == j:
-                continue
+        i = rng.integers(
+            0,
+            self.ndofs,
+            size=nsamples
+        )
 
-            xi = coords[i]
-            xj = coords[j]
+        j = rng.integers(
+            0,
+            self.ndofs,
+            size=nsamples
+        )
 
-            dx = xj - xi
+        mask = i != j
 
-            r = np.linalg.norm(dx)
+        i = i[mask]
+        j = j[mask]
 
-            # avoid singular pair
-            if r <= 1e-14:
-                continue
+        xi = self.coords[i]
+        xj = self.coords[j]
 
-            # outside target range
-            if r >= self.r_max:
-                continue
+        dx = xj - xi
 
-            # longitudinal direction
-            rhat = dx / r
+        r = np.linalg.norm(dx, axis=1)
 
-            ui = values[i]
-            uj = values[j]
+        mask = (
+            (r > 1e-14)
+            & (r < self.r_max)
+        )
 
-            du = uj - ui
+        if not np.any(mask):
+            return
 
-            # longitudinal increment
-            du_long = np.dot(du, rhat)
+        i = i[mask]
+        j = j[mask]
+        dx = dx[mask]
+        r = r[mask]
 
-            # radial bin
-            bin_idx = np.searchsorted(
-                self.r_edges,
-                r,
-                side="right"
-            ) - 1
+        rhat = dx / r[:, None]
 
-            if 0 <= bin_idx < len(self.S2_accum):
+        ui = self.values[i]
+        uj = self.values[j]
 
-                self.S2_accum[bin_idx] += du_long**2
-                self.counts[bin_idx] += 1
+        du = uj - ui
 
-    def finalize(self):
-        """
-        MPI-safe reduction and averaging.
-        Must be called on ALL ranks.
-        """
+        du_long = np.sum(
+            du * rhat,
+            axis=1
+        )
 
-        print("line1")
+        vals = du_long**2
 
-        S2_global = self.comm.allreduce(
-            self.S2_accum,
+        bins = np.searchsorted(
+            self.r_edges,
+            r,
+            side="right"
+        ) - 1
+
+        valid = (
+            (bins >= 0)
+            & (bins < len(self.S2))
+        )
+
+        bins = bins[valid]
+        vals = vals[valid]
+
+        # -------------------------
+        # local temporary arrays
+        # -------------------------
+
+        local_S2 = np.zeros_like(self.S2)
+        local_counts = np.zeros_like(self.counts)
+
+        np.add.at(local_S2, bins, vals)
+        np.add.at(local_counts, bins, 1)
+
+        # -------------------------
+        # immediate synchronization
+        # -------------------------
+
+        global_S2 = np.zeros_like(local_S2)
+        global_counts = np.zeros_like(local_counts)
+
+        self.comm.Allreduce(
+            local_S2,
+            global_S2,
             op=MPI.SUM
         )
 
-        print("line2")
-
-        counts_global = self.comm.allreduce(
-            self.counts,
+        self.comm.Allreduce(
+            local_counts,
+            global_counts,
             op=MPI.SUM
         )
 
-        print("line3")
+        # accumulate globally synchronized values
+        self.S2 += global_S2
+        self.counts += global_counts
 
-        S2 = np.zeros_like(S2_global)
-        print("line4")
+    def compute(self):
 
-        mask = counts_global > 0
+        out = np.zeros_like(self.S2)
 
-        S2[mask] = (
-            S2_global[mask]
-            / counts_global[mask]
+        mask = self.counts > 0
+
+        out[mask] = (
+            self.S2[mask]
+            / self.counts[mask]
         )
 
-        print("line5")
-
-        return (
-            self.r_centers.copy(),
-            S2,
-            counts_global.copy(),
-        )
+        return self.r_centers, out
