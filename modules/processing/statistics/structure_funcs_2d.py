@@ -77,7 +77,7 @@ class structure_funcs_2d:
         values = self.values
 
         for I in range(nsamples):
-            print(F"DONE {I}/{len(nsamples)} SAMPLE")
+            print(F"DONE {I}/{nsamples} SAMPLE")
 
             # random pair
             i = self.rng.integers(0, self.ndofs)
