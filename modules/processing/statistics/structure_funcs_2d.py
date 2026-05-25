@@ -2,7 +2,7 @@ import numpy as np
 from mpi4py import MPI
 
 
-class StructureFunctions2D:
+class structure_funcs_2d:
     """
     Monte-Carlo estimate of the longitudinal 2nd-order
     structure function:
