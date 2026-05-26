@@ -725,6 +725,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 visfile.write(u, time=t)
 
         if (step % write_every == 0) and step > 0:
+            pdfs.sync()
+            
             if mesh.comm.rank == 0 and is_mixed:
                 np.savez(
                     output_file1,

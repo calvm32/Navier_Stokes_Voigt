@@ -2,16 +2,7 @@ import numpy as np
 from mpi4py import MPI
 
 
-class pdf_sampler_2d:
-    """
-    MPI-safe DOF-sampled PDFs for velocity components + vorticity.
-
-    Designed for long Firedrake turbulence runs:
-    - no per-call collectives
-    - single synchronized finalize
-    - robust against rank divergence
-    """
-
+class pdf_sampler_2d: 
     def __init__(
         self,
         mesh,
@@ -22,6 +13,7 @@ class pdf_sampler_2d:
 
         self.comm = mesh.comm
         self.rank = self.comm.rank
+        self.size = self.comm.size
 
         self.nbins = nbins
         self.value_range = value_range
@@ -32,17 +24,23 @@ class pdf_sampler_2d:
             nbins + 1
         )
 
-        # local accumulators only
+        # local accumulators
         self.vel_x_hist = np.zeros(nbins, dtype=np.int64)
         self.vel_y_hist = np.zeros(nbins, dtype=np.int64)
         self.vort_hist  = np.zeros(nbins, dtype=np.int64)
 
-        # deterministic RNG per rank
-        self.rng = np.random.default_rng(seed + self.rank if seed is not None else None)
+        self.rng = np.random.default_rng(
+            seed + self.rank if seed is not None else None
+        )
 
-    # -----------------------------
-    # sampling (pure local work)
-    # -----------------------------
+        # global cached state (always valid)
+        self.global_vel_x = np.zeros(nbins, dtype=np.int64)
+        self.global_vel_y = np.zeros(nbins, dtype=np.int64)
+        self.global_vort  = np.zeros(nbins, dtype=np.int64)
+
+    # --------------
+    # local sampling
+    # --------------
 
     def sample_velocity(self, u, nsamples=5000):
 
@@ -82,60 +80,32 @@ class pdf_sampler_2d:
 
         self.vort_hist += hist
 
-    # -----------------------------
-    # MPI-safe finalize
-    # -----------------------------
+
+    def sync(self):
+
+        # reduce each field independently but safely
+        self.global_vel_x += self.comm.allreduce(self.vel_x_hist, op=MPI.SUM)
+        self.global_vel_y += self.comm.allreduce(self.vel_y_hist, op=MPI.SUM)
+        self.global_vort  += self.comm.allreduce(self.vort_hist,  op=MPI.SUM)
+
+        # reset local accumulators after sync
+        self.vel_x_hist.fill(0)
+        self.vel_y_hist.fill(0)
+        self.vort_hist.fill(0)
+
 
     def finalize(self):
 
-        # IMPORTANT: all ranks must enter
-
-        local = np.stack(
-            [
-                self.vel_x_hist,
-                self.vel_y_hist,
-                self.vort_hist,
-            ],
-            axis=0
-        )
-
-        global_hist = np.zeros_like(local)
-
-        print("1")
-
-        self.comm.Allreduce(
-            local,
-            global_hist,
-            op=MPI.SUM
-        )
-
-        print("2)")
-
-        vel_x, vel_y, vort = global_hist
-
         dx = self.bin_edges[1] - self.bin_edges[0]
 
-        # avoid divide-by-zero
-        vel_x_sum = np.sum(vel_x)
-        vel_y_sum = np.sum(vel_y)
-        vort_sum  = np.sum(vort)
+        def norm(x):
+            s = np.sum(x)
+            if s == 0:
+                return np.zeros_like(x)
+            return x / (s * dx)
 
-        pdf_x = np.zeros_like(vel_x, dtype=float)
-        pdf_y = np.zeros_like(vel_y, dtype=float)
-        pdf_v = np.zeros_like(vort, dtype=float)
-
-        print("3")
-
-        if vel_x_sum > 0:
-            pdf_x = vel_x / (vel_x_sum * dx)
-
-        if vel_y_sum > 0:
-            pdf_y = vel_y / (vel_y_sum * dx)
-
-        if vort_sum > 0:
-            pdf_v = vort / (vort_sum * dx)
-
-        if self.rank == 0:
-            print("[pdf_sampler] finalize complete", flush=True)
-
-        return pdf_x, pdf_y, pdf_v
+        return (
+            norm(self.global_vel_x),
+            norm(self.global_vel_y),
+            norm(self.global_vort),
+        )
