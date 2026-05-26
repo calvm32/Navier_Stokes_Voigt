@@ -207,7 +207,7 @@ def main(save_dir):
 
     comm.Barrier()
     if rank == 0:
-        plot_heat(Path("plot_final_data.npz"))
+        plot_ns(Path("plot_final_data.npz"))
 
 if __name__ == "__main__":
     import sys

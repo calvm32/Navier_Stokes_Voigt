@@ -1,79 +1,118 @@
 import numpy as np
-from modules.processing.statistics.spatial_sampler import spatial_sampler
-from firedrake import COMM_WORLD
-
 from mpi4py import MPI
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
 
-class pdf_sampler_3d:
-    """
-    PDF of velocity magnitude and vorticity using DOF sampling
-    """
 
-    def __init__(self, mesh):
+class pdf_sampler_3d: 
+    def __init__(
+        self,
+        mesh,
+        nbins=100,
+        value_range=(-5, 5),
+        seed=None,
+    ):
+
         self.comm = mesh.comm
-        self.nbins = 100
-        self.range = (-5, 5) # may need to change? # should b fine
-        
-        self.sampler = spatial_sampler(mesh)
+        self.rank = self.comm.rank
+        self.size = self.comm.size
 
-        self.vel_x_hist = np.zeros(self.nbins)
-        self.vel_y_hist = np.zeros(self.nbins)
-        self.vel_z_hist = np.zeros(self.nbins)
-        self.vort_hist  = np.zeros(self.nbins)
+        self.nbins = nbins
+        self.value_range = value_range
 
-        self.bin_edges = np.linspace(self.range[0], self.range[1], self.nbins + 1)
+        self.bin_edges = np.linspace(
+            value_range[0],
+            value_range[1],
+            nbins + 1
+        )
 
-    def sample_velocity(self, u, npoints=2000):
-        """
-        samples velocity values, breaks into components
-        """
-        vals = self.sampler.sample_function(u, npoints)
-        if len(vals) == 0:
+        # local accumulators
+        self.vel_x_hist = np.zeros(nbins, dtype=np.int64)
+        self.vel_y_hist = np.zeros(nbins, dtype=np.int64)
+        self.vel_z_hist = np.zeros(nbins, dtype=np.int64)
+        self.vort_hist  = np.zeros(nbins, dtype=np.int64)
+
+        self.rng = np.random.default_rng(
+            seed + self.rank if seed is not None else None
+        )
+
+        # global cached state (always valid)
+        self.global_vel_x = np.zeros(nbins, dtype=np.int64)
+        self.global_vel_y = np.zeros(nbins, dtype=np.int64)
+        self.global_vel_z = np.zeros(nbins, dtype=np.int64)
+        self.global_vort  = np.zeros(nbins, dtype=np.int64)
+
+    # --------------
+    # local sampling
+    # --------------
+
+    def sample_velocity(self, u, nsamples=5000):
+
+        vals = u.dat.data_ro
+        ndofs = vals.shape[0]
+
+        if ndofs == 0:
             return
 
-        vals = np.array(vals)
+        n = min(nsamples, ndofs)
 
-        hist_x, _ = np.histogram(vals[:, 0], bins=self.bin_edges)
-        hist_y, _ = np.histogram(vals[:, 1], bins=self.bin_edges)
-        hist_z, _ = np.histogram(vals[:, 2], bins=self.bin_edges)
+        idx = self.rng.integers(0, ndofs, size=n)
+
+        sample = vals[idx]
+
+        hist_x, _ = np.histogram(sample[:, 0], bins=self.bin_edges)
+        hist_y, _ = np.histogram(sample[:, 1], bins=self.bin_edges)
+        hist_z, _ = np.histogram(sample[:, 1], bins=self.bin_edges)
 
         self.vel_x_hist += hist_x
         self.vel_y_hist += hist_y
         self.vel_z_hist += hist_z
 
-    def sample_vorticity(self, omega, npoints=2000):
-        """
-        samples vorticity (omega)
-        """
-        vals = self.sampler.sample_function(omega, npoints)
-        if len(vals) == 0:
+    def sample_vorticity(self, omega, nsamples=5000):
+
+        vals = omega.dat.data_ro
+        ndofs = vals.shape[0]
+
+        if ndofs == 0:
             return
 
-        vals = np.array(vals).flatten()
-        hist, _ = np.histogram(vals, bins=self.bin_edges)
+        n = min(nsamples, ndofs)
+
+        idx = self.rng.integers(0, ndofs, size=n)
+
+        sample = vals[idx]
+
+        hist, _ = np.histogram(sample, bins=self.bin_edges)
+
         self.vort_hist += hist
+
+
+    def sync(self):
+
+        # reduce each field independently but safely
+        self.global_vel_x += self.comm.allreduce(self.vel_x_hist, op=MPI.SUM)
+        self.global_vel_y += self.comm.allreduce(self.vel_y_hist, op=MPI.SUM)
+        self.global_vel_z += self.comm.allreduce(self.vel_z_hist, op=MPI.SUM)
+        self.global_vort  += self.comm.allreduce(self.vort_hist,  op=MPI.SUM)
+
+        # reset local accumulators after sync
+        self.vel_x_hist.fill(0)
+        self.vel_y_hist.fill(0)
+        self.vel_z_hist.fill(0)
+        self.vort_hist.fill(0)
+
 
     def finalize(self):
 
-        # sum histograms across MPI ranks
-        global_vel_x = comm.reduce(self.vel_x_hist, op=MPI.SUM, root=0)
-        global_vel_y = comm.reduce(self.vel_y_hist, op=MPI.SUM, root=0)
-        global_vel_z = comm.reduce(self.vel_z_hist, op=MPI.SUM, root=0)
-        global_vort  = comm.reduce(self.vort_hist,  op=MPI.SUM, root=0)
+        dx = self.bin_edges[1] - self.bin_edges[0]
 
-        if rank == 0:
-            # normalize to PDF
-            dx = self.bin_edges[1] - self.bin_edges[0]
+        def norm(x):
+            s = np.sum(x)
+            if s == 0:
+                return np.zeros_like(x)
+            return x / (s * dx)
 
-            pdf_x = global_vel_x / np.sum(global_vel_x) / dx
-            pdf_y = global_vel_y / np.sum(global_vel_y) / dx
-            pdf_z = global_vel_z / np.sum(global_vel_z) / dx
-            pdf_v = global_vort  / np.sum(global_vort)  / dx
-
-            #centers = 0.5 * (self.bin_edges[:-1] + self.bin_edges[1:])
-
-            return pdf_x, pdf_y, pdf_z, pdf_v
-        else:
-            return None, None, None, None
+        return (
+            norm(self.global_vel_x),
+            norm(self.global_vel_y),
+            norm(self.global_vel_z),
+            norm(self.global_vort),
+        )
