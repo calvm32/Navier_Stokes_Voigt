@@ -101,11 +101,15 @@ class pdf_sampler_2d:
 
         global_hist = np.zeros_like(local)
 
+        print("1")
+
         self.comm.Allreduce(
             local,
             global_hist,
             op=MPI.SUM
         )
+
+        print("2)")
 
         vel_x, vel_y, vort = global_hist
 
@@ -119,6 +123,8 @@ class pdf_sampler_2d:
         pdf_x = np.zeros_like(vel_x, dtype=float)
         pdf_y = np.zeros_like(vel_y, dtype=float)
         pdf_v = np.zeros_like(vort, dtype=float)
+
+        print("3")
 
         if vel_x_sum > 0:
             pdf_x = vel_x / (vel_x_sum * dx)
