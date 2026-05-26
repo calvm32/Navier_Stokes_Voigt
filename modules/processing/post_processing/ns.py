@@ -12,7 +12,7 @@ def plot_ns(data_path):
     out_dir.mkdir(exist_ok=True)
 
     data = np.load(data_path)
-    print(data.files)
+    #print(data.files)
 
     # unpack
     all_time = data["all_time"]
