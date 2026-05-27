@@ -1,6 +1,6 @@
 t0: 0.0             # initial time
-T: 30.0             # final time
-dt: 0.00008         # time-step
+T: 20.0             # final time
+dt: 0.00005         # time-step
 theta: 0.5          # theta constant
 gamma: 0.0          # grad-div stabilization constant
 Re: 3000.0          # Reynold's num: 1/viscostiy
