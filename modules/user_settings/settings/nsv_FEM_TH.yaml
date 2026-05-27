@@ -1,16 +1,16 @@
 t0: 0.0             # initial time
-T: 30.0             # final time
-dt: 0.00008         # time-step
+T: 5.0              # final time
+dt: 0.001           # time-step
 theta: 0.5          # theta constant
 gamma: 0.0          # grad-div stabilization constant
-Re: 3000.0          # Reynold's num: 1/viscostiy
+Re: 600.0           # Reynold's num: 1/viscostiy
 G: 0.0              # initial pressure gauge
 P: -1.0             # pressure strength (P*x + G)
-alpha: 0.0001       # Voigt constant alpha
+alpha: 0.001
 
 solver: "BDF2"      # valid:  "BDF2" (Backward Differentiation) or 
                     #         "CN" (Crank-Nicolson)
-elements: "TH"      # valid:  "SV" (Scott Vogelius - requires barycentric refinement) or 
+elements: "SV"      # valid:  "SV" (Scott Vogelius - requires barycentric refinement) or 
                     #         "TH" (Taylor Hood)
 views: "None"       # valid:  "Full" for debugging by viewing ALL solver parameters, 
                     #         "Some" for debugging by monitoring subprocesses like KSP, 
