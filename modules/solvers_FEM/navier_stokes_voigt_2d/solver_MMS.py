@@ -97,7 +97,7 @@ def main(save_dir):
         L = 4.0
 
         if elements == "SV":
-            MESH_PATH = os.path.join(HERE, f"meshes//channel_bary{n}.msh")
+            MESH_PATH = os.path.join(HERE, f"meshes/channel_bary{n}.msh")
             mesh = Mesh(MESH_PATH)
         elif elements == "TH":
             mesh = RectangleMesh(int(L*N), int(H*N), L, H)

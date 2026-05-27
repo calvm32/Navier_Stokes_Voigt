@@ -74,8 +74,19 @@ def main(save_dir):
     # Configure mesh
     # --------------
 
+    run_info_path = Path(save_dir) / "run_info.yaml"
+
+    with open(run_info_path, "r") as f:
+        run_info = yaml.safe_load(f)
+
+    mesh_name = run_info.get("mesh_name")
+
     HERE = os.path.dirname(os.path.abspath(__file__))
-    MESH_PATH = os.path.join(HERE, "meshes", "bary_course_airfoil.msh")
+
+    if mesh_name is not None:
+        MESH_PATH = os.path.join(save_dir, mesh_name)
+    else:
+        MESH_PATH = os.path.join(HERE, "meshes", "bary_course_airfoil.msh")
 
     # ------------
     # Setup spaces

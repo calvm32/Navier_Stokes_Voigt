@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from modules.processing.load_dump import load_txt, dump_txt
 from pathlib import Path
 import yaml
+import shutil
 
 @dataclass
 class RunConfig:
@@ -191,7 +192,7 @@ class TemplateResolver:
 class SaveManager:
 
     @staticmethod
-    def create(save_path: str, user_settings: dict):
+    def create(save_path: str, user_settings: dict, mesh_name: str | None = None):
 
         if os.path.exists(save_path):
             raise FileExistsError(f"Save already exists: {save_path}")
@@ -208,11 +209,39 @@ class SaveManager:
         dump_txt(load_txt(user_settings["ufl"]),
                  f"{save_path}/user_expr.yaml")
 
+        run_info = {
+            "solver_module": user_settings["solver_path"]
+        }
+
+        # ----------------
+        # Optional mesh
+        # ----------------
+
+        if mesh_name is not None:
+
+            mesh_source = (
+                TemplateResolver.BASE / "meshes" / mesh_name
+            )
+
+            if not mesh_source.exists():
+                raise FileNotFoundError(
+                    f"Mesh file does not exist: {mesh_source}"
+                )
+
+            mesh_dest = Path(save_path) / mesh_name
+
+            shutil.copy(mesh_source, mesh_dest)
+
+            run_info["mesh_name"] = mesh_name
+
         with open(f"{save_path}/run_info.yaml", "w") as f:
-            yaml.dump({"solver_module": user_settings["solver_path"]}, f)
+            yaml.dump(run_info, f)
 
         print(f"Created save at: {save_path}")
         print(f"Solver path: {user_settings['solver_path']}")
+
+        if mesh_name is not None:
+            print(f"Mesh copied: {mesh_name}")
 
 def build_parser():
     parser = argparse.ArgumentParser(
@@ -244,6 +273,11 @@ def build_parser():
         help="Element type"
     )
 
+    parser.add_argument(
+        "--mesh",
+        help="Optional name of mesh [with corresp. file extension]"
+    )
+
     return parser
 
 def main():
@@ -257,7 +291,7 @@ def main():
     )
 
     user_settings = TemplateResolver.resolve(cfg)
-    SaveManager.create(args.save_path, user_settings)
+    SaveManager.create(args.save_path, user_settings, args.mesh)
 
 if __name__ == "__main__":
     main()
