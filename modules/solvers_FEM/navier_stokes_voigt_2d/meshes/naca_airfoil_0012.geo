@@ -9,8 +9,8 @@
 L = 40.0;   // length
 H = 10.0;   // height
 
-lc = 0.5;   // mesh size (far field)
-lc2 = 0.03; // mesh size (airfoil surface — finer)
+lc = 1.0;   // mesh size (far field)
+lc2 = 0.4; // mesh size (airfoil surface — finer)
 
 chord = 8.0;
 x_offset = 8.0;   // leading edge x position

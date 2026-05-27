@@ -211,7 +211,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     # --------------------
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy:.16f}", i=0, spaced=True)
-    text(f"*** Beginning solve with step size {dt:.5f} ***", spaced=True)
+    text(f"*** Beginning solve with step size {dt:.6f} ***", spaced=True)
     start = time.process_time()
 
     while step < num_steps:
@@ -629,7 +629,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         visfile.write(u, time=t)
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
-    text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
+    text(f"*** Beginning solve with step size {dt:.6f} ***", spaced=True)
     start = time.process_time()
 
     # --------------------
@@ -1019,7 +1019,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     visfile.write(u_NSE.sub(0), u_NSE.sub(1), u_NSV.sub(0), u_NSV.sub(1), time=t)
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy diff = {energy_diff}", i=0, spaced=True)
-    text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
+    text(f"*** Beginning solve with step size {dt:.6f} ***", spaced=True)
     start = time.process_time()
 
     # --------------------
