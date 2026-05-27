@@ -386,7 +386,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
             S2=np.array(S2),
         )
 
-    elif mesh.comm.rank == 0 and not mixed:
+    elif mesh.comm.rank == 0 and not is_mixed:
         np.savez(
             output_file2,
 
@@ -745,7 +745,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     probe=np.array(energy_spec_probe)
                 )
 
-            elif mesh.comm.rank == 0 and not mixed:
+            elif mesh.comm.rank == 0 and not is_mixed:
                 np.savez(
                     output_file1,
 
@@ -809,7 +809,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             S2=np.array(S2),
         )
 
-    elif mesh.comm.rank == 0 and not mixed:
+    elif mesh.comm.rank == 0 and not is_mixed:
         np.savez(
             output_file2,
 
