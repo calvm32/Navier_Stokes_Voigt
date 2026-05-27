@@ -433,9 +433,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     num_steps = int(np.rint((T-t0)/dt))
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
-    compute_every = 5
-    start_sampling = 1 #10
-    write_every = 3 #compute_every*20
+    compute_every = 20
+    start_sampling = 100 #10
+    write_every = compute_every*20
     plot_data = {}
 
     if num_steps <= start_sampling:
