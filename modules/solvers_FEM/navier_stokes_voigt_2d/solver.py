@@ -75,7 +75,7 @@ def main(save_dir):
     # --------------
 
     HERE = os.path.dirname(os.path.abspath(__file__))
-    MESH_PATH = os.path.join(HERE, "meshes", "fine_airfoil.msh")
+    MESH_PATH = os.path.join(HERE, "meshes", "bary_naca_airfoil_0012.msh")
 
     # ------------
     # Setup spaces
