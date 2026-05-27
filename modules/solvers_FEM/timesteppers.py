@@ -211,7 +211,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     # --------------------
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy:.16f}", i=0, spaced=True)
-    text(f"*** Beginning solve with step size {dt:.4f} ***", spaced=True)
+    text(f"*** Beginning solve with step size {dt:.5f} ***", spaced=True)
     start = time.process_time()
 
     while step < num_steps:
