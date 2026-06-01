@@ -54,7 +54,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         # Linear form L(V)
         L = (
             # BDF2 history
-            0.5 * idt * inner(4.0*u_old - u_older, v) * dx
+            0.5 * idt * voigt_inner(4.0*u_old - u_older, v, alpha) * dx
 
             # Forcing
             + inner(f_bdf2, v) * dx
@@ -117,7 +117,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re,
         # Linear form L(V)
         L = (
             # Time derivative
-            idt * inner(u_old, v) * dx
+            idt * voigt_inner(u_old, v, alpha) * dx
 
             # Explicit viscosity
             - ((1.0 - theta) / Re) * inner(grad(u_old), grad(v)) * dx
