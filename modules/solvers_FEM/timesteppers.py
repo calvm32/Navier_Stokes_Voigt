@@ -97,7 +97,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
     # create timestep solver
     solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
-                                    make_weak_form, is_mixed, theta, gamma, Re, bcs=bcs, nullspace=nullspace,
+                                    make_weak_form, is_mixed, theta, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx)
 
     # get energy + report run starting
