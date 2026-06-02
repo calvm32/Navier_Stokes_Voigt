@@ -169,11 +169,19 @@ def main(save_dir):
 
     ufl_inflow = ufl_cfg["ufl_inflow"]
 
-    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,))
-    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4, 6)) 
+    # # CHANNEL or CHANNEL WITH STEP
+    # bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1, 2))
+    # bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4)) 
 
-    bcs = [bc_walls, bc_inflow]
-    nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
+    # bcs = [bc_walls, bc_inflow]
+    # nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
+
+    # CHANNEL WITH AIRFOIL
+    bc_freestream = DirichletBC(Z.sub(0), ufl_inflow, (1,3,4,)) # left, top, bottom
+    bc_airfoil = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (6,)) # noslip
+    bc_pressure = DirichletBC(Z.sub(1), Constant(0.0), (2,))
+
+    bcs = [bc_freestream, bc_airfoil, bc_pressure]
 
     # ------------------
     # Allocate functions
