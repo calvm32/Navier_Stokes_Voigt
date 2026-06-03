@@ -17,6 +17,12 @@ class MPI_energy_spectra_2d:
 
     def compute(self):
 
+        print("0")
+
+        comm = self.mesh.comm
+        mesh = self.mesh
+        dx = Measure("dx", domain=self.mesh)
+
         if comm == 0:
             print("rank 0")
             print(type(mesh))
@@ -24,12 +30,6 @@ class MPI_energy_spectra_2d:
             print(u.function_space())
             print(mesh.comm.size)
             print(hasattr(u, "at"))
-
-        print("0")
-
-        comm = self.mesh.comm
-        mesh = self.mesh
-        dx = Measure("dx", domain=self.mesh)
 
         print(f"rank {comm.rank}: entered compute", flush=True)
 
