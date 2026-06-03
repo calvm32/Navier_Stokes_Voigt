@@ -31,6 +31,8 @@ class FFT_energy_spectra_2d:
         else:
             raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
 
+        print("0.1")
+
         xmin = coords[:,0].min()
         xmax = coords[:,0].max()
 
@@ -44,6 +46,8 @@ class FFT_energy_spectra_2d:
         y = np.linspace(ymin, ymax, self.Ny)
 
         X, Y = np.meshgrid(x, y)
+
+        print("0.2")
 
         pts = np.column_stack([
             X.ravel(),
