@@ -55,17 +55,18 @@ class FFT_energy_spectra_2d:
         # safe interpolation
         ux = np.full(len(pts), np.nan)
         uy = np.full(len(pts), np.nan)
+        
+        print("starting evaluation", flush=True)
 
         for i, p in enumerate(pts):
+            
+            print("reached", i, flush=True)
             try:
                 val = self.u.at(p)
                 ux[i] = val[0]
                 uy[i] = val[1]
             except PointNotInDomainError:
                 continue
-            
-            total = len(enumerate(pts))
-            print("{i}/{total}")
 
         print("2")
 
