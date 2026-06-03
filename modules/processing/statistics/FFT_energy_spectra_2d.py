@@ -59,8 +59,8 @@ class FFT_energy_spectra_2d:
         # ---------------
         # sample velocity
         # ---------------
-        ux = np.full(len(pts), np.nan)
-        uy = np.full(len(pts), np.nan)
+        # ux = np.full(len(pts), np.nan)
+        # uy = np.full(len(pts), np.nan)
 
         pts_test = pts[:10]
 
