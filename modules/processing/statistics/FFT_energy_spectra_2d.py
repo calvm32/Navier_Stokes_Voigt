@@ -6,26 +6,26 @@ import numpy as np
 class FFT_energy_spectra_2d:
 
     """
-    FFT-based isotropic kinetic energy spectrum.
+    FFT-based isotropic kinetic energy spectrum for a
+    distributed Firedrake velocity field.
 
-    Intended for:
-        - 2D velocity field
-        - unstructured Firedrake mesh
-        - airfoil / arbitrary geometry
-        - MPI execution
+    Uses VertexOnlyMesh sampling instead of repeated
+    point evaluation.
 
-    Usage:
-        spectrum = FFT_energy_spectra_2d(
-            u_old.sub(0),
-            Nx=256,
-            Ny=256,
-            nbins=80
-        )
+    Usage
+    -----
 
-        k, E = spectrum.compute()
+    spectrum = FFT_energy_spectra_2d(
+        u_old.sub(0),
+        Nx=256,
+        Ny=256,
+        nbins=80
+    )
 
-        if mesh.comm.rank == 0:
-            plt.loglog(k, E)
+    k, E = spectrum.compute()
+
+    if mesh.comm.rank == 0:
+        plt.loglog(k, E)
     """
 
     def __init__(
@@ -47,51 +47,34 @@ class FFT_energy_spectra_2d:
 
         comm = self.mesh.comm
 
-        # --------------------------------------------------
-        # build cheap CG1 interpolant
-        # --------------------------------------------------
-
-        Vlin = VectorFunctionSpace(
-            self.mesh,
-            "CG",
-            1
-        )
-
-        u_lin = Function(Vlin)
-        u_lin.interpolate(self.u)
-
-        # --------------------------------------------------
-        # global bounding box
-        # --------------------------------------------------
-
         coords = self.mesh.coordinates.dat.data_ro
 
         xmin = comm.allreduce(
-            coords[:, 0].min(),
+            np.min(coords[:, 0]),
             op=MPI.MIN
         )
 
         xmax = comm.allreduce(
-            coords[:, 0].max(),
+            np.max(coords[:, 0]),
             op=MPI.MAX
         )
 
         ymin = comm.allreduce(
-            coords[:, 1].min(),
+            np.min(coords[:, 1]),
             op=MPI.MIN
         )
 
         ymax = comm.allreduce(
-            coords[:, 1].max(),
+            np.max(coords[:, 1]),
             op=MPI.MAX
         )
 
         Lx = xmax - xmin
         Ly = ymax - ymin
 
-        # --------------------------------------------------
-        # regular FFT grid
-        # --------------------------------------------------
+        # ------------------------------------
+        # Cartesian sampling grid
+        # ------------------------------------
 
         x = np.linspace(xmin, xmax, self.Nx)
         y = np.linspace(ymin, ymax, self.Ny)
@@ -99,86 +82,54 @@ class FFT_energy_spectra_2d:
         X, Y = np.meshgrid(x, y)
 
         pts = np.column_stack(
-            (X.ravel(), Y.ravel())
+            [X.ravel(), Y.ravel()]
         )
 
-        npts = len(pts)
+        # ------------------------------------
+        # VertexOnlyMesh sampling
+        # ------------------------------------
 
-        # --------------------------------------------------
-        # local sampling
-        # --------------------------------------------------
-
-        ux_local = np.full(npts, np.nan)
-        uy_local = np.full(npts, np.nan)
-
-        for i, p in enumerate(pts):
-
-            try:
-
-                val = u_lin.at(p)
-
-                ux_local[i] = val[0]
-                uy_local[i] = val[1]
-
-            except PointNotInDomainError:
-                pass
-
-        # --------------------------------------------------
-        # gather sampled values
-        #
-        # each point should be owned by at most
-        # one rank
-        # --------------------------------------------------
-
-        ux_all = comm.gather(
-            ux_local,
-            root=0
+        vom = VertexOnlyMesh(
+            self.mesh,
+            pts,
+            redundant=True,
+            missing_points_behaviour="ignore"
         )
 
-        uy_all = comm.gather(
-            uy_local,
-            root=0
+        Vvom = VectorFunctionSpace(
+            vom,
+            "DG",
+            0
         )
+
+        u_sample = Function(Vvom)
+
+        u_sample.interpolate(self.u)
+
+        vals = u_sample.dat.data_ro
+
+        # vals.shape should be (Nx*Ny, 2)
+
+        ux = vals[:, 0].reshape(
+            self.Ny,
+            self.Nx
+        )
+
+        uy = vals[:, 1].reshape(
+            self.Ny,
+            self.Nx
+        )
+
+        # ------------------------------------
+        # Only rank 0 proceeds
+        # ------------------------------------
 
         if comm.rank != 0:
             return None, None
 
-        # --------------------------------------------------
-        # merge gathered arrays
-        # --------------------------------------------------
-
-        ux = np.full(npts, np.nan)
-        uy = np.full(npts, np.nan)
-
-        for arr in ux_all:
-
-            mask = np.isfinite(arr)
-
-            ux[mask] = arr[mask]
-
-        for arr in uy_all:
-
-            mask = np.isfinite(arr)
-
-            uy[mask] = arr[mask]
-
-        # --------------------------------------------------
-        # reshape
-        # --------------------------------------------------
-
-        ux = ux.reshape(
-            self.Ny,
-            self.Nx
-        )
-
-        uy = uy.reshape(
-            self.Ny,
-            self.Nx
-        )
-
-        # --------------------------------------------------
-        # valid fluid region
-        # --------------------------------------------------
+        # ------------------------------------
+        # Remove mean
+        # ------------------------------------
 
         mask = (
             np.isfinite(ux)
@@ -189,24 +140,12 @@ class FFT_energy_spectra_2d:
         ux[~mask] = 0.0
         uy[~mask] = 0.0
 
-        # --------------------------------------------------
-        # remove mean velocity
-        # --------------------------------------------------
+        ux -= np.mean(ux[mask])
+        uy -= np.mean(uy[mask])
 
-        ux_mean = np.mean(
-            ux[mask]
-        )
-
-        uy_mean = np.mean(
-            uy[mask]
-        )
-
-        ux -= ux_mean
-        uy -= uy_mean
-
-        # --------------------------------------------------
+        # ------------------------------------
         # FFT
-        # --------------------------------------------------
+        # ------------------------------------
 
         dx = Lx / (self.Nx - 1)
         dy = Ly / (self.Ny - 1)
@@ -214,19 +153,21 @@ class FFT_energy_spectra_2d:
         ux_hat = np.fft.fft2(ux)
         uy_hat = np.fft.fft2(uy)
 
+        # Parseval-consistent normalization
+
         ux_hat *= dx * dy
         uy_hat *= dx * dy
 
-        # --------------------------------------------------
-        # wavenumbers
-        # --------------------------------------------------
+        # ------------------------------------
+        # Wavenumbers
+        # ------------------------------------
 
-        kx = 2*np.pi*np.fft.fftfreq(
+        kx = 2.0 * np.pi * np.fft.fftfreq(
             self.Nx,
             d=dx
         )
 
-        ky = 2*np.pi*np.fft.fftfreq(
+        ky = 2.0 * np.pi * np.fft.fftfreq(
             self.Ny,
             d=dy
         )
@@ -237,80 +178,75 @@ class FFT_energy_spectra_2d:
         )
 
         kmag = np.sqrt(
-            KX**2 + KY**2
+            KX**2 +
+            KY**2
         )
 
-        # --------------------------------------------------
-        # modal energy
-        # --------------------------------------------------
+        # ------------------------------------
+        # Modal energy
+        # ------------------------------------
 
         E2D = 0.5 * (
-            np.abs(ux_hat)**2
-            +
+            np.abs(ux_hat)**2 +
             np.abs(uy_hat)**2
         )
 
-        # --------------------------------------------------
-        # shell averaging
-        # --------------------------------------------------
+        # ------------------------------------
+        # Isotropic shell averaging
+        # ------------------------------------
+
+        kmax = np.max(kmag)
 
         bins = np.linspace(
             0.0,
-            kmag.max(),
+            kmax,
             self.nbins + 1
         )
 
         dk = bins[1] - bins[0]
 
-        E = np.zeros(
-            self.nbins
-        )
+        E = np.zeros(self.nbins)
 
         for i in range(self.nbins):
 
             shell = (
                 (kmag >= bins[i])
                 &
-                (kmag < bins[i+1])
+                (kmag < bins[i + 1])
             )
 
-            E[i] = np.sum(
-                E2D[shell]
-            )
+            if np.any(shell):
+                E[i] = np.sum(E2D[shell])
 
         E /= dk
 
         k = 0.5 * (
-            bins[:-1]
-            +
+            bins[:-1] +
             bins[1:]
         )
 
-        # --------------------------------------------------
-        # Parseval check
-        # --------------------------------------------------
+        # ------------------------------------
+        # Parseval diagnostic
+        # ------------------------------------
 
         E_phys = (
-            0.5
-            * np.mean(
-                ux[mask]**2
-                +
-                uy[mask]**2
-            )
-            * Lx
-            * Ly
+            0.5 *
+            np.mean(
+                ux**2 +
+                uy**2
+            ) *
+            Lx *
+            Ly
         )
 
-        E_spec = np.sum(
-            E * dk
-        )
+        E_spec = np.sum(E * dk)
 
-        rel_err = abs(
+        relerr = abs(
             E_phys - E_spec
-        ) / max(E_phys, 1e-16)
+        ) / max(E_phys, 1e-15)
 
         print(
-            f"Parseval relative error = {rel_err:.3e}"
+            f"Parseval relative error = {relerr:.3e}"
         )
 
         return k, E
