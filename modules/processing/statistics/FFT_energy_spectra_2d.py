@@ -1,7 +1,7 @@
 from firedrake import *
 from mpi4py import MPI
 import numpy as np
-
+from firedrake.mesh import MissingPointsBehaviour
 
 class FFT_energy_spectra_2d:
 
