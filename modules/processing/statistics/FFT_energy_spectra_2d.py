@@ -26,9 +26,7 @@ class FFT_energy_spectra_2d:
         mesh = self.mesh
         comm = mesh.comm
 
-        # ------------------------------------------------------------
-        # 1. compute domain bounds (MPI-safe)
-        # ------------------------------------------------------------
+        # compute domain bounds
         coords = mesh.coordinates.dat.data_ro
 
         xmin = comm.allreduce(coords[:, 0].min(), op=MPI.MIN)
@@ -39,9 +37,9 @@ class FFT_energy_spectra_2d:
         Lx = xmax - xmin
         Ly = ymax - ymin
 
-        # ------------------------------------------------------------
-        # 2. ONLY rank 0 builds sampling grid
-        # ------------------------------------------------------------
+        print("0")
+
+        # ONLY rank 0 builds sampling grid
         if comm.rank != 0:
             return None, None
 
@@ -52,9 +50,9 @@ class FFT_energy_spectra_2d:
 
         pts = np.column_stack([X.ravel(), Y.ravel()])
 
-        # ------------------------------------------------------------
-        # 3. safe interpolation (no VOM, no MPI inconsistency)
-        # ------------------------------------------------------------
+        print("1")
+
+        # safe interpolation
         ux = np.full(len(pts), np.nan)
         uy = np.full(len(pts), np.nan)
 
@@ -66,9 +64,9 @@ class FFT_energy_spectra_2d:
             except PointNotInDomainError:
                 continue
 
-        # ------------------------------------------------------------
-        # 4. reshape ONLY after masking validity
-        # ------------------------------------------------------------
+        print("2")
+
+        # reshape ONLY after masking validity
         ux = ux.reshape(self.Ny, self.Nx)
         uy = uy.reshape(self.Ny, self.Nx)
 
@@ -80,18 +78,16 @@ class FFT_energy_spectra_2d:
         ux -= np.mean(ux[mask])
         uy -= np.mean(uy[mask])
 
-        # ------------------------------------------------------------
-        # 5. FFT
-        # ------------------------------------------------------------
+        print("3")
+
+        # FFT
         dx = Lx / (self.Nx - 1)
         dy = Ly / (self.Ny - 1)
 
         ux_hat = np.fft.fft2(ux) * dx * dy
         uy_hat = np.fft.fft2(uy) * dx * dy
 
-        # ------------------------------------------------------------
-        # 6. wavenumbers
-        # ------------------------------------------------------------
+        # wavenumbers
         kx = 2 * np.pi * np.fft.fftfreq(self.Nx, d=dx)
         ky = 2 * np.pi * np.fft.fftfreq(self.Ny, d=dy)
 
@@ -99,9 +95,9 @@ class FFT_energy_spectra_2d:
 
         kmag = np.sqrt(KX**2 + KY**2)
 
-        # ------------------------------------------------------------
-        # 7. spectral energy
-        # ------------------------------------------------------------
+        print("4")
+
+        # spectral energy
         E2D = 0.5 * (np.abs(ux_hat)**2 + np.abs(uy_hat)**2)
 
         kmax = kmag.max()
@@ -113,16 +109,18 @@ class FFT_energy_spectra_2d:
             sel = (kmag >= bins[i]) & (kmag < bins[i + 1])
             E[i] = np.sum(E2D[sel])
 
+        print("5")
+
         dk = bins[1] - bins[0]
         E /= dk
 
         k = 0.5 * (bins[:-1] + bins[1:])
 
-        # ------------------------------------------------------------
-        # 8. Parseval check
-        # ------------------------------------------------------------
+        # Parseval check
         E_phys = 0.5 * np.mean(ux**2 + uy**2) * Lx * Ly
         E_spec = np.sum(E * dk)
+
+        print("6")
 
         print("Parseval error:",
               abs(E_phys - E_spec) / max(E_phys, 1e-15))
