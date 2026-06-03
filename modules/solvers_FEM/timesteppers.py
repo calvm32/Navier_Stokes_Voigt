@@ -11,7 +11,7 @@ from modules.processing.statistics.structure_funcs_2d import structure_funcs_2d
 from modules.processing.statistics.pdf_sampler_3d import pdf_sampler_3d
 from modules.processing.statistics.structure_funcs_3d import structure_funcs_3d
 from modules.processing.post_processing import *
-from .MPI_energy_spectra_2d import MPI_energy_spectra_2d
+from modules.processing.statistics.MPI_energy_spectra_2d import MPI_energy_spectra_2d
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None, alpha=None,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0]):
