@@ -58,22 +58,30 @@ class FFT_energy_spectra_2d:
         
         print("starting evaluation", flush=True)
 
-        for i, p in enumerate(pts):
-            
-            print("reached", i, flush=True)
-            try:
-                val = self.u.at(p)
-                ux[i] = val[0]
-                uy[i] = val[1]
-            except PointNotInDomainError:
-                continue
+        fft_mesh = RectangleMesh(
+            self.Nx - 1, self.Ny - 1,
+            Lx, Ly,
+            origin=(xmin, ymin),
+            comm=COMM_SELF
+        )
+
+        Vfft = VectorFunctionSpace(fft_mesh, "CG", 1)
+
+        print("1.1")
+
+        u_fft = Function(Vfft)
+        u_fft.interpolate(self.u)
+
+        print("1.2")
+
+        vals = u_fft.dat.data_ro
+
+        ux = vals[:, 0].reshape(self.Ny, self.Nx)
+        uy = vals[:, 1].reshape(self.Ny, self.Nx)
 
         print("2")
 
         # reshape ONLY after masking validity
-        ux = ux.reshape(self.Ny, self.Nx)
-        uy = uy.reshape(self.Ny, self.Nx)
-
         mask = np.isfinite(ux) & np.isfinite(uy)
 
         ux[~mask] = 0.0
