@@ -542,9 +542,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         print("created fft mesh")
 
     
-    print("transfermanager" + hasattr(firedrake, "TransferManager"))
-    print("vertexonlymesh" + hasattr(firedrake, "VertexOnlyMesh"))
-    print("meshheirarchy" + hasattr(firedrake, "MeshHeirarchy"))
+    print(f"transfermanager = {hasattr(firedrake, 'TransferManager')}")
+    print(f"vertexonlymesh = {hasattr(firedrake, 'VertexOnlyMesh')}")
+    print(f"meshheirarchy =  {hasattr(firedrake, 'MeshHeirarchy')}")
 
     ###############################################################################################
     ###############################################################################################
