@@ -31,8 +31,13 @@ class MPI_energy_spectra_2d:
         u_fluc = as_vector([self.u[0] - u0,
                             self.u[1] - u1])
 
-        # domain size (MPI-safe)
-        coords = self.mesh.coordinates.dat.data_ro
+        # domain size
+        if hasattr(mesh, 'coordinates'):
+            coords = mesh.coordinates.dat.data_ro
+        elif hasattr(mesh, 'meshes'):
+            coords = mesh.meshes[0].coordinates.dat.data_ro
+        else:
+            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
 
         print("1")
 
