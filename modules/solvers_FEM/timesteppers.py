@@ -644,6 +644,13 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # Perform timestepping
     # --------------------
 
+    if comm == 0:
+        print(type(mesh))
+        print(mesh)
+        print(u.function_space())
+        print(mesh.comm.size)
+        print(hasattr(u, "at"))
+
     while step < num_steps:
 
         # Perform time-step

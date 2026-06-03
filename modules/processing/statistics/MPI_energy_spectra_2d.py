@@ -19,16 +19,9 @@ class MPI_energy_spectra_2d:
         mesh = self.mesh
         dx = Measure("dx", domain=self.mesh)
 
-        if comm == 0:
-            print(type(mesh))
-            print(mesh)
-            print(u.function_space())
-            print(mesh.comm.size)
-            print(hasattr(u, "at"))
-
         # remove mean flow
         area = assemble(Constant(1.0) * dx)
-                
+
         self.u.sub(0).dat.vec.ghostUpdate()
         self.u.sub(1).dat.vec.ghostUpdate()
 
