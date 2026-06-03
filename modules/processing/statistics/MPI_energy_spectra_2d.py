@@ -30,16 +30,22 @@ class MPI_energy_spectra_2d:
         # domain size (MPI-safe)
         coords = self.mesh.coordinates.dat.data_ro
 
+        print("1")
+
         xmin = comm.allreduce(coords[:,0].min(), op=MPI.MIN)
         xmax = comm.allreduce(coords[:,0].max(), op=MPI.MAX)
         ymin = comm.allreduce(coords[:,1].min(), op=MPI.MIN)
         ymax = comm.allreduce(coords[:,1].max(), op=MPI.MAX)
+
+        print("2")
 
         Lx, Ly = xmax-xmin, ymax-ymin
 
         # k-space resolution tied to mesh
         hmin = comm.allreduce(np.min(np.linalg.norm(np.diff(coords, axis=0), axis=1)), op=MPI.MIN)
         kmax = np.pi / max(hmin, 1e-12)
+
+        print("3")
 
         nb = self.nbins
         bins = np.logspace(np.log10(1.0), np.log10(kmax), nb+1)
@@ -79,6 +85,8 @@ class MPI_energy_spectra_2d:
                     E_local[b] += E
                     counts[b] += 1
 
+        print("4")
+
         # -------------
         # MPI reduction
         # -------------
@@ -87,6 +95,8 @@ class MPI_energy_spectra_2d:
 
         comm.Allreduce(E_local, E_global, op=MPI.SUM)
         comm.Allreduce(counts, count_global, op=MPI.SUM)
+
+        print("5")
 
         count_global[count_global == 0] = 1
 
