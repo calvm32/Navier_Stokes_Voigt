@@ -23,8 +23,14 @@ class MPI_energy_spectra_2d:
         mesh = self.mesh
         dx = Measure("dx", domain=self.mesh)
 
+        print(f"rank {comm.rank}: entered compute", flush=True)
+
+        print("comm =", comm, flush=True)
+        print("rank =", comm.rank, flush=True)
+        print("size =", comm.size, flush=True)
+
         # remove mean flow
-        area = comm.allreduce(1.0, op=MPI.SUM) / comm.size # get per-cell area
+        area = assemble(Constant(1.0) * dx)
 
         print(comm.rank, "0.1", flush=True)
         
