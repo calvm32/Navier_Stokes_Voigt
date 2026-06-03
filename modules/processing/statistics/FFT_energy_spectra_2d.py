@@ -62,16 +62,22 @@ class FFT_energy_spectra_2d:
         ux = np.full(len(pts), np.nan)
         uy = np.full(len(pts), np.nan)
 
-        for i, p in enumerate(pts):
+        pts_test = pts[:10]
 
-            try:
-                val = self.u.at(p)
+        vals = self.u.at(pts_test)
 
-                ux[i] = val[0]
-                uy[i] = val[1]
+        print(vals.shape)
+        print(vals)
 
-            except PointNotInDomainError:
-                pass
+        # for i, p in enumerate(pts):
+        #     try:
+        #         val = self.u.at(p)
+
+        #         ux[i] = val[0]
+        #         uy[i] = val[1]
+
+        #     except PointNotInDomainError:
+        #         pass
 
         print("2")
 
