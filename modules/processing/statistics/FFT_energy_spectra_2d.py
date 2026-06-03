@@ -89,11 +89,16 @@ class FFT_energy_spectra_2d:
         # VertexOnlyMesh sampling
         # ------------------------------------
 
+
+        from firedrake.mesh import MissingPointsBehaviour
+
+        print(list(MissingPointsBehaviour))
+
         vom = VertexOnlyMesh(
             self.mesh,
             pts,
             redundant=True,
-            missing_points_behaviour="ignore"
+            #missing_points_behaviour="ignore"
         )
 
         Vvom = VectorFunctionSpace(
