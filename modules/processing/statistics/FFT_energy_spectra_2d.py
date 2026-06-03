@@ -63,6 +63,9 @@ class FFT_energy_spectra_2d:
                 uy[i] = val[1]
             except PointNotInDomainError:
                 continue
+            
+            total = len(enumerate(pts))
+            print("{i}/{total}")
 
         print("2")
 
