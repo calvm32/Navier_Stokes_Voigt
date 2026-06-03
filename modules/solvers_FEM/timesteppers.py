@@ -357,7 +357,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     comm.Barrier()
 
     if mesh.comm.rank == 0:
-        spectrum = FFT_energy_spectrum_2d(u_old.sub(0), Nx=512, Ny=512,)
+        spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=512, Ny=512,)
         k_vals, E_k = spectrum.compute()
 
     if mesh.comm.rank == 0 and is_mixed:
@@ -784,7 +784,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     if is_mixed:
 
-        spectrum = FFT_energy_spectrum_2d(u_old.sub(0), Nx=512, Ny=512,)
+        spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=512, Ny=512,)
         k_vals, E_k = spectrum.compute()
 
     if mesh.comm.rank == 0 and is_mixed:
