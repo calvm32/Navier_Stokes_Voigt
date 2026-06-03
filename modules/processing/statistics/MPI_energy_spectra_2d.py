@@ -10,10 +10,14 @@ class MPI_energy_spectra_2d:
 
     def __init__(self, u, nbins=50):
         self.u = u
+        print("1.1")
         self.mesh = u.function_space().mesh()
+        print("1.2")
         self.nbins = nbins
 
     def compute(self):
+
+        print("0")
 
         comm = self.mesh.comm
         dx = Measure("dx", domain=self.mesh)
