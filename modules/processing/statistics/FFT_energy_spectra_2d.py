@@ -84,9 +84,6 @@ class FFT_energy_spectra_2d:
         pts = np.column_stack(
             [X.ravel(), Y.ravel()]
         )
-        
-        print("requested:", pts.shape)
-        print("actual:", vom.coordinates.dat.data_ro.shape)
 
         # ------------------------------------
         # VertexOnlyMesh sampling
@@ -104,6 +101,9 @@ class FFT_energy_spectra_2d:
             "DG",
             0
         )
+        
+        print("requested:", pts.shape)
+        print("actual:", vom.coordinates.dat.data_ro.shape)
 
         u_sample = Function(Vvom)
 
