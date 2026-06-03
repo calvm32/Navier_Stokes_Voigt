@@ -25,11 +25,15 @@ class MPI_energy_spectra_2d:
         # remove mean flow
         area = assemble(Constant(1.0) * dx)
 
+        print("0.1")
+
         u0 = assemble(self.u[0] * dx) / area
         u1 = assemble(self.u[1] * dx) / area
 
         u_fluc = as_vector([self.u[0] - u0,
                             self.u[1] - u1])
+
+        print("0.2")
 
         # domain size
         if hasattr(mesh, 'coordinates'):
