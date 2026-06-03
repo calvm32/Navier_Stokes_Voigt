@@ -780,10 +780,12 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm = mesh.comm
     comm.Barrier()
 
-    if mesh.comm.rank == 0 and is_mixed:
+    if is_mixed:
 
         spectrum = MPI_energy_spectra_2d(u_old.sub(0), nbins=60)
         k_vals, E_k = spectrum.compute()
+
+    if mesh.comm.rank == 0 and is_mixed:
     
         if dim == 2:
             velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
