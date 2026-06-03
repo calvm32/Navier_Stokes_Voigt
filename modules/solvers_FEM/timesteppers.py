@@ -11,6 +11,7 @@ from modules.processing.statistics.structure_funcs_2d import structure_funcs_2d
 from modules.processing.statistics.pdf_sampler_3d import pdf_sampler_3d
 from modules.processing.statistics.structure_funcs_3d import structure_funcs_3d
 from modules.processing.post_processing import *
+from .MPI_energy_spectra_2d import MPI_energy_spectra_2d
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None, alpha=None,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0]):
@@ -355,11 +356,15 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     comm.Barrier()
 
     if mesh.comm.rank == 0 and is_mixed:
-        print("donedonedone")
+
+        spectrum = MPI_energy_spectra_2d(u_old.sub(0), nbins=60)
+        k_vals, E_k = spectrum.compute()
+    
         if dim == 2:
             velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
         elif dim == 3:
             velocity_x_vals, velocity_y_vals, velocity_z_vals, omega_vals = pdfs.finalize()
+
         r_vals, S2 = struct_func.compute()
         
         np.savez(
@@ -384,6 +389,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
             omega=np.array(omega_vals),
             r_vals=np.array(r_vals),
             S2=np.array(S2),
+            spectrum=np.array(spectrum),
+            k_vals=np.array(k_bals),
+            E_k=np.array(E_k),
         )
 
     elif mesh.comm.rank == 0 and not is_mixed:
@@ -773,17 +781,16 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm.Barrier()
 
     if mesh.comm.rank == 0 and is_mixed:
-        print("about to compute stats")
 
-        r_vals, S2 = struct_func.compute()
-        print("donestructs")
-        
+        spectrum = MPI_energy_spectra_2d(u_old.sub(0), nbins=60)
+        k_vals, E_k = spectrum.compute()
+    
         if dim == 2:
             velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
-            print('done2')
         elif dim == 3:
             velocity_x_vals, velocity_y_vals, velocity_z_vals, omega_vals = pdfs.finalize()
-            print("done3")
+            
+        r_vals, S2 = struct_func.compute()
         
         np.savez(
             output_file2,
@@ -807,6 +814,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             omega=np.array(omega_vals),
             r_vals=np.array(r_vals),
             S2=np.array(S2),
+            k_vals=np.array(k_bals),
+            E_k=np.array(E_k),
         )
 
     elif mesh.comm.rank == 0 and not is_mixed:

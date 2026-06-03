@@ -166,7 +166,24 @@ def plot_ns(data_path):
         C = E_k[5] * k[5]**(5/3)
         plt.loglog(k, C * k**(-5/3), '--', label="k^-5/3")
 
-    plt.semilogx(k, E*k**(5/3), label="checkrange")
+    plt.xlabel("k")
+    plt.ylabel("E(k)")
+    plt.title("Energy Spectrum Probe")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(out_dir / "spectrum_probe.png", dpi=200)
+    plt.close()
+
+    k = data["k"]
+    E_k = data["E_k"]
+
+    plt.loglog(k, E_k)
+
+    # optional Kolmogorov fit
+    mask = (k > k[int(len(k)*0.2)]) & (k < k[int(len(k)*0.6)])
+    C = np.mean(E_k[mask] * k[mask]**(5/3))
+    plt.loglog(k, C*k**(-5/3), '--')
 
     plt.xlabel("k")
     plt.ylabel("E(k)")
@@ -174,5 +191,5 @@ def plot_ns(data_path):
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(out_dir / "spectrum.png", dpi=200)
+    plt.savefig(out_dir / "spectrum_spatial.png", dpi=200)
     plt.close()
