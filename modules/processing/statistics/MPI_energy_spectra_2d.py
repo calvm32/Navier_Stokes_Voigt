@@ -17,7 +17,7 @@ class MPI_energy_spectra_2d:
 
     def compute(self):
 
-        if mesh.comm.rank == 0:
+        if comm == 0:
             print("rank 0")
             print(type(mesh))
             print(mesh)
