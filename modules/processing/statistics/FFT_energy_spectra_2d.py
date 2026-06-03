@@ -21,7 +21,14 @@ class FFT_energy_spectra_2d:
         if comm.rank != 0:
             return None, None
 
-        coords = self.mesh.coordinates.dat.data_ro
+        print("0")
+
+        if hasattr(mesh, 'coordinates'):
+            coords = mesh.coordinates.dat.data_ro
+        elif hasattr(mesh, 'meshes'):
+            coords = mesh.meshes[0].coordinates.dat.data_ro
+        else:
+            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
 
         xmin = coords[:,0].min()
         xmax = coords[:,0].max()
@@ -42,6 +49,8 @@ class FFT_energy_spectra_2d:
             Y.ravel()
         ])
 
+        print("1")
+
         # ---------------
         # sample velocity
         # ---------------
@@ -58,6 +67,8 @@ class FFT_energy_spectra_2d:
 
             except PointNotInDomainError:
                 pass
+
+        print("2")
 
         ux = ux.reshape(self.Ny, self.Nx)
         uy = uy.reshape(self.Ny, self.Nx)
@@ -85,6 +96,8 @@ class FFT_energy_spectra_2d:
         ux_hat *= dx * dy
         uy_hat *= dx * dy
 
+        print("3")
+
         # wavenumbers
         kx = 2*np.pi*np.fft.fftfreq(self.Nx, d=dx)
         ky = 2*np.pi*np.fft.fftfreq(self.Ny, d=dy)
@@ -96,15 +109,18 @@ class FFT_energy_spectra_2d:
         # modal energy
         E2D = 0.5 * (np.abs(ux_hat)**2 + np.abs(uy_hat)**2)
 
+        print("4")
+
         # isotropic shell averaging
         kmax = kmag.max()
         bins = np.linspace(0.0, kmax, self.nbins + 1)
         E = np.zeros(self.nbins)
 
         for i in range(self.nbins):
-
             shell = ((kmag >= bins[i]) & (kmag < bins[i+1]))
             E[i] = np.sum(E2D[shell])
+
+        print("5")
 
         dk = bins[1] - bins[0]
 
