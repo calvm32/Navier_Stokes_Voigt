@@ -15,7 +15,8 @@ class FFT_energy_spectra_2d:
 
     def compute(self):
 
-        comm = self.mesh.comm
+        mesh = self.mesh
+        comm = mesh.comm
 
         # only rank 0 computes FFT
         if comm.rank != 0:
