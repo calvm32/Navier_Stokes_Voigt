@@ -12,6 +12,7 @@ from modules.processing.statistics.pdf_sampler_3d import pdf_sampler_3d
 from modules.processing.statistics.structure_funcs_3d import structure_funcs_3d
 from modules.processing.post_processing import *
 from modules.processing.statistics.MPI_energy_spectra_2d import MPI_energy_spectra_2d
+from modules.processing.statistics.FFT_energy_spectra_2d import FFT_energy_spectra_2d
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None, alpha=None,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0]):
@@ -355,10 +356,11 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     comm = mesh.comm
     comm.Barrier()
 
-    if mesh.comm.rank == 0 and is_mixed:
-
-        spectrum = MPI_energy_spectra_2d(u_old.sub(0), nbins=60)
+    if mesh.comm.rank == 0:
+        spectrum = FFT_energy_spectrum_2d(u_old.sub(0), Nx=512, Ny=512,)
         k_vals, E_k = spectrum.compute()
+
+    if mesh.comm.rank == 0 and is_mixed:
     
         if dim == 2:
             velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
@@ -646,12 +648,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     while step < num_steps:
 
-        print(f"type(mesh)={type(mesh)}")
-        print(f"mesh={mesh}")
-        print(f"u.function_space()={u.function_space()}")
-        print(f"mesh.comm.size={mesh.comm.size}")
-        print(f"hasattr(u, 'at')={hasattr(u, "at")}")
-
         # Perform time-step
         if step == 0:
             solver_CN(t, dt)
@@ -788,7 +784,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     if is_mixed:
 
-        spectrum = MPI_energy_spectra_2d(u_old.sub(0), nbins=60)
+        spectrum = FFT_energy_spectrum_2d(u_old.sub(0), Nx=512, Ny=512,)
         k_vals, E_k = spectrum.compute()
 
     if mesh.comm.rank == 0 and is_mixed:
