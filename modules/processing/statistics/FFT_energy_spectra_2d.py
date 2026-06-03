@@ -2,9 +2,39 @@ from firedrake import *
 from mpi4py import MPI
 import numpy as np
 
+
 class FFT_energy_spectra_2d:
 
-    def __init__(self, u, Nx=512, Ny=512, nbins=80):
+    """
+    FFT-based isotropic kinetic energy spectrum.
+
+    Intended for:
+        - 2D velocity field
+        - unstructured Firedrake mesh
+        - airfoil / arbitrary geometry
+        - MPI execution
+
+    Usage:
+        spectrum = FFT_energy_spectra_2d(
+            u_old.sub(0),
+            Nx=256,
+            Ny=256,
+            nbins=80
+        )
+
+        k, E = spectrum.compute()
+
+        if mesh.comm.rank == 0:
+            plt.loglog(k, E)
+    """
+
+    def __init__(
+        self,
+        u,
+        Nx=256,
+        Ny=256,
+        nbins=80
+    ):
 
         self.u = u
         self.mesh = u.function_space().mesh()
@@ -15,90 +45,169 @@ class FFT_energy_spectra_2d:
 
     def compute(self):
 
-        mesh = self.mesh
-        comm = mesh.comm
+        comm = self.mesh.comm
 
-        # only rank 0 computes FFT
-        if comm.rank != 0:
-            return None, None
+        # --------------------------------------------------
+        # build cheap CG1 interpolant
+        # --------------------------------------------------
 
-        print("0")
+        Vlin = VectorFunctionSpace(
+            self.mesh,
+            "CG",
+            1
+        )
 
-        if hasattr(mesh, 'coordinates'):
-            coords = mesh.coordinates.dat.data_ro
-        elif hasattr(mesh, 'meshes'):
-            coords = mesh.meshes[0].coordinates.dat.data_ro
-        else:
-            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
+        u_lin = Function(Vlin)
+        u_lin.interpolate(self.u)
 
-        print("0.1")
+        # --------------------------------------------------
+        # global bounding box
+        # --------------------------------------------------
 
-        xmin = coords[:,0].min()
-        xmax = coords[:,0].max()
+        coords = self.mesh.coordinates.dat.data_ro
 
-        ymin = coords[:,1].min()
-        ymax = coords[:,1].max()
+        xmin = comm.allreduce(
+            coords[:, 0].min(),
+            op=MPI.MIN
+        )
+
+        xmax = comm.allreduce(
+            coords[:, 0].max(),
+            op=MPI.MAX
+        )
+
+        ymin = comm.allreduce(
+            coords[:, 1].min(),
+            op=MPI.MIN
+        )
+
+        ymax = comm.allreduce(
+            coords[:, 1].max(),
+            op=MPI.MAX
+        )
 
         Lx = xmax - xmin
         Ly = ymax - ymin
+
+        # --------------------------------------------------
+        # regular FFT grid
+        # --------------------------------------------------
 
         x = np.linspace(xmin, xmax, self.Nx)
         y = np.linspace(ymin, ymax, self.Ny)
 
         X, Y = np.meshgrid(x, y)
 
-        print("0.2")
+        pts = np.column_stack(
+            (X.ravel(), Y.ravel())
+        )
 
-        pts = np.column_stack([
-            X.ravel(),
-            Y.ravel()
-        ])
+        npts = len(pts)
 
-        print("1")
+        # --------------------------------------------------
+        # local sampling
+        # --------------------------------------------------
 
-        # ---------------
-        # sample velocity
-        # ---------------
-        # ux = np.full(len(pts), np.nan)
-        # uy = np.full(len(pts), np.nan)
+        ux_local = np.full(npts, np.nan)
+        uy_local = np.full(npts, np.nan)
 
-        pts_test = pts[:1000]
-        print(pts_test)
+        for i, p in enumerate(pts):
 
-        vals = self.u.at(pts_test)
+            try:
 
-        print(vals.shape)
-        print(vals)
+                val = u_lin.at(p)
 
-        # for i, p in enumerate(pts):
-        #     try:
-        #         val = self.u.at(p)
+                ux_local[i] = val[0]
+                uy_local[i] = val[1]
 
-        #         ux[i] = val[0]
-        #         uy[i] = val[1]
+            except PointNotInDomainError:
+                pass
 
-        #     except PointNotInDomainError:
-        #         pass
+        # --------------------------------------------------
+        # gather sampled values
+        #
+        # each point should be owned by at most
+        # one rank
+        # --------------------------------------------------
 
-        print("2")
+        ux_all = comm.gather(
+            ux_local,
+            root=0
+        )
 
-        ux = ux.reshape(self.Ny, self.Nx)
-        uy = uy.reshape(self.Ny, self.Nx)
+        uy_all = comm.gather(
+            uy_local,
+            root=0
+        )
 
-        # mask airfoil / outside region
-        mask = np.isfinite(ux) & np.isfinite(uy)
+        if comm.rank != 0:
+            return None, None
+
+        # --------------------------------------------------
+        # merge gathered arrays
+        # --------------------------------------------------
+
+        ux = np.full(npts, np.nan)
+        uy = np.full(npts, np.nan)
+
+        for arr in ux_all:
+
+            mask = np.isfinite(arr)
+
+            ux[mask] = arr[mask]
+
+        for arr in uy_all:
+
+            mask = np.isfinite(arr)
+
+            uy[mask] = arr[mask]
+
+        # --------------------------------------------------
+        # reshape
+        # --------------------------------------------------
+
+        ux = ux.reshape(
+            self.Ny,
+            self.Nx
+        )
+
+        uy = uy.reshape(
+            self.Ny,
+            self.Nx
+        )
+
+        # --------------------------------------------------
+        # valid fluid region
+        # --------------------------------------------------
+
+        mask = (
+            np.isfinite(ux)
+            &
+            np.isfinite(uy)
+        )
 
         ux[~mask] = 0.0
         uy[~mask] = 0.0
 
-        # remove mean
-        ux_mean = np.mean(ux[mask])
-        uy_mean = np.mean(uy[mask])
+        # --------------------------------------------------
+        # remove mean velocity
+        # --------------------------------------------------
+
+        ux_mean = np.mean(
+            ux[mask]
+        )
+
+        uy_mean = np.mean(
+            uy[mask]
+        )
 
         ux -= ux_mean
         uy -= uy_mean
 
+        # --------------------------------------------------
         # FFT
+        # --------------------------------------------------
+
         dx = Lx / (self.Nx - 1)
         dy = Ly / (self.Ny - 1)
 
@@ -108,50 +217,100 @@ class FFT_energy_spectra_2d:
         ux_hat *= dx * dy
         uy_hat *= dx * dy
 
-        print("3")
-
+        # --------------------------------------------------
         # wavenumbers
-        kx = 2*np.pi*np.fft.fftfreq(self.Nx, d=dx)
-        ky = 2*np.pi*np.fft.fftfreq(self.Ny, d=dy)
+        # --------------------------------------------------
 
-        KX, KY = np.meshgrid(kx, ky)
+        kx = 2*np.pi*np.fft.fftfreq(
+            self.Nx,
+            d=dx
+        )
 
-        kmag = np.sqrt(KX**2 + KY**2)
+        ky = 2*np.pi*np.fft.fftfreq(
+            self.Ny,
+            d=dy
+        )
 
+        KX, KY = np.meshgrid(
+            kx,
+            ky
+        )
+
+        kmag = np.sqrt(
+            KX**2 + KY**2
+        )
+
+        # --------------------------------------------------
         # modal energy
-        E2D = 0.5 * (np.abs(ux_hat)**2 + np.abs(uy_hat)**2)
+        # --------------------------------------------------
 
-        print("4")
+        E2D = 0.5 * (
+            np.abs(ux_hat)**2
+            +
+            np.abs(uy_hat)**2
+        )
 
-        # isotropic shell averaging
-        kmax = kmag.max()
-        bins = np.linspace(0.0, kmax, self.nbins + 1)
-        E = np.zeros(self.nbins)
+        # --------------------------------------------------
+        # shell averaging
+        # --------------------------------------------------
 
-        for i in range(self.nbins):
-            shell = ((kmag >= bins[i]) & (kmag < bins[i+1]))
-            E[i] = np.sum(E2D[shell])
-
-        print("5")
+        bins = np.linspace(
+            0.0,
+            kmag.max(),
+            self.nbins + 1
+        )
 
         dk = bins[1] - bins[0]
 
-        E /= dk
-
-        k = 0.5*(bins[:-1] + bins[1:])
-
-        # Parseval check
-        E_phys = (0.5 * np.mean(
-                ux[mask]**2 +
-                uy[mask]**2
-            ) *Lx *Ly
+        E = np.zeros(
+            self.nbins
         )
 
-        E_spec = np.sum(E * dk)
+        for i in range(self.nbins):
+
+            shell = (
+                (kmag >= bins[i])
+                &
+                (kmag < bins[i+1])
+            )
+
+            E[i] = np.sum(
+                E2D[shell]
+            )
+
+        E /= dk
+
+        k = 0.5 * (
+            bins[:-1]
+            +
+            bins[1:]
+        )
+
+        # --------------------------------------------------
+        # Parseval check
+        # --------------------------------------------------
+
+        E_phys = (
+            0.5
+            * np.mean(
+                ux[mask]**2
+                +
+                uy[mask]**2
+            )
+            * Lx
+            * Ly
+        )
+
+        E_spec = np.sum(
+            E * dk
+        )
+
+        rel_err = abs(
+            E_phys - E_spec
+        ) / max(E_phys, 1e-16)
 
         print(
-            "Parseval relative error:",
-            abs(E_phys - E_spec) / E_phys
+            f"Parseval relative error = {rel_err:.3e}"
         )
 
         return k, E
