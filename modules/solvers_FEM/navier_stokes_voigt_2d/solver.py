@@ -182,6 +182,7 @@ def main(save_dir):
     bc_pressure = DirichletBC(Z.sub(1), Constant(0.0), (2,))
 
     bcs = [bc_freestream, bc_airfoil, bc_pressure]
+    nullspace = None
 
     # ------------------
     # Allocate functions
