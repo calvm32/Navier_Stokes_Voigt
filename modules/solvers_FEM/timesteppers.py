@@ -504,6 +504,54 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             nbins=30
         )
 
+
+    ###############################################################################################
+    ###############################################################################################
+    ###############################################################################################
+    ###############################################################################################
+    mesh = u_old.sub(0).function_space().mesh()
+
+    coords = mesh.coordinates.dat.data_ro
+
+    xmin = mesh.comm.allreduce(coords[:,0].min(), op=MPI.MIN)
+    xmax = mesh.comm.allreduce(coords[:,0].max(), op=MPI.MAX)
+
+    ymin = mesh.comm.allreduce(coords[:,1].min(), op=MPI.MIN)
+    ymax = mesh.comm.allreduce(coords[:,1].max(), op=MPI.MAX)
+
+    if mesh.comm.rank == 0:
+
+        fft_mesh = RectangleMesh(
+            31,
+            31,
+            xmax - xmin,
+            ymax - ymin,
+            originX=xmin,
+            originY=ymin,
+            comm=MPI.COMM_SELF
+        )
+
+        Vfft = VectorFunctionSpace(
+            fft_mesh,
+            "CG",
+            1
+        )
+
+        u_fft = Function(Vfft)
+
+        print("created fft mesh")
+
+    
+    print(hasattr(firedrake, "TransferManager"))
+    print(hasattr(firedrake, "VertexOnlyMesh"))
+    print(hasattr(firedrake, "MeshHeirarchy"))
+
+    ###############################################################################################
+    ###############################################################################################
+    ###############################################################################################
+    ###############################################################################################
+    ###############################################################################################
+
     data_old = get_data(t0)
     data_older = get_data(t0 - dt)
     if is_mixed:
