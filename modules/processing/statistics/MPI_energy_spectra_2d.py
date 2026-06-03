@@ -10,38 +10,25 @@ class MPI_energy_spectra_2d:
 
     def __init__(self, u, nbins=50):
         self.u = u
-        print("1.1")
         self.mesh = u.function_space().mesh()
-        print("1.2")
         self.nbins = nbins
 
     def compute(self):
-
-        print("0")
 
         comm = self.mesh.comm
         mesh = self.mesh
         dx = Measure("dx", domain=self.mesh)
 
         if comm == 0:
-            print("rank 0")
             print(type(mesh))
             print(mesh)
             print(u.function_space())
             print(mesh.comm.size)
             print(hasattr(u, "at"))
 
-        print(f"rank {comm.rank}: entered compute", flush=True)
-
-        print("comm =", comm, flush=True)
-        print("rank =", comm.rank, flush=True)
-        print("size =", comm.size, flush=True)
-
         # remove mean flow
         area = assemble(Constant(1.0) * dx)
-
-        print(comm.rank, "0.1", flush=True)
-        
+                
         self.u.sub(0).dat.vec.ghostUpdate()
         self.u.sub(1).dat.vec.ghostUpdate()
 
