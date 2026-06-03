@@ -17,13 +17,25 @@ class MPI_energy_spectra_2d:
 
     def compute(self):
 
-        print("0")
-
         comm = self.mesh.comm
         dx = Measure("dx", domain=self.mesh)
 
         # remove mean flow
-        area = assemble(Constant(1.0) * dx)
+
+        # domain size
+        if hasattr(mesh, 'coordinates'):
+            coords = mesh.coordinates.dat.data_ro
+        elif hasattr(mesh, 'meshes'):
+            coords = mesh.meshes[0].coordinates.dat.data_ro
+        else:
+            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
+
+        xmin = comm.allreduce(coords[:,0].min(), op=MPI.MIN)
+        xmax = comm.allreduce(coords[:,0].max(), op=MPI.MAX)
+        ymin = comm.allreduce(coords[:,1].min(), op=MPI.MIN)
+        ymax = comm.allreduce(coords[:,1].max(), op=MPI.MAX)
+
+        area = (xmax - xmin) * (ymax - ymin)
 
         print("0.1")
 
@@ -34,14 +46,6 @@ class MPI_energy_spectra_2d:
                             self.u[1] - u1])
 
         print("0.2")
-
-        # domain size
-        if hasattr(mesh, 'coordinates'):
-            coords = mesh.coordinates.dat.data_ro
-        elif hasattr(mesh, 'meshes'):
-            coords = mesh.meshes[0].coordinates.dat.data_ro
-        else:
-            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
 
         print("1")
 
