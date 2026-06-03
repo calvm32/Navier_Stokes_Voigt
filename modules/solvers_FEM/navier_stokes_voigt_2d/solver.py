@@ -177,7 +177,7 @@ def main(save_dir):
     # nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
 
     # CHANNEL WITH AIRFOIL
-    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1))
+    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
     bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4)) 
     bc_airfoil = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (6,)) # noslip
 

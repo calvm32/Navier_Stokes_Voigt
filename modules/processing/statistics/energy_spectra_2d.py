@@ -8,11 +8,12 @@ class energy_spectra_2d:
     computed by direct Fourier projection on unstructured meshes.
     """
 
-    def __init__(self, u, mesh, nbins=40, kmax=40):
+    def __init__(self, u, mesh, nbins=40, kxmax=40, kymax=10):
         self.u = u
         self.mesh = mesh
         self.nbins = nbins
-        self.kmax = kmax
+        self.kxmax = kxmax
+        self.kymax = kymax
 
     def compute(self):
 
@@ -34,6 +35,8 @@ class energy_spectra_2d:
         # ------------------
         # Global domain size
         # ------------------
+        mesh = self.mesh
+
         if hasattr(mesh, 'coordinates'):
             coords = mesh.coordinates.dat.data_ro
         elif hasattr(mesh, 'meshes'):
@@ -52,8 +55,8 @@ class energy_spectra_2d:
         # ---------------
         # Wavenumber grid
         # ---------------
-        kx_vals = np.arange(-self.kmax, self.kmax + 1)
-        ky_vals = np.arange(-self.kmax, self.kmax + 1)
+        kx_vals = np.arange(-4*self.kxmax, 4*self.kxmax + 1)
+        ky_vals = np.arange(-4*self.kymax, 4*self.kymax + 1)
 
         energies = []
         kmags = []
@@ -75,16 +78,17 @@ class energy_spectra_2d:
                 sin_phase = sin(theta)
 
                 # Fourier coefficients (real + imaginary)
-                uhat_x_real = assemble(u_fluct[0] * cos_phase * dxm) / area
-                uhat_x_imag = -assemble(u_fluct[0] * sin_phase * dxm) / area
+                uhat_x = (
+                    assemble(u_fluct[0]*cos_phase*dxm)
+                    - 1j*assemble(u_fluct[0]*sin_phase*dxm)
+                ) / area
 
-                uhat_y_real = assemble(u_fluct[1] * cos_phase * dxm) / area
-                uhat_y_imag = -assemble(u_fluct[1] * sin_phase * dxm) / area
+                uhat_y = (
+                    assemble(u_fluct[1]*cos_phase*dxm)
+                    - 1j*assemble(u_fluct[1]*sin_phase*dxm)
+                ) / area
 
-                energy = 0.5 * (
-                    uhat_x_real**2 + uhat_x_imag**2 +
-                    uhat_y_real**2 + uhat_y_imag**2
-                )
+                energy = 0.5*(abs(uhat_x)**2 + abs(uhat_y)**2)
 
                 energies.append(energy)
                 kmags.append(np.sqrt(kx**2 + ky**2))
@@ -99,9 +103,18 @@ class energy_spectra_2d:
         # ---------------
         # Shell averaging
         # ---------------
-        k_bins = np.linspace(0, kmags.max(), self.nbins + 1)
+        kmin = kmags[kmags > 0].min()
+
+        k_bins = np.logspace(np.log10(kmin), np.log10(kmags.max()), self.nbins + 1)
 
         E = np.zeros(self.nbins)
+        total_spec_energy = np.sum(E)
+        print(total_spec_energy)
+        physical_energy = assemble(
+            0.5*inner(u_fluct,u_fluct)*dxm
+        )
+        print(physical_energy)
+
         counts = np.zeros(self.nbins)
 
         inds = np.digitize(kmags, k_bins) - 1
@@ -113,7 +126,8 @@ class energy_spectra_2d:
                 counts[b] += 1
 
         counts[counts == 0] = 1
-        E /= counts
+        dk = np.diff(k_bins)
+        E /= dk
 
         k_centers = 0.5 * (k_bins[:-1] + k_bins[1:])
 

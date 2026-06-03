@@ -166,6 +166,8 @@ def plot_ns(data_path):
         C = E_k[5] * k[5]**(5/3)
         plt.loglog(k, C * k**(-5/3), '--', label="k^-5/3")
 
+    plt.semilogx(k, E*k**(5/3), label="checkrange")
+
     plt.xlabel("k")
     plt.ylabel("E(k)")
     plt.title("Energy Spectrum")

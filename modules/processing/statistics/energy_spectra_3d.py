@@ -125,8 +125,8 @@ class energy_spectra_3d:
                 counts[b] += 1
 
         counts[counts == 0] = 1
-        E /= counts
-
+        # E /= counts # kolmogorov energy spectrum based on sums not avgs
+        
         k_centers = 0.5 * (k_bins[:-1] + k_bins[1:])
 
         return k_centers, E
