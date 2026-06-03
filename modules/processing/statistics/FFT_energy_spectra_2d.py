@@ -84,21 +84,19 @@ class FFT_energy_spectra_2d:
         pts = np.column_stack(
             [X.ravel(), Y.ravel()]
         )
+        
+        print("requested:", pts.shape)
+        print("actual:", vom.coordinates.dat.data_ro.shape)
 
         # ------------------------------------
         # VertexOnlyMesh sampling
         # ------------------------------------
 
-
-        from firedrake.mesh import MissingPointsBehaviour
-
-        print(list(MissingPointsBehaviour))
-
         vom = VertexOnlyMesh(
             self.mesh,
             pts,
             redundant=True,
-            #missing_points_behaviour="ignore"
+            missing_points_behaviour=MissingPointsBehaviour.IGNORE
         )
 
         Vvom = VectorFunctionSpace(
