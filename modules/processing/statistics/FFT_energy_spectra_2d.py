@@ -61,7 +61,6 @@ class FFT_energy_spectra_2d:
         fft_mesh = RectangleMesh(
             self.Nx - 1, self.Ny - 1,
             Lx, Ly,
-            origin=(xmin, ymin),
             comm=COMM_SELF
         )
 
