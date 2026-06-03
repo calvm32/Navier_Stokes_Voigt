@@ -62,7 +62,8 @@ class FFT_energy_spectra_2d:
         # ux = np.full(len(pts), np.nan)
         # uy = np.full(len(pts), np.nan)
 
-        pts_test = pts[:10]
+        pts_test = pts[:1000]
+        print(pts_test)
 
         vals = self.u.at(pts_test)
 
