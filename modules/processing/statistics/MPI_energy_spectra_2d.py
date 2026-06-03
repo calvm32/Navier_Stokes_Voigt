@@ -24,13 +24,18 @@ class MPI_energy_spectra_2d:
         dx = Measure("dx", domain=self.mesh)
 
         # remove mean flow
-        comm.Barrier()
         area = comm.allreduce(1.0, op=MPI.SUM) / comm.size # get per-cell area
 
-        print("0.1")
+        print(comm.rank, "0.1", flush=True)
+        
+        self.u.sub(0).dat.vec.ghostUpdate()
+        self.u.sub(1).dat.vec.ghostUpdate()
 
-        u0 = comm.allreduce(self.u.sub(0).dat.data_ro.mean(), op=MPI.SUM) / comm.size
-        u1 = comm.allreduce(self.u.sub(1).dat.data_ro.mean(), op=MPI.SUM) / comm.size
+        u0_local = self.u.sub(0).dat.data_ro.mean()
+        u1_local = self.u.sub(1).dat.data_ro.mean()
+
+        u0 = comm.allreduce(u0_local, op=MPI.SUM) / comm.size
+        u1 = comm.allreduce(u1_local, op=MPI.SUM) / comm.size
 
         u_fluc = as_vector([self.u[0] - u0, self.u[1] - u1])
 
