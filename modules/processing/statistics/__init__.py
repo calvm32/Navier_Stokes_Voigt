@@ -1,4 +1,6 @@
 from .energy_spectra_2d import energy_spectra_2d
+from .MPI_energy_spectra_2d import MPI_energy_spectra_2d
+from .FFT_energy_spectra_2d import FFT_energy_spectra_2d
 from .pdf_sampler_2d import pdf_sampler_2d
 from .structure_funcs_2d import structure_funcs_2d
 from .perturb_mesh_2d import *

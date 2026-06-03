@@ -2,7 +2,7 @@ from firedrake import *
 from mpi4py import MPI
 import numpy as np
 
-class FFT_energy_spectrum_2d:
+class FFT_energy_spectra_2d:
 
     def __init__(self, u, Nx=512, Ny=512, nbins=80):
 
