@@ -15,3 +15,5 @@ elements: "SV"      # valid:  "SV" (Scott Vogelius - requires barycentric refine
 views: "None"       # valid:  "Full" for debugging by viewing ALL solver parameters, 
                     #         "Some" for debugging by monitoring subprocesses like KSP, 
                     #         "None" for no debugging
+
+char_length: 1.0    # characteristic length: use for bluff bodies, airfoils, etc.

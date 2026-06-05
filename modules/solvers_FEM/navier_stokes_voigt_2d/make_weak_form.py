@@ -60,7 +60,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
             + inner(f_bdf2, v) * dx
 
             # Neumann BC
-            + inner(g_bdf2, v) * dsN
+            - (1.0/Re) * inner(g_bdf2, v) * dsN
         )
 
         return a, L
@@ -126,7 +126,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re,
             + inner(f_mid, v) * dx
 
             # Neumann boundary
-            + inner(g_mid, v) * dsN
+            - (1.0/Re) * inner(g_mid, v) * dsN
         )
 
         # Grad–div stabilization

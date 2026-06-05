@@ -37,6 +37,7 @@ def main(save_dir):
     solver = cfg["solver"]
     elements = cfg["elements"]
     views = cfg["views"]
+    char_length = cfg["char_length"]
 
     vtkfile_name = "Soln"
 
@@ -180,15 +181,18 @@ def main(save_dir):
 
         ufl_inflow = ufl_cfg["ufl_v0"]
 
-        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,3))
-        bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (2,4))
+        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,))
 
-        bcs = [bc_walls, bc_inflow]
+        bcs = [bc_inflow]
         nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
 
         # ------------------
         # Allocate functions
         # ------------------
+
+        n = FacetNormal(mesh)
+        u_exact = ufl_cfg["ufl_v0"]
+        ufl_g = dot(grad(u_exact), n)
 
         def get_data(t_curr):
             
@@ -198,8 +202,16 @@ def main(save_dir):
                 "ufl_v0": ufl_cfg["ufl_v0"],
                 "ufl_p0": ufl_cfg["ufl_p0"],
                 "ufl_f": ufl_cfg["ufl_f"],
-                "ufl_g": ufl_cfg["ufl_g"]
+                "ufl_g": ufl_g
             }
+
+        # get max
+        V0 = FunctionSpace(mesh, "DG", 0)
+
+        u_in = Function(V).interpolate(ufl_inflow)
+        u_mag = Function(V0).project(sqrt(dot(u_in, u_in)))
+
+        Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
 
         # ----------
         # Run solver
@@ -214,7 +226,8 @@ def main(save_dir):
                     make_weak_form=make_weak_form_CN, 
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
-                    appctx=appctx, vtkfile_name=vtkfile_name)
+                    appctx=appctx, vtkfile_name=vtkfile_name, 
+                    Umax=Umax, char_length=char_length)
 
         elif solver == "BDF2":
                 v_error_list, p_error_list = timestepper_BDF2(get_data, 
@@ -226,7 +239,8 @@ def main(save_dir):
                     make_weak_form_CN=make_weak_form_CN,
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
-                    appctx=appctx, vtkfile_name=vtkfile_name)
+                    appctx=appctx, vtkfile_name=vtkfile_name, 
+                    Umax=Umax, char_length=char_length)
 
         #cpu_times.append(cpu_time)
 

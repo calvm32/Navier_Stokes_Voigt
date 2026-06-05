@@ -4,7 +4,7 @@ from firedrake import *
 # BDF2 weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, Re):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, nu):
     """
     BDF2 Navier-Stokes
     - Oseen linearization
@@ -39,7 +39,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
             ) * dx
 
             # Viscosity
-            + (1.0 / Re) * inner(grad(u), grad(v)) * dx
+            + nu * inner(grad(u), grad(v)) * dx
 
             # Pressure coupling
             - p * div(v) * dx
@@ -61,7 +61,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
             + inner(f_bdf2, v) * dx
 
             # Neumann BC
-            + inner(g_bdf2, v) * dsN
+            - nu * inner(g_bdf2, v) * dsN
         )
 
         return a, L
@@ -73,7 +73,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
 # CN weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re):
+def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu):
     """
     Crank-Nicolson Navier-Stokes-Voigt
       -> Oseen linearization
@@ -104,7 +104,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re)
             ) * dx
 
             # Viscosity
-            + (theta / Re) * inner(grad(u), grad(v)) * dx
+            + theta*nu * inner(grad(u), grad(v)) * dx
 
             # Pressure / continuity
             - p * div(v) * dx
@@ -121,13 +121,13 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re)
             idt * inner(u_old, v) * dx
 
             # Explicit viscosity
-            - ((1.0 - theta) / Re) * inner(grad(u_old), grad(v)) * dx
+            - (1.0 - theta)*nu * inner(grad(u_old), grad(v)) * dx
 
             # Forcing
             + inner(f_mid, v) * dx
 
             # Neumann boundary
-            + inner(g_mid, v) * dsN
+            - nu * inner(g_mid, v) * dsN
         )
 
         # Grad–div stabilization

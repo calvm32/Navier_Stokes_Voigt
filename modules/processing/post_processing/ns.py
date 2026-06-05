@@ -150,7 +150,7 @@ def plot_ns(data_path):
     f = f[mask]
     u_hat = u_hat[mask]
 
-    E_f = 2 * (dt / N) * np.abs(u_hat)**2
+    E_f = 2*(dt /N) * np.abs(u_hat)**2
 
     U_mean = np.mean(probe[:, 0])
     k = 2*np.pi*f / U_mean
@@ -175,21 +175,21 @@ def plot_ns(data_path):
     plt.savefig(out_dir / "spectrum_probe.png", dpi=200)
     plt.close()
 
-    k = data["k"]
-    E_k = data["E_k"]
+    # k = data["k"]
+    # E_k = data["E_k"]
 
-    plt.loglog(k, E_k)
+    # plt.loglog(k, E_k)
 
-    # optional Kolmogorov fit
-    mask = (k > k[int(len(k)*0.2)]) & (k < k[int(len(k)*0.6)])
-    C = np.mean(E_k[mask] * k[mask]**(5/3))
-    plt.loglog(k, C*k**(-5/3), '--')
+    # # optional Kolmogorov fit
+    # mask = (k > k[int(len(k)*0.2)]) & (k < k[int(len(k)*0.6)])
+    # C = np.mean(E_k[mask] * k[mask]**(5/3))
+    # plt.loglog(k, C*k**(-5/3), '--')
 
-    plt.xlabel("k")
-    plt.ylabel("E(k)")
-    plt.title("Energy Spectrum")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(out_dir / "spectrum_spatial.png", dpi=200)
-    plt.close()
+    # plt.xlabel("k")
+    # plt.ylabel("E(k)")
+    # plt.title("Energy Spectrum")
+    # plt.legend()
+    # plt.grid(True)
+    # plt.tight_layout()
+    # plt.savefig(out_dir / "spectrum_spatial.png", dpi=200)
+    # plt.close()

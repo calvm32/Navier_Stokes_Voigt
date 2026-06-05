@@ -15,7 +15,13 @@ class structure_funcs_2d:
 
         self.comm = mesh.comm
 
-        self.coords = mesh.coordinates.dat.data_ro
+        if hasattr(mesh, 'coordinates'):
+            self.coords = mesh.coordinates.dat.data_ro
+        elif hasattr(mesh, 'meshes'):
+            self.coords = mesh.meshes[0].coordinates.dat.data_ro
+        else:
+            raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}")
+
         self.values = u.dat.data_ro
 
         self.ndofs = self.coords.shape[0]

@@ -39,9 +39,11 @@ def main(save_dir):
     alpha = cfg["alpha"]
     G = cfg["G"]
     P = cfg["P"]
+
     solver = cfg["solver"]
     elements = cfg["elements"]
     views = cfg["views"]
+    char_length = cfg["char_length"]
 
     # Build appctx
     appctx = {
@@ -168,28 +170,21 @@ def main(save_dir):
     # -------------------
 
     ufl_inflow = ufl_cfg["ufl_inflow"]
+    ufl_vel_bc1 = ufl_cfg["ufl_vel_bc1"]
+    ufl_vel_bc2 = ufl_cfg["ufl_vel_bc2"]
+    ufl_vel_bc3 = ufl_cfg["ufl_vel_bc3"]
+    ufl_vel_bc4 = ufl_cfg["ufl_vel_bc4"]
+    ufl_vel_bc6 = ufl_cfg["ufl_vel_bc6"]
+    
+    # velocity BC configuration
+    vel_bc1 = DirichletBC(Z.sub(0), ufl_vel_bc1, (1))
+    vel_bc2 = DirichletBC(Z.sub(0), ufl_vel_bc2, (2))
+    vel_bc3 = DirichletBC(Z.sub(0), ufl_vel_bc3, (3))
+    vel_bc4 = DirichletBC(Z.sub(0), ufl_vel_bc4, (4))
+    vel_bc6 = DirichletBC(Z.sub(0), ufl_vel_bc6, (6))
 
-    # # CHANNEL or CHANNEL WITH STEP
-    # bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1, 2))
-    # bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4)) 
-
-    # bcs = [bc_walls, bc_inflow]
-    # nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
-
-    # CHANNEL WITH AIRFOIL
-    bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
-    bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3, 4)) 
-    bc_airfoil = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (6,)) # noslip
-
-    bcs = [bc_walls, bc_inflow, bc_airfoil]
+    bcs = [vel_bc1, vel_bc2, vel_bc3, vel_bc4, vel_bc6]
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
-
-    # bc_freestream = DirichletBC(Z.sub(0), ufl_inflow, (1,3,4,)) # left, top, bottom
-    # bc_airfoil = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (6,)) # noslip
-    # bc_pressure = DirichletBC(Z.sub(1), Constant(0.0), (2,))
-
-    # bcs = [bc_freestream, bc_airfoil, bc_pressure]
-    # nullspace = None
 
     # ------------------
     # Allocate functions
@@ -203,8 +198,16 @@ def main(save_dir):
             "ufl_v0": ufl_cfg["ufl_v0"],
             "ufl_p0": ufl_cfg["ufl_p0"],
             "ufl_f": ufl_cfg["ufl_f"],
-            "ufl_g": ufl_cfg["ufl_g"]
+            "ufl_g": as_vector([0.0, 0.0]),
         }
+
+    # get max
+    V0 = FunctionSpace(mesh, "DG", 0)
+
+    u_in = Function(V).interpolate(ufl_inflow)
+    u_mag = Function(V0).project(sqrt(dot(u_in, u_in)))
+
+    Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
 
     # ----------
     # Run solver
@@ -219,7 +222,8 @@ def main(save_dir):
                 make_weak_form=make_weak_form_CN, 
                 bcs=bcs, nullspace=nullspace,
                 solver_parameters=solver_parameters,
-                appctx=appctx, vtkfile_name=vtkfile_name)
+                appctx=appctx, vtkfile_name=vtkfile_name, 
+                Umax=Umax, char_length=char_length)
 
     elif solver == "BDF2":
             v_error_list, p_error_list = timestepper_BDF2(get_data, 
@@ -231,7 +235,8 @@ def main(save_dir):
                 make_weak_form_CN=make_weak_form_CN,
                 bcs=bcs, nullspace=nullspace,
                 solver_parameters=solver_parameters,
-                appctx=appctx, vtkfile_name=vtkfile_name)
+                appctx=appctx, vtkfile_name=vtkfile_name, 
+                Umax=Umax, char_length=char_length)
 
     comm.Barrier()
     if rank == 0:

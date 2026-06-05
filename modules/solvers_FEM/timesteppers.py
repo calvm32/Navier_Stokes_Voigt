@@ -15,7 +15,7 @@ from modules.processing.statistics.MPI_energy_spectra_2d import MPI_energy_spect
 from modules.processing.statistics.FFT_energy_spectra_2d import FFT_energy_spectra_2d
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None, alpha=None,
-                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0]):
+                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0], Umax=1, char_length=1):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
     """
@@ -37,6 +37,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     palinstrophy_list = []
     stream_func_list = []
     enstrophy_list = []
+    lift_list = []
+    drag_list = []
     every_time_list = []
     all_time_list = []
     energy_spec_probe = []
@@ -62,6 +64,11 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     u_exact = Function(Z)
 
     mesh = Z.mesh()
+    
+    base_mesh = mesh.meshes[0]
+    markers = getattr(base_mesh.exterior_facets, "unique_markers", [])
+    have_interior_body = 6 in markers
+
     cell = mesh.ufl_cell()
     dim = cell.topological_dimension() if callable(cell.topological_dimension) else cell.topological_dimension
     if dim == 2:
@@ -99,8 +106,10 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
     # create timestep solver
     solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
-                                    make_weak_form, is_mixed, theta, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
-                                    solver_parameters=solver_parameters, appctx=appctx)
+                                    make_weak_form, is_mixed, theta, gamma, Re, alpha, 
+                                    bcs=bcs, nullspace=nullspace,
+                                    solver_parameters=solver_parameters, appctx=appctx,
+                                    Umax=Umax, char_length=char_length)
 
     # get energy + report run starting
     energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
@@ -111,7 +120,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
     # velocity function
     u_vel = u.sub(0)
-    mesh = u_vel.function_space().mesh()
     comm = mesh.comm
 
     # mesh coordinates (nodal positions)
@@ -152,8 +160,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     # ---------------------
 
     if is_mixed:
-        domain = mesh
-        Vpsi = FunctionSpace(domain, "CG", 1)
+        Vpsi = FunctionSpace(mesh, "CG", 1)
         psi = Function(Vpsi)
         phi = TestFunction(Vpsi)
         psi_trial = TrialFunction(Vpsi)
@@ -259,6 +266,27 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 # -------- enstrophy --------
                 enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
 
+                # -------- force coefficients --------
+                if have_interior_body:
+                    n = FacetNormal(mesh)
+                    tan_n = as_vector((-n[1], n[0]))
+
+                    v = u_old.sub(0)
+                    p = u_old.sub(1)
+
+                    v_dt_tangent = dot(grad(dot(v, tan_n)), n) # velocity derivative in tangent direction
+
+                    nu = Umax*chord_length/Re
+
+                    Cd = (2.0/(chord_length*Umax**2) * assemble((rho*nu*v_dt_tangent*n[1] - p*n[0]) * ds(6)))
+                    Cl = (-2.0/(chord_length*Umax**2) * assemble((rho*nu*v_dt_tangent*n[0] + p*n[1]) * ds(6)))
+
+                    drag_list.append(Cd)
+                    lift_list.append(Cl)
+                else:
+                    drag_list.append(np.nan)
+                    lift_list.append(np.nan)
+
                 # -------- compute stats!!! --------
                 pdfs.sample_velocity(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
@@ -314,6 +342,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                     palinstrophy=np.array(palinstrophy_list),
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
+                    drag_list=np.array(drag_list),
+                    lift_list=np.array(lift_list),
 
                     # probe
                     probe=np.array(energy_spec_probe)
@@ -356,9 +386,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     comm = mesh.comm
     comm.Barrier()
 
-    if mesh.comm.rank == 0:
-        spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=512, Ny=512,)
-        k_vals, E_k = spectrum.compute()
+    # if mesh.comm.rank == 0:
+    #     spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=512, Ny=512,)
+    #     k_vals, E_k = spectrum.compute()
 
     if mesh.comm.rank == 0 and is_mixed:
     
@@ -392,8 +422,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
             r_vals=np.array(r_vals),
             S2=np.array(S2),
             spectrum=np.array(spectrum),
-            k_vals=np.array(k_bals),
-            E_k=np.array(E_k),
+            # k_vals=np.array(k_bals),
+            # E_k=np.array(E_k),
         )
 
     elif mesh.comm.rank == 0 and not is_mixed:
@@ -436,7 +466,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
 
 def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
-                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0]):
+                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0], Umax=1, char_length=1):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
     """
@@ -459,6 +489,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     palinstrophy_list = []
     stream_func_list = []
     enstrophy_list = []
+    lift_list = []
+    drag_list = []
     every_time_list = []
     all_time_list = []
     energy_spec_probe = []
@@ -485,6 +517,11 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     u_exact = Function(Z)
 
     mesh = Z.mesh()
+
+    base_mesh = mesh.meshes[0]
+    markers = getattr(base_mesh.exterior_facets, "unique_markers", [])
+    have_interior_body = 6 in markers
+
     cell = mesh.ufl_cell()
     dim = cell.topological_dimension() if callable(cell.topological_dimension) else cell.topological_dimension
     if dim == 2:
@@ -526,11 +563,15 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     # create timestep solvers
     solver_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
-                                make_weak_form_CN, is_mixed, 0.5, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
-                                solver_parameters=solver_parameters, appctx=appctx)
+                                    make_weak_form_CN, is_mixed, 0.5, gamma, Re, alpha, 
+                                    bcs=bcs, nullspace=nullspace,
+                                    solver_parameters=solver_parameters, appctx=appctx,
+                                    Umax=Umax, char_length=char_length)
     solver = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u,
-                                make_weak_form_BDF2, is_mixed, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
-                                solver_parameters=solver_parameters, appctx=appctx)
+                                    make_weak_form_BDF2, is_mixed, gamma, Re, alpha, 
+                                    bcs=bcs, nullspace=nullspace,
+                                    solver_parameters=solver_parameters, appctx=appctx,
+                                    Umax=Umax, char_length=char_length)
 
     # get energy + report run starting
     energy = sqrt(assemble(inner(u_old.sub(0), u_old.sub(0)) * dx))
@@ -541,7 +582,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     # velocity function
     u_vel = u.sub(0)
-    mesh = u_vel.function_space().mesh()
     comm = mesh.comm
 
     # mesh coordinates (nodal positions)
@@ -582,8 +622,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # ---------------------
 
     if is_mixed:
-        domain = mesh
-        Vpsi = FunctionSpace(domain, "CG", 1)
+        Vpsi = FunctionSpace(mesh, "CG", 1)
         psi = Function(Vpsi)
         phi = TestFunction(Vpsi)
         psi_trial = TrialFunction(Vpsi)
@@ -692,6 +731,26 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
                 # -------- enstrophy --------
                 enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
+                # -------- force coefficients --------
+                if have_interior_body:
+                    n = FacetNormal(mesh)
+                    tan_n = as_vector((-n[1], n[0]))
+
+                    v = u_old.sub(0)
+                    p = u_old.sub(1)
+
+                    v_dt_tangent = dot(grad(dot(v, tan_n)), n) # velocity derivative in tangent direction
+
+                    nu = Umax*chord_length/Re
+
+                    Cd = (2.0/(chord_length*Umax**2) * assemble((rho*nu*v_dt_tangent*n[1] - p*n[0]) * ds(6)))
+                    Cl = (-2.0/(chord_length*Umax**2) * assemble((rho*nu*v_dt_tangent*n[0] + p*n[1]) * ds(6)))
+
+                    drag_list.append(Cd)
+                    lift_list.append(Cl)
+                else:
+                    drag_list.append(np.nan)
+                    lift_list.append(np.nan)
 
                 # -------- compute stats!!! --------
                 pdfs.sample_velocity(u_old.sub(0))
@@ -750,6 +809,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     palinstrophy=np.array(palinstrophy_list),
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
+                    drag_list=np.array(drag_list),
+                    lift_list=np.array(lift_list),
 
                     # probe
                     probe=np.array(energy_spec_probe)
@@ -782,10 +843,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm = mesh.comm
     comm.Barrier()
 
-    if is_mixed:
-
-        spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=128, Ny=128,)
-        k_vals, E_k = spectrum.compute()
+    # if is_mixed:
+    #     spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=128, Ny=128,)
+    #     k_vals, E_k = spectrum.compute()
 
     if mesh.comm.rank == 0 and is_mixed:
     
@@ -808,6 +868,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             palinstrophy=np.array(palinstrophy_list),
             stream_func=np.array(stream_func_list),
             enstrophy=np.array(enstrophy_list),
+            drag_list=np.array(drag_list),
+            lift_list=np.array(lift_list),
 
             # probe
             probe=np.array(energy_spec_probe),
@@ -818,8 +880,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             omega=np.array(omega_vals),
             r_vals=np.array(r_vals),
             S2=np.array(S2),
-            k_vals=np.array(k_bals),
-            E_k=np.array(E_k),
+            # k_vals=np.array(k_bals),
+            # E_k=np.array(E_k),
         )
 
     elif mesh.comm.rank == 0 and not is_mixed:
@@ -863,7 +925,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
 def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NSE_BDF2, make_weak_form_NSV_BDF2, 
                 make_weak_form_NSE_CN, make_weak_form_NSV_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
-                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln"):
+                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", Umax=1, char_length=1):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
     """
@@ -886,6 +948,8 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     palinstrophy_diff_list = []
     stream_func_diff_list = []
     enstrophy_diff_list = []
+    lift_list = []
+    drag_list = []
     every_time_list = []
     all_time_list = []
     cpu_time = 0
@@ -912,6 +976,10 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     u_exact_NSV = Function(Z)
 
     mesh = Z.mesh()
+    
+    base_mesh = mesh.meshes[0]
+    markers = getattr(base_mesh.exterior_facets, "unique_markers", [])
+    have_interior_body = 6 in markers
 
     data_old = get_data(t0)
     data_older = get_data(t0 - dt)
@@ -930,17 +998,25 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
     # create timestep solvers
     solver_NSE_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old_NSE, u_NSE,
-                                make_weak_form_NSE_CN, is_mixed, 1.0, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
-                                solver_parameters=solver_parameters, appctx=appctx)
+                                    make_weak_form_NSE_CN, is_mixed, 1.0, gamma, Re, alpha, 
+                                    bcs=bcs, nullspace=nullspace,
+                                    solver_parameters=solver_parameters, appctx=appctx,
+                                    Umax=Umax, char_length=char_length)
     solver_NSE = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older_NSE, u_old_NSE, u_NSE,
-                                make_weak_form_NSE_BDF2, is_mixed, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
-                                solver_parameters=solver_parameters, appctx=appctx)
+                                    make_weak_form_NSE_BDF2, is_mixed, gamma, Re, alpha, 
+                                    bcs=bcs, nullspace=nullspace,
+                                    solver_parameters=solver_parameters, appctx=appctx,
+                                    Umax=Umax, char_length=char_length)
     solver_NSV_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old_NSV, u_NSV,
-                                make_weak_form_NSV_CN, is_mixed, 1.0, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
-                                solver_parameters=solver_parameters, appctx=appctx)
+                                    make_weak_form_NSV_CN, is_mixed, 1.0, gamma, Re, alpha, 
+                                    bcs=bcs, nullspace=nullspace,
+                                    solver_parameters=solver_parameters, appctx=appctx,
+                                    Umax=Umax, char_length=char_length)
     solver_NSV = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older_NSV, u_old_NSV, u_NSV,
-                                make_weak_form_NSV_BDF2, is_mixed, gamma, Re, alpha, bcs=bcs, nullspace=nullspace,
-                                solver_parameters=solver_parameters, appctx=appctx)
+                                    make_weak_form_NSV_BDF2, is_mixed, gamma, Re, alpha, 
+                                    bcs=bcs, nullspace=nullspace,
+                                    solver_parameters=solver_parameters, appctx=appctx,
+                                    Umax=Umax, char_length=char_length)
 
     # get energy + report run starting
     energy_diff = abs(sqrt(assemble(inner(u_old_NSE.sub(0) - u_old_NSV.sub(0), u_old_NSE.sub(0) - u_old_NSV.sub(0)) * dx)))
@@ -949,10 +1025,8 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     # setup stream function
     # ---------------------
 
-    domain = mesh
-
     # FIRST NSE
-    Vpsi_NSE = FunctionSpace(domain, "CG", 1)
+    Vpsi_NSE = FunctionSpace(mesh, "CG", 1)
     psi_NSE = Function(Vpsi_NSE)
     phi_NSE = TestFunction(Vpsi_NSE)
     psi_trial_NSE = TrialFunction(Vpsi_NSE)
@@ -977,7 +1051,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     )
 
     # NEXT NSV
-    Vpsi_NSV = FunctionSpace(domain, "CG", 1)
+    Vpsi_NSV = FunctionSpace(mesh, "CG", 1)
     psi_NSV = Function(Vpsi_NSV)
     phi_NSV = TestFunction(Vpsi_NSV)
     psi_trial_NSV = TrialFunction(Vpsi_NSV)
@@ -1091,6 +1165,31 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                 # -------- enstrophy --------
                 enstrophy_diff_list.append(sqrt(assemble(inner(omega_f_NSE - omega_f_NSV, omega_f_NSE - omega_f_NSV) * dx)))
 
+                # -------- force coefficients --------
+                if have_interior_body:
+                    n = FacetNormal(mesh)
+                    tan_n = as_vector((-n[1], n[0]))
+
+                    v_NSE = u_old_NSE.sub(0)
+                    p_NSE = u_old_NSE.sub(1)
+                    v_NSV = u_old_NSV.sub(0)
+                    p_NSV = u_old_NSV.sub(1)
+
+                    v_dt_tangent_NSE = dot(grad(dot(v_NSE, tan_n)), n) # velocity derivative in tangent direction
+                    v_dt_tangent_NSV = dot(grad(dot(v_NSV, tan_n)), n) # velocity derivative in tangent direction
+
+                    nu = Umax*chord_length/Re
+
+                    Cd_NSE = (2.0/(chord_length*Umax**2) * assemble((rho*nu*v_dt_tangent_NSE*n[1] - p_NSE*n[0]) * ds(6)))
+                    Cl_NSE = (-2.0/(chord_length*Umax**2) * assemble((rho*nu*v_dt_tangent_NSE*n[0] + p_NSE*n[1]) * ds(6)))
+                    Cd_NSV = (2.0/(chord_length*Umax**2) * assemble((rho*nu*v_dt_tangent_NSV*n[1] - p_NSV*n[0]) * ds(6)))
+                    Cl_NSV = (-2.0/(chord_length*Umax**2) * assemble((rho*nu*v_dt_tangent_NSV*n[0] + p_NSV*n[1]) * ds(6)))
+
+                    drag_list.append(Cd_NSE - Cd_NSE)
+                    lift_list.append(Cl_NSE - Cd_NSV)
+                else:
+                    drag_list.append(np.nan)
+                    lift_list.append(np.nan)
                 
             # -------- solution difference --------
             # get data at current time
@@ -1114,6 +1213,8 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                     every_time=np.array(every_time_list),
                     palinstrophy=np.array(palinstrophy_diff_list),
                     enstrophy=np.array(enstrophy_diff_list),
+                    drag_list=np.array(drag_list),
+                    lift_list=np.array(lift_list),
                 )
 
     # ----------------------------------
