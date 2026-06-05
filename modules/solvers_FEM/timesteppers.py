@@ -278,8 +278,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
                     nu = Umax*char_length/Re
 
-                    Cd = (2.0/(char_length*Umax**2) * assemble((rho*nu*v_dt_tangent*n[1] - p*n[0]) * ds(6)))
-                    Cl = (-2.0/(char_length*Umax**2) * assemble((rho*nu*v_dt_tangent*n[0] + p*n[1]) * ds(6)))
+                    Cd = (2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent*n[1] - p*n[0]) * ds(6)))
+                    Cl = (-2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent*n[0] + p*n[1]) * ds(6)))
 
                     drag_list.append(Cd)
                     lift_list.append(Cl)
@@ -743,8 +743,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
                     nu = Umax*char_length/Re
 
-                    Cd = (2.0/(char_length*Umax**2) * assemble((rho*nu*v_dt_tangent*n[1] - p*n[0]) * ds(6)))
-                    Cl = (-2.0/(char_length*Umax**2) * assemble((rho*nu*v_dt_tangent*n[0] + p*n[1]) * ds(6)))
+                    Cd = (2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent*n[1] - p*n[0]) * ds(6)))
+                    Cl = (-2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent*n[0] + p*n[1]) * ds(6)))
 
                     drag_list.append(Cd)
                     lift_list.append(Cl)
@@ -1180,10 +1180,10 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
                     nu = Umax*char_length/Re
 
-                    Cd_NSE = (2.0/(char_length*Umax**2) * assemble((rho*nu*v_dt_tangent_NSE*n[1] - p_NSE*n[0]) * ds(6)))
-                    Cl_NSE = (-2.0/(char_length*Umax**2) * assemble((rho*nu*v_dt_tangent_NSE*n[0] + p_NSE*n[1]) * ds(6)))
-                    Cd_NSV = (2.0/(char_length*Umax**2) * assemble((rho*nu*v_dt_tangent_NSV*n[1] - p_NSV*n[0]) * ds(6)))
-                    Cl_NSV = (-2.0/(char_length*Umax**2) * assemble((rho*nu*v_dt_tangent_NSV*n[0] + p_NSV*n[1]) * ds(6)))
+                    Cd_NSE = (2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent_NSE*n[1] - p_NSE*n[0]) * ds(6)))
+                    Cl_NSE = (-2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent_NSE*n[0] + p_NSE*n[1]) * ds(6)))
+                    Cd_NSV = (2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent_NSV*n[1] - p_NSV*n[0]) * ds(6)))
+                    Cl_NSV = (-2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent_NSV*n[0] + p_NSV*n[1]) * ds(6)))
 
                     drag_list.append(Cd_NSE - Cd_NSE)
                     lift_list.append(Cl_NSE - Cd_NSV)
