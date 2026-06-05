@@ -63,7 +63,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     u = Function(Z)
     u_exact = Function(Z)
 
-    mesh = Z.mesh()
+    mesh = Z.mesh().meshes[-1] if hasattr(Z.mesh(), "meshes") else Z.mesh()
     
     base_mesh = mesh.meshes[0]
     markers = getattr(base_mesh.exterior_facets, "unique_markers", [])
@@ -516,7 +516,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     u = Function(Z)
     u_exact = Function(Z)
 
-    mesh = Z.mesh()
+    mesh = Z.mesh().meshes[-1] if hasattr(Z.mesh(), "meshes") else Z.mesh()
 
     base_mesh = mesh.meshes[0]
     markers = getattr(base_mesh.exterior_facets, "unique_markers", [])
@@ -975,7 +975,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     u_NSV = Function(Z)
     u_exact_NSV = Function(Z)
 
-    mesh = Z.mesh()
+    mesh = Z.mesh().meshes[-1] if hasattr(Z.mesh(), "meshes") else Z.mesh()
     
     base_mesh = mesh.meshes[0]
     markers = getattr(base_mesh.exterior_facets, "unique_markers", [])

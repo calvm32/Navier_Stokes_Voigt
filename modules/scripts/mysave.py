@@ -19,7 +19,7 @@ class RunConfig:
 
 class TemplateResolver:
 
-    BASE = Path(__file__).resolve().parents[1] / "user_settings"
+    BASE = Path(__file__).resolve().parents[1] / "settings"
 
     @staticmethod
     def resolve(cfg: RunConfig):
@@ -49,14 +49,14 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/heat_FEM.yaml",
+                "user_user_settings": f"{TemplateResolver.BASE}/user_settings/heat_FEM.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_FEM.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM_MMS.yaml",
                 "solver_path": "modules.solvers_FEM.heat_2d.solver_MMS",
             }
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/heat_FEM.yaml",
+            "user_settings": f"{TemplateResolver.BASE}/user_settings/heat_FEM.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_FEM.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM.yaml",
             "solver_path": "modules.solvers_FEM.heat_2d.solver",
@@ -68,14 +68,14 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/heat_spec.yaml",
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/heat_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/heat_spec_MMS.yaml",
                 "solver_path": "modules.solvers_spectral.heat_2d.solver_MMS",
             }
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/heat_spec.yaml",
+            "user_settings": f"{TemplateResolver.BASE}/user_settings/heat_spec.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/heat_spec.yaml",
             "solver_path": "modules.solvers_spectral.heat_2d.solver",
@@ -87,7 +87,7 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/ns_FEM_{cfg.elements.upper()}.yaml",
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_FEM_{cfg.elements.upper()}.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM_MMS.yaml",
                 "solver_path": "modules.solvers_FEM.navier_stokes_2d.solver_MMS",
@@ -98,7 +98,7 @@ class TemplateResolver:
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}/settings/ns_FEM_{cfg.elements.upper()}.yaml",
+            "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_FEM_{cfg.elements.upper()}.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM.yaml",
             "solver_path": "modules.solvers_FEM.navier_stokes_2d.solver",
@@ -110,14 +110,14 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/ns_spec.yaml",
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec_MMS.yaml",
                 "solver_path": "modules.solvers_spectral.navier_stokes_2d.solver_MMS",
             }
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/ns_spec.yaml",
+            "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_spec.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
             "solver_path": "modules.solvers_spectral.navier_stokes_2d.solver",
@@ -128,7 +128,7 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/nsv_FEM_{cfg.elements.upper()}.yaml",
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/nsv_FEM_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_FEM_MMS.yaml",
                 "solver_path": "modules.solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
@@ -139,7 +139,7 @@ class TemplateResolver:
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}/settings/nsv_FEM_{cfg.elements.upper()}.yaml",
+            "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/nsv_FEM_{cfg.elements.upper()}.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_FEM.yaml",
             "solver_path": "modules.solvers_FEM.navier_stokes_voigt_2d.solver",
@@ -150,14 +150,14 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec_MMS.yaml",
                 "solver_path": "modules.solvers_spectral.navier_stokes_voigt_2d.solver_MMS",
             }
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
+            "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_spec.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec.yaml",
             "solver_path": "modules.solvers_spectral.navier_stokes_voigt_2d.solver",
@@ -167,7 +167,7 @@ class TemplateResolver:
     def _resolve_compare_spec(cfg: RunConfig):
 
         return {
-            "settings": f"{TemplateResolver.BASE}/settings/nsv_spec.yaml",
+            "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_spec.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
             "solver_path": "modules.solvers_spectral.compare_2d.solver",
@@ -179,7 +179,7 @@ class TemplateResolver:
 
         return {
 
-            "settings": f"{TemplateResolver.BASE}/settings/nsv_FEM_{cfg.elements.upper()}.yaml",
+            "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM.yaml",
             "solver_path": "modules.solvers_FEM.compare_2d.solver",
@@ -192,7 +192,7 @@ class TemplateResolver:
 class SaveManager:
 
     @staticmethod
-    def create(save_path: str, user_settings: dict, mesh_name: str | None = None):
+    def create(save_path: str, settings: dict, mesh_name: str | None = None):
 
         if os.path.exists(save_path):
             raise FileExistsError(f"Save already exists: {save_path}")
@@ -200,17 +200,17 @@ class SaveManager:
         os.makedirs(save_path)
         os.makedirs(f"{save_path}/vis")
 
-        dump_txt(load_txt(user_settings["settings"]),
-                 f"{save_path}/settings.yaml")
+        dump_txt(load_txt(settings["user_settings"]),
+                 f"{save_path}/user_settings.yaml")
 
-        dump_txt(load_txt(user_settings["solver"]),
+        dump_txt(load_txt(settings["solver"]),
                  f"{save_path}/solver_params.yaml")
 
-        dump_txt(load_txt(user_settings["ufl"]),
+        dump_txt(load_txt(settings["ufl"]),
                  f"{save_path}/user_expr.yaml")
 
         run_info = {
-            "solver_module": user_settings["solver_path"]
+            "solver_module": settings["solver_path"]
         }
 
         # ----------------
@@ -238,7 +238,7 @@ class SaveManager:
             yaml.dump(run_info, f)
 
         print(f"Created save at: {save_path}")
-        print(f"Solver path: {user_settings['solver_path']}")
+        print(f"Solver path: {settings['solver_path']}")
 
         if mesh_name is not None:
             print(f"Mesh copied: {mesh_name}")
@@ -290,8 +290,8 @@ def main():
         elements=args.elements,
     )
 
-    user_settings = TemplateResolver.resolve(cfg)
-    SaveManager.create(args.save_path, user_settings, args.mesh)
+    settings = TemplateResolver.resolve(cfg)
+    SaveManager.create(args.save_path, settings, args.mesh)
 
 if __name__ == "__main__":
     main()

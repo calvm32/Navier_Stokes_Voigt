@@ -82,12 +82,12 @@ def main(save_dir):
 
     mesh_name = run_info.get("mesh_name")
 
-    HERE = os.path.dirname(os.path.abspath(__file__))
+    HERE = Path(__file__).resolve()
 
     if mesh_name is not None:
         MESH_PATH = os.path.join(save_dir, mesh_name)
     else:
-        MESH_PATH = os.path.join(HERE, "meshes", "bary_course_airfoil.msh")
+        MESH_PATH = os.path.join(HERE.parents[2], f"settings/meshes/channel.msh")
 
     # ------------
     # Setup spaces

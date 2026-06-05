@@ -63,7 +63,7 @@ def main(save_dir):
     # Start solving
     # -------------
 
-    HERE = os.path.dirname(os.path.abspath(__file__))
+    HERE = Path(__file__).resolve()
 
     # calculate error as mesh size increases
     v_final_error_list = []
@@ -98,7 +98,7 @@ def main(save_dir):
         L = 4.0
 
         if elements == "SV":
-            MESH_PATH = os.path.join(HERE, f"meshes/channel_bary{n}.msh")
+            MESH_PATH = os.path.join(HERE.parents[2], f"settings/meshes/mms/channel_bary{n}.msh")
             mesh = Mesh(MESH_PATH)
         elif elements == "TH":
             mesh = RectangleMesh(int(L*N), int(H*N), L, H)
@@ -190,10 +190,6 @@ def main(save_dir):
         # Allocate functions
         # ------------------
 
-        n = FacetNormal(mesh)
-        u_exact = ufl_cfg["ufl_v0"]
-        ufl_g = dot(grad(u_exact), n)
-
         def get_data(t_curr):
             
             t.assign(t_curr)
@@ -202,7 +198,7 @@ def main(save_dir):
                 "ufl_v0": ufl_cfg["ufl_v0"],
                 "ufl_p0": ufl_cfg["ufl_p0"],
                 "ufl_f": ufl_cfg["ufl_f"],
-                "ufl_g": ufl_g
+                "ufl_g": ufl_cfg["ufl_g"],
             }
 
         # get max

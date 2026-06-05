@@ -97,7 +97,7 @@ def load_expressions(path, *, namespace=None, backend="ufl"):
 def load_run_configs(save_dir):
     save_dir = Path(save_dir)
 
-    cfg = load_config(save_dir / "settings.yaml")
+    cfg = load_config(save_dir / "user_settings.yaml")
     solver_parameters = load_solver_parameters(save_dir / "solver_params.yaml")
 
     return cfg, solver_parameters
