@@ -208,9 +208,9 @@ def main(save_dir):
             t.assign(t_curr)
 
             return {
-                "ufl_v0": ufl_cfg["ufl_v0"],
-                "ufl_p0": ufl_cfg["ufl_p0"],
-                "ufl_f": ufl_cfg["ufl_f"],
+                "ufl_v0": ufl_cfg["ufl_v0"]/Umax,
+                "ufl_p0": ufl_cfg["ufl_p0"]/Umax,
+                "ufl_f": ufl_cfg["ufl_f"]/Umax,
                 "ufl_g": as_vector([0.0, 0.0]),
             }
 
