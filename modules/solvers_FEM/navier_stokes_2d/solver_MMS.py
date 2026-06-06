@@ -72,7 +72,7 @@ def main(save_dir):
     N_list = []
     cpu_times = []
 
-    for n in range(2, 6):
+    for n in range(2, 5):
 
         N = 2**n
         N_list.append(N)
