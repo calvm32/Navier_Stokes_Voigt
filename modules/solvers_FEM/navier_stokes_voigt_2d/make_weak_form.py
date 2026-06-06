@@ -7,7 +7,7 @@ def voigt_inner(u, v, alpha):
 # BDF2 weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, Re, alpha):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, nu, alpha):
     """
     BDF2 Navier-Stokes-Voigt
     - Oseen linearization
@@ -40,7 +40,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
             ) * dx
 
             # Viscosity
-            + (1.0 / Re) * inner(grad(u), grad(v)) * dx
+            + nu * inner(grad(u), grad(v)) * dx
 
             # Pressure coupling
             - p * div(v) * dx
@@ -60,7 +60,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
             + inner(f_bdf2, v) * dx
 
             # Neumann BC
-            - (1.0/Re) * inner(g_bdf2, v) * dsN
+            - nu * inner(g_bdf2, v) * dsN
         )
 
         return a, L
@@ -72,7 +72,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
 # CN weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re, alpha):
+def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu, alpha):
     """
     Crank-Nicolson Navier-Stokes-Voigt
       -> Oseen linearization
@@ -103,7 +103,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re,
             ) * dx
 
             # Viscosity
-            + (theta / Re) * inner(grad(u), grad(v)) * dx
+            + theta*nu * inner(grad(u), grad(v)) * dx
 
             # Pressure / continuity
             - p * div(v) * dx
@@ -120,13 +120,13 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, Re,
             idt * voigt_inner(u_old, v, alpha) * dx
 
             # Explicit viscosity
-            - ((1.0 - theta) / Re) * inner(grad(u_old), grad(v)) * dx
+            - (1.0 - theta)*nu * inner(grad(u_old), grad(v)) * dx
 
             # Forcing
             + inner(f_mid, v) * dx
 
             # Neumann boundary
-            - (1.0/Re) * inner(g_mid, v) * dsN
+            - nu * inner(g_mid, v) * dsN
         )
 
         # Grad–div stabilization
