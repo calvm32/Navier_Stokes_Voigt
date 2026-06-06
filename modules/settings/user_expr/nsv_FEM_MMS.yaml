@@ -12,4 +12,4 @@ ufl_inflow: "ufl_v0"
 ufl_p0: "scale*(P*x + G)"
 
 # source term exact
-ufl_f: "as_vector([0.0, -1*((alpha**2)*(pi**4) / (H**4))* sin(y*pi/H) *exp((-1*pi**2*t)/(H**2*Re))])"
+ufl_f: "scale*as_vector([0.0, -1*((alpha**2)*(pi**4) / (H**4))* sin(y*pi/H) *exp((-1*pi**2*t)/(H**2*Re))])"
