@@ -13,6 +13,3 @@ ufl_p0: "scale*(P*x + G)"
 
 # source term exact
 ufl_f: "as_vector([0.0,0.0])"
-
-# neumann bdy exact
-ufl_g: "scale*as_vector([(L-x)*G/L - x*(P*L+G)/L, 0.0])"
