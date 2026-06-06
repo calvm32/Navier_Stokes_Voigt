@@ -182,7 +182,7 @@ def main(save_dir):
         ufl_inflow = ufl_cfg["ufl_v0"]
 
         bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
-        bc_walls = DirichletBC(Z.sub(0), Constant(0.0,0.0), (1,2))
+        bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (1,2))
 
         bcs = [bc_inflow, bc_walls]
         nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
@@ -199,7 +199,7 @@ def main(save_dir):
                 "ufl_v0": ufl_cfg["ufl_v0"],
                 "ufl_p0": ufl_cfg["ufl_p0"],
                 "ufl_f": ufl_cfg["ufl_f"],
-                "ufl_g": as_vector([0.0,0.0])
+                "ufl_g": as_vector([0.0, 0.0]),
             }
 
         # get max
