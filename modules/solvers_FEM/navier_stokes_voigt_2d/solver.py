@@ -135,7 +135,7 @@ def main(save_dir):
         Z = V * W
 
     if rank == 0:
-        print("\n--- Degrees of Freedom ---")
+        print("\n--- Degrees of Freedom (on node 0) ---")
         print(f"// V Total DoFs: {V.dof_count}")
         print(f"// W Total DoFs: {W.dof_count}\n")
 
@@ -175,15 +175,26 @@ def main(save_dir):
     ufl_vel_bc3 = ufl_cfg["ufl_vel_bc3"]
     ufl_vel_bc4 = ufl_cfg["ufl_vel_bc4"]
     ufl_vel_bc6 = ufl_cfg["ufl_vel_bc6"]
-    
+
     # velocity BC configuration
     vel_bc1 = DirichletBC(Z.sub(0), ufl_vel_bc1, (1))
     vel_bc2 = DirichletBC(Z.sub(0), ufl_vel_bc2, (2))
     vel_bc3 = DirichletBC(Z.sub(0), ufl_vel_bc3, (3))
     vel_bc4 = DirichletBC(Z.sub(0), ufl_vel_bc4, (4))
-    vel_bc6 = DirichletBC(Z.sub(0), ufl_vel_bc6, (6))
 
-    bcs = [vel_bc1, vel_bc2, vel_bc3, vel_bc4, vel_bc6]
+    # only apply 6th BC if relevant
+    mesh = Z.mesh().meshes[-1] if hasattr(Z.mesh(), "meshes") else Z.mesh()
+
+    base_mesh = mesh.meshes[0]
+    markers = getattr(base_mesh.exterior_facets, "unique_markers", [])
+    have_interior_body = 6 in markers
+
+    if have_interior_body:
+        vel_bc6 = DirichletBC(Z.sub(0), ufl_vel_bc6, (6))
+        bcs = [vel_bc1, vel_bc2, vel_bc3, vel_bc4, vel_bc6]
+    else:
+        bcs = [vel_bc1, vel_bc2, vel_bc3, vel_bc4]
+
     nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
 
     # ------------------

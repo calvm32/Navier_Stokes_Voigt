@@ -149,7 +149,7 @@ def main(save_dir):
         L = global_xmax - global_xmin
 
         if rank == 0:
-            print("\n--- Degrees of Freedom ---")
+            print("\n--- Degrees of Freedom (on node 0) ---")
             print(f"// V Total DoFs: {V.dof_count}")
             print(f"// W Total DoFs: {W.dof_count}\n")
 
