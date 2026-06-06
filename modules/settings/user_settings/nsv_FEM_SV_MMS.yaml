@@ -1,7 +1,7 @@
 t0: 0.0             # initial time
 T: 5.0              # final time
-dt: 0.0005           # time-step
-Re: 600.0           # Reynold's num: 1/viscostiy
+gamma: 0.0          # grad-div stabilization constant
+Re: 10.0            # Reynold's num: 1/viscostiy
 G: 0.0              # initial pressure gauge
 P: -1.0             # pressure strength (P*x + G)
 alpha: 1.0          # Voigt constant alpha
@@ -13,5 +13,3 @@ elements: "SV"      # valid:  "SV" (Scott Vogelius - requires barycentric refine
 views: "None"       # valid:  "Full" for debugging by viewing ALL solver parameters, 
                     #         "Some" for debugging by monitoring subprocesses like KSP, 
                     #         "None" for no debugging
-
-char_length: 1.0    # characteristic length: use for bluff bodies, airfoils, etc.

@@ -127,7 +127,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu)
             + inner(f_mid, v) * dx
 
             # Neumann boundary
-            - nu * inner(g_mid, v) * dsN
+            - nu * inner(g_mid, v) * dsN 
         )
 
         # Grad–div stabilization

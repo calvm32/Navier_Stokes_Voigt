@@ -87,7 +87,7 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_FEM_{cfg.elements.upper()}.yaml",
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_FEM_{cfg.elements.upper()}_MMS.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_FEM_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM_MMS.yaml",
                 "solver_path": "modules.solvers_FEM.navier_stokes_2d.solver_MMS",
@@ -128,7 +128,7 @@ class TemplateResolver:
 
         if cfg.mms:
             return {
-                "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}.yaml",
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}_MMS.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/nsv_FEM_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_FEM_MMS.yaml",
                 "solver_path": "modules.solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
