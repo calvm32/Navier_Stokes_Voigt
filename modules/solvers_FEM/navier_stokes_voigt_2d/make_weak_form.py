@@ -7,7 +7,7 @@ def voigt_inner(u, v, alpha):
 # BDF2 weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, nu):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, nu, alpha):
     """
     BDF2 Navier-Stokes
     - Oseen linearization
@@ -33,7 +33,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         # ------
         a = (
             # time derivative
-            idt * voigt_inner((3/2)*u, v) * dx
+            idt * voigt_inner((3/2)*u, v, alpha) * dx
 
             # Viscosity
             + nu * inner(grad(u), grad(v)) * dx
@@ -58,7 +58,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         # ------
         L = (
             # BDF2 history
-            idt * voigt_inner(2*u_old - (1/2)*u_older, v) * dx
+            idt * voigt_inner(2*u_old - (1/2)*u_older, v, alpha) * dx
 
             # Forcing
             + inner(f_bdf2, v) * dx
@@ -76,7 +76,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
 # CN weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu):
+def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu, alpha):
     """
     Crank-Nicolson Navier-Stokes-Voigt
       -> Oseen linearization
@@ -98,7 +98,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu)
         # Bilinear form a(U,V)
         a = (
             # Time derivative
-            idt * voigt_inner(u, v) * dx
+            idt * voigt_inner(u, v, alpha) * dx
 
             # Skew-symmetric Oseen advection
             + 0.5 * (
@@ -121,7 +121,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu)
         # Linear form L(V)
         L = (
             # Time derivative
-            idt * voigt_inner(u_old, v) * dx
+            idt * voigt_inner(u_old, v, alpha) * dx
 
             # Explicit viscosity
             - (1 - theta)*nu * inner(grad(u_old), grad(v)) * dx
