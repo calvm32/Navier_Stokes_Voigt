@@ -313,14 +313,14 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
                 u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
 
-                v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)) 
-                p_error_list.append(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
-                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx))
+                v_error_list.append(sqrt(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)))
+                p_error_list.append(sqrt(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
+                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)))
 
             else:
                 u_exact.interpolate(data_new["ufl_u0"])  # just velocity
 
-                u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx))
+                u_error_list.append(sqrt(assemble(inner(u_exact - u, u_exact - u)*dx)))
 
             # -------- solution --------
             if is_mixed:
@@ -778,14 +778,14 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
                 u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
 
-                v_error_list.append(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)) 
-                p_error_list.append(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
-                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx))
+                v_error_list.append(sqrt(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)))
+                p_error_list.append(sqrt(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
+                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)))
 
             else:
                 u_exact.interpolate(data_new["ufl_u0"])  # just velocity
 
-                u_error_list.append(assemble(inner(u_exact - u, u_exact - u)*dx))
+                u_error_list.append(sqrt(assemble(inner(u_exact - u, u_exact - u)*dx)))
 
             # -------- solution --------
             if is_mixed:

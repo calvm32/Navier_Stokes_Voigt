@@ -70,6 +70,9 @@ def main(save_dir):
     v_final_error_list = []
     p_final_error_list = []
 
+    v_time_error_list = []
+    p_time_error_list = []
+
     # Loop over mesh resolutions
     N_list = []
     cpu_times = []
@@ -181,7 +184,7 @@ def main(save_dir):
         ufl_cfg = load_run_ufls(save_dir, namespace)
 
         # -------------------
-        # Boundary conditions
+        # Normalize functions
         # -------------------
 
         ufl_inflow = ufl_cfg["ufl_v0"]
@@ -193,7 +196,15 @@ def main(save_dir):
         u_mag = Function(V0).project(sqrt(dot(u_in, u_in)))
 
         Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
-        ufl_inflow /= Umax # reduce so max = 1
+        ufl_inflow_normalized = ufl_inflow / Umax
+
+        ufl_v0_normalized = ufl_cfg["ufl_v0"]/Umax
+        ufl_p0_normalized = ufl_cfg["ufl_p0"]/Umax
+        ufl_f_normalized = ufl_cfg["ufl_f"]/Umax
+
+        # -------------------
+        # Boundary conditions
+        # -------------------
 
         bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
         bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
@@ -210,12 +221,12 @@ def main(save_dir):
             t.assign(t_curr)
 
             return {
-                "ufl_v0": ufl_cfg["ufl_v0"]/Umax,
-                "ufl_p0": ufl_cfg["ufl_p0"]/Umax,
-                "ufl_f": ufl_cfg["ufl_f"]/Umax,
+                "ufl_v0": ufl_v0_normalized,
+                "ufl_p0": ufl_p0_normalized,
+                "ufl_f": ufl_f_normalized,
                 "ufl_g": as_vector([0.0, 0.0]),
             }
-            
+
         Umax = 1 # b/c of normalization
 
         # ----------
@@ -249,20 +260,24 @@ def main(save_dir):
 
         cpu_times.append(cpu_time)
 
-        v_final_error = 0
+        v_time_error = 0
         for err in v_error_list:
-            v_final_error += err
+            v_time_error += err**2
         
-        v_final_error_list.append(sqrt(v_final_error))
+        v_time_error_list.append(sqrt(v_time_error))
+        v_final_error_list.append(v_error_list[-1])
 
-        p_final_error = 0
+        p_time_error = 0
         for err in p_error_list:
-            p_final_error += err
+            p_time_error += err**2
 
-        p_final_error_list.append(sqrt(p_final_error))
+        p_time_error_list.append(sqrt(p_time_error))
+        p_time_error_list.append(p_error_list[-1])
 
         green(f"Final L2 Error (velocity) = {v_final_error:0.8e}", spaced=True)
-        green(f"Final H1 Error (pressure) = {p_final_error:0.8e}", spaced=True)
+        green(f"Final H1 Error (pressure) = {p_final_error:0.8e}", spaced=True)        
+        green(f"l2 Time Norm of L2 Error (velocity) = {v_time_error:0.8e}", spaced=True)
+        green(f"l2 Time Norm of H1 Error (pressure) = {p_time_error:0.8e}", spaced=True)
 
     plot_path = Path(save_dir) / "plots"
     plot_path.mkdir(exist_ok=True)
