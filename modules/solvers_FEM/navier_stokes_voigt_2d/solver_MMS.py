@@ -11,6 +11,8 @@ from modules.processing.printoff import blue, green
 from modules.processing.config_setup import *
 import matplotlib.pyplot as plt
 
+from modules.solvers_FEM.navier_stokes_2d.make_weak_form import *
+
 def main(save_dir):
 
     comm = MPI.COMM_WORLD
@@ -68,6 +70,9 @@ def main(save_dir):
     # calculate error as mesh size increases
     v_final_error_list = []
     p_final_error_list = []
+
+    v_time_error_list = []
+    p_time_error_list = []
 
     # Loop over mesh resolutions
     N_list = []
@@ -175,13 +180,12 @@ def main(save_dir):
             "cos": cos,
             "exp": exp,
             "t": t,
-            "alpha": alpha
         }
 
         ufl_cfg = load_run_ufls(save_dir, namespace)
 
         # -------------------
-        # Boundary conditions
+        # Normalize functions
         # -------------------
 
         ufl_inflow = ufl_cfg["ufl_v0"]
@@ -193,7 +197,15 @@ def main(save_dir):
         u_mag = Function(V0).project(sqrt(dot(u_in, u_in)))
 
         Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
-        ufl_inflow /= Umax # reduce so max = 1
+        ufl_inflow_normalized = ufl_inflow / Umax
+
+        ufl_v0_normalized = ufl_cfg["ufl_v0"]/Umax
+        ufl_p0_normalized = ufl_cfg["ufl_p0"]/Umax
+        ufl_f_normalized = ufl_cfg["ufl_f"]/Umax
+
+        # -------------------
+        # Boundary conditions
+        # -------------------
 
         bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
         bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
@@ -210,11 +222,13 @@ def main(save_dir):
             t.assign(t_curr)
 
             return {
-                "ufl_v0": ufl_cfg["ufl_v0"],
-                "ufl_p0": ufl_cfg["ufl_p0"],
-                "ufl_f": ufl_cfg["ufl_f"],
+                "ufl_v0": ufl_v0_normalized,
+                "ufl_p0": ufl_p0_normalized,
+                "ufl_f": ufl_f_normalized,
                 "ufl_g": as_vector([0.0, 0.0]),
             }
+
+        Umax = 1 # b/c of normalization
 
         # ----------
         # Run solver
@@ -236,7 +250,7 @@ def main(save_dir):
                 v_error_list, p_error_list = timestepper_BDF2(get_data, 
                     Z, dx, ds, 
                     t0, T, dt, 
-                    gamma=0, Re=Re, alpha=alpha,
+                    gamma=0, Re=Re, alpha=alpha, 
                     sample_xmax=L, sample_ymax=H,
                     make_weak_form_BDF2=make_weak_form_BDF2,
                     make_weak_form_CN=make_weak_form_CN,
@@ -245,22 +259,26 @@ def main(save_dir):
                     appctx=appctx, vtkfile_name=vtkfile_name, 
                     Umax=Umax, char_length=char_length)
 
-        #cpu_times.append(cpu_time)
+        cpu_times.append(cpu_time)
 
-        v_final_error = 0
+        v_time_error = 0
         for err in v_error_list:
-            v_final_error += err
+            v_time_error += err**2
         
-        v_final_error_list.append(sqrt(v_final_error))
+        v_time_error_list.append(sqrt(v_time_error))
+        v_final_error_list.append(v_error_list[-1])
 
-        p_final_error = 0
+        p_time_error = 0
         for err in p_error_list:
-            p_final_error += err
+            p_time_error += err**2
 
-        p_final_error_list.append(sqrt(p_final_error))
+        p_time_error_list.append(sqrt(p_time_error))
+        p_time_error_list.append(p_error_list[-1])
 
         green(f"Final L2 Error (velocity) = {v_final_error:0.8e}", spaced=True)
-        green(f"Final H1 Error (pressure) = {p_final_error:0.8e}", spaced=True)
+        green(f"Final H1 Error (pressure) = {p_final_error:0.8e}", spaced=True)        
+        green(f"l2 Time Norm of L2 Error (velocity) = {v_time_error:0.8e}", spaced=True)
+        green(f"l2 Time Norm of H1 Error (pressure) = {p_time_error:0.8e}", spaced=True)
 
     plot_path = Path(save_dir) / "plots"
     plot_path.mkdir(exist_ok=True)
