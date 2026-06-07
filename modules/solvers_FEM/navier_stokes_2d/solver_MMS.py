@@ -194,7 +194,6 @@ def main(save_dir):
 
         Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
         ufl_inflow /= Umax # reduce so max = 1
-        Umax = 1 # b/c of normalization
 
         bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
         bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
@@ -216,6 +215,8 @@ def main(save_dir):
                 "ufl_f": ufl_cfg["ufl_f"]/Umax,
                 "ufl_g": as_vector([0.0, 0.0]),
             }
+            
+        Umax = 1 # b/c of normalization
 
         # ----------
         # Run solver
