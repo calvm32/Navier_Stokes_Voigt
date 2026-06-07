@@ -206,7 +206,7 @@ def main(save_dir):
         # Boundary conditions
         # -------------------
 
-        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
+        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow_normalized, (1,2))
         bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
         bcs = [bc_inflow, bc_walls]
