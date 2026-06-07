@@ -38,7 +38,6 @@ def main(save_dir):
     solver = cfg["solver"]
     elements = cfg["elements"]
     views = cfg["views"]
-    char_length = 1
 
     vtkfile_name = "Soln"
 
@@ -184,29 +183,12 @@ def main(save_dir):
         ufl_cfg = load_run_ufls(save_dir, namespace)
 
         # -------------------
-        # Normalize functions
+        # Boundary conditions
         # -------------------
 
         ufl_inflow = ufl_cfg["ufl_v0"]
 
-        # get max
-        V0 = FunctionSpace(mesh, "DG", 0)
-
-        u_in = Function(V).interpolate(ufl_inflow)
-        u_mag = Function(V0).project(sqrt(dot(u_in, u_in)))
-
-        Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
-        ufl_inflow_normalized = ufl_inflow / Umax
-
-        ufl_v0_normalized = ufl_cfg["ufl_v0"]/Umax
-        ufl_p0_normalized = ufl_cfg["ufl_p0"]/Umax
-        ufl_f_normalized = ufl_cfg["ufl_f"]/Umax
-
-        # -------------------
-        # Boundary conditions
-        # -------------------
-
-        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow_normalized, (1,2))
+        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow, (1,2))
         bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
 
         bcs = [bc_inflow, bc_walls]
@@ -221,13 +203,19 @@ def main(save_dir):
             t.assign(t_curr)
 
             return {
-                "ufl_v0": ufl_v0_normalized,
-                "ufl_p0": ufl_p0_normalized,
-                "ufl_f": ufl_f_normalized,
+                "ufl_v0": ufl_cfg["ufl_v0"],
+                "ufl_p0": ufl_cfg["ufl_p0"],
+                "ufl_f": ufl_cfg["ufl_f"],
                 "ufl_g": as_vector([0.0, 0.0]),
             }
 
-        Umax = 1 # b/c of normalization
+        # get max
+        V0 = FunctionSpace(mesh, "DG", 0)
+
+        u_in = Function(V).interpolate(ufl_inflow)
+        u_mag = Function(V0).project(sqrt(dot(u_in, u_in)))
+
+        Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
 
         # ----------
         # Run solver
@@ -242,8 +230,7 @@ def main(save_dir):
                     make_weak_form=make_weak_form_CN, 
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
-                    appctx=appctx, vtkfile_name=vtkfile_name, 
-                    Umax=Umax, char_length=char_length)
+                    appctx=appctx, vtkfile_name=vtkfile_name)
 
         elif solver == "BDF2":
                 v_error_list, p_error_list = timestepper_BDF2(get_data, 
@@ -255,8 +242,7 @@ def main(save_dir):
                     make_weak_form_CN=make_weak_form_CN,
                     bcs=bcs, nullspace=nullspace,
                     solver_parameters=solver_parameters,
-                    appctx=appctx, vtkfile_name=vtkfile_name, 
-                    Umax=Umax, char_length=char_length)
+                    appctx=appctx, vtkfile_name=vtkfile_name)
 
         cpu_times.append(cpu_time)
 

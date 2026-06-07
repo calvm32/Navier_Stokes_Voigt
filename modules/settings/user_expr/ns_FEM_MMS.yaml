@@ -1,5 +1,7 @@
+scale: 0.001
+
 # velocity exact
-ufl_v0: "as_vector([
+ufl_v0: "scale*as_vector([
     Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
     0.0
   ])"
@@ -7,7 +9,7 @@ ufl_v0: "as_vector([
 ufl_inflow: "ufl_v0"
 
 # pressure exact
-ufl_p0: "(P*x + G)"
+ufl_p0: "scale*(P*x + G)"
 
 # source term exact
 ufl_f: "as_vector([0.0,0.0])"
