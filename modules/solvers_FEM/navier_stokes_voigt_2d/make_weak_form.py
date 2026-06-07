@@ -7,9 +7,9 @@ def voigt_inner(u, v, alpha):
 # BDF2 weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, nu, alpha):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, nu):
     """
-    BDF2 Navier-Stokes-Voigt
+    BDF2 Navier-Stokes
     - Oseen linearization
     - skew-symmetric convection
     - implicit viscosity
@@ -28,10 +28,15 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         u, p = split(U)
         v, q = split(V)
 
-        # Bilinear form a(U,V)
+        # ------
+        # LHS
+        # ------
         a = (
-            # BDF2 mass
-            (3.0 / 2.0) * idt * voigt_inner(u, v, alpha) * dx # CHANGED THIS FOR VOIGT
+            # time derivative
+            idt * voigt_inner((3/2)*u, v) * dx
+
+            # Viscosity
+            + nu * inner(grad(u), grad(v)) * dx
 
             # Skew-symmetric Oseen advection
             + 0.5 * (
@@ -39,22 +44,21 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
               - inner(dot(u_old, nabla_grad(v)), u)
             ) * dx
 
-            # Viscosity
-            + nu * inner(grad(u), grad(v)) * dx
-
             # Pressure coupling
             - p * div(v) * dx
             - q * div(u) * dx
         )
 
-        # Grad-div
+        # Grad-div stabilization
         if gamma != 0.0:
             a += gamma * inner(div(u), div(v)) * dx
 
-        # Linear form L(V)
+        # ------
+        # RHS
+        # ------
         L = (
             # BDF2 history
-            0.5 * idt * voigt_inner(4.0*u_old - u_older, v, alpha) * dx
+            idt * voigt_inner(2*u_old - (1/2)*u_older, v) * dx
 
             # Forcing
             + inner(f_bdf2, v) * dx
@@ -72,7 +76,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
 # CN weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu, alpha):
+def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu):
     """
     Crank-Nicolson Navier-Stokes-Voigt
       -> Oseen linearization
@@ -94,7 +98,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu,
         # Bilinear form a(U,V)
         a = (
             # Time derivative
-            idt * voigt_inner(u, v, alpha) * dx # CHANGED THIS FOR VOIGT
+            idt * voigt_inner(u, v) * dx
 
             # Skew-symmetric Oseen advection
             + 0.5 * (
@@ -117,21 +121,21 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu,
         # Linear form L(V)
         L = (
             # Time derivative
-            idt * voigt_inner(u_old, v, alpha) * dx
+            idt * voigt_inner(u_old, v) * dx
 
             # Explicit viscosity
-            - (1.0 - theta)*nu * inner(grad(u_old), grad(v)) * dx
+            - (1 - theta)*nu * inner(grad(u_old), grad(v)) * dx
 
             # Forcing
             + inner(f_mid, v) * dx
 
             # Neumann boundary
-            - nu * inner(g_mid, v) * dsN
+            - nu * inner(g_mid, v) * dsN 
         )
 
         # Grad–div stabilization
         if gamma != 0:
-            L -= (1.0 - theta) * gamma * inner(div(u_old), div(v)) * dx
+            L -= (1 - theta) * gamma * inner(div(u_old), div(v)) * dx
 
         return a, L
 

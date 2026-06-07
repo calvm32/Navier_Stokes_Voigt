@@ -29,8 +29,11 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         # LHS
         # ------
         a = (
-            # BDF2 mass
-            (3.0 / 2.0) * idt * inner(u, v) * dx
+            # time derivative
+            idt * inner((3/2)*u, v) * dx
+
+            # Viscosity
+            + nu * inner(grad(u), grad(v)) * dx
 
             # Skew-symmetric Oseen advection
             + 0.5 * (
@@ -38,15 +41,12 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
               - inner(dot(u_old, nabla_grad(v)), u)
             ) * dx
 
-            # Viscosity
-            + nu * inner(grad(u), grad(v)) * dx
-
             # Pressure coupling
             - p * div(v) * dx
             - q * div(u) * dx
         )
 
-        # Grad-div
+        # Grad-div stabilization
         if gamma != 0.0:
             a += gamma * inner(div(u), div(v)) * dx
 
@@ -55,7 +55,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
         # ------
         L = (
             # BDF2 history
-            0.5 * idt * inner(4.0*u_old - u_older, v) * dx
+            idt * inner(2*u_old - (1/2)*u_older, v) * dx
 
             # Forcing
             + inner(f_bdf2, v) * dx
@@ -121,7 +121,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu)
             idt * inner(u_old, v) * dx
 
             # Explicit viscosity
-            - (1.0 - theta)*nu * inner(grad(u_old), grad(v)) * dx
+            - (1 - theta)*nu * inner(grad(u_old), grad(v)) * dx
 
             # Forcing
             + inner(f_mid, v) * dx
@@ -132,7 +132,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu)
 
         # Grad–div stabilization
         if gamma != 0:
-            L -= (1.0 - theta) * gamma * inner(div(u_old), div(v)) * dx
+            L -= (1 - theta) * gamma * inner(div(u_old), div(v)) * dx
 
         return a, L
 

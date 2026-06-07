@@ -563,7 +563,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     # create timestep solvers
     solver_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
-                                    make_weak_form_CN, is_mixed, 0.5, gamma, Re, alpha, 
+                                    make_weak_form_CN, is_mixed, 0, gamma, Re, alpha, 
                                     bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx,
                                     Umax=Umax, char_length=char_length)

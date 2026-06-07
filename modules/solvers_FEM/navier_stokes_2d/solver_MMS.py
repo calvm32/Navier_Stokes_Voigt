@@ -11,6 +11,8 @@ from modules.processing.printoff import blue, green
 from modules.processing.config_setup import *
 import matplotlib.pyplot as plt
 
+from modules.solvers_FEM.navier_stokes_2d.make_weak_form import *
+
 def main(save_dir):
 
     comm = MPI.COMM_WORLD
@@ -244,7 +246,7 @@ def main(save_dir):
                     appctx=appctx, vtkfile_name=vtkfile_name, 
                     Umax=Umax, char_length=char_length)
 
-        #cpu_times.append(cpu_time)
+        cpu_times.append(cpu_time)
 
         v_final_error = 0
         for err in v_error_list:
