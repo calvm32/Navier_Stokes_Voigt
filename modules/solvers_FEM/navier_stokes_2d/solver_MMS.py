@@ -85,7 +85,7 @@ def main(save_dir):
         blue(f"\n*** Mesh size N = {N:0d} ***", spaced=True) # report mesh size
         new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
 
-        dt = 1/N**2
+        dt = 1/N
 
         # Build appctx
         appctx = {
@@ -187,29 +187,27 @@ def main(save_dir):
         # Normalize functions
         # -------------------
 
-        ufl_inflow = ufl_cfg["ufl_v0"]
+        ufl_v0 = ufl_cfg["ufl_v0"]
 
         # get max
         V0 = FunctionSpace(mesh, "DG", 0)
 
-        u_in = Function(V).interpolate(ufl_inflow)
+        u_in = Function(V).interpolate(ufl_v0)
         u_mag = Function(V0).project(sqrt(dot(u_in, u_in)))
 
         Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
-        ufl_inflow_normalized = ufl_inflow / Umax
 
-        ufl_v0_normalized = ufl_cfg["ufl_v0"]/Umax
-        ufl_p0_normalized = ufl_cfg["ufl_p0"]/Umax
-        ufl_f_normalized = ufl_cfg["ufl_f"]/Umax
+        scale = 0.0001
+
+        ufl_v0_normalized = scale*ufl_cfg["ufl_v0"]/Umax
+        ufl_p0_normalized = scale*ufl_cfg["ufl_p0"]/Umax
+        ufl_f_normalized = scale*ufl_cfg["ufl_f"]/Umax
 
         # -------------------
         # Boundary conditions
         # -------------------
 
-        bc_inflow = DirichletBC(Z.sub(0), ufl_inflow_normalized, (1,2))
-        bc_walls = DirichletBC(Z.sub(0), Constant((0.0, 0.0)), (3,4))
-
-        bcs = [bc_inflow, bc_walls]
+        bcs = [DirichletBC(Z.sub(0), ufl_v0_normalized, (1,2,3,4))]
         nullspace = MixedVectorSpaceBasis(Z, [Z.sub(0), VectorSpaceBasis(constant=True, comm=Z.mesh().comm)])
 
         # ------------------
@@ -258,7 +256,7 @@ def main(save_dir):
                     appctx=appctx, vtkfile_name=vtkfile_name, 
                     Umax=Umax, char_length=char_length)
 
-        cpu_times.append(cpu_time)
+        #cpu_times.append(cpu_time)
 
         v_time_error = 0
         for err in v_error_list:

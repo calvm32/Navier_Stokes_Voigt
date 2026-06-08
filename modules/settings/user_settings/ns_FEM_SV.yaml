@@ -4,6 +4,8 @@ dt: 0.001           # time-step
 Re: 600.0           # Reynold's num: 1/viscostiy
 G: 0.0              # initial pressure gauge
 P: -1.0             # pressure strength (P*x + G)
+theta: 0.5          # theta constant
+gamma: 0.0          # grad-div stabilization constant
 
 solver: "BDF2"      # valid:  "BDF2" (Backward Differentiation) or 
                     #         "CN" (Crank-Nicolson)

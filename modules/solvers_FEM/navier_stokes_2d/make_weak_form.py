@@ -43,7 +43,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
 
             # Pressure coupling
             - p * div(v) * dx
-            - q * div(u) * dx
+            + q * div(u) * dx
         )
 
         # Grad-div stabilization
@@ -108,7 +108,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu)
 
             # Pressure / continuity
             - p * div(v) * dx
-            - q * div(u) * dx
+            + q * div(u) * dx
         )
 
         # Grad–div stabilization
