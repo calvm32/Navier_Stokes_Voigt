@@ -261,16 +261,18 @@ def main(save_dir):
         v_time_error = 0
         for err in v_error_list:
             v_time_error += err**2
+        v_final_error = v_error_list[-1]
         
         v_time_error_list.append(sqrt(v_time_error))
-        v_final_error_list.append(v_error_list[-1])
+        v_final_error_list.append(v_final_error)
 
         p_time_error = 0
         for err in p_error_list:
             p_time_error += err**2
+        p_final_error = p_error_list[-1]
 
         p_time_error_list.append(sqrt(p_time_error))
-        p_time_error_list.append(p_error_list[-1])
+        p_time_error_list.append(p_final_error)
 
         green(f"Final L2 Error (velocity) = {v_final_error:0.8e}", spaced=True)
         green(f"Final H1 Error (pressure) = {p_final_error:0.8e}", spaced=True)        
