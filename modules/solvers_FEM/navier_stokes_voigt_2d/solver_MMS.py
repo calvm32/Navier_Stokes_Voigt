@@ -106,8 +106,6 @@ def main(save_dir):
         blue(f"\n*** Mesh size h = {h:8f} ***", spaced=True) # report mesh size
         new_vtkfile_name = f"{vtkfile_name}_h{h:4f}" # write to new file
 
-        dt = 0.1*h**2
-
         # ------------
         # Setup spaces
         # ------------
@@ -124,6 +122,12 @@ def main(save_dir):
             V = VectorFunctionSpace(mesh, "CG", 2)
             W = FunctionSpace(mesh, "CG", 1)
             Z = V * W
+
+        # set approximate (good enough) CFL conditoin 
+        global_v_dofs = V.dim() 
+        N_eff = sqrt(global_v_dofs) 
+        
+        dt = 1/N_eff**2
 
         # --------------------
         # Compute mesh spacing
