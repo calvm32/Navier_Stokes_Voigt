@@ -39,8 +39,8 @@ def plot_heat():
 
     plt.semilogy(all_time[10:], energy[10:], "-o")
     plt.xlabel("time")
-    plt.ylabel("energy")
-    plt.title("Energy vs Time")
+    plt.ylabel("log(L2 of Energy)")
+    plt.title("Energy vs. Time")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(out_dir / "energy.png", dpi=200)

@@ -105,6 +105,8 @@ def main(save_dir):
         blue(f"\n*** Mesh size h = {h:8f} ***", spaced=True) # report mesh size
         new_vtkfile_name = f"{vtkfile_name}_h{h:4f}" # write to new file
 
+        dt = 0.1*h**2
+
         # ------------
         # Setup spaces
         # ------------
@@ -121,12 +123,6 @@ def main(save_dir):
             V = VectorFunctionSpace(mesh, "CG", 2)
             W = FunctionSpace(mesh, "CG", 1)
             Z = V * W
-
-        # set approximate (good enough) CFL conditoin
-        global_v_dofs = V.dim()
-        N_eff = sqrt(global_v_dofs)
-
-        dt = 1/N_eff
 
         # --------------------
         # Compute mesh spacing
@@ -289,9 +285,11 @@ def main(save_dir):
     # -------------
 
     plt.figure()
-    plt.semilogy(h_list, v_final_error_list, "-o")
-    plt.xlabel(r"Mesh Size $h$")
-    plt.ylabel("Velocity L2 Error")
+    plt.loglog(h_list, v_final_error_list, "-o")
+    plt.gca().invert_xaxis()
+    plt.xlabel(r"log(Mesh Size $h$)")
+    plt.ylabel("log(Velocity L2 Error)")
+    plt.title("Convergence of Velocity L2 Error")
     plt.grid(True)
     plt.tight_layout()
     if rank == 0:
@@ -303,9 +301,11 @@ def main(save_dir):
     # --------------
 
     plt.figure()
-    plt.semilogy(h_list, p_final_error_list, "-o")
-    plt.xlabel(r"Mesh Size $h$")
-    plt.ylabel("Pressure H1 Error")
+    plt.loglog(h_list, p_final_error_list, "-o")
+    plt.gca().invert_xaxis()
+    plt.xlabel(r"log(Mesh Size $h$)")
+    plt.ylabel("log(Pressure H1 Error)")
+    plt.title("Convergence of Pressure H1 Error")
     plt.grid(True)
     plt.tight_layout()
     if rank == 0:

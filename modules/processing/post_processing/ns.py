@@ -39,7 +39,7 @@ def plot_ns(data_path):
 
     plt.semilogy(all_time, div, "-o")
     plt.xlabel("time")
-    plt.ylabel("L2 of Divergence")
+    plt.ylabel("log(L2 of Divergence)")
     plt.title("Divergence vs. Time")
     plt.grid(True)
     plt.tight_layout()
@@ -52,7 +52,7 @@ def plot_ns(data_path):
 
     plt.semilogy(all_time[10:], energy[10:], "-o")
     plt.xlabel("time")
-    plt.ylabel("L2 of Energy")
+    plt.ylabel("log(L2 of Energy)")
     plt.title("Energy vs. Time")
     plt.grid(True)
     plt.tight_layout()
@@ -65,7 +65,7 @@ def plot_ns(data_path):
 
     plt.semilogy(every_time, palinstrophy, "-o")
     plt.xlabel("time")
-    plt.ylabel("L2 of Palinstrophy")
+    plt.ylabel("log(L2 of Palinstrophy)")
     plt.title("Palinstrophy vs. Time")
     plt.grid(True)
     plt.tight_layout()
@@ -78,7 +78,7 @@ def plot_ns(data_path):
 
     plt.semilogy(every_time, stream_func, "-o")
     plt.xlabel("time")
-    plt.ylabel("L2 of Stream Function")
+    plt.ylabel("log(L2 of Stream Function)")
     plt.title("Stream Function vs. Time")
     plt.grid(True)
     plt.tight_layout()
@@ -91,7 +91,7 @@ def plot_ns(data_path):
 
     plt.semilogy(every_time, enstrophy, "-o")
     plt.xlabel("time")
-    plt.ylabel("L2 of Enstrophy")
+    plt.ylabel("log(L2 of Enstrophy)")
     plt.title("Enstrophy vs. Time")
     plt.grid(True)
     plt.tight_layout()
@@ -166,8 +166,8 @@ def plot_ns(data_path):
         C = E_k[5] * k[5]**(5/3)
         plt.loglog(k, C * k**(-5/3), '--', label="k^-5/3")
 
-    plt.xlabel("k")
-    plt.ylabel("E(k)")
+    plt.xlabel("log(k)")
+    plt.ylabel("log(Energy(k))")
     plt.title("Energy Spectrum at a Point")
     plt.legend()
     plt.grid(True)
