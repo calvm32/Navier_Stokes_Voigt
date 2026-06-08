@@ -75,18 +75,10 @@ def main(save_dir):
     p_time_error_list = []
 
     # Loop over mesh resolutions
-    N_list = []
+    h_list = []
     cpu_times = []
 
-    for n in range(2, 5):
-
-        N = 2**n
-        N_list.append(N)
-
-        blue(f"\n*** Mesh size N = {N:0d} ***", spaced=True) # report mesh size
-        new_vtkfile_name = f"{vtkfile_name}_N{N}" # write to new file
-
-        dt = 1/N
+    for n in range(1, 10):
 
         # Build appctx
         appctx = {
@@ -102,13 +94,17 @@ def main(save_dir):
         H = 1.0
         L = 4.0
 
-        if elements == "SV":
-            MESH_PATH = os.path.join(HERE.parents[2], f"settings/meshes/mms/channel_bary{n}.msh")
-            mesh = Mesh(MESH_PATH)
-        elif elements == "TH":
-            mesh = RectangleMesh(int(L*N), int(H*N), L, H)
+        MESH_PATH = os.path.join(HERE.parents[2], f"settings/meshes/mms/bary_channel{n}.msh")
+        mesh = Mesh(MESH_PATH)
 
         x, y = SpatialCoordinate(mesh)
+
+        # compute mesh size for convergence plotting
+        h = mesh.cell_sizes.dat.data_ro.max()
+        h_list.append(float(h))
+
+        blue(f"\n*** Mesh size h = {h:8f} ***", spaced=True) # report mesh size
+        new_vtkfile_name = f"{vtkfile_name}_h{h:4f}" # write to new file
 
         # ------------
         # Setup spaces
@@ -126,6 +122,12 @@ def main(save_dir):
             V = VectorFunctionSpace(mesh, "CG", 2)
             W = FunctionSpace(mesh, "CG", 1)
             Z = V * W
+
+        # set approximate (good enough) CFL conditoin
+        global_v_dofs = V.dim()
+        N_eff = sqrt(global_v_dofs)
+
+        dt = 1/N_eff
 
         # --------------------
         # Compute mesh spacing
@@ -198,7 +200,7 @@ def main(save_dir):
 
         Umax = mesh.comm.allreduce(u_mag.dat.data_ro.max(), op=MPI.MAX)
 
-        scale = 0.0001
+        scale = 0.001
 
         ufl_v0_normalized = scale*ufl_cfg["ufl_v0"]/Umax
         ufl_p0_normalized = scale*ufl_cfg["ufl_p0"]/Umax
@@ -288,9 +290,9 @@ def main(save_dir):
     # -------------
 
     plt.figure()
-    plt.semilogy(N_list, v_final_error_list, "-o")
-    plt.xlabel("mesh size")
-    plt.ylabel("velocity error")
+    plt.semilogy(h_list, v_final_error_list, "-o")
+    plt.xlabel(r"Mesh Size $h$")
+    plt.ylabel("Velocity L2 Error")
     plt.grid(True)
     plt.tight_layout()
     if rank == 0:
@@ -302,9 +304,9 @@ def main(save_dir):
     # --------------
 
     plt.figure()
-    plt.semilogy(N_list, p_final_error_list, "-o")
-    plt.xlabel("mesh size")
-    plt.ylabel("pressure error")
+    plt.semilogy(h_list, p_final_error_list, "-o")
+    plt.xlabel(r"Mesh Size $h$")
+    plt.ylabel("Pressure H1 Error")
     plt.grid(True)
     plt.tight_layout()
     if rank == 0:

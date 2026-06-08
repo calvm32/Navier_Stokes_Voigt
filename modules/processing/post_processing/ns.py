@@ -39,8 +39,8 @@ def plot_ns(data_path):
 
     plt.semilogy(all_time, div, "-o")
     plt.xlabel("time")
-    plt.ylabel("L2 divergence")
-    plt.title("Divergence vs Time")
+    plt.ylabel("L2 of Divergence")
+    plt.title("Divergence vs. Time")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(out_dir / "divergence.png", dpi=200)
@@ -52,8 +52,8 @@ def plot_ns(data_path):
 
     plt.semilogy(all_time[10:], energy[10:], "-o")
     plt.xlabel("time")
-    plt.ylabel("energy")
-    plt.title("Energy vs Time")
+    plt.ylabel("L2 of Energy")
+    plt.title("Energy vs. Time")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(out_dir / "energy.png", dpi=200)
@@ -65,8 +65,8 @@ def plot_ns(data_path):
 
     plt.semilogy(every_time, palinstrophy, "-o")
     plt.xlabel("time")
-    plt.ylabel("palinstrophy")
-    plt.title("Palinstrophy vs Time")
+    plt.ylabel("L2 of Palinstrophy")
+    plt.title("Palinstrophy vs. Time")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(out_dir / "palinstrophy.png", dpi=200)
@@ -78,8 +78,8 @@ def plot_ns(data_path):
 
     plt.semilogy(every_time, stream_func, "-o")
     plt.xlabel("time")
-    plt.ylabel("stream function")
-    plt.title("Stream Function vs Time")
+    plt.ylabel("L2 of Stream Function")
+    plt.title("Stream Function vs. Time")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(out_dir / "stream_func.png", dpi=200)
@@ -91,8 +91,8 @@ def plot_ns(data_path):
 
     plt.semilogy(every_time, enstrophy, "-o")
     plt.xlabel("time")
-    plt.ylabel("enstrophy")
-    plt.title("Enstrophy vs Time")
+    plt.ylabel("L2 of Enstrophy")
+    plt.title("Enstrophy vs. Time")
     plt.grid(True)
     plt.tight_layout()
     plt.savefig(out_dir / "enstrophy.png", dpi=200)
@@ -103,19 +103,19 @@ def plot_ns(data_path):
     # ----
 
     plt.hist(velocity_x, bins=100, density=True)
-    plt.title("Velocity X PDF")
+    plt.title("Velocity-x Probability Density Function")
     plt.grid(True)
     plt.savefig(out_dir / "velx_pdf.png", dpi=200)
     plt.close()
 
     plt.hist(velocity_y, bins=100, density=True)
-    plt.title("Velocity Y PDF")
+    plt.title("Velocity-y Probability Density Function")
     plt.grid(True)
     plt.savefig(out_dir / "vely_pdf.png", dpi=200)
     plt.close()
 
     plt.hist(omega, bins=100, density=True)
-    plt.title("Vorticity PDF")
+    plt.title("Velocity-z Probability Density Function")
     plt.grid(True)
     plt.savefig(out_dir / "omega_pdf.png", dpi=200)
     plt.close()
@@ -168,7 +168,7 @@ def plot_ns(data_path):
 
     plt.xlabel("k")
     plt.ylabel("E(k)")
-    plt.title("Energy Spectrum Probe")
+    plt.title("Energy Spectrum at a Point")
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
