@@ -126,7 +126,7 @@ def main(save_dir):
         global_v_dofs = V.dim() 
         N_eff = sqrt(global_v_dofs) 
         
-        dt = 1/N_eff**2
+        dt = 1/N_eff
 
         # --------------------
         # Compute mesh spacing
