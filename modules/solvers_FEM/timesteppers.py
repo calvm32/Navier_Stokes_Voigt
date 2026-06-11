@@ -256,23 +256,15 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 omega = curl(u_old.sub(0))
                 omega_f.interpolate(omega)
 
-                print("1")
-
                 # -------- stream --------
                 solver_psi.solve()
                 stream_func_list.append(sqrt(assemble(inner(psi, psi) * dx)))
 
-                print("2")
-
                 # -------- palinstrophy --------
                 palinstrophy_list.append(sqrt(assemble(inner(grad(omega_f), grad(omega_f)) * dx)))
 
-                print("3")
-
                 # -------- enstrophy --------
                 enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
-
-                print("4")
 
                 # -------- force coefficients --------
                 if have_interior_body:
@@ -295,15 +287,11 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                     drag_list.append(np.nan)
                     lift_list.append(np.nan)
 
-                print("5")
-
                 # -------- compute stats!!! --------
                 pdfs.sample_velocity(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples=20000)
-
-                print("6")
 
                 # -------- energy spec probe --------
                 comm = u.sub(0).function_space().mesh().comm
@@ -316,8 +304,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 ux, uy = global_val
 
                 energy_spec_probe.append([ux, uy])
-
-                print("7")
 
             # -------- error --------
             # get data at current time
@@ -735,6 +721,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 # -------- vorticity = curl(v) --------
                 omega = curl(u_old.sub(0))
                 omega_f.interpolate(omega)
+                print("1")
 
                 # -------- stream --------
                 solver_psi.solve()
@@ -745,6 +732,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
                 # -------- enstrophy --------
                 enstrophy_list.append(sqrt(assemble(inner(omega_f, omega_f) * dx)))
+                print("2")
+                
                 # -------- force coefficients --------
                 if have_interior_body:
                     n = FacetNormal(mesh)
@@ -765,12 +754,14 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 else:
                     drag_list.append(np.nan)
                     lift_list.append(np.nan)
+                print("3")
 
                 # -------- compute stats!!! --------
                 pdfs.sample_velocity(u_old.sub(0))
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples=20000)
+                print("4")
 
                 # -------- energy spec probe --------
                 comm = u.sub(0).function_space().mesh().comm
@@ -783,6 +774,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 ux, uy = global_val
 
                 energy_spec_probe.append([ux, uy])
+                print("5")
                 
             # -------- error --------
             # get data at current time
