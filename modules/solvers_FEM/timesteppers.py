@@ -762,17 +762,17 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 # -------- energy spec probe --------
                 comm = u.sub(0).function_space().mesh().comm
                 local_val = np.zeros(2)
-                print("1")
-
-                if probe_dof != -1:
-                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
-                print("2")
+  
+                try:
+                    val = u.sub(0).at(tuple(target))
+                    local_val = np.array(val)
+                except PointNotInDomainError:
+                    local_val = np.zeros(2)
 
                 global_val = comm.allreduce(local_val, op=MPI.SUM)
                 ux, uy = global_val
 
                 energy_spec_probe.append([ux, uy])
-                print("3")
                 
             # -------- error --------
             # get data at current time
