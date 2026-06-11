@@ -763,13 +763,10 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 comm = u.sub(0).function_space().mesh().comm
                 local_val = np.zeros(2)
 
-                if comm.rank == 0:
-                    try:
-                        local_val[:] = u.sub(0).at(tuple(target))
-                    except Exception:
-                        pass
+                if probe_dof != -1:
+                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
 
-                global_val = comm.bcast(local_val, root=0)
+                global_val = comm.allreduce(local_val, op=MPI.SUM)
                 ux, uy = global_val
 
                 energy_spec_probe.append([ux, uy])

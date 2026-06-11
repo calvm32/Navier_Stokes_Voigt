@@ -77,7 +77,7 @@ def main(save_dir):
     h_list = []
     cpu_times = []
 
-    for n in range(1, 10):
+    for n in range(2, 10):
 
         # Build appctx
         appctx = {
