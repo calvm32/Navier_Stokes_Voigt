@@ -311,7 +311,7 @@ def main(save_dir):
     plt.grid(True)
     plt.tight_layout()
     if rank == 0:
-        plt.savefig(plot_path / "pressure_convergencede_plot.png", dpi=200, bbox_inches='tight')
+        plt.savefig(plot_path / "pressure_convergence_plot.png", dpi=200, bbox_inches='tight')
     plt.close()
 
 if __name__ == "__main__":
