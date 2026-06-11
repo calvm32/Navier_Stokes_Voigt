@@ -11,8 +11,6 @@ from modules.processing.printoff import blue, green
 from modules.processing.config_setup import *
 import matplotlib.pyplot as plt
 
-from modules.solvers_FEM.navier_stokes_2d.make_weak_form import *
-
 def main(save_dir):
 
     comm = MPI.COMM_WORLD
