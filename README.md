@@ -2,11 +2,15 @@
 
 This repository provides a FEM Crank-Nicolson and BDF2 solver for:
 - 2D heat equation
-- 2D Navier-Stokes equations
-- 2D Navier-Stokes-Voigt equations
+- 2D Navier-Stokes equations (NSE)
+- 2D Navier-Stokes-Voigt equations (NSV)
+- 2D difference between NSE and NSV
 
 Aditionally, this repository provides a spectral RK4 solver for:
-- 2D Navier-Stokes-Voigt equations
+- 2D heat equation
+- 2D Navier-Stokes equations (NSE)
+- 2D Navier-Stokes-Voigt equations (NSV)
+- 2D difference between NSE and NSV
 
 ## Set up on your device
 
@@ -15,6 +19,7 @@ This repository uses Firedrake, which currently requires a lot of luck to instal
 pip install -e .
 pip install -r requirements.txt
 ```
+Depending on Firedrake version, more libraries may need to be installed.
 
 **NOTE** if running in VSCODE or a similar program, you need to make sure that the Python interpreter points to the correct location. For VSCODE users, press `Ctrl+Shift+P` and then select the virtual environment you just installed for Firedrake.
 
@@ -27,11 +32,33 @@ To create a directory, use `mysave <directory_name>` followed by the options:
 
 3. `--mms` for testing the method of manufactured solutions
 
-4. `--mms` followed by the name of a usable mesh file, like `example.msh`
+4. `--mesh` followed by the name of a usable mesh file, e.g. `example.msh`
 
 Now to run the problem, use `myrun <relative_path_to_directory>` followed by `--np N` to run using MPI parallel processing on N processors
 
-## Firedrake install
+5. `--set` followed by one of the user input files and a valid key with its desired value, e.g. `user_settings.T=20`
+
+6. `--list-settings` after defining problem, elements, mms flag, etc. this lists the settings that will be applied
+
+## Interpreting data
+
+### Method of manufactured solutions (MMS) run
+
+Your error plots will save automatically to the subfolder *plots* upon completion. If you want any of the other data, or your run did not finish, you will need to call the relevant file in `solvers/processing/post_processing` yourself.
+
+### Regular solver run
+
+All of the information will save automatically to the subfolder *plots* upon completion. If your run did not finish, you will need to call the relevant file in `solvers/processing/post_processing` yourself.
+
+---
+
+# Help with errors
+
+If you come across an error, please email me at [calum.heldt@gmail.com](mailto:calum.heldt@gmail.com)
+
+---
+
+# Firedrake install
 
 Please run the following, exchanging the directory `~` for your desired directory:
 
@@ -54,13 +81,3 @@ continuing, PETSC will provide some sort of instructions that you should follow 
 ```
 make PETSC_DIR=~/petsc PETSC_ARCH=arch-firedrake-default all
 ```
-
-### Interpreting data
-
-## Method of manufactured solutions (MMS) run
-
-Your error plots will save automatically to the subfolder *plots* upon completion. If you want any of the other data, or your run did not finish, you will need to call the relevant file in `solvers/processing/post_processing` yourself.
-
-## Regular solver run
-
-All of the information will save automatically to the subfolder *plots* upon completion. If your run did not finish, you will need to call the relevant file in `solvers/processing/post_processing` yourself.

@@ -123,7 +123,7 @@ class TemplateResolver:
             "solver_path": "modules.solvers_spectral.navier_stokes_2d.solver",
         }
 
-
+    @staticmethod
     def _resolve_nsv_FEM(cfg: RunConfig):
 
         if cfg.mms:
@@ -145,7 +145,7 @@ class TemplateResolver:
             "solver_path": "modules.solvers_FEM.navier_stokes_voigt_2d.solver",
         }
 
-
+    @staticmethod
     def _resolve_nsv_spec(cfg: RunConfig):
 
         if cfg.mms:
@@ -163,7 +163,7 @@ class TemplateResolver:
             "solver_path": "modules.solvers_spectral.navier_stokes_voigt_2d.solver",
         }
 
-
+    @staticmethod
     def _resolve_compare_spec(cfg: RunConfig):
 
         return {
@@ -173,6 +173,7 @@ class TemplateResolver:
             "solver_path": "modules.solvers_spectral.compare_2d.solver",
         }
 
+    @staticmethod
     def _resolve_compare_FEM(cfg: RunConfig):
         if cfg.elements is None:
             raise ValueError("This problem requires element type")
@@ -184,6 +185,35 @@ class TemplateResolver:
             "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM.yaml",
             "solver_path": "modules.solvers_FEM.compare_2d.solver",
         }
+
+def apply_overrides(save_path, overrides):
+
+    yaml_files = {
+        "user_settings": Path(save_path) / "user_settings.yaml",
+        "solver_params": Path(save_path) / "solver_params.yaml",
+        "user_expr": Path(save_path) / "user_expr.yaml",
+    }
+
+    for override in overrides:
+
+        lhs, rhs = override.split("=", 1)
+        file_name, key = lhs.split(".", 1)
+
+        with open(yaml_files[file_name]) as f:
+            data = yaml.safe_load(f)
+
+        if key not in data:
+            valid = ", ".join(sorted(data.keys()))
+            raise ValueError(
+                f"Invalid key '{key}' in {file_name}. "
+                f"Valid keys are: {valid}"
+            )
+
+        value = yaml.safe_load(rhs)
+        data[key] = value
+
+        with open(yaml_files[file_name], "w") as f:
+            yaml.safe_dump(data, f)
 
 # ------------
 # save builder
@@ -278,6 +308,20 @@ def build_parser():
         help="Optional name of mesh [with corresp. file extension]"
     )
 
+    parser.add_argument(
+        "--set",
+        action="append",
+        default=[],
+        metavar="FILE.KEY=VALUE",
+        help="Override yaml values"
+    )
+
+    parser.add_argument(
+        "--list-settings",
+        action="store_true",
+        help="Show editable YAML parameters and exit"
+    )
+
     return parser
 
 def main():
@@ -290,8 +334,29 @@ def main():
         elements=args.elements,
     )
 
+    if args.list_settings:
+
+        settings = TemplateResolver.resolve(cfg)
+
+        for name, path in [
+            ("user_settings", settings["user_settings"]),
+            ("solver_params", settings["solver"]),
+            ("user_expr", settings["ufl"]),
+        ]:
+
+            print(f"\n[{name}]")
+
+            with open(path) as f:
+                data = yaml.safe_load(f)
+
+            for key, value in data.items():
+                print(f"  {key} = {value}")
+
+        sys.exit(0)
+
     settings = TemplateResolver.resolve(cfg)
     SaveManager.create(args.save_path, settings, args.mesh)
+    apply_overrides(args.save_path, args.set)
 
 if __name__ == "__main__":
     main()
