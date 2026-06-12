@@ -17,11 +17,20 @@ set -e
 
 PROJECT_DIR=$HOME/projects/Navier_Stokes_Voigt
 
+# set up run
 RUN_NAME=test_run
 PROBLEM=nsv2_FEM
 ELEMENTS=sv # th or sv (ONLY IF ns OR nsv FEM)
 MMS=no # yes or no
 MESH=fine_bluff_body_chord1.msh
+
+# override .yaml settings
+SETS=(
+    # ex: "user_settings.T=10.0"
+    # ex: "user_settings.Re=1000"
+    # ex: "solver_params.ksp_rtol=1e-8"
+)
+LIST_SETTINGS=no # yes or no
 
 # -----------------
 # ENVIRONMENT SETUP
@@ -86,6 +95,25 @@ if [ ! -d "$RUN_DIR" ]; then
     fi
 
     CREATE_CMD="$CREATE_CMD $MMS_FLAG"
+
+    for setting in "${SETS[@]}"; do
+        CREATE_CMD="$CREATE_CMD --set $setting"
+    done
+
+    if [ "$LIST_SETTINGS" = "yes" ]; then
+        apptainer exec \
+            --bind $PROJECT_DIR:$PROJECT_DIR \
+            --pwd $PROJECT_DIR \
+            $IMAGE \
+            bash -c "
+                export PATH=\$HOME/.local/bin:\$PATH
+                mysave dummy \
+                    --problem $PROBLEM \
+                    ${ELEMENTS:+--elements $ELEMENTS} \
+                    --list-settings
+            "
+        exit 0
+    fi
 
     echo "Creating run directory:"
     echo "$CREATE_CMD"

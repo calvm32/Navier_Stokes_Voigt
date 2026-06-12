@@ -215,6 +215,13 @@ def apply_overrides(save_path, overrides):
         with open(yaml_files[file_name], "w") as f:
             yaml.safe_dump(data, f)
 
+    print("\nApplied overrides:")
+    for override in overrides:
+        print(
+            f"{file_name}.{key}: "
+            f"{old_value} -> {value}"
+        )
+
 # ------------
 # save builder
 # ------------
