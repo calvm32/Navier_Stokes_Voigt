@@ -2,8 +2,8 @@
 #SBATCH --job-name=nsv2_firedrake
 #SBATCH --output=job.out
 #SBATCH --error=job.err
-#SBATCH --nodes=2
-#SBATCH --ntasks=32
+#SBATCH --nodes=32
+#SBATCH --ntasks=48
 #SBATCH --time=10:00:00
 
 module purge
@@ -21,6 +21,7 @@ RUN_NAME=test_run
 PROBLEM=nsv2_FEM
 ELEMENTS=sv # th or sv (ONLY IF ns OR nsv FEM)
 MMS=no # yes or no
+MESH=fine_bluff_body_chord1.msh
 
 # -----------------
 # ENVIRONMENT SETUP
@@ -60,12 +61,6 @@ apptainer exec \
 # CREATE RUN DIRECTORY
 # --------------------
 
-MMS_FLAG=""
-
-if [ "$MMS" = "yes" ]; then
-    MMS_FLAG="--mms"
-fi
-
 
 if [ ! -d "$RUN_DIR" ]; then
 
@@ -76,6 +71,18 @@ if [ ! -d "$RUN_DIR" ]; then
     if [[ "$PROBLEM" == *"FEM"* ]] && \
        [[ "$PROBLEM" == ns2_* || "$PROBLEM" == nsv2_* ]]; then
         CREATE_CMD="$CREATE_CMD --elements $ELEMENTS"
+    fi
+
+    # include mesh if defined
+    if [ -n "$MESH" ]; then
+        CREATE_CMD="$CREATE_CMD --mesh $MESH"
+    fi
+
+    # include MMS flag if declared
+    MMS_FLAG=""
+
+    if [ "$MMS" = "yes" ]; then
+        MMS_FLAG="--mms"
     fi
 
     CREATE_CMD="$CREATE_CMD $MMS_FLAG"

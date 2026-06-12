@@ -18,11 +18,6 @@ pip install -r requirements.txt
 
 **NOTE** if running in VSCODE or a similar program, you need to make sure that the Python interpreter points to the correct location. For VSCODE users, press `Ctrl+Shift+P` and then select the virtual environment you just installed for Firedrake.
 
-Finally, all users should run the following:
-```
-export PYTHONPATH=/path/to/project/modules:$PYTHONPATH
-```
-
 ## Run on your device
 To create a directory, use `mysave <directory_name>` followed by the options:
 
@@ -32,7 +27,9 @@ To create a directory, use `mysave <directory_name>` followed by the options:
 
 3. `--mms` for testing the method of manufactured solutions
 
-Now to run the problem, use `myrun <relative_path_to_directory>` followed by `--np <N>` to run using MPI parallel processing on N processors
+4. `--mms` followed by the name of a usable mesh file, like `example.msh`
+
+Now to run the problem, use `myrun <relative_path_to_directory>` followed by `--np N` to run using MPI parallel processing on N processors
 
 ## Firedrake install
 
