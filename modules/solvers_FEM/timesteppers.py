@@ -132,26 +132,20 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
     probe_dofs = []
     for probe in probes:
-        # target locations for energy spec probes
-        if dim == 2:
-            target = np.array([probe[0], probe[1]])
-        elif dim ==3:
-            target = np.array(probe)
 
-        # compute distance locally
+        target = np.asarray(probe[:dim])
         local_distances = np.linalg.norm(coords - target, axis=1)
+
         local_min_index = np.argmin(local_distances)
         local_min_dist = local_distances[local_min_index]
 
-        # find global minimum across all ranks
         global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
 
-        # determine which rank has the closest node
-        if abs(local_min_dist - global_min_dist) < 1e-14:
+        if np.isclose(local_min_dist, global_min_dist):
             probe_dof = local_min_index
         else:
             probe_dof = -1
-        
+
         probe_dofs.append(probe_dof)
 
     # ---------------------
@@ -424,7 +418,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
             omega=np.array(omega_vals),
             r_vals=np.array(r_vals),
             S2=np.array(S2),
-            spectrum=np.array(spectrum),
         )
 
     elif mesh.comm.rank == 0 and not is_mixed:
@@ -592,26 +585,20 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     probe_dofs = []
     for probe in probes:
-        # target locations for energy spec probes
-        if dim == 2:
-            target = np.array([probe[0], probe[1]])
-        elif dim ==3:
-            target = np.array(probe)
 
-        # compute distance locally
+        target = np.asarray(probe[:dim])
         local_distances = np.linalg.norm(coords - target, axis=1)
+
         local_min_index = np.argmin(local_distances)
         local_min_dist = local_distances[local_min_index]
 
-        # find global minimum across all ranks
         global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
 
-        # determine which rank has the closest node
-        if abs(local_min_dist - global_min_dist) < 1e-14:
+        if np.isclose(local_min_dist, global_min_dist):
             probe_dof = local_min_index
         else:
             probe_dof = -1
-        
+
         probe_dofs.append(probe_dof)
 
     # ---------------------
@@ -848,10 +835,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     comm = mesh.comm
     comm.Barrier()
 
-    # if is_mixed:
-    #     spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=128, Ny=128,)
-    #     k_vals, E_k = spectrum.compute()
-
     if mesh.comm.rank == 0 and is_mixed:
     
         if dim == 2:
@@ -1043,26 +1026,20 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
     probe_dofs = []
     for probe in probes:
-        # target locations for energy spec probes
-        if dim == 2:
-            target = np.array([probe[0], probe[1]])
-        elif dim ==3:
-            target = np.array(probe)
 
-        # compute distance locally
+        target = np.asarray(probe[:dim])
         local_distances = np.linalg.norm(coords - target, axis=1)
+
         local_min_index = np.argmin(local_distances)
         local_min_dist = local_distances[local_min_index]
 
-        # find global minimum across all ranks
         global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
 
-        # determine which rank has the closest node
-        if abs(local_min_dist - global_min_dist) < 1e-14:
+        if np.isclose(local_min_dist, global_min_dist):
             probe_dof = local_min_index
         else:
             probe_dof = -1
-        
+
         probe_dofs.append(probe_dof)
 
     # ---------------------
@@ -1297,10 +1274,6 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     # synchronize for finalization process
     comm = mesh.comm
     comm.Barrier()
-
-    # if is_mixed:
-    #     spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=128, Ny=128,)
-    #     k_vals, E_k = spectrum.compute()
 
     if mesh.comm.rank == 0 and is_mixed:
     

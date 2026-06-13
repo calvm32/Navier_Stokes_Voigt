@@ -12,7 +12,6 @@ def plot_ns(data_path):
     out_dir.mkdir(exist_ok=True)
 
     data = np.load(data_path)
-    #print(data.files)
 
     # unpack
     all_time = data["all_time"]
@@ -31,7 +30,8 @@ def plot_ns(data_path):
     r_vals = data["r_vals"]
     S2 = data["S2"]
 
-    probe = data["probe"]
+    probes = data["probes"]
+    values_at_probes = data["values_at_probes"]
 
     # ----------
     # Divergence
@@ -138,42 +138,60 @@ def plot_ns(data_path):
     # ---------------
 
     time_vals = every_time
-    ux = probe[:, 0] - np.mean(probe[:, 0])
 
-    dt = time_vals[1] - time_vals[0]
-    N = len(time_vals)
+    if len(values_at_probes) != 0:
+        for i in range(len(probes)):
 
-    u_hat = np.fft.fft(ux)
-    f = np.fft.fftfreq(N, d=dt)
+            probe = probes[i]
+            print(probe)
+            dim = len(probe)
+            
+            if dim == 2:
+                x, y = probe
+            elif dim == 3:
+                x, y, z = probe
 
-    mask = f > 0
-    f = f[mask]
-    u_hat = u_hat[mask]
+            values_at_probe = values_at_probes[:,i,:]
+            U_mean = np.mean(values_at_probe[:, 0])
 
-    E_f = 2*(dt /N) * np.abs(u_hat)**2
+            ux = values_at_probe[:, 0] - U_mean
 
-    U_mean = np.mean(probe[:, 0])
-    k = 2*np.pi*f / U_mean
-    E_k = E_f * U_mean / (2*np.pi)
+            dt = time_vals[1] - time_vals[0]
+            N = len(time_vals)
 
-    mask = (k > 0) & (E_k > 0)
-    k = k[mask]
-    E_k = E_k[mask]
+            u_hat = np.fft.fft(ux)
+            f = np.fft.fftfreq(N, d=dt)
 
-    plt.loglog(k, E_k, label="E(k)")
+            mask = f > 0
+            f = f[mask]
+            u_hat = u_hat[mask]
 
-    if len(k) > 6:
-        C = E_k[5] * k[5]**(5/3)
-        plt.loglog(k, C * k**(-5/3), '--', label="k^-5/3")
+            E_f = 2*(dt /N) * np.abs(u_hat)**2
 
-    plt.xlabel("log(k)")
-    plt.ylabel("log(Energy(k))")
-    plt.title("Energy Spectrum at a Point")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig(out_dir / "spectrum_probe.png", dpi=200)
-    plt.close()
+            k = 2*np.pi*f / U_mean
+            E_k = E_f * U_mean / (2*np.pi)
+
+            mask = (k > 0) & (E_k > 0)
+            k = k[mask]
+            E_k = E_k[mask]
+
+            plt.loglog(k, E_k, label="E(k)")
+
+            if len(k) > 6:
+                C = E_k[5] * k[5]**(5/3)
+                plt.loglog(k, C * k**(-5/3), '--', label="k^-5/3")
+
+            plt.xlabel("log(k)")
+            plt.ylabel("log(Energy(k))")
+            if dim == 2:
+                plt.title(f"Energy Spectrum at Point [{x:2d}, {y:2d}]")
+            elif dim == 3:
+                plt.title(f"Energy Spectrum at Point [{x:2d}, {y:2d}, {z:2d}]")
+            plt.legend()
+            plt.grid(True)
+            plt.tight_layout()
+            plt.savefig(out_dir / f"spectrum_probe{i}.png", dpi=200)
+            plt.close()
 
     # k = data["k"]
     # E_k = data["E_k"]
