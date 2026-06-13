@@ -210,6 +210,7 @@ def apply_overrides(save_path, overrides):
             )
 
         value = yaml.safe_load(rhs)
+        old_value = data[key]
         data[key] = value
 
         with open(yaml_files[file_name], "w") as f:
