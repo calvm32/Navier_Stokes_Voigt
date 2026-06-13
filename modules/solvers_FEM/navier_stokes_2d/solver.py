@@ -43,6 +43,7 @@ def main(save_dir):
     elements = cfg["elements"]
     views = cfg["views"]
     char_length = cfg["char_length"]
+    probes = cfg["probes"]
 
     # Build appctx
     appctx = {
@@ -233,7 +234,7 @@ def main(save_dir):
                 bcs=bcs, nullspace=nullspace,
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name, 
-                Umax=Umax, char_length=char_length)
+                Umax=Umax, char_length=char_length, probes=probes)
 
     elif solver == "BDF2":
             v_error_list, p_error_list = timestepper_BDF2(get_data, 
@@ -246,7 +247,7 @@ def main(save_dir):
                 bcs=bcs, nullspace=nullspace,
                 solver_parameters=solver_parameters,
                 appctx=appctx, vtkfile_name=vtkfile_name, 
-                Umax=Umax, char_length=char_length)
+                Umax=Umax, char_length=char_length, probes=probes)
 
     comm.Barrier()
     if rank == 0:

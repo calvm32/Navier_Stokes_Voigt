@@ -15,7 +15,7 @@ from modules.processing.statistics.MPI_energy_spectra_2d import MPI_energy_spect
 from modules.processing.statistics.FFT_energy_spectra_2d import FFT_energy_spectra_2d
 
 def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None, alpha=None,
-                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0], Umax=1, char_length=1):
+                bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", Umax=1, char_length=1, probes=[[6.2, 4, 0]]):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
     """
@@ -41,7 +41,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     drag_list = []
     every_time_list = []
     all_time_list = []
-    energy_spec_probe = []
+    values_at_probes = []
     cpu_time = 0
 
     if is_mixed:
@@ -130,30 +130,29 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     else:
         raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}").copy()  # shape (num_local_nodes, 2)
 
-    # target location for probe
-    if dim == 2:
-        target = np.array([energy_spec_target[0], energy_spec_target[1]])
-    elif dim ==3:
-        target = np.array(energy_spec_target)
+    probe_dofs = []
+    for probe in probes:
+        # target locations for energy spec probes
+        if dim == 2:
+            target = np.array([probe[0], probe[1]])
+        elif dim ==3:
+            target = np.array(probe)
 
-    # compute distance locally
-    local_distances = np.linalg.norm(coords - target, axis=1)
-    local_min_index = np.argmin(local_distances)
-    local_min_dist = local_distances[local_min_index]
+        # compute distance locally
+        local_distances = np.linalg.norm(coords - target, axis=1)
+        local_min_index = np.argmin(local_distances)
+        local_min_dist = local_distances[local_min_index]
 
-    # find global minimum across all ranks
-    global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
+        # find global minimum across all ranks
+        global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
 
-    # determine which rank has the closest node
-    if abs(local_min_dist - global_min_dist) < 1e-14:
-        probe_dof = local_min_index
-    else:
-        probe_dof = -1
-
-    # print probe info from the owning rank
-    # if probe_dof != -1:
-    #     print("Using probe DOF:", probe_dof)
-    #     print("Probe location:", coords[probe_dof], "\n")
+        # determine which rank has the closest node
+        if abs(local_min_dist - global_min_dist) < 1e-14:
+            probe_dof = local_min_index
+        else:
+            probe_dof = -1
+        
+        probe_dofs.append(probe_dof)
 
     # ---------------------
     # setup stream function
@@ -297,13 +296,22 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 comm = u.sub(0).function_space().mesh().comm
                 local_val = np.zeros(2)
 
-                if probe_dof != -1:
-                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
+                values = []
+                for probe_dof in probe_dofs:
 
-                global_val = comm.allreduce(local_val, op=MPI.SUM)
-                ux, uy = global_val
+                    if probe_dof != -1:
+                        local_val[:] = u.sub(0).dat.data_ro[probe_dof]
 
-                energy_spec_probe.append([ux, uy])
+                    global_val = comm.allreduce(local_val, op=MPI.SUM)
+
+                    if dim == 2:
+                        ux, uy = global_val
+                        values.append([ux, uy])
+                    elif dim == 3:
+                        ux, uy, uz = global_val
+                        values.append([ux, uy, uz])
+
+                values_at_probes.append(values)
 
             # -------- error --------
             # get data at current time
@@ -346,7 +354,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                     lift_list=np.array(lift_list),
 
                     # probe
-                    probe=np.array(energy_spec_probe)
+                    probes=np.array(probes),
+                    values_at_probes=np.array(values_at_probes)
                 )
 
             elif mesh.comm.rank == 0:
@@ -361,9 +370,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                     palinstrophy=np.array(palinstrophy_list),
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
-
-                    # probe
-                    probe=np.array(energy_spec_probe)
                 )
 
     # ---------------
@@ -385,10 +391,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     # synchronize for finalization process
     comm = mesh.comm
     comm.Barrier()
-
-    # if mesh.comm.rank == 0:
-    #     spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=512, Ny=512,)
-    #     k_vals, E_k = spectrum.compute()
 
     if mesh.comm.rank == 0 and is_mixed:
     
@@ -413,7 +415,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
             enstrophy=np.array(enstrophy_list),
 
             # probe
-            probe=np.array(energy_spec_probe),
+            probes=np.array(probes),
+            values_at_probes=np.array(values_at_probes),
 
             # rest of stats
             velocity_x=np.array(velocity_x_vals),
@@ -422,8 +425,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
             r_vals=np.array(r_vals),
             S2=np.array(S2),
             spectrum=np.array(spectrum),
-            # k_vals=np.array(k_bals),
-            # E_k=np.array(E_k),
         )
 
     elif mesh.comm.rank == 0 and not is_mixed:
@@ -438,9 +439,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
             palinstrophy=np.array(palinstrophy_list),
             stream_func=np.array(stream_func_list),
             enstrophy=np.array(enstrophy_list),
-
-            # probe
-            probe=np.array(energy_spec_probe),
         )
 
     # report completed
@@ -466,7 +464,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
 
 def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
-                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", energy_spec_target=[6.2,4,0], Umax=1, char_length=1):
+                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", Umax=1, char_length=1, probes=[[6.2, 4, 0]]):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
     """
@@ -493,7 +491,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     drag_list = []
     every_time_list = []
     all_time_list = []
-    energy_spec_probe = []
+    values_at_probes = []
     cpu_time = 0
 
     if is_mixed:
@@ -592,31 +590,30 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     else:
         raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}").copy()  # shape (num_local_nodes, 2)
 
-    # target location for probe
-    if dim == 2:
-        target = np.array([energy_spec_target[0], energy_spec_target[1]])
-    elif dim ==3:
-        target = np.array(energy_spec_target)
+    probe_dofs = []
+    for probe in probes:
+        # target locations for energy spec probes
+        if dim == 2:
+            target = np.array([probe[0], probe[1]])
+        elif dim ==3:
+            target = np.array(probe)
 
-    # compute distance locally
-    local_distances = np.linalg.norm(coords - target, axis=1)
-    local_min_index = np.argmin(local_distances)
-    local_min_dist = local_distances[local_min_index]
+        # compute distance locally
+        local_distances = np.linalg.norm(coords - target, axis=1)
+        local_min_index = np.argmin(local_distances)
+        local_min_dist = local_distances[local_min_index]
 
-    # find global minimum across all ranks
-    global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
+        # find global minimum across all ranks
+        global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
 
-    # determine which rank has the closest node
-    if abs(local_min_dist - global_min_dist) < 1e-14:
-        probe_dof = local_min_index
-    else:
-        probe_dof = -1
+        # determine which rank has the closest node
+        if abs(local_min_dist - global_min_dist) < 1e-14:
+            probe_dof = local_min_index
+        else:
+            probe_dof = -1
+        
+        probe_dofs.append(probe_dof)
 
-    # print probe info from the owning rank
-    # if probe_dof != -1:
-    #     print("Using probe DOF:", probe_dof)
-    #     print("Probe location:", coords[probe_dof], "\n")
-    
     # ---------------------
     # setup stream function
     # ---------------------
@@ -763,13 +760,22 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 comm = u.sub(0).function_space().mesh().comm
                 local_val = np.zeros(2)
 
-                if probe_dof != -1:
-                    local_val[:] = u.sub(0).dat.data_ro[probe_dof]
+                values = []
+                for probe_dof in probe_dofs:
 
-                global_val = comm.allreduce(local_val, op=MPI.SUM)
-                ux, uy = global_val
+                    if probe_dof != -1:
+                        local_val[:] = u.sub(0).dat.data_ro[probe_dof]
 
-                energy_spec_probe.append([ux, uy])
+                    global_val = comm.allreduce(local_val, op=MPI.SUM)
+
+                    if dim == 2:
+                        ux, uy = global_val
+                        values.append([ux, uy])
+                    elif dim == 3:
+                        ux, uy, uz = global_val
+                        values.append([ux, uy, uz])
+
+                values_at_probes.append(values)
                 
             # -------- error --------
             # get data at current time
@@ -814,7 +820,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     lift_list=np.array(lift_list),
 
                     # probe
-                    probe=np.array(energy_spec_probe)
+                    probes=np.array(probes),
+                    values_at_probes=np.array(values_at_probes)
                 )
 
             elif mesh.comm.rank == 0 and not is_mixed:
@@ -829,9 +836,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     palinstrophy=np.array(palinstrophy_list),
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
-
-                    # probe
-                    probe=np.array(energy_spec_probe)
                 )
 
     # ----------------------------------
@@ -873,7 +877,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             lift_list=np.array(lift_list),
 
             # probe
-            probe=np.array(energy_spec_probe),
+            probes=np.array(probes),
+            values_at_probes=np.array(values_at_probes),
 
             # rest of stats
             velocity_x=np.array(velocity_x_vals),
@@ -897,9 +902,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             palinstrophy=np.array(palinstrophy_list),
             stream_func=np.array(stream_func_list),
             enstrophy=np.array(enstrophy_list),
-
-            # probe
-            probe=np.array(energy_spec_probe),
         )
 
     # report completed
@@ -926,7 +928,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
 def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NSE_BDF2, make_weak_form_NSV_BDF2, 
                 make_weak_form_NSE_CN, make_weak_form_NSV_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
-                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", Umax=1, char_length=1):
+                alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", Umax=1, char_length=1, probes=[[6.2, 4, 0]]):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
     """
@@ -949,10 +951,11 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     palinstrophy_diff_list = []
     stream_func_diff_list = []
     enstrophy_diff_list = []
-    lift_list = []
-    drag_list = []
+    lift_diff_list = []
+    drag_diff_list = []
     every_time_list = []
     all_time_list = []
+    values_at_probes = []
     cpu_time = 0
 
     v_diff_list = []
@@ -1022,6 +1025,46 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     # get energy + report run starting
     energy_diff = abs(sqrt(assemble(inner(u_old_NSE.sub(0) - u_old_NSV.sub(0), u_old_NSE.sub(0) - u_old_NSV.sub(0)) * dx)))
     
+    # ------------------------------
+    # Probe DOF selection (MPI safe)
+    # ------------------------------
+
+    # velocity function
+    u_vel = u.sub(0)
+    comm = mesh.comm
+
+    # mesh coordinates (nodal positions)
+    if hasattr(mesh, 'coordinates'):
+        coords = mesh.coordinates.dat.data_ro
+    elif hasattr(mesh, 'meshes'):
+        coords = mesh.meshes[0].coordinates.dat.data_ro
+    else:
+        raise AttributeError(f"Cannot extract coordinates from mesh of type {type(mesh)}").copy()  # shape (num_local_nodes, 2)
+
+    probe_dofs = []
+    for probe in probes:
+        # target locations for energy spec probes
+        if dim == 2:
+            target = np.array([probe[0], probe[1]])
+        elif dim ==3:
+            target = np.array(probe)
+
+        # compute distance locally
+        local_distances = np.linalg.norm(coords - target, axis=1)
+        local_min_index = np.argmin(local_distances)
+        local_min_dist = local_distances[local_min_index]
+
+        # find global minimum across all ranks
+        global_min_dist = comm.allreduce(local_min_dist, op=MPI.MIN)
+
+        # determine which rank has the closest node
+        if abs(local_min_dist - global_min_dist) < 1e-14:
+            probe_dof = local_min_index
+        else:
+            probe_dof = -1
+        
+        probe_dofs.append(probe_dof)
+
     # ---------------------
     # setup stream function
     # ---------------------
@@ -1166,6 +1209,28 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                 # -------- enstrophy --------
                 enstrophy_diff_list.append(sqrt(assemble(inner(omega_f_NSE - omega_f_NSV, omega_f_NSE - omega_f_NSV) * dx)))
 
+                # -------- energy spec probe --------
+                comm = u.sub(0).function_space().mesh().comm
+                local_val = np.zeros(2)
+
+                values_diff = []
+                for probe_dof in probe_dofs:
+
+                    if probe_dof != -1:
+                        local_val_NSE[:] = u_NSE.sub(0).dat.data_ro[probe_dof]
+                        local_val_NSV[:] = u_NSV.sub(0).dat.data_ro[probe_dof]
+
+                    global_val = comm.allreduce(local_val_NSE - local_val_NSV, op=MPI.SUM)
+
+                    if dim == 2:
+                        ux, uy = global_val
+                        values.append([ux, uy])
+                    elif dim == 3:
+                        ux, uy, uz = global_val
+                        values.append([ux, uy, uz])
+
+                values_at_probes_diff.append(values_diff)
+
                 # -------- force coefficients --------
                 if have_interior_body:
                     n = FacetNormal(mesh)
@@ -1186,11 +1251,11 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                     Cd_NSV = (2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent_NSV*n[1] - p_NSV*n[0]) * ds(6)))
                     Cl_NSV = (-2.0/(char_length*Umax**2) * assemble((nu*v_dt_tangent_NSV*n[0] + p_NSV*n[1]) * ds(6)))
 
-                    drag_list.append(Cd_NSE - Cd_NSE)
-                    lift_list.append(Cl_NSE - Cd_NSV)
+                    drag_diff_list.append(Cd_NSE - Cd_NSE)
+                    lift_diff_list.append(Cl_NSE - Cd_NSV)
                 else:
-                    drag_list.append(np.nan)
-                    lift_list.append(np.nan)
+                    drag_diff_list.append(np.nan)
+                    lift_diff_list.append(np.nan)
                 
             # -------- solution difference --------
             # get data at current time
@@ -1202,21 +1267,26 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
             visfile.write(u_NSE.sub(0), u_NSE.sub(1), u_NSV.sub(0), u_NSV.sub(1), time=t)
 
         if (step % write_every == 0) and step > 0:
-            if mesh.comm.rank == 0:
+            pdfs.sync()
+            
+            np.savez(
+                output_file1,
 
-                np.savez(
-                    output_file1,
+                # time series
+                all_time=np.array(all_time_list),
+                energy=np.array(energy_diff_list),
 
-                    # time series
-                    all_time=np.array(all_time_list),
-                    energy=np.array(energy_diff_list),
+                every_time=np.array(every_time_list),
+                palinstrophy=np.array(palinstrophy_diff_list),
+                stream_func=np.array(stream_func_diff_list),
+                enstrophy=np.array(enstrophy_diff_list),
+                drag_list=np.array(drag_diff_list),
+                lift_list=np.array(lift_diff_list),
 
-                    every_time=np.array(every_time_list),
-                    palinstrophy=np.array(palinstrophy_diff_list),
-                    enstrophy=np.array(enstrophy_diff_list),
-                    drag_list=np.array(drag_list),
-                    lift_list=np.array(lift_list),
-                )
+                # probe
+                probes=np.array(probes),
+                values_at_probes=np.array(values_at_probes_diff)
+            )
 
     # ----------------------------------
     # Report done; find and return error
@@ -1228,7 +1298,45 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     comm = mesh.comm
     comm.Barrier()
 
+    # if is_mixed:
+    #     spectrum = FFT_energy_spectra_2d(u_old.sub(0), Nx=128, Ny=128,)
+    #     k_vals, E_k = spectrum.compute()
+
+    if mesh.comm.rank == 0 and is_mixed:
+    
+        if dim == 2:
+            velocity_x_vals, velocity_y_vals, omega_vals = pdfs.finalize()
+        elif dim == 3:
+            velocity_x_vals, velocity_y_vals, velocity_z_vals, omega_vals = pdfs.finalize()
+            
+        r_vals, S2 = struct_func.compute()
+        
+        np.savez(
+            output_file2,
+
+            # time series
+            all_time=np.array(all_time_list),
+            energy=np.array(energy_diff_list),
+
+            every_time=np.array(every_time_list),
+            palinstrophy=np.array(palinstrophy_diff_list),
+            stream_func=np.array(stream_func_diff_list),
+            enstrophy=np.array(enstrophy_diff_list),
+            drag_list=np.array(drag_diff_list),
+            lift_list=np.array(lift_diff_list),
+
+            # probe
+            probes=np.array(probes),
+            values_at_probes=np.array(values_at_probes_diff),
+
+            # rest of stats
+            omega=np.array(omega_diff_list),
+        )
+
     # report completed
     green(f"\nCompleted after {cpu_time} minutes", spaced=True)
 
-    return omega_diff_list, v_diff_list
+    if is_mixed:
+        return v_error_list, p_error_list
+    else:
+        return u_error_list
