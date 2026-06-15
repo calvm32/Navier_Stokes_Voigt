@@ -6,6 +6,7 @@ from modules.processing.load_dump import load_txt, dump_txt
 from pathlib import Path
 import yaml
 import shutil
+from ruamel.yaml import YAML
 
 @dataclass
 class RunConfig:
@@ -194,13 +195,18 @@ def apply_overrides(save_path, overrides):
         "user_expr": Path(save_path) / "user_expr.yaml",
     }
 
+    yaml_rt = YAML()
+    yaml_rt.preserve_quotes = True
+
+    changes = []
+
     for override in overrides:
 
         lhs, rhs = override.split("=", 1)
         file_name, key = lhs.split(".", 1)
 
         with open(yaml_files[file_name]) as f:
-            data = yaml.safe_load(f)
+            data = yaml_rt.load(f)
 
         if key not in data:
             valid = ", ".join(sorted(data.keys()))
@@ -210,18 +216,18 @@ def apply_overrides(save_path, overrides):
             )
 
         value = yaml.safe_load(rhs)
+
         old_value = data[key]
         data[key] = value
 
         with open(yaml_files[file_name], "w") as f:
-            yaml.safe_dump(data, f)
+            yaml_rt.dump(data, f)
+
+        changes.append((file_name, key, old_value, value))
 
     print("\nApplied overrides:")
-    for override in overrides:
-        print(
-            f"{file_name}.{key}: "
-            f"{old_value} -> {value}"
-        )
+    for file_name, key, old_value, value in changes:
+        print(f"{file_name}.{key}: {old_value} -> {value}")
 
 # ------------
 # save builder
