@@ -344,8 +344,8 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                     palinstrophy=np.array(palinstrophy_list),
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
-                    drag_list=np.array(drag_list),
-                    lift_list=np.array(lift_list),
+                    drag=np.array(drag_list),
+                    lift=np.array(lift_list),
 
                     # probe
                     probes=np.array(probes),
@@ -803,8 +803,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     palinstrophy=np.array(palinstrophy_list),
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
-                    drag_list=np.array(drag_list),
-                    lift_list=np.array(lift_list),
+                    drag=np.array(drag_list),
+                    lift=np.array(lift_list),
 
                     # probe
                     probes=np.array(probes),
@@ -856,8 +856,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
             palinstrophy=np.array(palinstrophy_list),
             stream_func=np.array(stream_func_list),
             enstrophy=np.array(enstrophy_list),
-            drag_list=np.array(drag_list),
-            lift_list=np.array(lift_list),
+            drag=np.array(drag_list),
+            lift=np.array(lift_list),
 
             # probe
             probes=np.array(probes),
@@ -1257,8 +1257,8 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                 palinstrophy=np.array(palinstrophy_diff_list),
                 stream_func=np.array(stream_func_diff_list),
                 enstrophy=np.array(enstrophy_diff_list),
-                drag_list=np.array(drag_diff_list),
-                lift_list=np.array(lift_diff_list),
+                drag=np.array(drag_diff_list),
+                lift=np.array(lift_diff_list),
 
                 # probe
                 probes=np.array(probes),
@@ -1295,8 +1295,8 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
             palinstrophy=np.array(palinstrophy_diff_list),
             stream_func=np.array(stream_func_diff_list),
             enstrophy=np.array(enstrophy_diff_list),
-            drag_list=np.array(drag_diff_list),
-            lift_list=np.array(lift_diff_list),
+            drag=np.array(drag_diff_list),
+            lift=np.array(lift_diff_list),
 
             # probe
             probes=np.array(probes),

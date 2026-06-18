@@ -22,6 +22,8 @@ def plot_ns(data_path):
     palinstrophy = data["palinstrophy"]
     stream_func = data["stream_func"]
     enstrophy = data["enstrophy"]
+    lift = data["lift"]
+    drag = data["drag"]
 
     velocity_x = data["velocity_x"]
     velocity_y = data["velocity_y"]
@@ -137,7 +139,7 @@ def plot_ns(data_path):
     # Lift and drag funcs
     # -------------------
 
-    plt.plot(every_time, lift_list, "-o")
+    plt.plot(every_time, lift, "-o")
     plt.xlabel("time")
     plt.ylabel("Lift Coefficient")
     plt.title("Lift Coefficient vs. Time")
@@ -146,7 +148,7 @@ def plot_ns(data_path):
     plt.savefig(out_dir / "lift.png", dpi=200)
     plt.close()
 
-    plt.plot(every_time, drag_list, "-o")
+    plt.plot(every_time, drag, "-o")
     plt.xlabel("time")
     plt.ylabel("Drag Coefficient")
     plt.title("Drag Coefficient vs. Time")
