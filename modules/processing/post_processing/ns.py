@@ -133,6 +133,28 @@ def plot_ns(data_path):
     plt.savefig(out_dir / "structure.png", dpi=200)
     plt.close()
 
+    # -------------------
+    # Lift and drag funcs
+    # -------------------
+
+    plt.plot(every_time, lift_list, "-o")
+    plt.xlabel("time")
+    plt.ylabel("Lift Coefficient")
+    plt.title("Lift Coefficient vs. Time")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(out_dir / "lift.png", dpi=200)
+    plt.close()
+
+    plt.plot(every_time, drag_list, "-o")
+    plt.xlabel("time")
+    plt.ylabel("Drag Coefficient")
+    plt.title("Drag Coefficient vs. Time")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(out_dir / "drag.png", dpi=200)
+    plt.close()
+
     # ---------------
     # Energy spectrum
     # ---------------
