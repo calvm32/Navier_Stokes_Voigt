@@ -323,12 +323,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 u_exact.interpolate(data_new["ufl_u0"])  # just velocity
 
                 u_error_list.append(sqrt(assemble(inner(u_exact - u, u_exact - u)*dx)))
-
-            # -------- solution --------
-            if is_mixed:
-                visfile.write(u.sub(0), u.sub(1), time=t)
-            else:
-                visfile.write(u, time=t)
             
         if (step % write_every == 0) and step > 0:
             if mesh.comm.rank == 0 and is_mixed:
@@ -365,6 +359,12 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
                 )
+
+            # -------- solution --------
+            if is_mixed:
+                visfile.write(u.sub(0), u.sub(1), time=t)
+            else:
+                visfile.write(u, time=t)
 
     # ---------------
     # plot everything
@@ -464,8 +464,8 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     num_steps = int(np.rint((T-t0)/dt))
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
-    compute_every = 20
-    start_sampling = 100 #10
+    compute_every = 25
+    start_sampling = 1000 #10
     write_every = compute_every*20
     plot_data = {}
 
@@ -781,12 +781,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
                 u_error_list.append(sqrt(assemble(inner(u_exact - u, u_exact - u)*dx)))
 
-            # -------- solution --------
-            if is_mixed:
-                visfile.write(u.sub(0), u.sub(1), time=t)
-            else:
-                visfile.write(u, time=t)
-
         if (step % write_every == 0) and step > 0:
             pdfs.sync()
             
@@ -824,6 +818,12 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                     stream_func=np.array(stream_func_list),
                     enstrophy=np.array(enstrophy_list),
                 )
+
+            # -------- solution --------
+            if is_mixed:
+                visfile.write(u.sub(0), u.sub(1), time=t)
+            else:
+                visfile.write(u, time=t)
 
     # ----------------------------------
     # Report done; find and return error
@@ -1240,9 +1240,6 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
             v_diff_list.append(sqrt(assemble(inner(u_NSE.sub(0) - u_NSV.sub(0), u_NSE.sub(0) - u_NSV.sub(0))*dx)))
 
-            # -------- solution --------
-            visfile.write(u_NSE.sub(0), u_NSE.sub(1), u_NSV.sub(0), u_NSV.sub(1), time=t)
-
         if (step % write_every == 0) and step > 0:
             pdfs.sync()
             
@@ -1264,6 +1261,9 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                 probes=np.array(probes),
                 values_at_probes=np.array(values_at_probes_diff)
             )
+
+            # -------- solution --------
+            visfile.write(u_NSE.sub(0), u_NSE.sub(1), u_NSV.sub(0), u_NSV.sub(1), time=t)
 
     # ----------------------------------
     # Report done; find and return error
