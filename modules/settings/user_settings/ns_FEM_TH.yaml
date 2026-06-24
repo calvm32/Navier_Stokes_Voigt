@@ -17,8 +17,8 @@ views: "None"       # valid:  "Full" for debugging by viewing ALL solver paramet
 
 char_length: 1.0    # characteristic length: use for bluff bodies, airfoils, etc.
 
-# probe types
-step: [[4.8, 1], [4.9, 1.1], [4.7, 0.9], [4.8, 2], [4.9, 2.1], [4.7, 2.9],
-       [6, 2], [6, 1.5], [4.7, 0.9], [10, 1.5], [11, 2], [12, 2], [13, 2.5], [14, 3], [15, 2.5]]
+# probe: points to evaluate energy spectrum at, assuming Taylor's frozen flow hyp.
+# probe types to copy-paste
+# step: [[4.8, 1, 0], [4.9, 1.1, 0], [4.7, 0.9, 0], [4.8, 2, 0], [4.9, 2.1, 0], [4.7, 2.9, 0], [6, 2, 0], [6, 1.5, 0], [4.7, 0.9, 0], [10, 1.5, 0], [11, 2, 0], [12, 2, 0], [13, 2.5, 0], [14, 3, 0], [15, 2.5, 0]]
 
-probes: step        # points to evaluate energy spectrum at, assuming Taylor's frozen flow hyp.
+probes: [[4.8, 1, 0], [4.9, 1.1, 0], [4.7, 0.9, 0], [4.8, 2, 0], [4.9, 2.1, 0], [4.7, 2.9, 0], [6, 2, 0], [6, 1.5, 0], [4.7, 0.9, 0], [10, 1.5, 0], [11, 2, 0], [12, 2, 0], [13, 2.5, 0], [14, 3, 0], [15, 2.5, 0]] 
