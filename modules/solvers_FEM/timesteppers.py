@@ -23,6 +23,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     num_steps = int(np.rint((T-t0)/dt))
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
+    probe_every = 1
     start_sampling = 10
     write_every = compute_every*20
 
@@ -286,6 +287,25 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                 
                 struct_func.sample(nsamples=20000)
 
+            # -------- error --------
+            # get data at current time
+            data_new = get_data(t)
+            
+            if is_mixed:
+                u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
+                u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
+
+                v_error_list.append(sqrt(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)))
+                p_error_list.append(sqrt(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
+                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)))
+
+            else:
+                u_exact.interpolate(data_new["ufl_u0"])  # just velocity
+
+                u_error_list.append(sqrt(assemble(inner(u_exact - u, u_exact - u)*dx)))
+        
+        if (step % probe_every == 1) and is_mixed:
+
                 # -------- energy spec probe --------
                 comm = u.sub(0).function_space().mesh().comm
                 local_val = np.zeros(2)
@@ -306,23 +326,6 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
                         values.append([ux, uy, uz])
 
                 values_at_probes.append(values)
-
-            # -------- error --------
-            # get data at current time
-            data_new = get_data(t)
-            
-            if is_mixed:
-                u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
-                u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
-
-                v_error_list.append(sqrt(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)))
-                p_error_list.append(sqrt(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
-                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)))
-
-            else:
-                u_exact.interpolate(data_new["ufl_u0"])  # just velocity
-
-                u_error_list.append(sqrt(assemble(inner(u_exact - u, u_exact - u)*dx)))
             
         if (step % write_every == 0) and step > 0:
             if mesh.comm.rank == 0 and is_mixed:
@@ -465,6 +468,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     num_steps = int(np.rint((T-t0)/dt))
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 25
+    probe_every = 1
     start_sampling = 1000 #10
     write_every = compute_every*20
     plot_data = {}
@@ -742,6 +746,25 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                 pdfs.sample_vorticity(omega_f)
                 
                 struct_func.sample(nsamples=20000)
+                
+            # -------- error --------
+            # get data at current time
+            data_new = get_data(t)
+            
+            if is_mixed:
+                u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
+                u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
+
+                v_error_list.append(sqrt(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)))
+                p_error_list.append(sqrt(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
+                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)))
+
+            else:
+                u_exact.interpolate(data_new["ufl_u0"])  # just velocity
+
+                u_error_list.append(sqrt(assemble(inner(u_exact - u, u_exact - u)*dx)))
+
+        if (step % probe_every == 1) and is_mixed:
 
                 # -------- energy spec probe --------
                 comm = u.sub(0).function_space().mesh().comm
@@ -763,23 +786,6 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
                         values.append([ux, uy, uz])
 
                 values_at_probes.append(values)
-                
-            # -------- error --------
-            # get data at current time
-            data_new = get_data(t)
-            
-            if is_mixed:
-                u_exact.sub(0).interpolate(data_new["ufl_v0"])  # velocity
-                u_exact.sub(1).interpolate(data_new["ufl_p0"])  # pressure
-
-                v_error_list.append(sqrt(assemble(inner(u_exact.sub(0) - u.sub(0), u_exact.sub(0) - u.sub(0))*dx)))
-                p_error_list.append(sqrt(assemble(inner(grad(u_exact.sub(1)) - grad(u.sub(1)), 
-                                    grad(u_exact.sub(1)) - grad(u.sub(1)))*dx)))
-
-            else:
-                u_exact.interpolate(data_new["ufl_u0"])  # just velocity
-
-                u_error_list.append(sqrt(assemble(inner(u_exact - u, u_exact - u)*dx)))
 
         if (step % write_every == 0) and step > 0:
             pdfs.sync()
@@ -919,6 +925,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     num_steps = int(np.rint((T-t0)/dt))
     is_mixed = isinstance(Z.ufl_element(), MixedElement)
     compute_every = 5
+    probe_every = 1
     start_sampling = 10
     write_every = compute_every*20
     plot_data = {}
@@ -1186,28 +1193,6 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
                 # -------- enstrophy --------
                 enstrophy_diff_list.append(sqrt(assemble(inner(omega_f_NSE - omega_f_NSV, omega_f_NSE - omega_f_NSV) * dx)))
 
-                # -------- energy spec probe --------
-                comm = u.sub(0).function_space().mesh().comm
-                local_val = np.zeros(2)
-
-                values_diff = []
-                for probe_dof in probe_dofs:
-
-                    if probe_dof != -1:
-                        local_val_NSE[:] = u_NSE.sub(0).dat.data_ro[probe_dof]
-                        local_val_NSV[:] = u_NSV.sub(0).dat.data_ro[probe_dof]
-
-                    global_val = comm.allreduce(local_val_NSE - local_val_NSV, op=MPI.SUM)
-
-                    if dim == 2:
-                        ux, uy = global_val
-                        values.append([ux, uy])
-                    elif dim == 3:
-                        ux, uy, uz = global_val
-                        values.append([ux, uy, uz])
-
-                values_at_probes_diff.append(values_diff)
-
                 # -------- force coefficients --------
                 if have_interior_body:
                     n = FacetNormal(mesh)
@@ -1240,6 +1225,29 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
             v_diff_list.append(sqrt(assemble(inner(u_NSE.sub(0) - u_NSV.sub(0), u_NSE.sub(0) - u_NSV.sub(0))*dx)))
 
+        if (step % probe_every == 1) and is_mixed:
+
+                # -------- energy spec probe --------
+                comm = u.sub(0).function_space().mesh().comm
+                local_val = np.zeros(2)
+
+                values = []
+                for probe_dof in probe_dofs:
+
+                    if probe_dof != -1:
+                        local_val[:] = u.sub(0).dat.data_ro[probe_dof]
+
+                    global_val = comm.allreduce(local_val, op=MPI.SUM)
+
+                    if dim == 2:
+                        ux, uy = global_val
+                        values.append([ux, uy])
+                    elif dim == 3:
+                        ux, uy, uz = global_val
+                        values.append([ux, uy, uz])
+
+                values_at_probes.append(values)
+                
         if (step % write_every == 0) and step > 0:
             pdfs.sync()
             

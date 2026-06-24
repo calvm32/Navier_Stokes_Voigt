@@ -1,0 +1,2 @@
+mesh_name: step_big_h0.8.msh
+solver_module: modules.solvers_FEM.navier_stokes_2d.solver

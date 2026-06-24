@@ -1,0 +1,22 @@
+scale: 0.001
+
+# velocity exact
+ufl_v0: "scale*as_vector([
+    Re*(sin(y*pi/H)*exp((-1*pi**2*t)/(H**2*Re)) + 0.5*P*y*(y - H)),
+    0.0
+  ])"
+
+ufl_inflow: "ufl_v0"
+
+# pressure exact
+ufl_p0: "scale*(P*x + G)"
+
+# source termexact
+ufl_f: "as_vector([0.0,0.0])"
+
+# velocity boundary conditions (DIRICHLET)
+ufl_vel_bc1: "ufl_inflow"               # left
+ufl_vel_bc2: "ufl_inflow"               # right
+ufl_vel_bc3: "Constant((0.0, 0.0))"     # top
+ufl_vel_bc4: "Constant((0.0, 0.0))"     # bottom
+ufl_vel_bc6: "Constant((0.0, 0.0))"     # interior body (irrelivant if not applicable)

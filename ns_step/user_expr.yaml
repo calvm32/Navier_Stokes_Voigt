@@ -1,0 +1,20 @@
+scale: 5.0
+
+# velocity boundary inflow
+ufl_inflow: "as_vector([scale*4*y*(H-y)/(H**2), 0.0])"
+
+# velocity initial guess
+ufl_v0: "as_vector([scale*4*y*(H-y)/(H**2), 0.0])"
+
+# pressure initial guess
+ufl_p0: "0"
+
+# source term
+ufl_f: "as_vector([0.0, 0.0])"
+
+# velocity boundary conditions (DIRICHLET)
+ufl_vel_bc1: "ufl_inflow"               # left
+ufl_vel_bc2: "ufl_inflow"               # right
+ufl_vel_bc3: "Constant((0.0, 0.0))"     # top
+ufl_vel_bc4: "Constant((0.0, 0.0))"     # bottom
+ufl_vel_bc6: "Constant((0.0, 0.0))"     # interior body (irrelivant if not applicable)
