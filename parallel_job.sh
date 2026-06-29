@@ -2,9 +2,9 @@
 #SBATCH --job-name=nsv2_firedrake
 #SBATCH --output=job.out
 #SBATCH --error=job.err
-#SBATCH --nodes=32
-#SBATCH --ntasks=48
-#SBATCH --time=10:00:00
+#SBATCH --nodes=4
+#SBATCH --ntasks=32
+#SBATCH --time=40:00:00
 
 module purge
 module load apptainer compiler/gcc/11 openmpi/4.1
@@ -26,6 +26,7 @@ MESH=fine_bluff_body_chord1.msh
 
 # override .yaml settings
 SETS=(
+    user_settings.alpha=0.5,
     # ex: "user_settings.T=10.0"
     # ex: "user_settings.Re=1000"
     # ex: "solver_params.ksp_rtol=1e-8"
