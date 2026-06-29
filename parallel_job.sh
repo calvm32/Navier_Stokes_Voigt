@@ -26,7 +26,7 @@ MESH=fine_bluff_body_chord1.msh
 
 # override .yaml settings
 SETS=(
-    user_settings.alpha=0.5,
+    user_settings.alpha=0.5
     # ex: "user_settings.T=10.0"
     # ex: "user_settings.Re=1000"
     # ex: "solver_params.ksp_rtol=1e-8"

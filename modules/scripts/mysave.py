@@ -7,6 +7,8 @@ from pathlib import Path
 import yaml
 import shutil
 from ruamel.yaml import YAML
+import ast
+import yaml
 
 @dataclass
 class RunConfig:
@@ -215,7 +217,10 @@ def apply_overrides(save_path, overrides):
                 f"Valid keys are: {valid}"
             )
 
-        value = yaml.safe_load(rhs)
+        try:
+            value = ast.literal_eval(rhs)
+        except (ValueError, SyntaxError):
+            value = yaml.safe_load(rhs)
 
         old_value = data[key]
         data[key] = value
