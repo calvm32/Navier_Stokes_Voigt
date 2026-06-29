@@ -5,24 +5,6 @@ import types
 
 dt=0
 
-def load_config(path):
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
-
-        
-def load_solver_parameters(path, *, dt=dt):
-    with open(path) as f:
-        params = yaml.safe_load(f)["solver_parameters"]
-
-    # Substitute runtime values
-    if dt != 0:
-        for k, v in params.items():
-            if isinstance(v, str) and v == "{dt}":
-                params[k] = dt
-
-    return params
-
-
 # ------------------
 # Core config loader
 # ------------------
@@ -131,3 +113,38 @@ def load_run_numpy(save_dir, namespace):
         namespace=namespace,
         backend="numpy",
     )
+
+
+# force scientific notation to be written as a number
+def coerce_numeric(v):
+    """Convert string-encoded numbers (e.g. '1e-07') to float/int."""
+    if not isinstance(v, str):
+        return v
+    try:
+        return int(v)
+    except ValueError:
+        pass
+    try:
+        return float(v)
+    except ValueError:
+        return v
+
+
+# ---------------------
+# Load configs entirely
+# ---------------------
+
+def load_config(path):
+    with open(path, "r") as f:
+        raw = yaml.safe_load(f)
+    return {k: coerce_numeric(v) for k, v in raw.items()}
+
+def load_solver_parameters(path, *, dt=dt):
+    with open(path) as f:
+        params = yaml.safe_load(f)["solver_parameters"]
+    params = {k: coerce_numeric(v) for k, v in params.items()}
+    if dt != 0:
+        for k, v in params.items():
+            if isinstance(v, str) and v == "{dt}":
+                params[k] = dt
+    return params

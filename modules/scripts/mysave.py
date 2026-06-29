@@ -200,6 +200,20 @@ def apply_overrides(save_path, overrides):
     yaml_rt = YAML()
     yaml_rt.preserve_quotes = True
 
+    from ruamel.yaml.representer import RoundTripRepresenter
+
+    def represent_float(representer, value):
+        # Write floats in fixed-point notation, trimming trailing zeros
+        s = format(value, ".16f").rstrip("0").rstrip(".")
+        if "." not in s:
+            s += ".0"
+        return representer.represent_scalar(
+            "tag:yaml.org,2002:float",
+            s,
+        )
+
+    yaml_rt.Representer.add_representer(float, represent_float)
+
     changes = []
 
     for override in overrides:
@@ -231,8 +245,14 @@ def apply_overrides(save_path, overrides):
         changes.append((file_name, key, old_value, value))
 
     print("\nApplied overrides:")
+
+    def fmt(v):
+        if isinstance(v, float):
+            return format(v, ".16f").rstrip("0").rstrip(".")
+        return str(v)
+
     for file_name, key, old_value, value in changes:
-        print(f"{file_name}.{key}: {old_value} -> {value}")
+        print(f"{file_name}.{key}: {fmt(old_value)} -> {fmt(value)}")
 
 # ------------
 # save builder
