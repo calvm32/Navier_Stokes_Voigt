@@ -12,6 +12,12 @@ Aditionally, this repository provides a spectral RK4 solver for:
 - 2D Navier-Stokes-Voigt equations (NSV)
 - 2D difference between NSE and NSV
 
+---
+
+# How do I run this?
+
+You can run small runs locally, but I suggest to run everything else on computer with larger processing capabilities. For a computer cluster, follow the same directions as [locally](#set-up-on-your-device). For SLURM runs, follow the [other directions below]()
+
 ## Set up on your device
 
 This repository uses Firedrake, which currently requires a lot of luck to install. See [the bottom of this page](#firedrake-install) for my recommended workflow. Once you have Firedrake in a virtual environment, activate it and run the following to get all my personal commands and some required libraries:
@@ -40,7 +46,17 @@ Now to run the problem, use `myrun <relative_path_to_directory>` followed by `--
 
 6. `--list-settings` after defining problem, elements, mms flag, etc. this lists the settings that will be applied
 
-## Interpreting data
+## Run on a SLURM device
+
+To prevent large memory being used on the startup node, first run
+`apptainer pull firedrake_2025.10.4.sif docker://firedrakeproject/firedrake:2025.10.4` 
+after setting up the directory.
+
+Next, make a copy of the file `parallel_job.sh`, and edit as needed.
+
+---
+
+# Interpreting data
 
 ### Method of manufactured solutions (MMS) run
 
@@ -81,3 +97,13 @@ continuing, PETSC will provide some sort of instructions that you should follow 
 ```
 make PETSC_DIR=~/petsc PETSC_ARCH=arch-firedrake-default all
 ```
+
+# Other Info.
+
+## Parameter alpha vs. DOFs
+
+For any mesh used, one needs to know the total DOFs of the combined velocity and pressure spaces V + W in order to scale alpha correctly. Values for builtin meshes are kept track of in the table below.
+
+| Mesh Name | Mesh Description | Total DOFs |
+| --------- | ---------------- | ---------- |
+| fine_bluff_body_chord1 | a fine mesh of a bluff body with chord 1 | 262416 |

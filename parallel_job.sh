@@ -5,6 +5,7 @@
 #SBATCH --nodes=4
 #SBATCH --ntasks=32
 #SBATCH --time=40:00:00
+#SBATCH --mem=64G
 
 module purge
 module load apptainer compiler/gcc/11 openmpi/4.1
@@ -40,7 +41,7 @@ LIST_SETTINGS=no # yes or no
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 RUN_NAME="test_run_${TIMESTAMP}"
 
-IMAGE=docker://firedrakeproject/firedrake:2025.10.4
+IMAGE=$PROJECT_DIR/firedrake_2025.10.4.sif
 SOLUTIONS_DIR=$PROJECT_DIR/solutions
 RUN_DIR=$SOLUTIONS_DIR/$RUN_NAME
 
@@ -135,7 +136,7 @@ fi
 
 cd "$RUN_DIR" || exit 1
 
-apptainer exec \
+srun apptainer exec \
     --bind $PROJECT_DIR:$PROJECT_DIR \
     --pwd "$RUN_DIR" \
     $IMAGE \
