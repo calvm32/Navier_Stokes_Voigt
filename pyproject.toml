@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 [project.scripts]
 mysave = "modules.scripts.mysave:main"
 myrun  = "modules.scripts.myrun:main"
+mymesh = "modules.scripts.mesh_stats:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

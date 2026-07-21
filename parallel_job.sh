@@ -136,7 +136,8 @@ fi
 
 cd "$RUN_DIR" || exit 1
 
-srun apptainer exec \
+mpirun --mca mpi_preconnect_all true \
+    apptainer exec \
     --bind $PROJECT_DIR:$PROJECT_DIR \
     --pwd "$RUN_DIR" \
     $IMAGE \
