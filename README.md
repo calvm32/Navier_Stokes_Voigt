@@ -104,9 +104,9 @@ make PETSC_DIR=~/petsc PETSC_ARCH=arch-firedrake-default all
 
 For any mesh used, one needs to know the total DOFs of the combined velocity and pressure spaces V + W in order to scale alpha correctly. Values for builtin meshes are kept track of in the table below.
 
-| Mesh Name | Mesh Description | Total DOFs | Approximate Mesh Size h |
-| --------- | ---------------- | ---------- | ----------------------- |
-| fine_bluff_body_chord1 | a fine mesh of a bluff body with chord 1 | 262416 | 
+| Mesh Name | Mesh Description | Total DOFs | Min. Mesh Size h |
+| --------- | ---------------- | ---------- | ---------------- |
+| fine_bluff_body_chord1 | a fine mesh of a bluff body with chord 1 | 262416 | 0.068812 |
 
 
 If you need to find the approximate h for your own mesh, simply run the following `mymesh relative/path/to/my_mesh_name.msh`. It is suggested to set alpha slightly larger than the smallest h and absolutely no smaller.

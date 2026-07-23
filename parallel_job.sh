@@ -136,10 +136,17 @@ fi
 
 cd "$RUN_DIR" || exit 1
 
+# Clear any corrupted PyOP2 cache in your home directory
+rm -rf ~/.cache/pyop2
+
+# Define a unique, node-local cache directory using the Slurm Job ID
+export PYOP2_CACHE_DIR=/tmp/pyop2_cache_${SLURM_JOB_ID}
+
 mpirun --mca mpi_preconnect_all true \
     apptainer exec \
     --bind $PROJECT_DIR:$PROJECT_DIR \
     --pwd "$RUN_DIR" \
+    --env PYOP2_CACHE_DIR=$PYOP2_CACHE_DIR \
     $IMAGE \
     bash -c "
         export PATH=\$HOME/.local/bin:\$PATH
