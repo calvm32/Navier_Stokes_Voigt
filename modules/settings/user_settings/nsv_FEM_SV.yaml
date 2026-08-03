@@ -1,6 +1,6 @@
 t0: 0.0             # initial time
 T: 50.0             # final time
-dt: 0.000005        # time-step
+dt: 0.0001        # time-step
 Re: 1000.0          # Reynold's num: 1/viscostiy
 G: 0.0              # initial pressure gauge
 P: -1.0             # pressure strength (P*x + G)

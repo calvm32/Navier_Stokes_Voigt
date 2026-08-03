@@ -374,7 +374,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     # ---------------
 
     if is_mixed:
-        plot_ns()
+        plot_nse()
     else:
         plot_heat()
 

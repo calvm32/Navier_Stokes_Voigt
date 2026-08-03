@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-def plot_ns(data_path):
+def plot_nse(data_path):
 
     # ---------
     # Load data

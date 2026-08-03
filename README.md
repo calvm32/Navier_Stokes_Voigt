@@ -32,7 +32,7 @@ Depending on Firedrake version, more libraries may need to be installed.
 ## Run on your device
 To create a directory, use `mysave <directory_name>` followed by the options:
 
-1. `--problem` then a string with (1.1) `h`, `ns`, or `nsv` for the problem type, (1.2) `2` or  `3` for dimension, and finally (1.3) `_FEM` or `_spec` for solver type
+1. `--problem` then a string with (1.1) `h`, `nse`, or `nsv` for the problem type, (1.2) `2` or  `3` for dimension, and finally (1.3) `-fem` or `-spec` for solver type, e.g. `nsv2-fem` for 2D NSV FEM.
 
 2. `--elements` then `sv` for Scott Vogelius or `th` for Taylor Hood elements (only viable for ns or nsv problems)
 
@@ -104,8 +104,8 @@ make PETSC_DIR=~/petsc PETSC_ARCH=arch-firedrake-default all
 
 For any mesh used, one needs to know the total DOFs of the combined velocity and pressure spaces V + W in order to scale alpha correctly. Values for builtin meshes are kept track of in the table below.
 
-| Mesh Name | Mesh Description | Total DOFs | Min. Mesh Size h |
-| --------- | ---------------- | ---------- | ---------------- |
+| Mesh Name | Mesh Description | Total Mixed Space DOFs | Min. Mesh Size h |
+| --------- | ---------------- | ---------------------- | ---------------- |
 | fine_bluff_body_chord1 | a fine mesh of a bluff body with chord 1 | 262416 | 0.068812 |
 
 

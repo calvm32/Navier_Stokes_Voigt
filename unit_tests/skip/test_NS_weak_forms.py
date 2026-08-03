@@ -3,7 +3,7 @@ import pytest
 
 from modules.solvers_FEM.navier_stokes_2d.make_weak_form import *
 
-def _setup_ns_problem():
+def _setup_nse_problem():
     mesh = UnitSquareMesh(4, 4)
     V = VectorFunctionSpace(mesh, "CG", 2)   # velocity
     W = FunctionSpace(mesh, "CG", 1)         # pressure
@@ -27,8 +27,8 @@ def _setup_ns_problem():
     return get_data, u_old, u, v, dx, ds
 
 @pytest.mark.unit
-def test_ns_weak_form_cn_assembles():
-    get_data, u_old, u, v, dx, ds = _setup_ns_problem()
+def test_nse_weak_form_cn_assembles():
+    get_data, u_old, u, v, dx, ds = _setup_nse_problem()
     F = make_weak_form_CN(
         get_data=get_data,
         u_old=u_old,
@@ -42,8 +42,8 @@ def test_ns_weak_form_cn_assembles():
     assemble(F)
 
 @pytest.mark.unit
-def test_ns_weak_form_bdf2_assembles():
-    get_data, u_old, u, v, dx, ds = _setup_ns_problem()
+def test_nse_weak_form_bdf2_assembles():
+    get_data, u_old, u, v, dx, ds = _setup_nse_problem()
     F = make_weak_form_BDF2(
         get_data=get_data,
         u_old=u_old,

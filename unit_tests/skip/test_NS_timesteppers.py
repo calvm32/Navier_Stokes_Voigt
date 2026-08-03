@@ -4,7 +4,7 @@ import pytest
 from modules.solvers_FEM.navier_stokes_2d.make_weak_form import *
 from modules.solvers_FEM.timesteppers import *
 
-def _setup_ns_timestepper():
+def _setup_nse_timestepper():
     mesh = UnitSquareMesh(4, 4)
     V = VectorFunctionSpace(mesh, "CG", 2)
     W = FunctionSpace(mesh, "CG", 1)
@@ -31,8 +31,8 @@ def _setup_ns_timestepper():
     return Z, dx, ds, bcs, nullspace, appctx, get_data
 
 @pytest.mark.unit
-def test_ns_bdf2_timestepper_runs_one_step():
-    Z, dx, ds, bcs, nullspace, appctx, get_data = _setup_ns_timestepper()
+def test_nse_bdf2_timestepper_runs_one_step():
+    Z, dx, ds, bcs, nullspace, appctx, get_data = _setup_nse_timestepper()
     errors_v, errors_p, *_ = timestepper_BDF2(
         get_data=get_data,
         Z=Z,
@@ -52,8 +52,8 @@ def test_ns_bdf2_timestepper_runs_one_step():
     assert len(errors_p) == 1
 
 @pytest.mark.unit
-def test_ns_cn_timestepper_runs_one_step():
-    Z, dx, ds, bcs, nullspace, appctx, get_data = _setup_ns_timestepper()
+def test_nse_cn_timestepper_runs_one_step():
+    Z, dx, ds, bcs, nullspace, appctx, get_data = _setup_nse_timestepper()
     errors_v, errors_p, *_ = timestepper(
         get_data=get_data,
         Z=Z,

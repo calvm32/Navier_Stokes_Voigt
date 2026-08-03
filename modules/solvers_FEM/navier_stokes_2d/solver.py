@@ -13,7 +13,7 @@ from .make_weak_form import *
 from modules.processing.printoff import blue
 from modules.processing.config_setup import *
 import matplotlib.pyplot as plt
-from modules.processing.post_processing.ns import plot_ns
+from modules.processing.post_processing.ns import plot_nse
 
 def main(save_dir):
 
@@ -251,7 +251,7 @@ def main(save_dir):
 
     comm.Barrier()
     if rank == 0:
-        plot_ns(Path("plot_final_data.npz"))
+        plot_nse(Path("plot_final_data.npz"))
 
 if __name__ == "__main__":
     import sys
