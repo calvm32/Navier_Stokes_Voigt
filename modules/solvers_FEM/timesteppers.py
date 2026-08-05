@@ -215,7 +215,9 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy:.16f}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt:.6f} ***", spaced=True)
-    start = time.process_time()
+    
+    # Use perf_counter instead of process_time for MPI agreement
+    start = time.perf_counter()
 
     while step < num_steps:
 
@@ -382,7 +384,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
     # Report done; find and return error
     # ----------------------------------
 
-    end = time.process_time()
+    end = time.perf_counter()
     cpu_time = (end - start) / 60
 
     # synchronize for finalization process
@@ -667,7 +669,9 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy = {energy}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt:.6f} ***", spaced=True)
-    start = time.process_time()
+    
+    # Use perf_counter instead of process_time for MPI agreement
+    start = time.perf_counter()
 
     # --------------------
     # Perform timestepping
@@ -834,7 +838,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
     # ----------------------------------
     # Report done; find and return error
     # ----------------------------------
-    end = time.process_time()
+    end = time.perf_counter()
     cpu_time = (end - start) / 60
 
     # synchronize for finalization process
@@ -1135,7 +1139,9 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
 
     iter_info_verbose("INITIAL CONDITIONS", f"energy diff = {energy_diff}", i=0, spaced=True)
     text(f"*** Beginning solve with step size {dt:.6f} ***", spaced=True)
-    start = time.process_time()
+    
+    # Use perf_counter instead of process_time for MPI agreement
+    start = time.perf_counter()
 
     # --------------------
     # Perform timestepping
@@ -1276,7 +1282,7 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     # ----------------------------------
     # Report done; find and return error
     # ----------------------------------
-    end = time.process_time()
+    end = time.perf_counter()
     cpu_time = (end - start) / 60
 
     # synchronize for finalization process
