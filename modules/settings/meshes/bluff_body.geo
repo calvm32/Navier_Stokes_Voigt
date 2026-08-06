@@ -9,8 +9,8 @@
 L = 40.0;   // length
 H = 10.0;   // height
 
-lc = 0.5;   // mesh size (far field)
-lc2 = 0.1;  // mesh size (airfoil surface — finer)
+h = 0.1;       // mesh size (far field)
+h2 = h/5.0;    // mesh size (airfoil surface)
 
 chord = 1.0;
 x_offset = 8.0;   // leading edge x position
@@ -20,10 +20,10 @@ y_offset = H/2;   // vertically centered
 // Points (CCW order)
 // ------------------
 
-Point(1) = {0, 0, 0, lc};	// bottom left
-Point(2) = {L, 0, 0, lc};	// bottom right
-Point(3) = {L, H, 0, lc};	// top-right
-Point(4) = {0, H, 0, lc};   // top-left
+Point(1) = {0, 0, 0, h};	// bottom left
+Point(2) = {L, 0, 0, h};	// bottom right
+Point(3) = {L, H, 0, h};	// top-right
+Point(4) = {0, H, 0, h};   // top-left
 
 // -----
 // Lines
@@ -61,11 +61,11 @@ xc = x_offset + radius;
 yc = y_offset;
 
 // Circle points
-Point(101) = {xc + radius, yc, 0, lc2};
-Point(102) = {xc, yc + radius, 0, lc2};
-Point(103) = {xc - radius, yc, 0, lc2};
-Point(104) = {xc, yc - radius, 0, lc2};
-Point(105) = {xc, yc, 0, lc2};
+Point(101) = {xc + radius, yc, 0, h2};
+Point(102) = {xc, yc + radius, 0, h2};
+Point(103) = {xc - radius, yc, 0, h2};
+Point(104) = {xc, yc - radius, 0, h2};
+Point(105) = {xc, yc, 0, h2};
 
 // Circle arcs (counterclockwise)
 Circle(1001) = {101,105,102};

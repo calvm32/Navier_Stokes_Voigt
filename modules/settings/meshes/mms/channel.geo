@@ -9,16 +9,16 @@
 L = 40.0;   // length
 H = 10.0;   // height
 
-lc = 0.5;	// mesh size
+h = 0.5;	// mesh size
 
 // ------------------
 // Points (CCW order)
 // ------------------
 
-Point(1) = {0, 0, 0, lc};	// bottom left
-Point(2) = {L, 0, 0, lc};	// bottom right
-Point(3) = {L, H, 0, lc};	// top-right
-Point(4) = {0, H, 0, lc};   // top-left
+Point(1) = {0, 0, 0, h};	// bottom left
+Point(2) = {L, 0, 0, h};	// bottom right
+Point(3) = {L, H, 0, h};	// top-right
+Point(4) = {0, H, 0, h};   // top-left
 
 // -----
 // Lines

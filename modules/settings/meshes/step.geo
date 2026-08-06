@@ -13,23 +13,23 @@ step_width = 1;	        // step width
 step_height = 2;	    // step distance from y=0
 step_distance = 5;	    // step distance from x=0
 
-lc = 0.4;		        // mesh size
+h = 0.4;		        // mesh size
 
 // ------------------
 // Points (CCW order)
 // ------------------
 
 // Bottom wall with step
-Point(1) = {0, 0, 0, lc};					                    // bottom left
-Point(2) = {step_distance, 0, 0, lc};				            // step start
-Point(3) = {step_distance, step_height, 0, lc};			        // step left top
-Point(4) = {step_distance + step_width, step_height, 0, lc};	// step right top
-Point(5) = {step_distance + step_width, 0, 0, lc};		        // step end
-Point(6) = {L, 0, 0, lc};					                    // bottom right
+Point(1) = {0, 0, 0, h};					                    // bottom left
+Point(2) = {step_distance, 0, 0, h};				            // step start
+Point(3) = {step_distance, step_height, 0, h};			        // step left top
+Point(4) = {step_distance + step_width, step_height, 0, h};	    // step right top
+Point(5) = {step_distance + step_width, 0, 0, h};		        // step end
+Point(6) = {L, 0, 0, h};					                    // bottom right
 
 // Top wall
-Point(7) = {L, H, 0, lc};	// top-right
-Point(8) = {0, H, 0, lc};   // top-left
+Point(7) = {L, H, 0, h};	// top-right
+Point(8) = {0, H, 0, h};   // top-left
 
 // -----
 // Lines

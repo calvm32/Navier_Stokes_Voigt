@@ -102,11 +102,13 @@ make PETSC_DIR=~/petsc PETSC_ARCH=arch-firedrake-default all
 
 ## Parameter alpha vs. DOFs
 
-For any mesh used, one needs to know the total DOFs of the combined velocity and pressure spaces V + W in order to scale alpha correctly. Values for builtin meshes are kept track of in the table below.
+For any mesh used, one needs to know the total DOFs of the combined velocity and pressure spaces V + W in order to scale alpha correctly. Values for built-in meshes are kept in the table below. Notice that any built-in mesh follows the naming convention of ***brief descriptor*** + "_" + ***chord length if applicable*** + "_" + ***mesh size "h" BEFORE barycentric refinement*** + "_" + ***"bary" IF barycentrically-refined***.
 
-| Mesh Name | Mesh Description | Total Mixed Space DOFs | Min. Mesh Size h |
-| --------- | ---------------- | ---------------------- | ---------------- |
-| fine_bluff_body_chord1 | a fine mesh of a bluff body with chord 1 | 262416 | 0.068812 |
-
+| Mesh Name | Mesh Description | Total Mixed Space DOFs | Total Node DOFS | Min. Mesh Size h |
+| --------- | ---------------- | ---------------------- | --------------- | ---------------- |
+| bluf_body_chord1_h0.5_bary    | coarse bluff body with chord 1    | 262416    | 17,448    | 0.068812 |
+| bluf_body_chord1_h0.1_bary    | fine bluff body with chord 1      |           | 431,496   | 0.012868 |
+| channel_h2.0_bary.msh         | coarse channel w/ no obstructions |           | 1,048     | 0.779723 |
+| ... |
 
 If you need to find the approximate h for your own mesh, simply run the following `mymesh relative/path/to/my_mesh_name.msh`. It is suggested to set alpha slightly larger than the smallest h and absolutely no smaller.
