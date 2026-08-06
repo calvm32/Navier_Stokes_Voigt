@@ -145,9 +145,3 @@ continuing, PETSC will provide some sort of instructions that you should follow 
 ```
 make PETSC_DIR=~/petsc PETSC_ARCH=arch-firedrake-default all
 ```
-
-7. `--cores` for how many cores you would like to run the test with
-
-8. `--test-steps` exactly how many steps you would like to use to approximate the run (more steps = greater accuracy)
-
-9. `--final-time` the final time of the run you're looking to approximate
