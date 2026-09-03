@@ -9,11 +9,11 @@ class mean_profiles_3d:
 
     untested & may have errors
     """
-    def __init__(self, V, nu, dsN, wall_id):
+    def __init__(self, V, nu, ds, wall_id):
         self.V = V
         self.mesh = V.mesh()
         self.Re = Re
-        self.dsN = dsN
+        self.ds = ds
         self.wall_id = wall_id
 
         self.u_sum = Function(V)
@@ -34,9 +34,9 @@ class mean_profiles_3d:
         # wall shear stress
         # -----------------
         tau_w = nu * assemble(
-            grad(u_mean)[0, 1] * self.dsN(self.wall_id)
+            grad(u_mean)[0, 1] * self.ds(self.wall_id)
         ) / assemble(
-            1.0 * self.dsN(self.wall_id)
+            1.0 * self.ds(self.wall_id)
         )
 
         u_tau = np.sqrt(abs(tau_w))

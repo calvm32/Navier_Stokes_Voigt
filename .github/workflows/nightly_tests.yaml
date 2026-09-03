@@ -2,8 +2,8 @@ name: Nightly Unit Tests
 
 on:
   schedule:
-    - cron: '0 2 * * *'
-  workflow_dispatch:
+    - cron: '0 2 * * *'  # Runs at 02:00 UTC every day
+  workflow_dispatch:     # Allows for manual run in GitHub
 
 jobs:
   mms_tests:
@@ -13,15 +13,22 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install Python deps
+      - name: Install dependencies and project
         run: |
-          pip install pytest matplotlib pyyaml
-
-      - name: Install project
-        run: pip install -e .
+          # GitHub Actions overrides Docker entrypoints, so we manually 
+          # activate Firedrake's virtual environment before using pip/python
+          . /home/calum/venv-firedrake
+          
+          # Install your repo's requirements rather than hardcoding them
+          pip install -r requirements.txt
+          pip install pytest
+          pip install -e .
 
       - name: Run unit tests
         run: |
-          pytest tests/unit -v --maxfail=1
+          . /home/calum/venv-firedrake
+          
+          # Run pytest
+          pytest -v --maxfail=1

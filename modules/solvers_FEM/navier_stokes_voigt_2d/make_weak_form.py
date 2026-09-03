@@ -7,7 +7,7 @@ def voigt_inner(u, v, alpha):
 # BDF2 weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma, nu, alpha):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, ds, gamma, nu, alpha):
     """
     BDF2 Navier-Stokes
     - Oseen linearization
@@ -64,7 +64,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
             + inner(f_bdf2, v) * dx
 
             # Neumann BC
-            - nu * inner(g_bdf2, v) * dsN
+            - nu * inner(g_bdf2, v) * ds
         )
 
         return a, L
@@ -76,7 +76,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, dsN, gamma,
 # CN weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu, alpha):
+def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, ds, theta, gamma, nu, alpha):
     """
     Crank-Nicolson Navier-Stokes-Voigt
       -> Oseen linearization
@@ -130,7 +130,7 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, dsN, theta, gamma, nu,
             + inner(f_mid, v) * dx
 
             # Neumann boundary
-            - nu * inner(g_mid, v) * dsN 
+            - nu * inner(g_mid, v) * ds 
         )
 
         # Grad–div stabilization

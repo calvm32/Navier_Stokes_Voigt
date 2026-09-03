@@ -8,13 +8,11 @@ from .create_timestep_solvers import *
 from modules.processing.printoff import iter_info_verbose, text, green
 from modules.processing.statistics.pdf_sampler_2d import pdf_sampler_2d
 from modules.processing.statistics.structure_funcs_2d import structure_funcs_2d
-from modules.processing.statistics.pdf_sampler_3d import pdf_sampler_3d
-from modules.processing.statistics.structure_funcs_3d import structure_funcs_3d
 from modules.processing.post_processing import *
 from modules.processing.statistics.MPI_energy_spectra_2d import MPI_energy_spectra_2d
 from modules.processing.statistics.FFT_energy_spectra_2d import FFT_energy_spectra_2d
 
-def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None, alpha=None,
+def timestepper_CN(get_data, Z, dx , ds, t0, T, dt, make_weak_form, theta, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None, alpha=None,
                 bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", Umax=1, char_length=1, probes=[[6.2, 4, 0]]):
     """
     Crank-Nicolson theta-scheme timestepper for velocity or velocity x pressure function spaces
@@ -106,7 +104,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
         u_error = 0
 
     # create timestep solver
-    solver = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
+    solver = create_timestep_solver_CN(get_data, Z, dx , ds, u_old, u,
                                     make_weak_form, is_mixed, theta, gamma, Re, alpha, 
                                     bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx,
@@ -461,7 +459,7 @@ def timestepper_CN(get_data, Z, dx , dsN, t0, T, dt, make_weak_form, theta, samp
 # ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
 
 
-def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
+def timestepper_BDF2(get_data, Z, dx , ds, t0, T, dt, make_weak_form_BDF2, make_weak_form_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
                 alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", Umax=1, char_length=1, probes=[[6.2, 4, 0]]):
     """
     BDF2 timestepper for velocity or velocity x pressure function spaces
@@ -559,12 +557,12 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
         u_error = 0
 
     # create timestep solvers
-    solver_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old, u,
+    solver_CN = create_timestep_solver_CN(get_data, Z, dx , ds, u_old, u,
                                     make_weak_form_CN, is_mixed, 0, gamma, Re, alpha, 
                                     bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx,
                                     Umax=Umax, char_length=char_length)
-    solver = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older, u_old, u,
+    solver = create_timestep_solver_BDF2(get_data, Z, dx , ds, u_older, u_old, u,
                                     make_weak_form_BDF2, is_mixed, gamma, Re, alpha, 
                                     bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx,
@@ -919,7 +917,7 @@ def timestepper_BDF2(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_BDF2, make
 # ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ========
 
 
-def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NSE_BDF2, make_weak_form_NSV_BDF2, 
+def timestepper_BDF2_compare(get_data, Z, dx , ds, t0, T, dt, make_weak_form_NSE_BDF2, make_weak_form_NSV_BDF2, 
                 make_weak_form_NSE_CN, make_weak_form_NSV_CN, sample_xmax, sample_ymax, sample_zmax=None, gamma=None, Re=None,
                 alpha=None, bcs=None, nullspace=None, solver_parameters=None, appctx=None, vtkfile_name="Soln", Umax=1, char_length=1, probes=[[6.2, 4, 0]]):
     """
@@ -995,22 +993,22 @@ def timestepper_BDF2_compare(get_data, Z, dx , dsN, t0, T, dt, make_weak_form_NS
     u_older_NSV.sub(1).interpolate(data_older["ufl_p0"])  # pressure
 
     # create timestep solvers
-    solver_NSE_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old_NSE, u_NSE,
+    solver_NSE_CN = create_timestep_solver_CN(get_data, Z, dx , ds, u_old_NSE, u_NSE,
                                     make_weak_form_NSE_CN, is_mixed, 1.0, gamma, Re, alpha, 
                                     bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx,
                                     Umax=Umax, char_length=char_length)
-    solver_NSE = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older_NSE, u_old_NSE, u_NSE,
+    solver_NSE = create_timestep_solver_BDF2(get_data, Z, dx , ds, u_older_NSE, u_old_NSE, u_NSE,
                                     make_weak_form_NSE_BDF2, is_mixed, gamma, Re, alpha, 
                                     bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx,
                                     Umax=Umax, char_length=char_length)
-    solver_NSV_CN = create_timestep_solver_CN(get_data, Z, dx , dsN, u_old_NSV, u_NSV,
+    solver_NSV_CN = create_timestep_solver_CN(get_data, Z, dx , ds, u_old_NSV, u_NSV,
                                     make_weak_form_NSV_CN, is_mixed, 1.0, gamma, Re, alpha, 
                                     bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx,
                                     Umax=Umax, char_length=char_length)
-    solver_NSV = create_timestep_solver_BDF2(get_data, Z, dx , dsN, u_older_NSV, u_old_NSV, u_NSV,
+    solver_NSV = create_timestep_solver_BDF2(get_data, Z, dx , ds, u_older_NSV, u_old_NSV, u_NSV,
                                     make_weak_form_NSV_BDF2, is_mixed, gamma, Re, alpha, 
                                     bcs=bcs, nullspace=nullspace,
                                     solver_parameters=solver_parameters, appctx=appctx,

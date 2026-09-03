@@ -13,6 +13,8 @@ for the following PDEs:
 - 2D Navier-Stokes-Voigt equations (NSV)
 - 2D difference between NSE and NSV
 
+All of the above FEM , along with several functions used to compute statistics as the run progresses, regularly undergo unit testing on a daily to weekly basis.
+
 ---
 ---
 # How do I run a solver?
