@@ -7,7 +7,7 @@ def voigt_inner(u, v, alpha):
 # BDF2 weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, ds, gamma, nu, alpha):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, ds, gamma, nu, alpha, u_obs=None, mu_cda=0.0):
     """
     BDF2 Navier-Stokes
     - Oseen linearization
@@ -67,6 +67,10 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, ds, gamma, 
             - nu * inner(g_bdf2, v) * ds
         )
 
+        # add CDA AOT term
+        if u_obs is not None and mu_cda > 0.0:
+            a += mu_cda * inner(u - u_obs, v) * dx
+
         return a, L
 
     return forms
@@ -76,7 +80,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, U_older, U_old, dx, ds, gamma, 
 # CN weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, ds, theta, gamma, nu, alpha):
+def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, ds, theta, gamma, nu, alpha, u_obs=None, mu_cda=0.0):
     """
     Crank-Nicolson Navier-Stokes-Voigt
       -> Oseen linearization
@@ -136,6 +140,10 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, U_old, dx, ds, theta, gamma, nu, 
         # Grad–div stabilization
         if gamma != 0:
             L -= (1 - theta) * gamma * inner(div(u_old), div(v)) * dx
+
+        # add CDA AOT term
+        if u_obs is not None and mu_cda > 0.0:
+            a += mu_cda * inner(u - u_obs, v) * dx
 
         return a, L
 

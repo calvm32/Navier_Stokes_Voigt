@@ -61,74 +61,95 @@ class TemplateResolver:
             return {
                 "user_user_settings": f"{TemplateResolver.BASE}/user_settings/heat_FEM.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_2d_FEM.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM.yaml",
                 "solver_path": "modules.solvers_FEM.heat_2d.solver_MMS",
             }
-
-        return {
-            "user_settings": f"{TemplateResolver.BASE}/user_settings/heat_FEM.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_2d_FEM.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM.yaml",
-            "solver_path": "modules.solvers_FEM.heat_2d.solver",
-        }
+        elif cfg.cda:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/heat_FEM.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_2d_FEM.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM.yaml",
+                "solver_path": "modules.solvers_FEM.heat_2d.solver_CDA",
+            }
+        else:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/heat_FEM.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/heat_2d_FEM.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/heat_FEM.yaml",
+                "solver_path": "modules.solvers_FEM.heat_2d.solver",
+            }
 
     @staticmethod
     def _resolve_nse_2d_FEM(cfg: RunConfig):
-
-        if cfg.mms:
-            return {
-                "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_FEM_{cfg.elements.upper()}_MMS.yaml",
-                "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_2d_FEM_{cfg.elements.upper()}.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM_MMS.yaml",
-                "solver_path": "modules.solvers_FEM.navier_stokes_2d.solver_MMS",
-            }
         
         if cfg.elements is None:
             raise ValueError("This problem requires element type")
-
-        return {
-
-            "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_FEM_{cfg.elements.upper()}.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_2d_FEM_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM.yaml",
-            "solver_path": "modules.solvers_FEM.navier_stokes_2d.solver",
-        }
+        elif cfg.mms and cfg.cda:
+            raise ValueError("Cannot run MMS and CDA concurrently. Pick one or the other.")
+        elif cfg.mms:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nse_FEM_{cfg.elements.upper()}_MMS.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/nse_2d_FEM_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nse_FEM_MMS.yaml",
+                "solver_path": "modules.solvers_FEM.navier_stokes_2d.solver_MMS",
+            }
+        elif cfg.cda:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nse_FEM_{cfg.elements.upper()}_CDA.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/nse_2d_FEM_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nse_FEM.yaml",
+                "solver_path": "modules.solvers_FEM.navier_stokes_2d.solver_CDA",
+            }
+        else:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nse_FEM_{cfg.elements.upper()}.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/nse_2d_FEM_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nse_FEM.yaml",
+                "solver_path": "modules.solvers_FEM.navier_stokes_2d.solver",
+            }
 
     @staticmethod
     def _resolve_nsv_2d_FEM(cfg: RunConfig):
-
-        if cfg.mms:
+        
+        if cfg.elements is None:
+            raise ValueError("This problem requires element type")
+        elif cfg.mms and cfg.cda:
+            raise ValueError("Cannot run MMS and CDA concurrently. Pick one or the other.")
+        elif cfg.mms:
             return {
                 "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}_MMS.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/nsv_2d_FEM_{cfg.elements.upper()}.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_FEM_MMS.yaml",
                 "solver_path": "modules.solvers_FEM.navier_stokes_voigt_2d.solver_MMS",
             }
-        
-        if cfg.elements is None:
-            raise ValueError("This problem requires element type")
-
-        return {
-
-            "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/nsv_2d_FEM_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_FEM.yaml",
-            "solver_path": "modules.solvers_FEM.navier_stokes_voigt_2d.solver",
-        }
+        elif cfg.cda:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}_CDA.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/nsv_2d_FEM_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_FEM.yaml",
+                "solver_path": "modules.solvers_FEM.navier_stokes_voigt_2d.solver_CDA",
+            }
+        else:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/nsv_2d_FEM_{cfg.elements.upper()}.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_FEM.yaml",
+                "solver_path": "modules.solvers_FEM.navier_stokes_voigt_2d.solver",
+            }
 
     @staticmethod
     def _resolve_compare_2d_FEM(cfg: RunConfig):
         if cfg.mms:
             raise ValueError("MMS invalid for comparing NSE and NSV")
-
-        if cfg.elements is None:
+        elif cfg.elements is None:
             raise ValueError("This problem requires element type")
-
-        return {
-
+        elif cfg.cda:
+            raise ValueError("CDA (currently) invalid for comparing NSE and NSV")
+        else:
+            return {
             "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_FEM_{cfg.elements.upper()}.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/ns_2d_FEM_{cfg.elements.upper()}.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/ns_FEM.yaml",
+            "solver": f"{TemplateResolver.BASE}/solver_parameters/nse_2d_FEM_{cfg.elements.upper()}.yaml",
+            "ufl": f"{TemplateResolver.BASE}/user_expr/nse_FEM.yaml",
             "solver_path": "modules.solvers_FEM.compare_2d.solver",
         }
 
@@ -139,15 +160,17 @@ class TemplateResolver:
     @staticmethod
     def _resolve_heat_2d_spec(cfg: RunConfig):
 
-        if cfg.mms:
+        if cfg.cda:
+            raise ValueError("CDA (currently) invalid for spectral methods")
+        elif cfg.mms:
             return {
                 "user_settings": f"{TemplateResolver.BASE}/user_settings/heat_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/heat_spec_MMS.yaml",
                 "solver_path": "modules.solvers_spectral.heat_2d.solver_MMS",
             }
-
-        return {
+        else:
+            return {
             "user_settings": f"{TemplateResolver.BASE}/user_settings/heat_spec.yaml",
             "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
             "ufl": f"{TemplateResolver.BASE}/user_expr/heat_spec.yaml",
@@ -158,48 +181,57 @@ class TemplateResolver:
     @staticmethod
     def _resolve_nse_2d_spec(cfg: RunConfig):
 
-        if cfg.mms:
+        if cfg.cda:
+            raise ValueError("CDA (currently) invalid for spectral methods")
+        elif cfg.mms:
             return {
-                "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_spec.yaml",
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nse_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
-                "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec_MMS.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nse_spec_MMS.yaml",
                 "solver_path": "modules.solvers_spectral.navier_stokes_2d.solver_MMS",
             }
-
-        return {
-            "user_settings": f"{TemplateResolver.BASE}/user_settings/ns_spec.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
-            "solver_path": "modules.solvers_spectral.navier_stokes_2d.solver",
-        }
+        else:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nse_spec.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nse_spec.yaml",
+                "solver_path": "modules.solvers_spectral.navier_stokes_2d.solver",
+            }
 
     @staticmethod
     def _resolve_nsv_2d_spec(cfg: RunConfig):
 
-        if cfg.mms:
+        if cfg.cda:
+            raise ValueError("CDA (currently) invalid for spectral methods")
+        elif cfg.mms:
             return {
                 "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_spec.yaml",
                 "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
                 "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec_MMS.yaml",
                 "solver_path": "modules.solvers_spectral.navier_stokes_voigt_2d.solver_MMS",
             }
-
-        return {
-            "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_spec.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec.yaml",
-            "solver_path": "modules.solvers_spectral.navier_stokes_voigt_2d.solver",
-        }
+        else:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_spec.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nsv_spec.yaml",
+                "solver_path": "modules.solvers_spectral.navier_stokes_voigt_2d.solver",
+            }
 
     @staticmethod
     def _resolve_compare_2d_spec(cfg: RunConfig):
 
-        return {
-            "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_spec.yaml",
-            "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
-            "ufl": f"{TemplateResolver.BASE}/user_expr/ns_spec.yaml",
-            "solver_path": "modules.solvers_spectral.compare_2d.solver",
-        }
+        if cfg.mms:
+            raise ValueError("MMS invalid for comparing NSE and NSV")
+        elif cfg.cda:
+            raise ValueError("CDA (currently) invalid for spectral methods")
+        else:
+            return {
+                "user_settings": f"{TemplateResolver.BASE}/user_settings/nsv_spec.yaml",
+                "solver": f"{TemplateResolver.BASE}/solver_parameters/any_spec.yaml",
+                "ufl": f"{TemplateResolver.BASE}/user_expr/nse_spec.yaml",
+                "solver_path": "modules.solvers_spectral.compare_2d.solver",
+            }
 
 # ---------------------------------------
 # override settings in user_settings file
@@ -260,7 +292,8 @@ def apply_overrides(save_path, overrides):
 
         changes.append((file_name, key, old_value, value))
 
-    print("\nApplied overrides:")
+    if cahnges is not []:
+        print("\nApplied overrides:")
 
     def fmt(v):
         if isinstance(v, float):
@@ -353,6 +386,12 @@ def build_parser():
     )
 
     parser.add_argument(
+        "--cda",
+        action="store_true",
+        help="Use AOT method of CDA (cts. data assimilation)"
+    )
+
+    parser.add_argument(
         "--elements",
         choices=["sv", "th"],
         help="Element type"
@@ -386,7 +425,10 @@ def main():
     cfg = RunConfig(
         problem=args.problem,
         mms=args.mms,
+        cda=args.cda,
         elements=args.elements,
+        mesh=args.mesh,
+        set=args.set,
     )
 
     if args.list_settings:

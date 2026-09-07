@@ -40,15 +40,17 @@ To create a directory, use the custom command `mysave <run_directory_name>` foll
 
 2. `--elements` then `sv` for Scott Vogelius or `th` for Taylor Hood elements (only viable for `nse` or `nsv` problems),
 
-3. `--mms` for testing the method of manufactured solutions,
+3. `--mms` for testing accuracy using the method of manufactured solutions,
 
-4. `--mesh` followed by the name of a usable mesh file (e.g. `example.msh`),
+4. `--cda` for testing using AOT CDA (cts. data assimilation)
 
-5. `--set` followed by one of the user input files and a valid key with its desired value (e.g. `user_settings.T=20`),
+5. `--mesh` followed by the name of a usable mesh file (e.g. `example.msh`),
 
-6. `--list-settings` after defining problem, elements, mms flag, etc. this lists the settings that will be applied.
+6. `--set` followed by one of the user input files and a valid key with its desired value (e.g. `user_settings.T=20`),
 
-Note that you may also change the user settings, solver parameters, and initial/boundary conditions (called user expressions) by simply navigating to `<run_directory_name>` and editing the files `user_settings`, `solver_params`, and `user_expr`, respectively.
+7. `--list-settings` after defining problem, elements, mms flag, etc. this lists the settings that will be applied.
+
+Note that you may also change the user settings, solver parameters, and initial/boundary conditions (called user expressions) after creating the save folder by simply navigating to `<run_directory_name>` and editing the files `user_settings`, `solver_params`, and `user_expr`, respectively.
 
 Now to solve the given problem, use `myrun <relative_path_to/run_directory_name>`, optionally followed by `--np N` to run using MPI parallel processing on N processors. 
 

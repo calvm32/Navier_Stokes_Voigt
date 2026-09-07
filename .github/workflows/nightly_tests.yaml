@@ -17,18 +17,15 @@ jobs:
 
       - name: Install dependencies and project
         run: |
-          # GitHub Actions overrides Docker entrypoints, so we manually 
-          # activate Firedrake's virtual environment before using pip/python
-          . /home/calum/venv-firedrake
+          . /home/firedrake/firedrake/bin/activate
           
-          # Install your repo's requirements rather than hardcoding them
           pip install -r requirements.txt
           pip install pytest
           pip install -e .
 
       - name: Run unit tests
         run: |
-          . /home/calum/venv-firedrake
+          . /home/firedrake/firedrake/bin/activate
           
           # Run pytest
           pytest -v --maxfail=1

@@ -4,7 +4,7 @@ from firedrake import *
 # BDF2 Weak form
 # --------------
 
-def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, ds, gamma=0.0, Re=1.0):
+def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, ds, gamma=0.0, Re=1.0, u_obs=None, mu_cda=0.0):
     """
     Bilinear and linear forms for heat equation
       -> BDF2 time-stepping
@@ -30,6 +30,10 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, ds, gamma=0
             + g * v * ds
         )
 
+        # add CDA AOT term
+        if u_obs is not None and mu_cda > 0.0:
+            a += mu_cda * inner(u - u_obs, v) * dx
+
         return a, L
 
     return forms
@@ -38,7 +42,7 @@ def make_weak_form_BDF2(idt, f, f_old, g, g_old, u_older, u_old, dx, ds, gamma=0
 # CN Weak form
 # ------------
 
-def make_weak_form_CN(idt, f, f_old, g, g_old, u_old, dx, ds, theta, gamma=0.0, Re=1.0):
+def make_weak_form_CN(idt, f, f_old, g, g_old, u_old, dx, ds, theta, gamma=0.0, Re=1.0, u_obs=None, mu_cda=0.0):
     """
     Bilinear and linear forms for heat equation
       -> Crank-Nicolson
@@ -64,6 +68,10 @@ def make_weak_form_CN(idt, f, f_old, g, g_old, u_old, dx, ds, theta, gamma=0.0, 
             + f_mid * v * dx
             + g_mid * v * ds
         )
+
+        # add CDA AOT term
+        if u_obs is not None and mu_cda > 0.0:
+            a += mu_cda * inner(u - u_obs, v) * dx
 
         return a, L
 
