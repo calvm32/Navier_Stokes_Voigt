@@ -10,22 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: firedrakeproject/firedrake:latest
+      # Force container to start as root so checkout doesn't fail
+      options: --user root  
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Fix workspace permissions
+        # Give the firedrake user ownership of the mounted GitHub workspace
+        run: chown -R firedrake:firedrake $GITHUB_WORKSPACE
+
       - name: Install dependencies and project
+        # Execute inside an 'su' shell so Firedrake and OpenMPI run safely as the firedrake user
         run: |
+          su firedrake -c "
           . /home/firedrake/firedrake/bin/activate
-          
-          pip install -r requirements.txt
-          pip install pytest
+          pip install -r requirements.txt pytest
           pip install -e .
+          "
 
       - name: Run unit tests
         run: |
+          su firedrake -c "
           . /home/firedrake/firedrake/bin/activate
-          
-          # Run pytest
           pytest -v --maxfail=1
+          "
